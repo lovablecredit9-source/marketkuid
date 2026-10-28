@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { User } from "@supabase/supabase-js";
 import {
   Settings, RefreshCw, ArrowUpRight, Coins, ShoppingBag, Heart, ShoppingCart, Gift, MessageCircle, Clock,
   ShieldAlert, ShieldCheck, Bell, Moon, HelpCircle, Send, Store, LogOut, Wallet,
 } from "lucide-react";
 import { AppShell, MenuRow, Section, soon } from "@/components/marketku/shell";
+import { SellerSheet } from "@/components/marketku/seller-sheet";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/akun")({
   head: () => ({
@@ -39,44 +44,11 @@ function Tile({ icon: I, label, onClick }: { icon: typeof Coins; label: string; 
   );
 }
 
-// Belum ada fitur masuk akun, jadi selalu tampilkan halaman tamu.
-// Ganti ke <AkunDashboard /> setelah login aktif.
 function Akun() {
+  const { user, ready } = useAuth();
+  if (!ready) return <AppShell title="Akun Saya"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
+  if (user) return <AkunDashboard user={user} />;
   return (
-    <AppShell title="Akun Saya">
-      <div className="relative overflow-hidden px-6 pt-24">
-        <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
-        <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
-        <div className="relative">
-          <ShieldCheck className="ml-4 h-12 w-12 text-primary" />
-          <h1 className="mt-8 text-center text-2xl font-bold">Masuk dulu untuk membuka akunmu</h1>
-          <p className="mt-3 text-center text-base text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link to="/login" className="rounded-2xl bg-primary px-8 py-4 font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
-            <Link to="/register" className="rounded-2xl border border-primary/40 bg-card px-8 py-4 font-bold text-primary transition active:scale-95">Buat akun</Link>
-          </div>
-        </div>
-      </div>
-    </AppShell>
-  );
-}
-
-function AkunDashboard() {
-  const navigate = useNavigate();
-  return (
-    <AppShell title="Akun Saya">
-      <div className="space-y-4 px-3 pt-4">
-        <section className="rounded-2xl border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">?</div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold">Tamu</h1>
-                <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-bold text-primary">MEMBER</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Belum masuk</p>
-            </div>
-          </div>
           <button onClick={() => soon("Atur Profil")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary bg-accent py-2.5 text-sm font-semibold text-primary">
             <Settings className="h-4 w-4" /> Atur Profil
           </button>
