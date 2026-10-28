@@ -49,6 +49,68 @@ function Akun() {
   if (!ready) return <AppShell title="Akun Saya"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
   if (user) return <AkunDashboard user={user} />;
   return (
+    <AppShell title="Akun Saya">
+      <div className="relative overflow-hidden px-6 pt-24">
+        <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
+        <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
+        <div className="relative">
+          <ShieldCheck className="ml-4 h-12 w-12 text-primary" />
+          <h1 className="mt-8 text-center text-2xl font-bold">Masuk dulu untuk membuka akunmu</h1>
+          <p className="mt-3 text-center text-base text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Link to="/login" className="rounded-2xl bg-primary px-8 py-4 font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
+            <Link to="/register" className="rounded-2xl border border-primary/40 bg-card px-8 py-4 font-bold text-primary transition active:scale-95">Buat akun</Link>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+function AkunDashboard({ user }: { user: User }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [sellerOpen, setSellerOpen] = useState(false);
+
+  const profile = useQuery({
+    queryKey: ["profile", user.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("full_name, username").eq("id", user.id).maybeSingle();
+      return data;
+    },
+  });
+  const store = useQuery({
+    queryKey: ["seller_store", user.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("seller_stores").select("store_name").eq("owner_id", user.id).maybeSingle();
+      return data;
+    },
+  });
+
+  const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
+  const isSeller = !!store.data;
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/login", replace: true });
+  };
+
+  return (
+    <AppShell title="Akun Saya">
+      <div className="space-y-4 px-3 pt-4">
+        <section className="rounded-2xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{name.charAt(0).toUpperCase()}</div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="truncate text-lg font-bold">{name}</h1>
+                <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-bold text-primary">{isSeller ? "SELLER" : "MEMBER"}</span>
+              </div>
+              <p className="truncate text-sm text-muted-foreground">{profile.data?.username ? `@${profile.data.username}` : user.email}</p>
+            </div>
+          </div>
           <button onClick={() => soon("Atur Profil")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary bg-accent py-2.5 text-sm font-semibold text-primary">
             <Settings className="h-4 w-4" /> Atur Profil
           </button>
