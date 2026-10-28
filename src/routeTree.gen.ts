@@ -19,6 +19,11 @@ import { Route as PesanRouteImport } from './routes/pesan'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
+import { Route as SellerRouteImport } from './routes/seller'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as SellerProdukRouteImport } from './routes/seller.produk'
+import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
+import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +75,31 @@ const RiwayatRoute = RiwayatRouteImport.update({
   path: '/riwayat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerProdukRoute = SellerProdukRouteImport.update({
+  id: '/produk',
+  path: '/produk',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerSaldoRoute = SellerSaldoRouteImport.update({
+  id: '/saldo',
+  path: '/saldo',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerTransaksiRoute = SellerTransaksiRouteImport.update({
+  id: '/transaksi',
+  path: '/transaksi',
+  getParentRoute: () => SellerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +112,11 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/seller': typeof SellerRouteWithChildren
+  '/seller/produk': typeof SellerProdukRoute
+  '/seller/saldo': typeof SellerSaldoRoute
+  '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +129,10 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/seller/produk': typeof SellerProdukRoute
+  '/seller/saldo': typeof SellerSaldoRoute
+  '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller': typeof SellerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +146,11 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/seller': typeof SellerRouteWithChildren
+  '/seller/produk': typeof SellerProdukRoute
+  '/seller/saldo': typeof SellerSaldoRoute
+  '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +165,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/seller'
+    | '/seller/produk'
+    | '/seller/saldo'
+    | '/seller/transaksi'
+    | '/seller/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +182,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/seller/produk'
+    | '/seller/saldo'
+    | '/seller/transaksi'
+    | '/seller'
   id:
     | '__root__'
     | '/'
@@ -145,6 +198,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/seller'
+    | '/seller/produk'
+    | '/seller/saldo'
+    | '/seller/transaksi'
+    | '/seller/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +216,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RiwayatRoute: typeof RiwayatRoute
+  SellerRoute: typeof SellerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -232,8 +291,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RiwayatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/': {
+      id: '/seller/'
+      path: '/'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/produk': {
+      id: '/seller/produk'
+      path: '/produk'
+      fullPath: '/seller/produk'
+      preLoaderRoute: typeof SellerProdukRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/saldo': {
+      id: '/seller/saldo'
+      path: '/saldo'
+      fullPath: '/seller/saldo'
+      preLoaderRoute: typeof SellerSaldoRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/transaksi': {
+      id: '/seller/transaksi'
+      path: '/transaksi'
+      fullPath: '/seller/transaksi'
+      preLoaderRoute: typeof SellerTransaksiRouteImport
+      parentRoute: typeof SellerRoute
+    }
   }
 }
+
+interface SellerRouteChildren {
+  SellerProdukRoute: typeof SellerProdukRoute
+  SellerSaldoRoute: typeof SellerSaldoRoute
+  SellerTransaksiRoute: typeof SellerTransaksiRoute
+  SellerIndexRoute: typeof SellerIndexRoute
+}
+
+const SellerRouteChildren: SellerRouteChildren = {
+  SellerProdukRoute: SellerProdukRoute,
+  SellerSaldoRoute: SellerSaldoRoute,
+  SellerTransaksiRoute: SellerTransaksiRoute,
+  SellerIndexRoute: SellerIndexRoute,
+}
+
+const SellerRouteWithChildren =
+  SellerRoute._addFileChildren(SellerRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -246,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RiwayatRoute: RiwayatRoute,
+  SellerRoute: SellerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

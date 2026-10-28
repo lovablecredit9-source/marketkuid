@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Bell, Search, ShoppingCart, Menu, Home, Package, MessageCircle, User, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo-marketku.png.asset.json";
+import { toneClass, type Tone } from "@/lib/seller";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -109,12 +110,12 @@ export function PrimaryLink({ to, children }: { to: "/" | "/cari"; children: Rea
   );
 }
 
-export function MenuRow({ icon: Icon, title, desc, onClick }: { icon: typeof Home; title: string; desc: string; onClick?: () => void }) {
+export function MenuRow({ icon: Icon, title, desc, onClick, tone = "blue" }: { icon: typeof Home; title: string; desc: string; onClick?: () => void; tone?: Tone }) {
   return (
-    <button onClick={onClick ?? (() => soon(title))} className="flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left">
-      <span className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary"><Icon className="h-4 w-4" /></span>
+    <button onClick={onClick ?? (() => soon(title))} className="flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left shadow-sm transition active:scale-[0.98]">
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${toneClass[tone]}`}><Icon className="h-4 w-4" /></span>
       <span className="flex-1">
-        <span className="block text-sm font-semibold">{title}</span>
+        <span className="block text-[15px] font-semibold">{title}</span>
         <span className="block text-xs text-muted-foreground">{desc}</span>
       </span>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
