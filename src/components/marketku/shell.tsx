@@ -14,7 +14,7 @@ export function Logo({ className = "h-8" }: { className?: string }) {
   );
 }
 
-export function Header({ title }: { title?: string }) {
+export function Header({ title }: { title?: string | undefined }) {
   const navigate = useNavigate();
   if (title) {
     return (
