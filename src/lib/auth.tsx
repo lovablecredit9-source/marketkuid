@@ -35,5 +35,6 @@ export const authErrorText = (msg: string) => {
   if (m.includes("already registered") || m.includes("already been registered")) return "Email ini sudah terdaftar. Silakan masuk.";
   if (m.includes("rate limit") || m.includes("too many")) return "Terlalu banyak percobaan. Coba lagi sebentar.";
   if (m.includes("weak") || m.includes("pwned")) return "Password terlalu lemah atau pernah bocor. Pakai password lain.";
+  if (m.includes("email address is not allowed") || m.includes("invalid email") || m.includes("is invalid")) return "Alamat email tidak bisa dipakai. Pakai email asli yang aktif.";
   return "Terjadi kesalahan. Coba lagi.";
 };
