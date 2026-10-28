@@ -24,6 +24,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
 import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
+import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,11 @@ const SellerTransaksiRoute = SellerTransaksiRouteImport.update({
   path: '/transaksi',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
+  id: '/produk_/baru',
+  path: '/produk/baru',
+  getParentRoute: () => SellerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller': typeof SellerIndexRoute
+  '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/produk_/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/seller/saldo'
     | '/seller/transaksi'
     | '/seller/'
+    | '/seller/produk/baru'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/seller/saldo'
     | '/seller/transaksi'
     | '/seller'
+    | '/seller/produk/baru'
   id:
     | '__root__'
     | '/'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/seller/saldo'
     | '/seller/transaksi'
     | '/seller/'
+    | '/seller/produk_/baru'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -326,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerTransaksiRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/produk_/baru': {
+      id: '/seller/produk_/baru'
+      path: '/produk/baru'
+      fullPath: '/seller/produk/baru'
+      preLoaderRoute: typeof SellerProdukBaruRouteImport
+      parentRoute: typeof SellerRoute
+    }
   }
 }
 
@@ -334,6 +353,7 @@ interface SellerRouteChildren {
   SellerSaldoRoute: typeof SellerSaldoRoute
   SellerTransaksiRoute: typeof SellerTransaksiRoute
   SellerIndexRoute: typeof SellerIndexRoute
+  SellerProdukBaruRoute: typeof SellerProdukBaruRoute
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
@@ -341,6 +361,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerSaldoRoute: SellerSaldoRoute,
   SellerTransaksiRoute: SellerTransaksiRoute,
   SellerIndexRoute: SellerIndexRoute,
+  SellerProdukBaruRoute: SellerProdukBaruRoute,
 }
 
 const SellerRouteWithChildren =
