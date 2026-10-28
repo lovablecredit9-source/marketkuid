@@ -168,6 +168,7 @@
   --tone-green: oklch(0.62 0.15 160);
   --tone-blue: oklch(0.55 0.2 262);
   --tone-slate: oklch(0.45 0.03 260);
+  --tone-purple: oklch(0.7 0.17 300);
   --warning: oklch(0.8 0.16 80);
 }
 @theme inline {
@@ -177,6 +178,7 @@
   --color-tone-green: var(--tone-green);
   --color-tone-blue: var(--tone-blue);
   --color-tone-slate: var(--tone-slate);
+  --color-tone-purple: var(--tone-purple);
   --color-warning: var(--warning);
 }
 
