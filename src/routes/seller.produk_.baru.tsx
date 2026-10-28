@@ -15,7 +15,7 @@ import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, GaransiSheet
 import { soon } from "@/components/marketku/shell";
 
 export const Route = createFileRoute("/seller/produk_/baru")({
-  validateSearch: (s: Record<string, unknown>): { edit?: string } => (typeof s.edit === "string" ? { edit: s.edit } : {}),
+  validateSearch: (s: Record<string, unknown>): { edit?: string } => (typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
   head: () => ({
     meta: [
       { title: "Tambah Produk — Seller Center Marketku" },
@@ -90,7 +90,7 @@ function ProductWizard() {
   }, [existing.data]);
 
   const steps: StepKey[] = type === "preorder" ? ["info", "foto", "detail", "varian", "stok"] : ["info", "foto", "varian", "stok"];
-  const cur = steps[Math.min(step, steps.length - 1)];
+  const cur: StepKey = steps[Math.min(step, steps.length - 1)] ?? "info";
   const isLast = step === steps.length - 1;
   const imgUrls = useImageUrls([...photos, ...variants.map((v) => v.image_url ?? "")]);
   const catName = cats.data?.find((c) => c.id === categoryId)?.name;
@@ -418,7 +418,7 @@ function Chip({ children, on, tone, onClick }: { children: ReactNode; on: boolea
 }
 
 function VariantCard({ v, idx, active, canDelete, img, onActivate, onChange, onImage, onSheet, onDelete }: {
-  v: VariantDraft; idx: number; active: boolean; canDelete: boolean; img?: string;
+  v: VariantDraft; idx: number; active: boolean; canDelete: boolean; img?: string | undefined;
   onActivate: () => void; onChange: (p: Partial<VariantDraft>) => void; onImage: () => void;
   onSheet: (k: "garansi" | "diskon" | "bonus") => void; onDelete: () => void;
 }) {

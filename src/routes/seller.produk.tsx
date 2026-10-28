@@ -11,8 +11,8 @@ type Search = { tab?: "stok"; pid?: string };
 
 export const Route = createFileRoute("/seller/produk")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    ...(s.tab === "stok" ? { tab: "stok" as const } : {}),
-    ...(typeof s.pid === "string" ? { pid: s.pid } : {}),
+    ...(s["tab"] === "stok" ? { tab: "stok" as const } : {}),
+    ...(typeof s["pid"] === "string" ? { pid: s["pid"] } : {}),
   }),
   head: () => ({
     meta: [
@@ -53,7 +53,8 @@ function Produk() {
     return r;
   }, [list, cat, status, q, sort]);
   const catChips = (cats.data ?? []).map((c) => ({ ...c, n: list.filter((p) => p.category_id === c.id).length })).filter((c) => c.n > 0);
-  const imgs = useImageUrls(list.map((p) => p.images[0]).filter(Boolean));
+  const imgs = useImageUrls(list.map((p) => p.images[0] ?? "").filter(Boolean));
+  const thumb = (p: MyProduct) => imgs.data?.[p.images[0] ?? ""];
   const open = list.find((p) => p.id === openId) ?? null;
   const stockProduct = tab === "stok" && pid ? list.find((p) => p.id === pid) : undefined;
   const setTab = (t: "produk" | "stok") => navigate({ search: t === "stok" ? { tab: "stok" } : {} });
@@ -81,7 +82,7 @@ function Produk() {
             {products.isLoading && <p className="p-6 text-center text-sm text-muted-foreground">Memuat...</p>}
             {!products.isLoading && list.length === 0 && <SellerEmpty icon={Boxes} title="Belum ada stok" desc="Stok akan muncul setelah kamu menambahkan produk." />}
             {list.map((p) => (
-              <ProductRow key={p.id} p={p} img={imgs.data?.[p.images[0]]} onClick={() => navigate({ search: { tab: "stok", pid: p.id } })}
+              <ProductRow key={p.id} p={p} img={thumb(p)} onClick={() => navigate({ search: { tab: "stok", pid: p.id } })}
                 meta={`${p.product_stock.filter((s) => s.status === "available").length} stok tersedia`} />
             ))}
           </SellerCard>
@@ -121,14 +122,14 @@ function Produk() {
             </SellerCard>
           ) : layout === "list" ? (
             <SellerCard className="overflow-hidden">
-              {shown.map((p) => <ProductRow key={p.id} p={p} img={imgs.data?.[p.images[0]]} onClick={() => setOpenId(p.id)} />)}
+              {shown.map((p) => <ProductRow key={p.id} p={p} img={thumb(p)} onClick={() => setOpenId(p.id)} />)}
             </SellerCard>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {shown.map((p) => (
                 <button key={p.id} onClick={() => setOpenId(p.id)} className="overflow-hidden rounded-xl border bg-card text-left transition active:scale-[0.98]">
                   <div className="grid aspect-square place-items-center bg-muted">
-                    {imgs.data?.[p.images[0]] ? <img src={imgs.data[p.images[0]]} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-8 w-8 text-muted-foreground" />}
+                    {thumb(p) ? <img src={thumb(p)} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-8 w-8 text-muted-foreground" />}
                   </div>
                   <div className="p-3">
                     <p className="line-clamp-2 text-sm font-bold uppercase">{p.name}</p>
@@ -158,7 +159,7 @@ function metaText(p: MyProduct) {
   return `${p.product_stock.filter((s) => s.status === "available").length} stok`;
 }
 
-function ProductRow({ p, img, onClick, meta }: { p: MyProduct; img?: string; onClick: () => void; meta?: string }) {
+function ProductRow({ p, img, onClick, meta }: { p: MyProduct; img?: string | undefined; onClick: () => void; meta?: string }) {
   const m = meta ?? metaText(p);
   return (
     <button onClick={onClick} className="flex w-full items-center gap-3 border-b px-3 py-3 text-left last:border-b-0 transition active:bg-accent">

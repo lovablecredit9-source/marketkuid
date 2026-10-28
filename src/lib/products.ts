@@ -164,7 +164,7 @@ export function useImageUrls(paths: string[]) {
 export async function uploadProductImage(userId: string, file: File) {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Format harus JPG, PNG, atau WebP");
   if (file.size > 5 * 1024 * 1024) throw new Error("Ukuran foto maksimal 5 MB");
-  const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+  const ext = (file.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type });
   if (error) throw error;

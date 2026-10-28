@@ -14,7 +14,8 @@ export function ProductSheet({ product, onClose, onStock }: { product: MyProduct
   const navigate = useNavigate();
   const qc = useQueryClient();
   const cats = useCategories();
-  const img = useImageUrls(product?.images[0] ? [product.images[0]] : []);
+  const firstImg = product?.images[0] ?? "";
+  const img = useImageUrls(firstImg ? [firstImg] : []);
   const [editDesc, setEditDesc] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -90,7 +91,7 @@ export function ProductSheet({ product, onClose, onStock }: { product: MyProduct
             </div>
             <div className="flex-1 overflow-y-auto">
               <div className="grid aspect-[16/9] place-items-center bg-muted">
-                {img.data?.[p.images[0]] ? <img src={img.data[p.images[0]]} alt={p.name} className="h-full w-full object-contain" /> : <Package className="h-10 w-10 text-muted-foreground" />}
+                {firstImg && img.data?.[firstImg] ? <img src={img.data[firstImg]} alt={p.name} className="h-full w-full object-contain" /> : <Package className="h-10 w-10 text-muted-foreground" />}
               </div>
               <div className="px-6 py-5">
                 <div className="flex items-center justify-between">
