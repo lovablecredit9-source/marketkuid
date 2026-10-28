@@ -68,9 +68,10 @@ export function BottomNav() {
             key={to}
             to={to}
             activeOptions={{ exact: to === "/" }}
-            className="relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-xs font-medium text-muted-foreground data-[status=active]:bg-accent data-[status=active]:text-primary"
+            className="group relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-xs font-semibold text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
           >
-            <Icon className="h-5 w-5" />
+            <span className="absolute -top-1 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-out group-data-[status=active]:w-1/2" />
+            <Icon className="h-5 w-5 transition-transform duration-300 ease-out group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
             {label}
           </Link>
         ))}
