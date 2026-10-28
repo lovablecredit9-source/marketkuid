@@ -48,9 +48,9 @@ function Register() {
         <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); toast("Pendaftaran segera aktif"); }}>
           <Field label="Nama Lengkap" icon={User} name="name" placeholder="Nama lengkap kamu" value={f.name} onChange={set("name")} autoComplete="name" />
           <Field label="Email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={f.email} onChange={set("email")} onBlur={blur("email")} autoComplete="email"
-            status={emailErr ? "error" : "ok"} message={f.email && !emailErr ? "Email siap dipakai untuk registrasi." : touched.email ? emailErr : undefined} />
+            status={emailErr ? "error" : "ok"} message={f.email && !emailErr ? "Email siap dipakai untuk registrasi." : touched["email"] ? emailErr : undefined} />
           <Field label="Username" icon={User} name="username" placeholder="username_login" value={f.username} onChange={set("username")} onBlur={blur("username")} autoComplete="username"
-            status={unameErr ? "error" : "ok"} message={!unameErr ? `Username ${uname} siap dipakai untuk login.` : touched.username || f.username ? unameErr : undefined} />
+            status={unameErr ? "error" : "ok"} message={!unameErr ? `Username ${uname} siap dipakai untuk login.` : touched["username"] || f.username ? unameErr : undefined} />
           <Field label="Nomor WhatsApp (opsional)" icon={MessageCircle} name="wa" type="tel" inputMode="numeric" placeholder="08xxxxxxxxxx" value={f.wa} onChange={(e) => setF({ ...f, wa: e.target.value.replace(/\D/g, "") })}
             hint="Buat notif pesanan, refund, dan dispute via WhatsApp. Bisa dilewati & ditambahkan nanti." />
           <div className="space-y-2">
