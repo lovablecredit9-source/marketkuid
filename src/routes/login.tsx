@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Bot, Mail, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, KeyRound, Mail, MailCheck, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import { AuthCard, AuthFooter, AuthLayout, AuthTitle, Field, GradientButton, OutlineButton, isEmail } from "@/components/marketku/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { authErrorText } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -19,7 +21,7 @@ export const Route = createFileRoute("/login")({
 });
 
 type Mode = "email" | "telegram" | "kode" | "lupa";
-const notReady = () => toast("Fitur masuk segera aktif");
+const notReady = () => toast("Fitur ini segera aktif");
 
 function Login() {
   const [mode, setMode] = useState<Mode>("email");
@@ -41,11 +43,42 @@ function Login() {
 }
 
 function EmailStep({ onMode }: { onMode: (m: Mode) => void }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [step, setStep] = useState<"email" | "pass">("email");
+  const [pass, setPass] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const signIn = async () => {
+    if (loading || pass.length < 1) return;
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
+    setLoading(false);
+    if (error) return toast.error(authErrorText(error.message));
+    toast.success("Berhasil masuk");
+    navigate({ to: "/akun", replace: true });
+  };
+
+  if (step === "pass") {
+    return (
+      <>
+        <AuthTitle title="Masukkan password" desc={email.trim()} />
+        <button type="button" onClick={() => { setStep("email"); setPass(""); }} className="mb-5 flex items-center gap-2 font-semibold text-muted-foreground">
+          <ArrowLeft className="h-5 w-5" /> Ganti email
+        </button>
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void signIn(); }}>
+          <Field label="Password" icon={KeyRound} name="password" password placeholder="Password kamu" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" autoFocus />
+          <GradientButton type="submit" disabled={!pass || loading}>{loading ? "Memproses..." : "Masuk"}</GradientButton>
+        </form>
+        <button type="button" onClick={() => onMode("lupa")} className="mx-auto mt-4 block font-bold text-primary">Lupa password?</button>
+      </>
+    );
+  }
+
   return (
     <>
       <AuthTitle title="Masuk" desc="Masukkan email kamu untuk melanjutkan." />
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); notReady(); }}>
+      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (isEmail(email)) setStep("pass"); }}>
         <Field label="Alamat email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
         <GradientButton type="submit" disabled={!isEmail(email)}>Lanjutkan</GradientButton>
       </form>
