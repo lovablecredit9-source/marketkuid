@@ -159,3 +159,48 @@
 @theme inline {
   --color-primary-glow: var(--primary-glow);
 }
+
+/* Icon tones used by account dashboards */
+:root {
+  --tone-amber: oklch(0.72 0.16 70);
+  --tone-pink: oklch(0.62 0.22 0);
+  --tone-cyan: oklch(0.6 0.12 220);
+  --tone-green: oklch(0.62 0.15 160);
+  --tone-blue: oklch(0.55 0.2 262);
+  --tone-slate: oklch(0.45 0.03 260);
+  --warning: oklch(0.8 0.16 80);
+}
+@theme inline {
+  --color-tone-amber: var(--tone-amber);
+  --color-tone-pink: var(--tone-pink);
+  --color-tone-cyan: var(--tone-cyan);
+  --color-tone-green: var(--tone-green);
+  --color-tone-blue: var(--tone-blue);
+  --color-tone-slate: var(--tone-slate);
+  --color-warning: var(--warning);
+}
+
+/* Seller Center: always dark navy panel with bright blue accent */
+.seller-panel {
+  --background: oklch(0.15 0.025 265);
+  --foreground: oklch(0.97 0.005 260);
+  --card: oklch(0.19 0.03 265);
+  --card-foreground: oklch(0.97 0.005 260);
+  --popover: oklch(0.2 0.03 265);
+  --popover-foreground: oklch(0.97 0.005 260);
+  --primary: oklch(0.63 0.19 258);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-glow: oklch(0.72 0.14 225);
+  --muted: oklch(0.24 0.03 265);
+  --muted-foreground: oklch(0.72 0.03 260);
+  --accent: oklch(0.25 0.04 265);
+  --accent-foreground: oklch(0.97 0.005 260);
+  --border: oklch(0.32 0.03 265);
+  --input: oklch(0.32 0.03 265);
+  --ring: oklch(0.63 0.19 258);
+  --success: oklch(0.75 0.15 160);
+  --warning: oklch(0.8 0.16 80);
+  --destructive: oklch(0.7 0.18 22);
+  background-color: var(--background);
+  color: var(--foreground);
+}
