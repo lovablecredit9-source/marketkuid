@@ -14,6 +14,203 @@ export type Database = {
   }
   public: {
     Tables: {
+      product_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort?: number
+        }
+        Relationships: []
+      }
+      product_stock: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          owner_id: string
+          product_id: string
+          status: string
+          variant_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          product_id: string
+          status?: string
+          variant_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          product_id?: string
+          status?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_stock_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          bonus: Json | null
+          created_at: string
+          discount: Json | null
+          duration_unit: string | null
+          duration_value: number | null
+          id: string
+          image_url: string | null
+          lifetime: boolean
+          name: string
+          owner_id: string
+          preorder_quota: number | null
+          price: number
+          product_id: string
+          sort: number
+          warranty: Json | null
+        }
+        Insert: {
+          bonus?: Json | null
+          created_at?: string
+          discount?: Json | null
+          duration_unit?: string | null
+          duration_value?: number | null
+          id?: string
+          image_url?: string | null
+          lifetime?: boolean
+          name: string
+          owner_id: string
+          preorder_quota?: number | null
+          price: number
+          product_id: string
+          sort?: number
+          warranty?: Json | null
+        }
+        Update: {
+          bonus?: Json | null
+          created_at?: string
+          discount?: Json | null
+          duration_unit?: string | null
+          duration_value?: number | null
+          id?: string
+          image_url?: string | null
+          lifetime?: boolean
+          name?: string
+          owner_id?: string
+          preorder_quota?: number | null
+          price?: number
+          product_id?: string
+          sort?: number
+          warranty?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string
+          id: string
+          images: string[]
+          name: string
+          owner_id: string
+          product_type: string
+          require_buyer_note: boolean
+          seller_contact: string | null
+          sold_count: number
+          status: string
+          updated_at: string
+          usage_guide: string
+          work_estimate: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          images?: string[]
+          name: string
+          owner_id: string
+          product_type: string
+          require_buyer_note?: boolean
+          seller_contact?: string | null
+          sold_count?: number
+          status?: string
+          updated_at?: string
+          usage_guide?: string
+          work_estimate?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          images?: string[]
+          name?: string
+          owner_id?: string
+          product_type?: string
+          require_buyer_note?: boolean
+          seller_contact?: string | null
+          sold_count?: number
+          status?: string
+          updated_at?: string
+          usage_guide?: string
+          work_estimate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "seller_stores"
+            referencedColumns: ["owner_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
