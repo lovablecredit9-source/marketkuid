@@ -149,3 +149,13 @@
     color: var(--color-foreground);
   }
 }
+
+:root {
+  --primary-glow: oklch(0.78 0.12 225);
+}
+.dark {
+  --primary-glow: oklch(0.65 0.14 225);
+}
+@theme inline {
+  --color-primary-glow: var(--primary-glow);
+}
