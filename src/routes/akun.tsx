@@ -61,7 +61,7 @@ function Akun() {
   );
 }
 
-export function AkunDashboard() {
+function AkunDashboard() {
   const navigate = useNavigate();
   return (
     <AppShell title="Akun Saya">
@@ -135,3 +135,4 @@ export function AkunDashboard() {
     </AppShell>
   );
 }
+void AkunDashboard;
