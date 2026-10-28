@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Boxes, Check, FileEdit, Pencil, Package, Save, Trash2, X, Loader2, Send } from "lucide-react";
@@ -144,7 +144,7 @@ export function ProductSheet({ product, onClose, onStock }: { product: MyProduct
 }
 
 export function ConfirmDialog({ open, onOpenChange, title, children, confirmLabel, onConfirm, busy }: {
-  open: boolean; onOpenChange: (v: boolean) => void; title: string; children: React.ReactNode; confirmLabel: string; onConfirm: () => void; busy?: boolean;
+  open: boolean; onOpenChange: (v: boolean) => void; title: string; children: ReactNode; confirmLabel: string; onConfirm: () => void; busy?: boolean;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

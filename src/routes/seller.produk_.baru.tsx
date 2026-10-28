@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, Fragment } from "react";
+import { useEffect, useRef, useState, Fragment, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -408,7 +408,7 @@ function Head({ title, desc }: { title: string; desc: string }) {
   );
 }
 
-function Chip({ children, on, tone, onClick }: { children: React.ReactNode; on: boolean; tone: "primary" | "success" | "amber" | "purple"; onClick: () => void }) {
+function Chip({ children, on, tone, onClick }: { children: ReactNode; on: boolean; tone: "primary" | "success" | "amber" | "purple"; onClick: () => void }) {
   const onCls = { primary: "border-primary bg-primary/10 text-primary ring-1 ring-primary", success: "border-success/50 bg-success/10 text-success", amber: "border-tone-amber/50 bg-tone-amber/10 text-tone-amber", purple: "border-tone-purple/50 bg-tone-purple/10 text-tone-purple" }[tone];
   return (
     <button type="button" onClick={onClick} className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition active:scale-95 ${on ? onCls : "bg-muted/30 text-foreground/85"}`}>
