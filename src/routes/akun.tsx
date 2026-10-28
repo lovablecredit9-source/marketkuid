@@ -160,13 +160,18 @@ function AkunDashboard({ user }: { user: User }) {
           <MenuRow icon={Send} title="Hubungi Kami" desc="Kirim pesan ke tim support" />
         </Section>
 
-        <MenuRow icon={Store} title="Buka akun seller" desc="Kelola produk, pesanan, dan keuangan toko." />
+        {isSeller ? (
+          <MenuRow icon={Store} title={store.data!.store_name} desc="Toko kamu sudah aktif. Dashboard seller segera hadir." onClick={() => soon("Dashboard seller")} />
+        ) : (
+          <MenuRow icon={Store} title="Buka akun seller" desc="Kelola produk, pesanan, dan keuangan toko." onClick={() => setSellerOpen(true)} />
+        )}
 
-        <button onClick={() => soon("Keluar")} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-3 font-semibold text-destructive">
+        <button onClick={() => void signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-3 font-semibold text-destructive transition active:scale-[0.98]">
           <LogOut className="h-4 w-4" /> Keluar
         </button>
       </div>
+      <SellerSheet open={sellerOpen} onOpenChange={setSellerOpen} userId={user.id}
+        onCreated={() => queryClient.invalidateQueries({ queryKey: ["seller_store", user.id] })} />
     </AppShell>
   );
 }
-void AkunDashboard;
