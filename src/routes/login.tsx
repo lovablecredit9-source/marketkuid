@@ -122,7 +122,17 @@ function Recovery({ onBack }: { onBack: () => void }) {
   const [via, setVia] = useState<"telegram" | "email">("telegram");
   const [email, setEmail] = useState("");
   const [tg, setTg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
   const valid = via === "telegram" ? tg.trim().length >= 3 : isEmail(email);
+  const submit = async () => {
+    if (via === "telegram") return notReady();
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${window.location.origin}/reset-password` });
+    setLoading(false);
+    if (error) return toast.error(authErrorText(error.message));
+    setSent(true);
+  };
   const Option = ({ id, icon: I, title, desc }: { id: "telegram" | "email"; icon: typeof Bot; title: string; desc: string }) => (
     <button type="button" onClick={() => setVia(id)}
       className={`flex w-full items-center gap-4 rounded-xl border p-5 text-left transition ${via === id ? "border-primary/50 bg-card ring-1 ring-primary/20" : "bg-muted/40"}`}>
@@ -133,18 +143,28 @@ function Recovery({ onBack }: { onBack: () => void }) {
       </span>
     </button>
   );
+  if (sent) {
+    return (
+      <div className="flex flex-col items-center text-center">
+        <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent text-primary"><MailCheck className="h-8 w-8" /></span>
+        <h1 className="mt-5 text-2xl font-bold">Cek email kamu</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Kalau email <b className="text-foreground">{email.trim()}</b> terdaftar, link reset password sudah dikirim.</p>
+        <div className="mt-6 w-full"><OutlineButton onClick={onBack}>Kembali ke login</OutlineButton></div>
+      </div>
+    );
+  }
   return (
     <>
       <AuthTitle title="Pulihkan akun" desc="Reset password lewat OTP Telegram atau link email." />
       <div className="space-y-4">
         <Option id="telegram" icon={Bot} title="Telegram OTP" desc="Reset langsung dari gateway" />
         <Option id="email" icon={Mail} title="Email link" desc="Kirim instruksi ke inbox" />
-        <form className="space-y-4 pt-2" onSubmit={(e) => { e.preventDefault(); notReady(); }}>
+        <form className="space-y-4 pt-2" onSubmit={(e) => { e.preventDefault(); if (valid && !loading) void submit(); }}>
           <Field label={via === "telegram" ? "Email (opsional jika pakai username Telegram)" : "Email"} icon={Mail} name="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           {via === "telegram" && (
             <Field label="Username Telegram" icon={MessageCircle} name="telegram" placeholder="tanpa @" value={tg} onChange={(e) => setTg(e.target.value.replace(/^@/, ""))} />
           )}
-          <GradientButton type="submit" disabled={!valid}>
+          <GradientButton type="submit" disabled={!valid || loading}>
             <ArrowRight className="h-5 w-5" /> {via === "telegram" ? "Lanjutkan recovery Telegram" : "Kirim link reset"}
           </GradientButton>
           <OutlineButton onClick={onBack}>Kembali ke login</OutlineButton>
