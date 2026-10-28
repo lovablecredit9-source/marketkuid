@@ -54,7 +54,7 @@ function EmailStep({ onMode }: { onMode: (m: Mode) => void }) {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: pass });
     setLoading(false);
-    if (error) return toast.error(authErrorText(error.message));
+    if (error) { toast.error(authErrorText(error.message)); return; }
     toast.success("Berhasil masuk");
     navigate({ to: "/akun", replace: true });
   };
@@ -126,11 +126,11 @@ function Recovery({ onBack }: { onBack: () => void }) {
   const [sent, setSent] = useState(false);
   const valid = via === "telegram" ? tg.trim().length >= 3 : isEmail(email);
   const submit = async () => {
-    if (via === "telegram") return notReady();
+    if (via === "telegram") { notReady(); return; }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${window.location.origin}/reset-password` });
     setLoading(false);
-    if (error) return toast.error(authErrorText(error.message));
+    if (error) { toast.error(authErrorText(error.message)); return; }
     setSent(true);
   };
   const Option = ({ id, icon: I, title, desc }: { id: "telegram" | "email"; icon: typeof Bot; title: string; desc: string }) => (

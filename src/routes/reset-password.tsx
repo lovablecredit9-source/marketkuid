@@ -31,7 +31,7 @@ function ResetPassword() {
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password: pass });
     setLoading(false);
-    if (error) return toast.error(authErrorText(error.message));
+    if (error) { toast.error(authErrorText(error.message)); return; }
     toast.success("Password berhasil diganti");
     navigate({ to: "/akun", replace: true });
   };

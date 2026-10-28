@@ -58,8 +58,8 @@ function Register() {
       },
     });
     setLoading(false);
-    if (error) return toast.error(authErrorText(error.message));
-    if (data.user && data.user.identities?.length === 0) return toast.error("Email ini sudah terdaftar. Silakan masuk.");
+    if (error) { toast.error(authErrorText(error.message)); return; }
+    if (data.user && data.user.identities?.length === 0) { toast.error("Email ini sudah terdaftar. Silakan masuk."); return; }
     setSentTo(email);
   };
 

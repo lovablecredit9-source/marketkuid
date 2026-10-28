@@ -22,7 +22,7 @@ export function SellerSheet({ open, onOpenChange, userId, onCreated }: {
   const tgOk = validTelegram(telegram);
 
   const submit = async () => {
-    if (!nameOk || !tgOk || loading) return;
+    if (!nameOk || !tgOk || loading) return undefined;
     setLoading(true);
     const { error } = await supabase.from("seller_stores").insert({
       owner_id: userId,
@@ -30,7 +30,7 @@ export function SellerSheet({ open, onOpenChange, userId, onCreated }: {
       telegram_username: telegram || null,
     });
     setLoading(false);
-    if (error) return toast.error(error.code === "23505" ? "Kamu sudah punya toko." : "Gagal membuat toko. Coba lagi.");
+    if (error) { toast.error(error.code === "23505" ? "Kamu sudah punya toko." : "Gagal membuat toko. Coba lagi."); return; }
     toast.success("Toko berhasil dibuat");
     onOpenChange(false);
     onCreated();
