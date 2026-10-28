@@ -23,8 +23,8 @@ const navTabs = [
 const titleFor = (p: string) =>
   p === "/seller" ? "Dasbor"
   : p.startsWith("/seller/produk") ? "Produk Saya"
-  : p.startsWith("/seller/saldo") ? "Credits"
-  : p.startsWith("/seller/transaksi") ? "Pesanan Saya"
+  : p.startsWith("/seller/saldo") ? "Saldo"
+  : p.startsWith("/seller/transaksi") ? "Transaksi"
   : "Seller Center";
 
 export function SellerHeader({ initial, onMenu }: { initial: string; onMenu: () => void }) {
@@ -115,13 +115,15 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
         <Dialog.Content className="seller-panel fixed inset-y-0 left-0 z-50 flex w-[78%] max-w-[300px] flex-col border-r bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
           <div className="flex items-center justify-between border-b px-4 py-4">
             <Link to="/" onClick={() => onOpenChange(false)} className="flex items-center gap-3">
-              <img src={logo.url} alt="Marketku" className="h-10 w-auto" />
+              <span className="flex flex-col">
+                <img src={logo.url} alt="Marketku" className="h-9 w-auto" />
+                <span className="mt-0.5 pl-11 text-[10px] font-medium tracking-[0.2em] text-muted-foreground">Seller Dashboard</span>
+              </span>
             </Link>
             <Dialog.Title className="sr-only">Menu Seller Dashboard</Dialog.Title>
             <Dialog.Description className="sr-only">Navigasi Seller Center Marketku</Dialog.Description>
             <Dialog.Close aria-label="Tutup" className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
           </div>
-          <p className="-mt-3 border-b pb-3 pl-[4.4rem] text-[10px] font-medium tracking-[0.2em] text-muted-foreground">Seller Dashboard</p>
           <nav className="flex-1 overflow-y-auto px-2 py-3">
             {menuGroups.map((g) => (
               <div key={g.title} className="mb-3">
