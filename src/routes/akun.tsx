@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { User } from "@supabase/supabase-js";
 import {
   Settings, RefreshCw, ArrowUpRight, Coins, ShoppingBag, Heart, ShoppingCart, Gift, MessageCircle, Clock,
   ShieldAlert, ShieldCheck, Bell, Moon, HelpCircle, Send, Store, LogOut, Wallet,
 } from "lucide-react";
 import { AppShell, MenuRow, Section, soon } from "@/components/marketku/shell";
+import { SellerSheet } from "@/components/marketku/seller-sheet";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/akun")({
   head: () => ({
@@ -39,9 +44,10 @@ function Tile({ icon: I, label, onClick }: { icon: typeof Coins; label: string; 
   );
 }
 
-// Belum ada fitur masuk akun, jadi selalu tampilkan halaman tamu.
-// Ganti ke <AkunDashboard /> setelah login aktif.
 function Akun() {
+  const { user, ready } = useAuth();
+  if (!ready) return <AppShell title="Akun Saya"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
+  if (user) return <AkunDashboard user={user} />;
   return (
     <AppShell title="Akun Saya">
       <div className="relative overflow-hidden px-6 pt-24">
@@ -61,20 +67,48 @@ function Akun() {
   );
 }
 
-function AkunDashboard() {
+function AkunDashboard({ user }: { user: User }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [sellerOpen, setSellerOpen] = useState(false);
+
+  const profile = useQuery({
+    queryKey: ["profile", user.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("full_name, username").eq("id", user.id).maybeSingle();
+      return data;
+    },
+  });
+  const store = useQuery({
+    queryKey: ["seller_store", user.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("seller_stores").select("store_name").eq("owner_id", user.id).maybeSingle();
+      return data;
+    },
+  });
+
+  const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
+  const isSeller = !!store.data;
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/login", replace: true });
+  };
+
   return (
     <AppShell title="Akun Saya">
       <div className="space-y-4 px-3 pt-4">
         <section className="rounded-2xl border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">?</div>
-            <div>
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{name.charAt(0).toUpperCase()}</div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold">Tamu</h1>
-                <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-bold text-primary">MEMBER</span>
+                <h1 className="truncate text-lg font-bold">{name}</h1>
+                <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-bold text-primary">{isSeller ? "SELLER" : "MEMBER"}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Belum masuk</p>
+              <p className="truncate text-sm text-muted-foreground">{profile.data?.username ? `@${profile.data.username}` : user.email}</p>
             </div>
           </div>
           <button onClick={() => soon("Atur Profil")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary bg-accent py-2.5 text-sm font-semibold text-primary">
@@ -126,13 +160,18 @@ function AkunDashboard() {
           <MenuRow icon={Send} title="Hubungi Kami" desc="Kirim pesan ke tim support" />
         </Section>
 
-        <MenuRow icon={Store} title="Buka akun seller" desc="Kelola produk, pesanan, dan keuangan toko." />
+        {isSeller ? (
+          <MenuRow icon={Store} title={store.data!.store_name} desc="Toko kamu sudah aktif. Dashboard seller segera hadir." onClick={() => soon("Dashboard seller")} />
+        ) : (
+          <MenuRow icon={Store} title="Buka akun seller" desc="Kelola produk, pesanan, dan keuangan toko." onClick={() => setSellerOpen(true)} />
+        )}
 
-        <button onClick={() => soon("Keluar")} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-3 font-semibold text-destructive">
+        <button onClick={() => void signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-3 font-semibold text-destructive transition active:scale-[0.98]">
           <LogOut className="h-4 w-4" /> Keluar
         </button>
       </div>
+      <SellerSheet open={sellerOpen} onOpenChange={setSellerOpen} userId={user.id}
+        onCreated={() => queryClient.invalidateQueries({ queryKey: ["seller_store", user.id] })} />
     </AppShell>
   );
 }
-void AkunDashboard;
