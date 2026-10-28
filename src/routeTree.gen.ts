@@ -14,7 +14,9 @@ import { Route as AkunRouteImport } from './routes/akun'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 
 const IndexRoute = IndexRouteImport.update({
@@ -42,9 +44,19 @@ const KeranjangRoute = KeranjangRouteImport.update({
   path: '/keranjang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PesanRoute = PesanRouteImport.update({
   id: '/pesan',
   path: '/pesan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RiwayatRoute = RiwayatRouteImport.update({
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
+  '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/register': typeof RegisterRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
+  '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/register': typeof RegisterRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRoutesById {
@@ -78,16 +94,34 @@ export interface FileRoutesById {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
+  '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/register': typeof RegisterRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/akun' | '/cari' | '/checkout' | '/keranjang' | '/pesan' | '/riwayat'
+    | '/'
+    | '/akun'
+    | '/cari'
+    | '/checkout'
+    | '/keranjang'
+    | '/login'
+    | '/pesan'
+    | '/register'
+    | '/riwayat'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/akun' | '/cari' | '/checkout' | '/keranjang' | '/pesan' | '/riwayat'
+    | '/'
+    | '/akun'
+    | '/cari'
+    | '/checkout'
+    | '/keranjang'
+    | '/login'
+    | '/pesan'
+    | '/register'
+    | '/riwayat'
   id:
     | '__root__'
     | '/'
@@ -95,7 +129,9 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/keranjang'
+    | '/login'
     | '/pesan'
+    | '/register'
     | '/riwayat'
   fileRoutesById: FileRoutesById
 }
@@ -105,7 +141,9 @@ export interface RootRouteChildren {
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
   KeranjangRoute: typeof KeranjangRoute
+  LoginRoute: typeof LoginRoute
   PesanRoute: typeof PesanRoute
+  RegisterRoute: typeof RegisterRoute
   RiwayatRoute: typeof RiwayatRoute
 }
 
@@ -146,11 +184,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KeranjangRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pesan': {
       id: '/pesan'
       path: '/pesan'
       fullPath: '/pesan'
       preLoaderRoute: typeof PesanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/riwayat': {
@@ -169,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
   KeranjangRoute: KeranjangRoute,
+  LoginRoute: LoginRoute,
   PesanRoute: PesanRoute,
+  RegisterRoute: RegisterRoute,
   RiwayatRoute: RiwayatRoute,
 }
 export const routeTree = rootRouteImport

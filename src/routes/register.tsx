@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { KeyRound, Mail, MessageCircle, User } from "lucide-react";
 import { toast } from "sonner";
 import { AuthCard, AuthFooter, AuthLayout, AuthTitle, Field, GradientButton, isEmail } from "@/components/marketku/auth";
@@ -30,7 +30,7 @@ const strength = (p: string) => {
 function Register() {
   const [f, setF] = useState({ name: "", email: "", username: "", wa: "", pass: "", confirm: "" });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   const blur = (k: string) => () => setTouched({ ...touched, [k]: true });
 
   const uname = f.username.trim();
