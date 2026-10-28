@@ -1,0 +1,172 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export const PRODUCT_TYPES = [
+  { value: "link", label: "Link — URL / link akses" },
+  { value: "code", label: "Code — Kode lisensi / voucher / serial" },
+  { value: "email_2fa", label: "Email:Pass:2FA — Akun dengan 2FA" },
+  { value: "email_pin", label: "Email:Pass:Profile:Pin — Akun dengan PIN" },
+  { value: "file", label: "File / Script — File digital (terenkripsi)" },
+  { value: "preorder", label: "Pre Order — Diproses manual oleh seller" },
+  { value: "otp", label: "OTP Service — Jual layanan OTP" },
+  { value: "gsuite", label: "GSuite Workspace — Auto-provisioning" },
+  { value: "custom", label: "Custom — Field bebas (API key, refresh token, dll)" },
+] as const;
+export type ProductType = (typeof PRODUCT_TYPES)[number]["value"];
+
+export type WarrantyMode = "hari" | "login" | "backfree";
+export type Warranty = { mode: WarrantyMode; days: number | null; max_claims: number };
+export type Discount = { min_order: number; kind: "reguler" | "bulk"; percent: number; max_per_user: number };
+export type Bonus = { buy: number; get: number };
+
+export type VariantDraft = {
+  id?: string;
+  name: string;
+  image_url: string | null;
+  price: string;
+  lifetime: boolean;
+  duration_value: string;
+  duration_unit: "hari" | "bulan" | "tahun";
+  warranty: Warranty | null;
+  discount: Discount | null;
+  bonus: Bonus | null;
+  quota: string;
+  stock: string;
+};
+
+export const emptyVariant = (): VariantDraft => ({
+  name: "", image_url: null, price: "", lifetime: false, duration_value: "", duration_unit: "hari",
+  warranty: null, discount: null, bonus: null, quota: "", stock: "",
+});
+
+export const digits = (s: string) => s.replace(/\D/g, "");
+export const parsePrice = (s: string) => Number(digits(s) || "0");
+export const fmtThousands = (s: string) => {
+  const d = digits(s);
+  return d ? Number(d).toLocaleString("id-ID") : "";
+};
+export const rp = (n: number) => `Rp. ${n.toLocaleString("id-ID")},-`;
+
+export const MAX_PHOTOS = 6;
+
+export type InfoDraft = { name: string; type: ProductType | ""; category_id: string | null };
+
+export function validateInfo(info: InfoDraft): string[] {
+  const errs: string[] = [];
+  const n = info.name.trim();
+  if (n.length < 3) errs.push("Nama produk minimal 3 karakter");
+  if (n.length > 120) errs.push("Nama produk maksimal 120 karakter");
+  if (!info.type) errs.push("Pilih jenis produk");
+  if (!info.category_id) errs.push("Pilih kategori produk");
+  return errs;
+}
+
+export function validateDetail(contact: string, estimate: string): string[] {
+  const errs: string[] = [];
+  if (contact.trim().length < 3) errs.push("Kontak seller wajib diisi");
+  if (estimate.trim().length < 2) errs.push("Estimasi durasi pengerjaan wajib diisi");
+  return errs;
+}
+
+/** One message per incomplete variant, e.g. "Varian 2: durasi dan harga belum diisi". */
+export function validateVariants(vs: VariantDraft[]): string[] {
+  if (vs.length === 0) return ["Tambahkan minimal satu varian"];
+  const errs: string[] = [];
+  vs.forEach((v, i) => {
+    const missing: string[] = [];
+    if (!v.name.trim()) missing.push("nama");
+    const noDuration = !v.lifetime && !(Number(digits(v.duration_value)) > 0);
+    const noPrice = !(parsePrice(v.price) > 0);
+    if (noDuration) missing.push("durasi");
+    if (noPrice) missing.push("harga");
+    if (missing.length) {
+      const text = missing.length === 1 ? missing[0] : `${missing.slice(0, -1).join(", ")} dan ${missing[missing.length - 1]}`;
+      errs.push(`Varian ${i + 1}: ${text} belum diisi`);
+    }
+  });
+  return errs;
+}
+
+/** Each non-empty line in the stock box is one stock item. */
+export const stockLines = (s: string) => s.split("\n").map((l) => l.trim()).filter(Boolean);
+
+export function warrantyLabel(w: Warranty) {
+  if (w.mode === "login") return "Garansi Login";
+  if (w.mode === "backfree") return `Garansi Backfree ${w.days ?? 0} Hari`;
+  return `Garansi ${w.days ?? 0} Hari`;
+}
+
+export function priceRange(prices: number[]) {
+  if (!prices.length) return rp(0);
+  const lo = Math.min(...prices), hi = Math.max(...prices);
+  return lo === hi ? rp(lo) : `${rp(lo)} – ${rp(hi)}`;
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["product_categories"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_categories").select("id, name, sort").order("sort");
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useCategoryCounts() {
+  return useQuery({
+    queryKey: ["category_counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("category_id").eq("status", "active");
+      if (error) throw error;
+      const m: Record<string, number> = {};
+      for (const r of data) if (r.category_id) m[r.category_id] = (m[r.category_id] ?? 0) + 1;
+      return m;
+    },
+  });
+}
+
+export function useMyProducts(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["my_products", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, product_variants(id, name, price, lifetime, duration_value, duration_unit, sort), product_stock(status)")
+        .eq("owner_id", userId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+export type MyProduct = NonNullable<ReturnType<typeof useMyProducts>["data"]>[number];
+
+/** Product images live in a private bucket; resolve paths to short-lived URLs. */
+export function useImageUrls(paths: string[]) {
+  const key = paths.filter(Boolean);
+  return useQuery({
+    queryKey: ["img_urls", key],
+    enabled: key.length > 0,
+    staleTime: 30 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from("product-images").createSignedUrls(key, 3600);
+      if (error) throw error;
+      const m: Record<string, string> = {};
+      for (const r of data) if (r.path && r.signedUrl) m[r.path] = r.signedUrl;
+      return m;
+    },
+  });
+}
+
+export async function uploadProductImage(userId: string, file: File) {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Format harus JPG, PNG, atau WebP");
+  if (file.size > 5 * 1024 * 1024) throw new Error("Ukuran foto maksimal 5 MB");
+  const ext = file.type.split("/")[1].replace("jpeg", "jpg");
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return path;
+}
