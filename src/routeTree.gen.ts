@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AkunRouteImport } from './routes/akun'
 import { Route as CariRouteImport } from './routes/cari'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as PesanRouteImport } from './routes/pesan'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
@@ -29,6 +30,11 @@ const AkunRoute = AkunRouteImport.update({
 const CariRoute = CariRouteImport.update({
   id: '/cari',
   path: '/cari',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
   '/cari': typeof CariRoute
+  '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
   '/pesan': typeof PesanRoute
   '/riwayat': typeof RiwayatRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
   '/cari': typeof CariRoute
+  '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
   '/pesan': typeof PesanRoute
   '/riwayat': typeof RiwayatRoute
@@ -68,23 +76,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
   '/cari': typeof CariRoute
+  '/checkout': typeof CheckoutRoute
   '/keranjang': typeof KeranjangRoute
   '/pesan': typeof PesanRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/akun' | '/cari' | '/keranjang' | '/pesan' | '/riwayat'
+  fullPaths:
+    '/' | '/akun' | '/cari' | '/checkout' | '/keranjang' | '/pesan' | '/riwayat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/akun' | '/cari' | '/keranjang' | '/pesan' | '/riwayat'
+  to:
+    '/' | '/akun' | '/cari' | '/checkout' | '/keranjang' | '/pesan' | '/riwayat'
   id:
-    '__root__' | '/' | '/akun' | '/cari' | '/keranjang' | '/pesan' | '/riwayat'
+    | '__root__'
+    | '/'
+    | '/akun'
+    | '/cari'
+    | '/checkout'
+    | '/keranjang'
+    | '/pesan'
+    | '/riwayat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AkunRoute: typeof AkunRoute
   CariRoute: typeof CariRoute
+  CheckoutRoute: typeof CheckoutRoute
   KeranjangRoute: typeof KeranjangRoute
   PesanRoute: typeof PesanRoute
   RiwayatRoute: typeof RiwayatRoute
@@ -111,6 +130,13 @@ declare module '@tanstack/react-router' {
       path: '/cari'
       fullPath: '/cari'
       preLoaderRoute: typeof CariRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -141,6 +167,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AkunRoute: AkunRoute,
   CariRoute: CariRoute,
+  CheckoutRoute: CheckoutRoute,
   KeranjangRoute: KeranjangRoute,
   PesanRoute: PesanRoute,
   RiwayatRoute: RiwayatRoute,

@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, Sparkles, PackageSearch } from "lucide-react
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 
 export const Route = createFileRoute("/cari")({
-  validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
+  validateSearch: (s: Record<string, unknown>): { q?: string } => (typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
   head: () => ({
     meta: [
       { title: "Cari Produk — Marketku" },
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/cari")({
 });
 
 function Cari() {
-  const { q } = Route.useSearch();
+  const { q = "" } = Route.useSearch();
   const [val, setVal] = useState(q);
   const navigate = useNavigate();
   return (
