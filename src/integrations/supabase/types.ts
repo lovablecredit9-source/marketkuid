@@ -14,7 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+          username: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          updated_at?: string
+          username?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          username?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      seller_stores: {
+        Row: {
+          created_at: string
+          owner_id: string
+          store_name: string
+          telegram_username: string | null
+        }
+        Insert: {
+          created_at?: string
+          owner_id: string
+          store_name: string
+          telegram_username?: string | null
+        }
+        Update: {
+          created_at?: string
+          owner_id?: string
+          store_name?: string
+          telegram_username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_stores_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
