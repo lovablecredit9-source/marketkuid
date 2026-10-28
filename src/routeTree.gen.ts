@@ -17,6 +17,7 @@ import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +60,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RiwayatRoute = RiwayatRouteImport.update({
   id: '/riwayat',
   path: '/riwayat',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pesan'
     | '/register'
+    | '/reset-password'
     | '/riwayat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pesan'
     | '/register'
+    | '/reset-password'
     | '/riwayat'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pesan'
     | '/register'
+    | '/reset-password'
     | '/riwayat'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PesanRoute: typeof PesanRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RiwayatRoute: typeof RiwayatRoute
 }
 
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/riwayat': {
       id: '/riwayat'
       path: '/riwayat'
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PesanRoute: PesanRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RiwayatRoute: RiwayatRoute,
 }
 export const routeTree = rootRouteImport
