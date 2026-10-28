@@ -39,11 +39,11 @@ export function AuthTitle({ title, desc }: { title: string; desc?: string }) {
 }
 
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
-  label?: string;
+  label?: string | undefined;
   icon: ComponentType<{ className?: string }>;
-  hint?: ReactNode;
-  status?: "error" | "ok";
-  message?: string;
+  hint?: ReactNode | undefined;
+  status?: "error" | "ok" | undefined;
+  message?: string | undefined;
   password?: boolean;
 };
 
@@ -73,7 +73,7 @@ export function Field({ label, icon: Icon, hint, status, message, password, id, 
   );
 }
 
-export function GradientButton({ children, disabled, onClick, type = "button" }: { children: ReactNode; disabled?: boolean; onClick?: () => void; type?: "button" | "submit" }) {
+export function GradientButton({ children, disabled, onClick, type = "button" }: { children: ReactNode; disabled?: boolean | undefined; onClick?: (() => void) | undefined; type?: "button" | "submit" }) {
   return (
     <button
       type={type}
