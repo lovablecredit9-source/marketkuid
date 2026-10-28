@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Package, Boxes, CheckSquare, FileText, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Plus } from "lucide-react";
 import { soon } from "@/components/marketku/shell";
 import { SellerCard, SellerEmpty, StatCell } from "@/components/marketku/seller-ui";
@@ -66,7 +66,7 @@ function Produk() {
   );
 }
 
-function IconCell({ children, label, onClick, active }: { children: React.ReactNode; label: string; onClick: () => void; active?: boolean }) {
+function IconCell({ children, label, onClick, active }: { children: ReactNode; label: string; onClick: () => void; active?: boolean }) {
   return (
     <button aria-label={label} onClick={onClick} className={`grid w-12 place-items-center border-l transition active:scale-90 ${active ? "text-primary" : "text-foreground/80"}`}>
       {children}

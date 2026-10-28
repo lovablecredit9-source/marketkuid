@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Store } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/seller")({
   component: SellerLayout,
 });
 
-function Gate({ children }: { children: React.ReactNode }) {
+function Gate({ children }: { children: ReactNode }) {
   return <div className="seller-panel flex min-h-screen items-center justify-center px-6 text-center">{children}</div>;
 }
 
