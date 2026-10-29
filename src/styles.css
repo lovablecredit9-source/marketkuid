@@ -47,7 +47,7 @@
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-brand-orange: var(--brand-orange);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
   --color-ring-offset-background: var(--background);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
