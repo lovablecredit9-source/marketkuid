@@ -23,6 +23,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => data.subscription.unsubscribe();
   }, [queryClient]);
 
+  // "Terakhir online" heartbeat for chat partners.
+  const uid = state.user?.id;
+  useEffect(() => {
+    if (!uid) return;
+    const beat = () => { if (document.visibilityState === "visible") void supabase.rpc("touch_last_seen"); };
+    beat();
+    const t = window.setInterval(beat, 60_000);
+    document.addEventListener("visibilitychange", beat);
+    return () => { window.clearInterval(t); document.removeEventListener("visibilitychange", beat); };
+  }, [uid]);
+
   return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 }
 
