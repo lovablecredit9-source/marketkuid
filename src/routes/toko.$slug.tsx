@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MessageCircle, Package, ShoppingBag, Star, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,6 @@ function Toko() {
   const { slug } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const store = useQuery({
     queryKey: ["store_slug", slug],
     queryFn: async () => (await supabase.rpc("store_by_slug", { p_slug: slug })).data?.[0] ?? null,
