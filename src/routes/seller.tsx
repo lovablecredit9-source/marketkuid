@@ -1,8 +1,11 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
-import { Store } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useEffect, useState, type ReactNode } from "react";
+import { Store, Lock, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { beatPresence, useAuth, authErrorText } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
+import { isSellerUnlocked, unlockSeller } from "@/lib/chat";
+import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 
 export const Route = createFileRoute("/seller")({
@@ -23,13 +26,60 @@ function Gate({ children }: { children: ReactNode }) {
   return <div className="seller-panel flex min-h-screen items-center justify-center px-6 text-center">{children}</div>;
 }
 
+/** Seller Center has its own login on top of the buyer session. */
+function SellerLogin({ email, storeName, passwordAccount, onDone }: { email: string; storeName: string; passwordAccount: boolean; onDone: () => void }) {
+  const [pass, setPass] = useState("");
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    if (passwordAccount) {
+      if (!pass || busy) return;
+      setBusy(true);
+      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      setBusy(false);
+      if (error) { toast.error(authErrorText(error.message)); return; }
+    }
+    toast.success("Masuk ke Seller Center");
+    onDone();
+  };
+  return (
+    <Gate>
+      <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="w-full max-w-sm rounded-2xl border bg-card p-6 text-left animate-in fade-in-0 zoom-in-95">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/15 text-primary"><Store className="h-7 w-7" /></span>
+        <h1 className="mt-4 text-center text-xl font-bold">Masuk Seller Center</h1>
+        <p className="mt-1 text-center text-sm text-muted-foreground">Toko <b className="text-foreground">{storeName}</b></p>
+        <label className="mt-5 block text-xs font-semibold text-muted-foreground">Email</label>
+        <input value={email} readOnly className="mt-1 w-full rounded-xl border bg-background px-4 py-3 text-sm opacity-80 outline-none" />
+        {passwordAccount && (
+          <>
+            <label className="mt-3 block text-xs font-semibold text-muted-foreground">Password</label>
+            <div className="mt-1 flex items-center rounded-xl border bg-background pr-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+              <Lock className="ml-3 h-4 w-4 text-muted-foreground" />
+              <input autoFocus type={show ? "text" : "password"} value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Password akunmu" className="w-full bg-transparent px-3 py-3 text-sm outline-none" />
+              <button type="button" aria-label={show ? "Sembunyikan password" : "Tampilkan password"} onClick={() => setShow(!show)} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition active:scale-90">{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+            </div>
+          </>
+        )}
+        <button disabled={busy || (passwordAccount && !pass)} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-glow py-3 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60">
+          {busy && <Loader2 className="h-4 w-4 animate-spin" />} {passwordAccount ? "Masuk" : "Lanjutkan ke Seller Center"}
+        </button>
+        <Link to="/akun" className="mt-3 flex items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Kembali ke akun pembeli</Link>
+      </form>
+    </Gate>
+  );
+}
+
 function SellerLayout() {
   const { user, ready } = useAuth();
   const store = useSellerStore(user?.id);
   const [menu, setMenu] = useState(false);
   const [theme, setTheme] = useSellerTheme();
+  const [unlocked, setUnlocked] = useState<boolean | null>(null);
+  useEffect(() => { setUnlocked(isSellerUnlocked(user?.id)); }, [user?.id]);
+  // Mark the seller online (2 ticks for buyers) as soon as Seller Center opens.
+  useEffect(() => { if (unlocked && user) beatPresence(user.id); }, [unlocked, user]);
 
-  if (!ready || (user && store.isLoading)) return <Gate><p className="text-muted-foreground">Memuat...</p></Gate>;
+  if (!ready || unlocked === null || (user && store.isLoading)) return <Gate><p className="text-muted-foreground">Memuat...</p></Gate>;
   if (!user || !store.data) {
     return (
       <Gate>
@@ -42,6 +92,13 @@ function SellerLayout() {
           </Link>
         </div>
       </Gate>
+    );
+  }
+  if (!unlocked) {
+    const providers = (user.app_metadata?.["providers"] as string[] | undefined) ?? [user.app_metadata?.["provider"] as string];
+    return (
+      <SellerLogin email={user.email ?? ""} storeName={store.data.store_name} passwordAccount={providers.includes("email")}
+        onDone={() => { unlockSeller(user.id); setUnlocked(true); }} />
     );
   }
 

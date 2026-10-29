@@ -11,6 +11,7 @@ import { AppShell, MenuRow, Section, soon, toggleDark } from "@/components/marke
 import { SellerSheet } from "@/components/marketku/seller-sheet";
 import { BUYER_WELCOME, SELLER_WELCOME, WelcomeTour } from "@/components/marketku/welcome-tour";
 import { supabase } from "@/integrations/supabase/client";
+import { clearSellerLocks } from "@/lib/chat";
 import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 
@@ -104,6 +105,7 @@ function AkunDashboard({ user }: { user: User }) {
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
+    clearSellerLocks();
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
   };

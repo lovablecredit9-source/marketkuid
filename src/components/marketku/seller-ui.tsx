@@ -12,6 +12,7 @@ import logo from "@/assets/logo-marketku.png.asset.json";
 import { soon } from "@/components/marketku/shell";
 import { startTour } from "@/components/marketku/tour";
 import { supabase } from "@/integrations/supabase/client";
+import { lockSeller } from "@/lib/chat";
 
 export const rpSeller = (n: number) => `Rp. ${n.toLocaleString("id-ID")},-`;
 
@@ -84,10 +85,11 @@ export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
     toast.success(store.is_open ? "Toko ditutup" : "Toko dibuka");
     void qc.invalidateQueries({ queryKey: ["seller_store", store.owner_id] });
   };
-  const signOut = async () => {
-    close(); await qc.cancelQueries(); qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+  // Leaving Seller Center keeps the buyer session; Seller Center asks to log in again next time.
+  const signOut = () => {
+    close(); lockSeller(store.owner_id);
+    toast.success("Keluar dari Seller Center");
+    navigate({ to: "/akun", replace: true });
   };
 
   return (
@@ -226,9 +228,10 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
   const isActive = (to?: string) => !!to && (to === "/seller" ? path === "/seller" : path.startsWith(to));
   const signOut = async () => {
     onOpenChange(false);
-    await qc.cancelQueries(); qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/login", replace: true });
+    const { data } = await supabase.auth.getSession();
+    if (data.session) lockSeller(data.session.user.id);
+    toast.success("Keluar dari Seller Center");
+    navigate({ to: "/akun", replace: true });
   };
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

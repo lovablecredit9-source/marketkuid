@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/marketku/shell";
 import { pageMeta } from "@/lib/meta";
 import { ChatAvatar } from "@/components/marketku/chat-avatar";
+import { useUnreadChats } from "@/lib/chat";
 
 export const Route = createFileRoute("/pesan")({
   head: () => pageMeta("Chat — Marketku", "Ruang chat pembeli dan seller Marketku."),
@@ -36,6 +37,9 @@ function Pesan() {
   const [select, setSelect] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
   const [q, setQ] = useState("");
+  const [spin, setSpin] = useState(0);
+  const totals = useUnreadChats(user?.id).data;
+  const otherUnread = role === "seller" ? totals?.buyer ?? 0 : totals?.seller ?? 0;
   const convs = useQuery({
     queryKey: ["conversations", user?.id], enabled: !!user, refetchInterval: 8000,
     queryFn: async () => (await supabase.from("conversations").select("*").order("last_at", { ascending: false }).limit(200)).data ?? [],
@@ -82,17 +86,21 @@ function Pesan() {
         <div className="min-h-[70vh] rounded-2xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
             <h1 className="text-2xl font-bold">Chat</h1>
-            <span className="grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">{unread}</span>
+            <span key={unread} className="mk-badge-pop grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">{unread}</span>
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-primary">{role === "seller" ? "Seller" : "Pembeli"}</span>
             <div className="ml-auto flex gap-1.5">
               {isSeller && (
                 <button aria-label={role === "seller" ? "Ganti ke chat pembeli" : "Ganti ke chat seller"} onClick={switchRole} className={`relative ${btn(false)}`}>
                   <RoleIcon className="h-4 w-4" />
                   <Repeat2 className="absolute bottom-1 right-1 h-3 w-3 text-primary" />
+                  {otherUnread > 0 && <span aria-label={`${otherUnread} pesan belum dibaca sebagai ${role === "seller" ? "pembeli" : "seller"}`} className="mk-ping-dot absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-card bg-destructive" />}
                 </button>
               )}
               <button aria-label="Pilih chat" onClick={() => { setSelect(!select); setPicked([]); }} className={btn(select)}><SquareCheck className="h-4 w-4" /></button>
               <button aria-label="Cari chat" onClick={() => setSearch(!search)} className={btn(search || select)}><Search className="h-4 w-4" /></button>
-              <button aria-label="Muat ulang" onClick={() => void qc.invalidateQueries({ queryKey: ["conversations"] })} className={btn(false)}><RefreshCw className="h-4 w-4" /></button>
+              <button aria-label="Muat ulang" onClick={() => { setSpin((n) => n + 1); void qc.invalidateQueries({ queryKey: ["conversations"] }); void qc.invalidateQueries({ queryKey: ["unread_chats"] }); }} className={`${btn(convs.isFetching)} active:bg-accent`}>
+                <RefreshCw key={spin} className={`h-4 w-4 ${spin ? "mk-spin-once" : ""} ${convs.isFetching ? "text-primary" : ""}`} />
+              </button>
             </div>
           </div>
           {select && (
