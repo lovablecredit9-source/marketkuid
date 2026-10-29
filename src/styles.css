@@ -238,3 +238,12 @@
 @utility mk-acc-mono {
   font-family: "SFMono-Regular", Menlo, Consolas, "Roboto Mono", "Liberation Mono", "Courier New", monospace;
 }
+
+/* Beranda: product name ticker under the banner. */
+@keyframes mk-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@utility mk-marquee {
+  animation: mk-marquee 30s linear infinite;
+}
