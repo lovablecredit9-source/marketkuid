@@ -43,6 +43,13 @@
       "when": 1793239488700,
       "tag": "0005_orders_reviews_chat_cart_ads",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793240247145,
+      "tag": "0006_fix_place_order_names",
+      "breakpoints": true
     }
   ]
 }
