@@ -8,7 +8,7 @@ export function useSellerStore(userId: string | undefined) {
     queryFn: async () => {
       const { data } = await supabase
         .from("seller_stores")
-        .select("store_name, telegram_username, created_at")
+        .select("*")
         .eq("owner_id", userId!)
         .maybeSingle();
       return data;
