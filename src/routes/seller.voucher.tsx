@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -329,7 +329,7 @@ function VoucherWizard({ ownerId, row, onClose, onSaved }: { ownerId: string; ro
   );
 }
 
-function Box({ icon: I, title, children }: { icon: typeof Tag; title: string; children: React.ReactNode }) {
+function Box({ icon: I, title, children }: { icon: typeof Tag; title: string; children: ReactNode }) {
   return (
     <div className="rounded-xl border bg-background/40 p-3">
       <p className="mb-2 flex items-center gap-2 text-sm font-semibold"><I className="h-4 w-4 text-primary" /> {title}</p>
@@ -337,7 +337,7 @@ function Box({ icon: I, title, children }: { icon: typeof Tag; title: string; ch
     </div>
   );
 }
-function Field({ label, hint, children }: { label?: string; hint?: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label?: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
       {label && <span className="mb-1 block text-[10px] text-primary">{label}</span>}

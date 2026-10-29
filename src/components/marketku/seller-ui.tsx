@@ -344,8 +344,8 @@ export function SellerSheet({ open, onOpenChange, title, children, footer, class
   );
 }
 
-export function SellerCard({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-2xl border bg-card ${className}`}>{children}</section>;
+export function SellerCard({ children, className = "", ...rest }: HTMLAttributes<HTMLElement> & { "data-tour"?: string }) {
+  return <section {...rest} className={`rounded-2xl border bg-card ${className}`}>{children}</section>;
 }
 
 export function ActionRow({ icon: I, title, desc, onClick }: { icon: typeof Package; title: string; desc: string; onClick: () => void }) {
