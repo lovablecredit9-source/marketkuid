@@ -95,9 +95,10 @@ function SellerLayout() {
     );
   }
   if (!unlocked) {
-    const providers = (user.app_metadata?.["providers"] as string[] | undefined) ?? [user.app_metadata?.["provider"] as string];
+    // Ask for the password unless the account is known to have no password sign-in (e.g. Google only).
+    const providers = user.app_metadata?.["providers"] as string[] | undefined;
     return (
-      <SellerLogin email={user.email ?? ""} storeName={store.data.store_name} passwordAccount={providers.includes("email")}
+      <SellerLogin email={user.email ?? ""} storeName={store.data.store_name} passwordAccount={!providers?.length || providers.includes("email")}
         onDone={() => { unlockSeller(user.id); setUnlocked(true); }} />
     );
   }
