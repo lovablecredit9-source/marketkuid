@@ -36,7 +36,7 @@ export function ratingBars(rows: { rating: number }[]) {
 export type CardProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string;
   product_type: string; category: string | null; minPrice: number; maxPrice: number; stock: number;
-  storeName: string; storeOpen: boolean; rating: Rating;
+  storeName: string; storeOpen: boolean; rating: Rating; likes: number;
 };
 
 export function sortProducts(list: CardProduct[], sort: SortKey, q = "") {
@@ -82,11 +82,13 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const owners = [...new Set(rows.map((r) => r.owner_id))];
-  const [stores, stock, reviews] = await Promise.all([
+  const [stores, stock, reviews, likes] = await Promise.all([
     supabase.rpc("public_stores", { p_ids: owners }),
     supabase.rpc("variant_stock", { p_product_ids: ids }),
     supabase.from("product_reviews").select("product_id, rating").in("product_id", ids),
+    supabase.rpc("product_like_counts", { p_ids: ids }),
   ]);
+  const lk = new Map((likes.data ?? []).map((l) => [l.product_id, Number(l.likes)]));
   const sm = new Map((stores.data ?? []).map((s) => [s.owner_id, s]));
   const st = new Map((stock.data ?? []).map((s) => [s.variant_id, s.available]));
   return rows.map((r) => {
@@ -99,6 +101,7 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
       stock: r.product_variants.reduce((a, v) => a + (st.get(v.id) ?? 0), 0),
       storeName: s?.store_name ?? "Toko", storeOpen: s?.is_open ?? false,
       rating: ratingOf((reviews.data ?? []).filter((x) => x.product_id === r.id)),
+      likes: lk.get(r.id) ?? 0,
     };
   });
 }
