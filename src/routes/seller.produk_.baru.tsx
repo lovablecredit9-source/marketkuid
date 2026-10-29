@@ -293,8 +293,7 @@ function ProductWizard() {
               <FloatInput label="@username_telegram atau 08123456789" alwaysFloat value={contact} maxLength={60} onChange={(e) => setContact(e.target.value)} className="[&>input]:border-primary" />
               <p className="mt-2 text-xs text-muted-foreground">Pembeli akan diarahkan ke kontak ini setelah bayar.</p></div>
             <div><FieldLabel required>Estimasi durasi pengerjaan</FieldLabel>
-              <FloatInput label="Contoh: 1-3 hari kerja" value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)}
-                onFocus={(e) => e.currentTarget.parentElement?.setAttribute("data-focus", "1")} onBlur={(e) => e.currentTarget.parentElement?.removeAttribute("data-focus")} /></div>
+              <FloatInput label="Contoh: 1-3 hari kerja" value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)} /></div>
           </>
         )}
 

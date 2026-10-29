@@ -10,10 +10,13 @@ export const fieldCls =
 
 /** Input with a small label sitting on the top border once it has a value. */
 export function FloatInput({ label, value, className = "", alwaysFloat, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; value: string; alwaysFloat?: boolean }) {
-  const floated = alwaysFloat || value !== "";
+  const [focused, setFocused] = useState(false);
+  const floated = alwaysFloat || focused || value !== "";
   return (
     <div className={`relative ${className}`}>
-      <input {...rest} value={value} placeholder={floated ? rest.placeholder : label} className={`${fieldCls} ${floated ? "text-base" : ""}`} />
+      <input {...rest} value={value}
+        onFocus={(e) => { setFocused(true); rest.onFocus?.(e); }}
+        onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }} placeholder={floated ? rest.placeholder : label} className={`${fieldCls} ${floated ? "text-base" : ""} ${focused ? "border-primary" : ""}`} />
       {floated && <span className="pointer-events-none absolute -top-2 left-3 bg-card px-1 text-[11px] font-medium leading-none text-primary">{label}</span>}
     </div>
   );
