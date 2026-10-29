@@ -19,46 +19,73 @@ export type Database = {
           clicks: number
           created_at: string
           daily_budget: number
+          duration_days: number | null
           ends_at: string | null
           id: string
           impressions: number
+          keywords: string[]
+          live_from: string | null
+          live_until: string | null
+          match_mode: string
           name: string
           owner_id: string
+          paid_part: number
           placement: string
+          price_per_day: number
           product_id: string
+          promo_part: number
           spend: number
           starts_at: string | null
           status: string
+          total_cost: number
         }
         Insert: {
           clicks?: number
           created_at?: string
           daily_budget: number
+          duration_days?: number | null
           ends_at?: string | null
           id?: string
           impressions?: number
+          keywords?: string[]
+          live_from?: string | null
+          live_until?: string | null
+          match_mode?: string
           name: string
           owner_id: string
+          paid_part?: number
           placement?: string
+          price_per_day?: number
           product_id: string
+          promo_part?: number
           spend?: number
           starts_at?: string | null
           status?: string
+          total_cost?: number
         }
         Update: {
           clicks?: number
           created_at?: string
           daily_budget?: number
+          duration_days?: number | null
           ends_at?: string | null
           id?: string
           impressions?: number
+          keywords?: string[]
+          live_from?: string | null
+          live_until?: string | null
+          match_mode?: string
           name?: string
           owner_id?: string
+          paid_part?: number
           placement?: string
+          price_per_day?: number
           product_id?: string
+          promo_part?: number
           spend?: number
           starts_at?: string | null
           status?: string
+          total_cost?: number
         }
         Relationships: [
           {
@@ -69,6 +96,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ad_voucher_claims: {
+        Row: {
+          code: string
+          created_at: string
+          owner_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          owner_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_voucher_claims_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "ad_vouchers"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      ad_vouchers: {
+        Row: {
+          amount: number
+          claimed: number
+          code: string
+          created_at: string
+          expires_at: string | null
+          is_active: boolean
+          max_claims: number | null
+        }
+        Insert: {
+          amount: number
+          claimed?: number
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          is_active?: boolean
+          max_claims?: number | null
+        }
+        Update: {
+          amount?: number
+          claimed?: number
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          is_active?: boolean
+          max_claims?: number | null
+        }
+        Relationships: []
+      }
+      ad_wallet_ledger: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          owner_id: string
+          paid_delta: number
+          promo_delta: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          owner_id: string
+          paid_delta?: number
+          promo_delta?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          owner_id?: string
+          paid_delta?: number
+          promo_delta?: number
+        }
+        Relationships: []
+      }
+      ad_wallets: {
+        Row: {
+          owner_id: string
+          paid: number
+          promo: number
+          updated_at: string
+        }
+        Insert: {
+          owner_id: string
+          paid?: number
+          promo?: number
+          updated_at?: string
+        }
+        Update: {
+          owner_id?: string
+          paid?: number
+          promo?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       cart_items: {
         Row: {
@@ -766,6 +900,127 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_bot_updates: {
+        Row: {
+          bot_id: string
+          created_at: string
+          update_id: number
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          update_id: number
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          update_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_bot_updates_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_bot_users: {
+        Row: {
+          bot_id: string
+          created_at: string
+          first_name: string | null
+          referred_by: number | null
+          tg_user_id: number
+          username: string | null
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          first_name?: string | null
+          referred_by?: number | null
+          tg_user_id: number
+          username?: string | null
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          first_name?: string | null
+          referred_by?: number | null
+          tg_user_id?: number
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_bot_users_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_bots: {
+        Row: {
+          admin_username: string | null
+          admin_wa: string | null
+          buyer_mode: number
+          created_at: string
+          crypto_enabled: boolean
+          force_join: Json
+          id: string
+          is_active: boolean
+          keyboard: Json
+          name: string
+          owner_id: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at: string | null
+          webhook_ok: boolean
+          webhook_secret: string
+        }
+        Insert: {
+          admin_username?: string | null
+          admin_wa?: string | null
+          buyer_mode?: number
+          created_at?: string
+          crypto_enabled?: boolean
+          force_join?: Json
+          id?: string
+          is_active?: boolean
+          keyboard?: Json
+          name: string
+          owner_id: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret: string
+        }
+        Update: {
+          admin_username?: string | null
+          admin_wa?: string | null
+          buyer_mode?: number
+          created_at?: string
+          crypto_enabled?: boolean
+          force_join?: Json
+          id?: string
+          is_active?: boolean
+          keyboard?: Json
+          name?: string
+          owner_id?: string
+          tg_bot_id?: number
+          token?: string
+          username?: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -797,7 +1052,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ad_refresh_queue: { Args: never; Returns: undefined }
+      cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
+      category_product_counts: {
+        Args: never
+        Returns: {
+          category_id: string
+          products: number
+        }[]
+      }
+      claim_ad_voucher: { Args: { p_code: string }; Returns: number }
+      create_ad_campaign: {
+        Args: {
+          p_days: number
+          p_keywords: string[]
+          p_mode: string
+          p_product: string
+        }
+        Returns: string
+      }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
       place_order: {
@@ -842,6 +1116,13 @@ export type Database = {
           spent: number
         }[]
       }
+      sponsored_products: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          campaign_id: string
+          product_id: string
+        }[]
+      }
       start_conversation: { Args: { p_seller: string }; Returns: string }
       store_by_slug: {
         Args: { p_slug: string }
@@ -854,6 +1135,7 @@ export type Database = {
           store_name: string
         }[]
       }
+      track_ad_click: { Args: { p_campaign: string }; Returns: undefined }
       variant_stock: {
         Args: { p_product_ids: string[] }
         Returns: {
