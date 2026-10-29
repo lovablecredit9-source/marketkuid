@@ -119,12 +119,12 @@ function Produk() {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari produk..."
               className="min-w-0 flex-1 rounded-l-2xl border-r bg-background/40 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
             <IconCell label={`Filter: ${statusLabel[status]}`} active={status !== "all" || menu === "filter"} dot={status !== "all"}
-              onClick={() => setMenu(menu === "filter" ? null : "filter")}><SlidersHorizontal className="h-5 w-5" /></IconCell>
+              onClick={() => setMenu(menu === "filter" ? null : "filter")}><SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={1.75} /></IconCell>
             <IconCell label={`Urutkan: ${sortLabel[sort]}`} onClick={() => setMenu(menu === "sort" ? null : "sort")} active dot>
-              <ArrowUpDown className="h-5 w-5" /></IconCell>
+              <ArrowUpDown className="h-[18px] w-[18px]" strokeWidth={1.75} /></IconCell>
             <span data-tour="p-layout" className="flex">
-              <IconCell label="Tampilan grid" onClick={() => setLayout("grid")} active={layout === "grid"}><LayoutGrid className="h-5 w-5" /></IconCell>
-              <IconCell label="Tampilan list" onClick={() => setLayout("list")} active={layout === "list"}><List className="h-5 w-5" /></IconCell>
+              <IconCell label="Tampilan grid" onClick={() => setLayout("grid")} active={layout === "grid"}><LayoutGrid className="h-[18px] w-[18px]" strokeWidth={1.75} /></IconCell>
+              <IconCell label="Tampilan list" onClick={() => setLayout("list")} active={layout === "list"}><List className="h-[18px] w-[18px]" strokeWidth={1.75} /></IconCell>
             </span>
           </SellerCard>
           {menu && (
@@ -172,8 +172,8 @@ function Produk() {
                     {thumb(p) ? <img src={thumb(p)} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-8 w-8 text-muted-foreground" />}
                   </div>
                   <div className="p-3">
-                    <p className="line-clamp-2 text-sm font-bold uppercase">{p.name}</p>
-                    <p className="mt-1 text-sm font-semibold text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</p>
+                    <p className="line-clamp-2 text-sm font-medium uppercase">{p.name}</p>
+                    <p className="mt-1 text-xs font-medium text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</p>
                     <p className="text-xs text-muted-foreground">{metaText(p)}</p>
                   </div>
                 </button>
@@ -206,23 +206,23 @@ function ProductRow({ p, img, onClick, meta }: { p: MyProduct; img?: string | un
   return (
     <button onClick={onClick} className="flex w-full items-center gap-3 border-b px-3 py-2.5 text-left last:border-b-0 transition active:bg-accent">
       <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
-        {img ? <img src={img} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-6 w-6 text-muted-foreground" />}
+        {img ? <img src={img} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-bold uppercase">{p.name}</span>
-        <span className="mt-1 block truncate text-sm">
-          <span className="font-semibold text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</span>
+        <span className="block truncate text-sm font-medium uppercase">{p.name}</span>
+        <span className="mt-0.5 block truncate text-xs">
+          <span className="font-medium text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</span>
           <span className={m.endsWith("stok") ? "text-tone-amber" : "text-foreground/80"}> · {m}</span>
         </span>
       </span>
-      <ChevronRight className="h-5 w-5 shrink-0 text-foreground/80" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-foreground/80" strokeWidth={1.75} />
     </button>
   );
 }
 
 function Chip({ on, onClick, label, n }: { on: boolean; onClick: () => void; label: string; n: number }) {
   return (
-    <button onClick={onClick} className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-semibold transition active:scale-95 ${on ? "bg-foreground text-background" : "border-r text-foreground/90"}`}>
+    <button onClick={onClick} className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition active:scale-95 ${on ? "bg-foreground text-background" : "border-r text-foreground/90"}`}>
       {label} <span className="text-xs opacity-80">{n}</span>
     </button>
   );
@@ -230,7 +230,7 @@ function Chip({ on, onClick, label, n }: { on: boolean; onClick: () => void; lab
 
 function IconCell({ children, label, onClick, active, dot }: { children: ReactNode; label: string; onClick: () => void; active?: boolean; dot?: boolean }) {
   return (
-    <button aria-label={label} title={label} onClick={onClick} className={`relative grid w-12 place-items-center border-l transition active:scale-90 ${active ? "text-primary" : "text-foreground/80"}`}>
+    <button aria-label={label} title={label} onClick={onClick} className={`relative grid w-11 place-items-center border-l transition active:scale-90 ${active ? "text-primary" : "text-foreground/80"}`}>
       {children}
       {dot && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-primary" />}
     </button>

@@ -96,7 +96,7 @@ export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
     <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
       <div ref={ref} className="relative flex items-center gap-1 px-3 py-3">
         <button aria-label="Menu" onClick={onMenu} className="grid h-9 w-9 place-items-center rounded-lg transition active:scale-90"><Menu className="h-5 w-5" /></button>
-        <h1 className="ml-1 truncate text-base font-semibold">{titleFor(path)}</h1>
+        <h1 className="ml-1 min-w-0 truncate text-[15px] font-semibold">{titleFor(path)}</h1>
         <div className="ml-auto flex items-center gap-0.5" data-tour="topbar">
           <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
           <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
@@ -158,7 +158,7 @@ function DropItem({ icon: I, label, onClick }: { icon: typeof Package; label: st
 }
 
 function HeadBtn({ children, label, onClick, active, tour }: { children: ReactNode; label: string; onClick: () => void; active?: boolean; tour?: string }) {
-  return <button data-tour={tour} aria-label={label} onClick={onClick} className={`grid h-9 w-9 place-items-center rounded-full text-foreground/90 transition active:scale-90 ${active ? "bg-accent text-primary ring-1 ring-primary/60" : ""}`}>{children}</button>;
+  return <button data-tour={tour} aria-label={label} onClick={onClick} className={`grid h-8 w-8 place-items-center rounded-full text-foreground/90 transition active:scale-90 ${active ? "bg-accent text-primary ring-1 ring-primary/60" : ""}`}>{children}</button>;
 }
 
 export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
@@ -299,9 +299,9 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
 export function SellerPageTitle({ icon: I, title, desc, right }: { icon: typeof Package; title: string; desc: string; right?: ReactNode }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-1 text-primary"><I className="h-6 w-6" /></span>
+      <span className="mt-1 text-primary"><I className="h-5 w-5" strokeWidth={1.75} /></span>
       <div className="min-w-0 flex-1">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-xl font-semibold">{title}</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">{desc}</p>
       </div>
       {right}
