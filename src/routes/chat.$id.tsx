@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2 } from "lucide-react";
-import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel } from "@/components/marketku/chat-avatar";
+import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel, stampLabel } from "@/components/marketku/chat-avatar";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
