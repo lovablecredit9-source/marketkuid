@@ -36,6 +36,7 @@ import { Route as SellerAnalitikRouteImport } from './routes/seller.analitik'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
 import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
+import { Route as SellerIklanRouteImport } from './routes/seller.iklan'
 import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
 import { Route as SellerPelangganRouteImport } from './routes/seller.pelanggan'
 import { Route as SellerPembayaranRouteImport } from './routes/seller.pembayaran'
@@ -187,6 +188,11 @@ const SellerGaransiRoute = SellerGaransiRouteImport.update({
   path: '/garansi',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerIklanRoute = SellerIklanRouteImport.update({
+  id: '/iklan',
+  path: '/iklan',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerPanduanRoute = SellerPanduanRouteImport.update({
   id: '/panduan',
   path: '/panduan',
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByTo {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
@@ -511,6 +522,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
@@ -747,6 +759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerGaransiRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/iklan': {
+      id: '/seller/iklan'
+      path: '/iklan'
+      fullPath: '/seller/iklan'
+      preLoaderRoute: typeof SellerIklanRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/panduan': {
       id: '/seller/panduan'
       path: '/panduan'
@@ -872,6 +891,7 @@ interface SellerRouteChildren {
   SellerBotRoute: typeof SellerBotRoute
   SellerBroadcastRoute: typeof SellerBroadcastRoute
   SellerGaransiRoute: typeof SellerGaransiRoute
+  SellerIklanRoute: typeof SellerIklanRoute
   SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
   SellerPelangganRoute: typeof SellerPelangganRoute
   SellerPembayaranRoute: typeof SellerPembayaranRoute
@@ -892,6 +912,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerBotRoute: SellerBotRoute,
   SellerBroadcastRoute: SellerBroadcastRoute,
   SellerGaransiRoute: SellerGaransiRoute,
+  SellerIklanRoute: SellerIklanRoute,
   SellerPanduanRoute: SellerPanduanRouteWithChildren,
   SellerPelangganRoute: SellerPelangganRoute,
   SellerPembayaranRoute: SellerPembayaranRoute,

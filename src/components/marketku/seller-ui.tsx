@@ -27,6 +27,7 @@ const titles: [string, string][] = [
   ["/seller/withdraw", "Withdraw"], ["/seller/pembayaran", "Kontrol Pembayaran"], ["/seller/rekber", "Rekber"],
   ["/seller/garansi", "Garansi"], ["/seller/bot", "Bot Telegram"], ["/seller/voucher", "Voucher"],
   ["/seller/broadcast", "Broadcast"], ["/seller/panduan", "Panduan"], ["/seller/pengaturan", "Pengaturan"],
+  ["/seller/analitik", "Analitik"], ["/seller/pelanggan", "Pelanggan"], ["/seller/program", "Program Seller"], ["/seller/iklan", "Iklan"],
 ];
 const titleFor = (p: string) => (p === "/seller" ? "Dasbor" : titles.find(([k]) => p.startsWith(k))?.[1] ?? "Seller Center");
 
@@ -183,14 +184,15 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
 type SellerPath =
   | "/seller" | "/seller/produk" | "/seller/saldo" | "/seller/transaksi" | "/seller/withdraw" | "/seller/pembayaran"
   | "/seller/rekber" | "/seller/garansi" | "/seller/bot" | "/seller/voucher" | "/seller/broadcast" | "/seller/panduan"
-  | "/seller/pengaturan" | "/pesan" | "/dispute";
-type MenuItem = { label: string; icon: typeof Package; to?: SellerPath; badge?: string; children?: string[] };
+  | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/pesan" | "/dispute";
+type AdTab = "campaign" | "buat" | "performa" | "saldo" | undefined;
+type MenuItem = { label: string; icon: typeof Package; to?: SellerPath; badge?: string; children?: { label: string; tab: AdTab }[] };
 const menuGroups: { title: string; items: MenuItem[] }[] = [
-  { title: "UTAMA", items: [{ label: "Dasbor", icon: LayoutGrid, to: "/seller" }, { label: "Analitik", icon: BarChart3 }] },
+  { title: "UTAMA", items: [{ label: "Dasbor", icon: LayoutGrid, to: "/seller" }, { label: "Analitik", icon: BarChart3, to: "/seller/analitik" }] },
   { title: "MANAJEMEN TOKO", items: [
     { label: "Produk Saya", icon: Package, to: "/seller/produk" },
     { label: "Transaksi", icon: ShoppingBag, to: "/seller/transaksi" },
-    { label: "Pelanggan", icon: Users },
+    { label: "Pelanggan", icon: Users, to: "/seller/pelanggan" },
     { label: "Inbox Chat", icon: MessageCircle, to: "/pesan" },
     { label: "Dispute Pesanan", icon: AlertTriangle, to: "/dispute" },
   ] },
@@ -200,10 +202,10 @@ const menuGroups: { title: string; items: MenuItem[] }[] = [
     { label: "Credits", icon: Coins, to: "/seller/saldo" },
     { label: "Kontrol Pembayaran", icon: CreditCard, to: "/seller/pembayaran" },
     { label: "Rekber", icon: Handshake, to: "/seller/rekber" },
-    { label: "Program Seller", icon: Gem },
+    { label: "Program Seller", icon: Gem, to: "/seller/program" },
     { label: "Garansi", icon: Shield, to: "/seller/garansi" },
   ] },
-  { title: "IKLAN", items: [{ label: "Iklan", icon: Megaphone, badge: "BETA", children: ["Dashboard Iklan", "Campaign", "Buat Iklan", "Performa", "Saldo Iklan"] }] },
+  { title: "IKLAN", items: [{ label: "Iklan", icon: Megaphone, badge: "BETA", children: [{ label: "Dashboard Iklan", tab: undefined }, { label: "Campaign", tab: "campaign" }, { label: "Buat Iklan", tab: "buat" }, { label: "Performa", tab: "performa" }, { label: "Saldo Iklan", tab: "saldo" }] }] },
   { title: "INTEGRASI", items: [
     { label: "Bot Telegram", icon: Bot, to: "/seller/bot" },
     { label: "Voucher", icon: Percent, to: "/seller/voucher" },
@@ -271,7 +273,7 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
                       {children && isOpen && (
                         <div className="py-1 pl-10">
                           {children.map((c) => (
-                            <button key={c} onClick={() => soon(c)} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-foreground/80 transition active:bg-accent">{c}</button>
+                            <button key={c.label} onClick={() => { onOpenChange(false); navigate({ to: "/seller/iklan", search: c.tab ? { tab: c.tab } : {} }); }} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-foreground/80 transition active:bg-accent">{c.label}</button>
                           ))}
                         </div>
                       )}
