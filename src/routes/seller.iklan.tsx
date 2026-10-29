@@ -120,7 +120,7 @@ function Iklan() {
         <Big icon={Eye} tone="text-primary" label="IMPRESI" value={imp.toLocaleString("id-ID")} desc="Berapa kali iklan kamu tampil ke pembeli." />
         <Big icon={MousePointerClick} tone="text-primary" label="KLIK" value={clk.toLocaleString("id-ID")} desc="Jumlah pembeli yang membuka produk dari iklan." />
         <Big icon={TrendingUp} tone="text-success" label="CTR" value={`${imp ? ((clk / imp) * 100).toFixed(1) : "0.0"}%`} desc="Klik dibagi impresi." />
-        <Big icon={BarChart3} tone="text-[hsl(var(--chart-4,280_70%_65%))]" label="TOTAL BELANJA" value={rpSeller(spend)} desc="Gabungan belanja saldo dibayar dan promo." />
+        <Big icon={BarChart3} tone="text-primary" label="TOTAL BELANJA" value={rpSeller(spend)} desc="Gabungan belanja saldo dibayar dan promo." />
         <Big icon={Layers} tone="text-primary" label="DANA DITAHAN" value={rpSeller(held)} desc="Reservasi campaign yang belum terpakai." />
         <Big icon={TrendingUp} tone="text-success" label="CAMPAIGN AKTIF" value={String(live.length)} />
         <SellerCard className="flex gap-3 p-4 text-sm"><Info className="mt-0.5 h-4 w-4 shrink-0" /> Impresi dan klik mulai terkumpul setelah campaign kamu tayang di pencarian atau halaman utama. Sebelum itu, hanya belanja dan pemakaian anggaran yang tampil.</SellerCard>
@@ -241,7 +241,7 @@ function Saldo({ paid, promo, ledger, onReload }: { paid: number; promo: number;
     <>
       <Head icon={Megaphone} title="Saldo Iklan" desc="Saldo untuk membeli slot bersponsor di pencarian dan halaman utama." onReload={onReload} />
       <Big icon={Wallet} tone="text-success" label="SALDO DIBAYAR" value={rpSeller(paid)} desc="Dari top up. Dikembalikan ke saldo jika campaign dibatalkan sebelum tayang." />
-      <Big icon={Gift} tone="text-[hsl(280_70%_70%)]" label="SALDO PROMO" value={rpSeller(promo)} desc="Dari voucher atau pemberian admin. Tidak bisa dicairkan." />
+      <Big icon={Gift} tone="text-primary" label="SALDO PROMO" value={rpSeller(promo)} desc="Dari voucher atau pemberian admin. Tidak bisa dicairkan." />
       <SellerCard className="space-y-3 p-4">
         <p className="flex items-center gap-2 font-semibold"><QrCode className="h-4 w-4" /> Top Up via QRIS</p>
         <p className="text-xs text-muted-foreground">Saldo bertambah otomatis setelah pembayaran terkonfirmasi.</p>
