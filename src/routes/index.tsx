@@ -3,18 +3,18 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Search, Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
-  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, type LucideIcon,
+  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, Megaphone, type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
-import { useMarketProducts, type CardProduct } from "@/lib/market";
+import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { useCategories, useImageUrls } from "@/lib/products";
 import { BRAND_GROUPS, CATEGORY_IMAGES, HOME_BANNERS } from "@/lib/home-assets";
 
-type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" };
+type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
-  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/cari" }] },
+  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/kategori" }] },
   { title: "Seller", links: [{ label: "Mulai Jualan", to: "/akun" }, { label: "Seller Center", to: "/seller" }, { label: "Panduan Seller", to: "/seller/panduan" }, { label: "Biaya Layanan", to: "/syarat" }] },
   { title: "Bantuan", links: [{ label: "Pusat Bantuan", to: "/bantuan" }, { label: "Syarat & Ketentuan", to: "/syarat" }, { label: "Kebijakan Privasi", to: "/privasi" }, { label: "Hubungi Kami", to: "/kontak" }] },
 ];
@@ -75,6 +75,8 @@ function Index() {
           <EmptyState icon={Package} title="Belum ada produk" desc="Produk akan tampil di sini setelah seller menambahkannya." />
         ) : (
           <>
+            <SponsoredSection />
+
             <LikedSection items={liked} urlOf={urlOf} />
 
             <Section icon={TrendingUp} tone="bg-warning text-foreground" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
@@ -196,7 +198,28 @@ function CategoryStrip() {
           </Link>
         );
       })}
+      <Link to="/kategori" className="flex shrink-0 items-center gap-2.5 px-4 text-sm font-medium transition active:scale-95">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><LayoutGrid className="h-4 w-4" /></span>
+        Lihat semua
+      </Link>
     </div>
+  );
+}
+
+/** Paid sponsored slots (Iklan) — only shown when a seller campaign is live. */
+function SponsoredSection() {
+  const ads = useSponsored("", 6);
+  const items = ads.data ?? [];
+  const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
+  if (!items.length) return null;
+  return (
+    <Section icon={Megaphone} tone="bg-primary text-primary-foreground" kicker="Iklan" title="Produk Bersponsor" to="/cari">
+      <Rail>{items.map((p) => (
+        <div key={p.campaignId} onClickCapture={() => trackAdClick(p.campaignId)}>
+          <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
+        </div>
+      ))}</Rail>
+    </Section>
   );
 }
 

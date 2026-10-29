@@ -15,6 +15,7 @@ import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DisputeRouteImport } from './routes/dispute'
+import { Route as KategoriRouteImport } from './routes/kategori'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as LoginRouteImport } from './routes/login'
@@ -52,6 +53,7 @@ import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
+import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/telegram.$botId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -81,6 +83,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const DisputeRoute = DisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KategoriRoute = KategoriRouteImport.update({
+  id: '/kategori',
+  path: '/kategori',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -268,6 +275,11 @@ const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
   path: '/produk/baru',
   getParentRoute: () => SellerRoute,
 } as any)
+const ApiPublicTelegramBotIdRoute = ApiPublicTelegramBotIdRouteImport.update({
+  id: '/api/public/telegram/$botId',
+  path: '/api/public/telegram/$botId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -276,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -313,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -321,6 +335,7 @@ export interface FileRoutesByTo {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -357,6 +372,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -366,6 +382,7 @@ export interface FileRoutesById {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -403,6 +420,7 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -413,6 +431,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -450,6 +469,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
+    | '/api/public/telegram/$botId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -458,6 +478,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -494,6 +515,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
+    | '/api/public/telegram/$botId'
   id:
     | '__root__'
     | '/'
@@ -502,6 +524,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -539,6 +562,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
+    | '/api/public/telegram/$botId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -548,6 +572,7 @@ export interface RootRouteChildren {
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
   DisputeRoute: typeof DisputeRoute
+  KategoriRoute: typeof KategoriRoute
   KeranjangRoute: typeof KeranjangRoute
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
@@ -566,6 +591,7 @@ export interface RootRouteChildren {
   ProdukIdRoute: typeof ProdukIdRoute
   TokoSlugRoute: typeof TokoSlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
+  ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -610,6 +636,13 @@ declare module '@tanstack/react-router' {
       path: '/dispute'
       fullPath: '/dispute'
       preLoaderRoute: typeof DisputeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kategori': {
+      id: '/kategori'
+      path: '/kategori'
+      fullPath: '/kategori'
+      preLoaderRoute: typeof KategoriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -871,6 +904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProdukBaruRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/api/public/telegram/$botId': {
+      id: '/api/public/telegram/$botId'
+      path: '/api/public/telegram/$botId'
+      fullPath: '/api/public/telegram/$botId'
+      preLoaderRoute: typeof ApiPublicTelegramBotIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -938,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
   DisputeRoute: DisputeRoute,
+  KategoriRoute: KategoriRoute,
   KeranjangRoute: KeranjangRoute,
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
@@ -956,6 +997,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukIdRoute: ProdukIdRoute,
   TokoSlugRoute: TokoSlugRoute,
   UlasanIdRoute: UlasanIdRoute,
+  ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

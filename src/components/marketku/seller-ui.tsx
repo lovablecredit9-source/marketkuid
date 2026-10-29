@@ -27,7 +27,7 @@ const titles: [string, string][] = [
   ["/seller/withdraw", "Withdraw"], ["/seller/pembayaran", "Kontrol Pembayaran"], ["/seller/rekber", "Rekber"],
   ["/seller/garansi", "Garansi"], ["/seller/bot", "Bot Telegram"], ["/seller/voucher", "Voucher"],
   ["/seller/broadcast", "Broadcast"], ["/seller/panduan", "Panduan"], ["/seller/pengaturan", "Pengaturan"],
-  ["/seller/analitik", "Analitik"], ["/seller/pelanggan", "Pelanggan"], ["/seller/program", "Program Seller"], ["/seller/iklan", "Iklan"],
+  ["/seller/analitik", "Analitik"], ["/seller/pelanggan", "Pelanggan"], ["/seller/program", "Program Seller"], ["/seller/iklan", "Dashboard Iklan"],
 ];
 const titleFor = (p: string) => (p === "/seller" ? "Dasbor" : titles.find(([k]) => p.startsWith(k))?.[1] ?? "Seller Center");
 

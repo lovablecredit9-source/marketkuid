@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone } from "lucide-react";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, rpBuyer } from "@/components/marketku/product-card";
 import { useCategories } from "@/lib/products";
-import { SORTS, sortProducts, useMarketProducts, type SortKey } from "@/lib/market";
+import { SORTS, sortProducts, trackAdClick, useMarketProducts, useSponsored, type SortKey } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
 type S = { q?: string; kategori?: string };
@@ -91,6 +91,8 @@ function Cari() {
           </section>
         )}
 
+        {q && <SearchAds q={q} />}
+
         {products.isLoading ? (
           <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl border bg-card" />)}</div>
         ) : list.length ? <ProductList items={list} /> : (
@@ -98,5 +100,21 @@ function Cari() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+/** Sponsored products whose campaign keywords match the search term. */
+function SearchAds({ q }: { q: string }) {
+  const ads = useSponsored(q, 4);
+  const items = ads.data ?? [];
+  if (!items.length) return null;
+  return (
+    <section className="space-y-2" onClickCapture={(e) => {
+      const id = (e.target as HTMLElement).closest("[data-campaign]")?.getAttribute("data-campaign");
+      if (id) trackAdClick(id);
+    }}>
+      <p className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-muted-foreground"><Megaphone className="h-3.5 w-3.5" /> BERSPONSOR</p>
+      {items.map((p) => <div key={p.campaignId} data-campaign={p.campaignId}><ProductList items={[p]} /></div>)}
+    </section>
   );
 }

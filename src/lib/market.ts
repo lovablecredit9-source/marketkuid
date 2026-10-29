@@ -223,3 +223,39 @@ export const dbError = (e: unknown) => {
 export const maskName = (n: string) => (n.length <= 2 ? `${n.charAt(0)}***` : `${n.charAt(0)}***${n.charAt(n.length - 1)}`);
 export const fmtDate = (s: string) => new Date(s).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 export const fmtDateTime = (s: string) => new Date(s).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+/* ---------- sponsored products & category counts ---------- */
+
+export type SponsoredProduct = CardProduct & { campaignId: string };
+
+/** Active sponsored products; empty query = beranda, otherwise matched against campaign keywords. */
+export function useSponsored(q = "", limit = 6) {
+  return useQuery({
+    queryKey: ["sponsored", q.trim().toLowerCase(), limit],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<SponsoredProduct[]> => {
+      const { data, error } = await supabase.rpc("sponsored_products", { p_query: q, p_limit: limit });
+      if (error) throw error;
+      const rows = data ?? [];
+      if (!rows.length) return [];
+      const { data: prods, error: e2 } = await supabase.from("products").select(CARD_SELECT).eq("status", "active").in("id", rows.map((r) => r.product_id));
+      if (e2) throw e2;
+      const cards = await decorate((prods ?? []) as unknown as RawProduct[]);
+      const byId = new Map(cards.map((c) => [c.id, c]));
+      return rows.flatMap((r) => { const c = byId.get(r.product_id); return c ? [{ ...c, campaignId: r.campaign_id }] : []; });
+    },
+  });
+}
+export const trackAdClick = (campaignId: string) => { void supabase.rpc("track_ad_click", { p_campaign: campaignId }); };
+
+export function useCategoryCounts() {
+  return useQuery({
+    queryKey: ["category_counts"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("category_product_counts");
+      if (error) throw error;
+      return new Map((data ?? []).map((r) => [r.category_id, r.products]));
+    },
+  });
+}
