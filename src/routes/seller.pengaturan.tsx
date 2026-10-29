@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Settings, X, Search, Store, User, Lock, Landmark, Link2, MonitorSmartphone, KeyRound, RotateCcw, Save, Bell,
-  CircleCheck, AlertTriangle, Send, Phone,
+  CircleCheck, AlertTriangle, Send, Phone, Camera, ImagePlus, Trash2,
 } from "lucide-react";
+import { uploadStoreImage, useImageUrls } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
@@ -116,8 +117,9 @@ function ProfilToko() {
   return (
     <>
       <Head title="Profil Toko" desc="Identitas, kontak, dan media" />
+      <StoreMediaEditor userId={user!.id} avatar={store.avatar_path} banner={store.banner_path} onChanged={refresh} />
       <SellerCard className="flex items-center gap-3 p-4">
-        <span className="grid h-14 w-14 place-items-center rounded-xl border bg-background/60"><Store className="h-6 w-6" /></span>
+        <StoreAvatarThumb path={store.avatar_path} />
         <div className="min-w-0">
           <p className="truncate font-bold uppercase">{store.store_name}</p>
           {store.telegram_username && <p className="text-sm text-muted-foreground">@{store.telegram_username}</p>}
@@ -142,6 +144,81 @@ function ProfilToko() {
         <button onClick={() => setF(init())} className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3 text-sm font-semibold"><RotateCcw className="h-4 w-4" /> Reset</button>
         <button disabled={saving} onClick={() => void save()} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition active:scale-95 disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Menyimpan..." : "Simpan Profil"}</button>
       </div>
+    </>
+  );
+}
+
+function StoreAvatarThumb({ path }: { path: string | null }) {
+  const urls = useImageUrls(path ? [path] : []);
+  const url = path ? urls.data?.[path] : undefined;
+  return url
+    ? <img src={url} alt="Foto profil toko" className="h-14 w-14 shrink-0 rounded-xl border object-cover" />
+    : <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border bg-background/60"><Store className="h-6 w-6" /></span>;
+}
+
+function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: string; avatar: string | null; banner: string | null; onChanged: () => unknown }) {
+  const urls = useImageUrls([avatar ?? "", banner ?? ""]);
+  const [busy, setBusy] = useState<"avatar" | "banner" | null>(null);
+
+  const replace = async (kind: "avatar" | "banner", file: File | null) => {
+    const old = kind === "avatar" ? avatar : banner;
+    setBusy(kind);
+    try {
+      const path = file ? await uploadStoreImage(userId, file, kind) : null;
+      const { error } = await supabase.from("seller_stores").update(kind === "avatar" ? { avatar_path: path } : { banner_path: path }).eq("owner_id", userId);
+      if (error) {
+        if (path) await supabase.storage.from("product-images").remove([path]);
+        throw new Error("Gagal menyimpan foto");
+      }
+      if (old) await supabase.storage.from("product-images").remove([old]);
+      toast.success(file ? (kind === "avatar" ? "Foto profil toko diperbarui" : "Banner toko diperbarui") : "Foto dihapus");
+      await onChanged();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal mengunggah foto");
+    } finally {
+      setBusy(null);
+    }
+  };
+  const pick = (kind: "avatar" | "banner") => (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    e.target.value = "";
+    if (f) void replace(kind, f);
+  };
+  const bannerUrl = banner ? urls.data?.[banner] : undefined;
+  const avatarUrl = avatar ? urls.data?.[avatar] : undefined;
+
+  return (
+    <>
+      <p className="text-xs font-semibold tracking-widest text-muted-foreground">MEDIA TOKO</p>
+      <SellerCard className="overflow-hidden p-0">
+        <div className="relative aspect-[3/1] w-full bg-gradient-to-br from-primary/30 to-background">
+          {bannerUrl && <img src={bannerUrl} alt="Banner toko" className="h-full w-full object-cover" />}
+          {!bannerUrl && <span className="absolute inset-0 grid place-items-center text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><ImagePlus className="h-4 w-4" /> Belum ada banner</span></span>}
+          <div className="absolute right-2 top-2 flex gap-1.5">
+            <label className={`flex cursor-pointer items-center gap-1.5 rounded-lg bg-background/80 px-2.5 py-1.5 text-xs font-semibold backdrop-blur transition active:scale-95 ${busy ? "pointer-events-none opacity-60" : ""}`}>
+              <ImagePlus className="h-3.5 w-3.5" /> {busy === "banner" ? "Mengunggah..." : banner ? "Ganti Banner" : "Upload Banner"}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={pick("banner")} />
+            </label>
+            {banner && <button aria-label="Hapus banner" disabled={!!busy} onClick={() => void replace("banner", null)} className="grid h-7 w-7 place-items-center rounded-lg bg-background/80 text-destructive backdrop-blur disabled:opacity-60"><Trash2 className="h-3.5 w-3.5" /></button>}
+          </div>
+        </div>
+        <div className="-mt-8 flex items-end gap-3 px-4 pb-4">
+          <div className="relative">
+            {avatarUrl
+              ? <img src={avatarUrl} alt="Foto profil toko" className="h-20 w-20 rounded-full border-4 border-card object-cover" />
+              : <span className="grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-background"><Store className="h-7 w-7 text-muted-foreground" /></span>}
+            <label aria-label="Ganti foto profil toko" className={`absolute -bottom-0.5 -right-0.5 grid h-8 w-8 cursor-pointer place-items-center rounded-full border-2 border-card bg-primary text-primary-foreground transition active:scale-95 ${busy ? "pointer-events-none opacity-60" : ""}`}>
+              <Camera className="h-4 w-4" />
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={pick("avatar")} />
+            </label>
+          </div>
+          <div className="min-w-0 flex-1 pb-1 text-xs text-muted-foreground">
+            <p className="font-semibold text-foreground">{busy === "avatar" ? "Mengunggah foto..." : "Foto profil & banner"}</p>
+            <p>JPG, PNG, atau WebP, maks 5 MB. Banner disarankan rasio 3:1.</p>
+            {avatar && <button disabled={!!busy} onClick={() => void replace("avatar", null)} className="mt-1 font-semibold text-destructive disabled:opacity-60">Hapus foto profil</button>}
+          </div>
+        </div>
+      </SellerCard>
     </>
   );
 }
