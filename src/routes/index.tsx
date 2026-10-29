@@ -54,7 +54,7 @@ function Index() {
   return (
     <AppShell className="relative isolate">
       <div aria-hidden className="mk-grid-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px]" />
-      <form className="px-3 pt-3" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: { q } }); }}>
+      <form className="sticky top-[94px] z-20 bg-background/90 px-3 pb-2 pt-3 backdrop-blur" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: { q } }); }}>
         <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
