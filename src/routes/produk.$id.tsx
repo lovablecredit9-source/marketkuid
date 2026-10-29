@@ -251,9 +251,9 @@ function ProdukDetail() {
             <div className="flex justify-end">
               <Dialog.Close aria-label="Tutup" className="grid h-12 w-12 place-items-center rounded-full border bg-card/80 shadow transition active:scale-90"><X className="h-6 w-6" /></Dialog.Close>
             </div>
-            <div className="flex flex-1 items-center justify-center py-4">
+            <div className="flex min-h-0 flex-1 items-center justify-center py-4">
               {shown && urls.data?.[shown]
-                ? <img key={shown} src={urls.data[shown]} alt={p.name} className="mk-pop-in max-h-full w-full rounded-2xl border object-contain shadow-2xl" />
+                ? <img key={shown} src={urls.data[shown]} alt={p.name} className="mk-pop-in max-h-full max-w-full rounded-2xl border object-contain shadow-2xl" />
                 : <ProductImage alt={p.name} className="aspect-square w-full rounded-2xl" />}
             </div>
             {gallery.length > 1 && (
