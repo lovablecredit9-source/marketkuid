@@ -116,7 +116,11 @@ export function useMarketProducts(opts: { q?: string; category?: string | null; 
       let query = supabase.from("products").select(CARD_SELECT).eq("status", "active").order("created_at", { ascending: false }).limit(limit);
       const term = q.trim().replace(/[%,()]/g, " ");
       if (term) query = query.ilike("name", `%${term}%`);
-      if (category) query = query.eq("category_id", category);
+      if (category) {
+        // A parent category (e.g. "AI Tools") also shows products filed under its sub-categories.
+        const { data: cats } = await supabase.from("product_categories").select("id, parent_id");
+        query = query.in("category_id", descendantIds(cats ?? [], category));
+      }
       if (owner) query = query.eq("owner_id", owner);
       const { data, error } = await query;
       if (error) throw error;
