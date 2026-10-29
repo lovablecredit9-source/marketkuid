@@ -18,3 +18,4 @@
 - Orders are created only through the `place_order` database function (prices, stock, vouchers re-checked server-side; one order per seller grouped by `checkout_id`); buyers/sellers read orders via RLS and change status only via `cancel_order`/`seller_advance_order` — clients can never write prices or statuses directly.
 - Public store info, stock counts, and seller customer lists come from SECURITY DEFINER read functions (`public_stores`, `store_by_slug`, `variant_stock`, `seller_customers`) because `seller_stores`/`product_stock` stay owner-only (bank data, stock contents).
 - Chat uses `conversations` + `messages` (participant-only RLS; started via `start_conversation`, unread counters maintained by trigger, polled by the client) — no realtime channel yet.
+- Home banners, category image icons and brand shortcut tiles are owner-supplied CDN assets listed in `src/lib/home-assets.ts` — keeps home promo content in one place, separate from seller product data.
