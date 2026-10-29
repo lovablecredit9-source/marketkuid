@@ -170,3 +170,30 @@ export async function uploadProductImage(userId: string, file: File) {
   if (error) throw error;
   return path;
 }
+
+/** Store logo / banner go to the same private bucket under `<owner>/store/`. */
+export async function uploadStoreImage(userId: string, file: File, kind: "avatar" | "banner") {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Format harus JPG, PNG, atau WebP");
+  if (file.size > 5 * 1024 * 1024) throw new Error("Ukuran foto maksimal 5 MB");
+  const ext = (file.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
+  const path = `${userId}/store/${kind}-${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return path;
+}
+
+/** Public logo/banner paths for stores (seller_stores itself is owner-only). */
+export function useStoreMedia(ownerIds: string[]) {
+  const ids = ownerIds.filter(Boolean);
+  return useQuery({
+    queryKey: ["store_media", ids],
+    enabled: ids.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("store_media", { p_ids: ids });
+      if (error) throw error;
+      const m: Record<string, { avatar_path: string | null; banner_path: string | null }> = {};
+      for (const r of data ?? []) m[r.owner_id] = { avatar_path: r.avatar_path, banner_path: r.banner_path };
+      return m;
+    },
+  });
+}
