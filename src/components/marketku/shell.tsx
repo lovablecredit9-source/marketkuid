@@ -63,7 +63,7 @@ export function Header({ title }: { title?: string | undefined }) {
       <header className="sticky top-0 z-30 px-3 pt-3">
         <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
-          <span className="border-l pl-3 text-sm font-semibold">{title}</span>
+          <span className="mk-acc-heading border-l pl-3 text-sm font-semibold">{title}</span>
           <button onClick={() => setNotif(!notif)} aria-label="Notifikasi" className={`ml-auto grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${notif ? "border-primary text-primary" : ""}`}>
             <Bell className="h-4 w-4" />
           </button>
@@ -200,10 +200,10 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({ children, title, nav = true }: { children: ReactNode; title?: string; nav?: boolean }) {
+export function AppShell({ children, title, nav = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; className?: string }) {
   useStoredDark();
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-background">
+    <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
       <Header title={title} />
       <main className={nav ? "pb-28" : "pb-8"}>{children}</main>
       {nav && <BottomNav />}
