@@ -21,6 +21,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as SellerPengaturanRouteImport } from './routes/seller.pengaturan'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
 import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
@@ -87,6 +88,11 @@ const SellerIndexRoute = SellerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerPengaturanRoute = SellerPengaturanRouteImport.update({
+  id: '/pengaturan',
+  path: '/pengaturan',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProdukRoute = SellerProdukRouteImport.update({
   id: '/produk',
   path: '/produk',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
@@ -329,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerIndexRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/pengaturan': {
+      id: '/seller/pengaturan'
+      path: '/pengaturan'
+      fullPath: '/seller/pengaturan'
+      preLoaderRoute: typeof SellerPengaturanRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/produk': {
       id: '/seller/produk'
       path: '/produk'
@@ -368,6 +387,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface SellerRouteChildren {
+  SellerPengaturanRoute: typeof SellerPengaturanRoute
   SellerProdukRoute: typeof SellerProdukRoute
   SellerSaldoRoute: typeof SellerSaldoRoute
   SellerTransaksiRoute: typeof SellerTransaksiRoute
@@ -377,6 +397,7 @@ interface SellerRouteChildren {
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
+  SellerPengaturanRoute: SellerPengaturanRoute,
   SellerProdukRoute: SellerProdukRoute,
   SellerSaldoRoute: SellerSaldoRoute,
   SellerTransaksiRoute: SellerTransaksiRoute,
