@@ -52,7 +52,8 @@ function Index() {
   const fresh = useMemo(() => [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10), [list]);
 
   return (
-    <AppShell>
+    <AppShell className="relative isolate">
+      <div aria-hidden className="mk-grid-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px]" />
       <form className="px-3 pt-3" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: { q } }); }}>
         <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
           <Search className="h-4 w-4 text-muted-foreground" />

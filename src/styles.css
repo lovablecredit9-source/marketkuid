@@ -261,3 +261,14 @@
 .mk-badge-pop { animation: mk-badge-pop .35s ease-out; }
 @keyframes mk-ping-dot { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--destructive) 60%, transparent); } 100% { box-shadow: 0 0 0 6px transparent; } }
 .mk-ping-dot { animation: mk-ping-dot 1.4s ease-out infinite; }
+
+/* Home: faint square grid behind the top section (fades out downward), like marketku.id. */
+@utility mk-grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 6%, var(--background)), var(--background));
+  background-size: 44px 44px, 44px 44px, 100% 100%;
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
+  mask-image: linear-gradient(to bottom, black 70%, transparent);
+}

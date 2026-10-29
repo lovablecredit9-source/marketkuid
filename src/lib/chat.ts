@@ -23,6 +23,12 @@ export function tickState(m: { delivered_at: string | null; read_at: string | nu
   return "sent";
 }
 
+/* ---------- Delete message: "untuk semua orang" only by the sender, max 1 hour after sending ---------- */
+export const DELETE_FOR_ALL_MS = 60 * 60_000;
+export function canDeleteForAll(m: { mine: boolean; created_at: string; deleted_at: string | null }, now = Date.now()) {
+  return m.mine && !m.deleted_at && now - new Date(m.created_at).getTime() <= DELETE_FOR_ALL_MS;
+}
+
 /* ---------- Unread counters for nav badge and role switch dot ---------- */
 export function unreadTotals(rows: { buyer_id: string; seller_id: string; buyer_unread: number; seller_unread: number; buyer_hidden: boolean; seller_hidden: boolean }[], uid: string) {
   let buyer = 0, seller = 0;

@@ -303,7 +303,9 @@ export type Database = {
           body: string
           conversation_id: string
           created_at: string
+          deleted_at: string | null
           delivered_at: string | null
+          hidden_for: string[]
           id: string
           product_id: string | null
           read_at: string | null
@@ -314,7 +316,9 @@ export type Database = {
           body: string
           conversation_id: string
           created_at?: string
+          deleted_at?: string | null
           delivered_at?: string | null
+          hidden_for?: string[]
           id?: string
           product_id?: string | null
           read_at?: string | null
@@ -325,7 +329,9 @@ export type Database = {
           body?: string
           conversation_id?: string
           created_at?: string
+          deleted_at?: string | null
           delivered_at?: string | null
+          hidden_for?: string[]
           id?: string
           product_id?: string | null
           read_at?: string | null
@@ -1119,6 +1125,10 @@ export type Database = {
           p_product: string
         }
         Returns: string
+      }
+      delete_message: {
+        Args: { p_for_all: boolean; p_id: string }
+        Returns: undefined
       }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
       is_conversation_participant: { Args: { p_id: string }; Returns: boolean }

@@ -3,11 +3,12 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package,
+  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useImageUrls, warrantyLabel, type Warranty } from "@/lib/products";
+import { useImageUrls, useStoreMedia, warrantyLabel, type Warranty } from "@/lib/products";
+import { supportWaUrl } from "@/lib/support";
 import { ratingBars, ratingOf, unitPrice, useCartActions, useMarketProducts, useProductDetail, useReviews, dbError, fmtDate, type Discount } from "@/lib/market";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductImage, Stars, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
@@ -38,9 +39,15 @@ function ProdukDetail() {
   const [img, setImg] = useState(0);
   const [more, setMore] = useState(false);
   const [sheet, setSheet] = useState(false);
+  const [viewer, setViewer] = useState(false);
+  const [menu, setMenu] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const similar = useMarketProducts({ category: p?.category_id ?? null, limit: 12 });
+  const storeReviews = useReviews(p ? { seller: p.owner_id } : {});
+  const media = useStoreMedia(p ? [p.owner_id] : []);
+  const avatarPath = p ? media.data?.[p.owner_id]?.avatar_path ?? null : null;
+  const avatarUrl = useImageUrls(avatarPath ? [avatarPath] : []).data?.[avatarPath ?? ""];
 
   if (q.isLoading) return <AppShell nav={false}><div className="m-3 h-96 animate-pulse rounded-2xl border bg-card" /></AppShell>;
   if (!p) return <AppShell><div className="p-3"><EmptyState icon={Package} title="Produk tidak ditemukan" desc="Produk ini tidak tersedia atau sudah dinonaktifkan." /></div></AppShell>;
@@ -53,7 +60,8 @@ function ProdukDetail() {
   const canBuy = !!v && stock > 0 && !closed && p.status === "active" && !own;
   const rating = ratingOf(reviews.data ?? []);
   const wished = wish.data?.has(p.id) ?? false;
-  const gallery = [...p.images, ...(v?.image_url ? [v.image_url] : [])];
+  const gallery = [...new Set([...p.images, ...p.variants.map((x) => x.image_url ?? "")].filter(Boolean))];
+  const storeRating = ratingOf(storeReviews.data ?? []);
   const shown = gallery[Math.min(img, gallery.length - 1)];
   const price = v ? unitPrice(Number(v.price), qty, v.discount as Discount) : 0;
 
@@ -77,19 +85,28 @@ function ProdukDetail() {
   const w = v?.warranty as Warranty | null;
 
   return (
-    <AppShell nav={false}>
+    <AppShell nav={false} header={false}>
       <div className="pb-28">
         <div className="relative">
-          <ProductImage url={shown ? urls.data?.[shown] : undefined} alt={p.name} className="aspect-[4/3]" />
-          <button aria-label="Kembali" onClick={() => router.history.back()} className="absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-card/90 shadow transition active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-          <button aria-label="Bagikan" onClick={() => void share()} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-card/90 shadow transition active:scale-90"><Share2 className="h-4 w-4" /></button>
+          <button type="button" aria-label="Lihat foto produk" onClick={() => gallery.length && setViewer(true)} className="block w-full">
+            <ProductImage url={shown ? urls.data?.[shown] : undefined} alt={p.name} className="aspect-square w-full" />
+          </button>
+          <button aria-label="Kembali" onClick={() => router.history.back()} className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><ArrowLeft className="h-5 w-5" /></button>
+          <div className="absolute right-3 top-3 flex gap-2">
+            <button aria-label="Bagikan" onClick={() => void share()} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><Share2 className="h-5 w-5" /></button>
+            <button aria-label="Menu lainnya" onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><MoreVertical className="h-5 w-5" /></button>
+          </div>
           {closed && <span className="absolute inset-x-0 bottom-0 bg-foreground/70 py-1.5 text-center text-xs font-bold text-background">Toko sedang tutup</span>}
-          {gallery.length > 1 && (
-            <div className="absolute bottom-3 right-3 flex gap-1">
-              {gallery.map((g, i) => <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-1.5 rounded-full transition-all ${i === img ? "w-5 bg-primary" : "w-1.5 bg-card"}`} />)}
-            </div>
-          )}
         </div>
+        {gallery.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto bg-card px-4 pt-3">
+            {gallery.map((g, i) => (
+              <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition active:scale-95 ${i === img ? "border-primary" : "border-border opacity-70"}`}>
+                <ProductImage url={urls.data?.[g]} alt={`${p.name} ${i + 1}`} className="h-full w-full" />
+              </button>
+            ))}
+          </div>
+        )}
 
         <section className="space-y-3 bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-3">
@@ -126,8 +143,17 @@ function ProdukDetail() {
           </div>
           {p.store && (
             <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-xl border p-3 transition active:scale-[0.98]">
-              <span className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary"><Store className="h-5 w-5" /></span>
-              <span className="flex-1"><span className="block font-bold">{p.store.store_name}</span><span className="text-xs text-muted-foreground">{p.store.is_open ? "Toko buka" : "Toko tutup"}</span></span>
+              {avatarUrl
+                ? <img src={avatarUrl} alt={p.store.store_name} className="h-11 w-11 shrink-0 rounded-full border object-cover" />
+                : <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accent text-primary"><Store className="h-5 w-5" /></span>}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-bold">{p.store.store_name}</span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {storeRating.count > 0
+                    ? <><Star className="h-3.5 w-3.5 fill-warning text-warning" /><b className="text-foreground">{storeRating.avg.toFixed(1)}</b> · {storeRating.count} reviews</>
+                    : p.store.is_open ? "Toko buka" : "Toko tutup"}
+                </span>
+              </span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
           )}
@@ -214,6 +240,47 @@ function ProdukDetail() {
             </div>
             <div className="mt-5 flex items-center justify-between border-t pt-4"><span className="text-muted-foreground">Subtotal</span><span className="text-2xl font-bold text-primary">{rpBuyer(price * qty)}</span></div>
             <button onClick={() => { setSheet(false); if (v) navigate({ to: "/checkout", search: { items: `${v.id}:${qty}` } }); }} className="mt-4 w-full rounded-xl bg-primary py-3.5 font-bold text-primary-foreground shadow-lg transition active:scale-[0.98]">Lanjut ke Checkout</button>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+      <Dialog.Root open={viewer} onOpenChange={setViewer}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+          <Dialog.Content aria-describedby={undefined} className="fixed inset-0 z-50 mx-auto flex max-w-md flex-col px-4 py-6 data-[state=open]:animate-in data-[state=open]:zoom-in-95">
+            <Dialog.Title className="sr-only">Foto produk {img + 1} dari {gallery.length}</Dialog.Title>
+            <div className="flex justify-end">
+              <Dialog.Close aria-label="Tutup" className="grid h-12 w-12 place-items-center rounded-full border bg-card/80 shadow transition active:scale-90"><X className="h-6 w-6" /></Dialog.Close>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center py-4">
+              {shown && urls.data?.[shown]
+                ? <img key={shown} src={urls.data[shown]} alt={p.name} className="mk-pop-in max-h-[calc(100dvh-13rem)] max-w-full rounded-2xl border object-contain shadow-2xl" />
+                : <ProductImage alt={p.name} className="aspect-square w-full rounded-2xl" />}
+            </div>
+            {gallery.length > 1 && (
+              <>
+                <p className="pb-3 text-center text-sm text-muted-foreground">{img + 1} / {gallery.length}</p>
+                <div className="flex justify-center gap-3">
+                  <button onClick={() => setImg((img - 1 + gallery.length) % gallery.length)} className="flex items-center gap-2 rounded-full border bg-card/80 px-5 py-3 font-bold shadow transition active:scale-95"><ChevronLeft className="h-5 w-5" /> Sebelumnya</button>
+                  <button onClick={() => setImg((img + 1) % gallery.length)} className="flex items-center gap-2 rounded-full border bg-card/80 px-5 py-3 font-bold shadow transition active:scale-95">Berikutnya <ChevronRight className="h-5 w-5" /></button>
+                </div>
+              </>
+            )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <Dialog.Root open={menu} onOpenChange={setMenu}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+          <Dialog.Content aria-describedby={undefined} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md rounded-t-3xl bg-card pb-4 shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <Dialog.Title className="text-lg font-bold">Ada yang bisa kami bantu?</Dialog.Title>
+              <Dialog.Close aria-label="Tutup" className="grid h-9 w-9 place-items-center rounded-full transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+            </div>
+            <button onClick={() => { setMenu(false); navigate({ to: "/" }); }} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><Home className="h-5 w-5" /> Kembali ke Beranda</button>
+            <button onClick={() => { setMenu(false); void chat(); }} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><MessageCircle className="h-5 w-5" /> Chat penjual</button>
+            <a href={supportWaUrl(`Halo Marketku, saya butuh bantuan soal produk "${p.name}".`)} target="_blank" rel="noreferrer" onClick={() => setMenu(false)} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><MessageCircle className="h-5 w-5" /> Hubungi bantuan Marketku</a>
+            <button onClick={() => { setMenu(false); if (!user) return needLogin(); navigate({ to: "/dispute" }); }} className="flex w-full items-center gap-4 px-5 py-4 text-left transition active:bg-muted"><Flag className="h-5 w-5" /> Laporkan produk</button>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
