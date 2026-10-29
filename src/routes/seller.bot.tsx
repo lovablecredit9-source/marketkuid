@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -48,7 +48,7 @@ function SheetTitle({ icon: I, title, sub }: { icon: LucideIcon; title: string; 
     </span>
   );
 }
-const GoldBtn = ({ busy, onClick, children, disabled }: { busy?: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) => (
+const GoldBtn = ({ busy, onClick, children, disabled }: { busy?: boolean; onClick: () => void; children: ReactNode; disabled?: boolean }) => (
   <button disabled={busy || disabled} onClick={onClick} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-warning/70 to-warning py-3 text-sm font-semibold text-background transition active:scale-95 disabled:opacity-60">
     {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{children}
   </button>
@@ -130,7 +130,7 @@ function BotPage() {
           const Stat = ({ icon: I, label, value, tone }: { icon: LucideIcon; label: string; value: string; tone: string }) => (
             <div className="flex gap-2"><I className={`mt-0.5 h-3.5 w-3.5 ${tone}`} /><div><p className="text-xs text-muted-foreground">{label}</p><p className="text-sm font-bold">{value}</p></div></div>
           );
-          const Line = ({ icon: I, label, children }: { icon: LucideIcon; label: string; children: React.ReactNode }) => (
+          const Line = ({ icon: I, label, children }: { icon: LucideIcon; label: string; children: ReactNode }) => (
             <p className="flex items-center gap-2 text-xs text-muted-foreground"><I className="h-3.5 w-3.5" /> {label}: {children}</p>
           );
           return (
