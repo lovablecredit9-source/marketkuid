@@ -1,8 +1,9 @@
 import { createFileRoute, Link, Outlet, useMatchRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, ChevronDown, Sparkles, Bot, Package, ShoppingBag, Wallet, Percent, Cloud, Settings, HelpCircle } from "lucide-react";
+import { BookOpen, ChevronDown } from "lucide-react";
+import { GUIDE_ICONS as ICONS } from "@/components/marketku/guide-icons";
 import { pageMeta } from "@/lib/meta";
-import { CATEGORIES, GUIDES, searchGuides, type GuideCategory } from "@/lib/panduan";
+import { CATEGORIES, GUIDES, searchGuides } from "@/lib/panduan";
 import { PageTour } from "@/components/marketku/tour";
 
 export const Route = createFileRoute("/seller/panduan")({
@@ -10,9 +11,6 @@ export const Route = createFileRoute("/seller/panduan")({
   component: Panduan,
 });
 
-export const ICONS: Record<GuideCategory["icon"], typeof Bot> = {
-  sparkles: Sparkles, bot: Bot, box: Package, bag: ShoppingBag, wallet: Wallet, percent: Percent, cloud: Cloud, settings: Settings, help: HelpCircle,
-};
 
 const tour = [
   { title: "Cari panduan", desc: "Cari panduan apa pun lewat kata kunci di sini.", target: "g-search" },

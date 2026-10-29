@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, AlertTriangle, Lightbulb } from "lucide-react";
 import { categoryOf, findGuide, type Block } from "@/lib/panduan";
-import { ICONS } from "./seller.panduan";
+import { GUIDE_ICONS as ICONS } from "@/components/marketku/guide-icons";
 
 export const Route = createFileRoute("/seller/panduan/$slug")({
   loader: ({ params }) => {
