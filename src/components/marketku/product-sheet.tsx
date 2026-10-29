@@ -67,8 +67,9 @@ export function ProductSheet({ product, onClose, onStock }: { product: MyProduct
     if (!error && p.images.length) await supabase.storage.from("product-images").remove(p.images);
     setBusy(null);
     if (error) { toast.error("Gagal menghapus produk"); return; }
-    setConfirm(false); onClose(); await refresh();
     toast.success(`Produk "${p.name}" berhasil dihapus`);
+    qc.setQueriesData<MyProduct[]>({ queryKey: ["my_products"] }, (old) => old?.filter((x) => x.id !== p.id));
+    setConfirm(false); onClose(); void refresh();
   };
 
   const prices = p.product_variants.map((v) => Number(v.price));
