@@ -94,10 +94,8 @@ function Iklan() {
   const rows = camps.data ?? [];
   const paid = Number(wallet.data?.paid ?? 0), promo = Number(wallet.data?.promo ?? 0);
   const go = (t: Tab) => navigate({ to: "/seller/iklan", search: t === "dashboard" ? {} : { tab: t } });
-  const reload = () => {
-    for (const k of ["ad_campaigns", "ad_wallet", "ad_ledger"]) void qc.invalidateQueries({ queryKey: [k, user?.id] });
-    toast.success("Data iklan dimuat ulang");
-  };
+  const refetch = () => { for (const k of ["ad_campaigns", "ad_wallet", "ad_ledger"]) void qc.invalidateQueries({ queryKey: [k, user?.id] }); };
+  const reload = () => { refetch(); toast.success("Data iklan dimuat ulang"); };
   const live = rows.filter((r) => r.status === "aktif");
   const waiting = rows.filter((r) => r.status === "menunggu" || r.status === "menunggu_saldo");
   const spend = rows.reduce((a, r) => a + Number(r.spend), 0);
@@ -105,9 +103,9 @@ function Iklan() {
     <button onClick={() => go("dashboard")} className="flex items-center gap-1.5 text-sm font-semibold text-primary"><ArrowLeft className="h-4 w-4" /> Dashboard Iklan</button>
   );
 
-  if (tab === "buat") return <>{back}<CreateAd balance={paid + promo} onDone={() => { reload(); go("campaign"); }} /></>;
-  if (tab === "campaign") return <>{back}<Campaigns rows={rows} onReload={reload} /></>;
-  if (tab === "saldo") return <>{back}<Saldo paid={paid} promo={promo} ledger={ledger.data ?? []} onReload={reload} /></>;
+  if (tab === "buat") return <>{back}<CreateAd balance={paid + promo} onDone={() => { refetch(); go("campaign"); }} /></>;
+  if (tab === "campaign") return <>{back}<Campaigns rows={rows} onReload={reload} onChanged={refetch} /></>;
+  if (tab === "saldo") return <>{back}<Saldo paid={paid} promo={promo} ledger={ledger.data ?? []} onReload={reload} onChanged={refetch} /></>;
 
   if (tab === "performa") {
     const imp = rows.reduce((a, r) => a + r.impressions, 0), clk = rows.reduce((a, r) => a + r.clicks, 0);
@@ -182,7 +180,7 @@ function CampRow({ r, action }: { r: Camp; action?: ReactNode }) {
   );
 }
 
-function Campaigns({ rows, onReload }: { rows: Camp[]; onReload: () => void }) {
+function Campaigns({ rows, onReload, onChanged }: { rows: Camp[]; onReload: () => void; onChanged: () => void }) {
   const [f, setF] = useState<(typeof AD_FILTERS)[number]["value"]>("semua");
   const [busy, setBusy] = useState<string | null>(null);
   const shown = rows.filter((r) => { const st = AD_FILTERS.find((x) => x.value === f)!.statuses as readonly string[]; return !st.length || st.includes(r.status); });
@@ -193,7 +191,7 @@ function Campaigns({ rows, onReload }: { rows: Camp[]; onReload: () => void }) {
     setBusy(null);
     if (error) { toast.error(dbError(error)); return; }
     toast.success(Number(data) > 0 ? `Campaign dibatalkan, ${rpSeller(Number(data))} dikembalikan` : "Campaign dibatalkan");
-    onReload();
+    onChanged();
   };
   return (
     <>
@@ -219,7 +217,7 @@ function Campaigns({ rows, onReload }: { rows: Camp[]; onReload: () => void }) {
   );
 }
 
-function Saldo({ paid, promo, ledger, onReload }: { paid: number; promo: number; ledger: { id: string; kind: string; paid_delta: number; promo_delta: number; note: string | null; created_at: string }[]; onReload: () => void }) {
+function Saldo({ paid, promo, ledger, onReload, onChanged }: { paid: number; promo: number; ledger: { id: string; kind: string; paid_delta: number; promo_delta: number; note: string | null; created_at: string }[]; onReload: () => void; onChanged: () => void }) {
   const [nominal, setNominal] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -235,7 +233,7 @@ function Saldo({ paid, promo, ledger, onReload }: { paid: number; promo: number;
     setBusy(false);
     if (error) { toast.error(dbError(error)); return; }
     toast.success(`Voucher diklaim, saldo promo +${rpSeller(Number(data))}`);
-    setCode(""); onReload();
+    setCode(""); onChanged();
   };
   return (
     <>
