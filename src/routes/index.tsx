@@ -147,7 +147,7 @@ function Banner() {
     <div className="relative overflow-hidden rounded-2xl shadow-sm" data-tour="banner">
       <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${i * 100}%)` }}>
         {items.map((b) => (
-          <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : undefined} className="block w-full shrink-0" aria-label={b.alt}>
+          <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : {}} className="block w-full shrink-0" aria-label={b.alt}>
             <img src={b.src} alt={b.alt} className="aspect-[4/1] w-full object-cover" />
           </Link>
         ))}
@@ -209,7 +209,7 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
       <div className="flex items-center gap-2.5 border-b-2 border-border pb-2">
         <img src={group.icon} alt="" className="h-8 w-8 rounded-lg object-cover" />
         <h2 className="flex-1 text-xl font-bold">{group.title}</h2>
-        <Link to="/cari" search={cat ? { kategori: cat.id } : undefined} className="flex items-center gap-1 rounded-lg border-2 border-primary/70 px-3 py-1 text-sm font-semibold text-primary transition active:scale-95">
+        <Link to="/cari" search={cat ? { kategori: cat.id } : {}} className="flex items-center gap-1 rounded-lg border-2 border-primary/70 px-3 py-1 text-sm font-semibold text-primary transition active:scale-95">
           Semua <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
