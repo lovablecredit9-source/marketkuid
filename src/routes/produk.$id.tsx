@@ -44,7 +44,7 @@ function ProdukDetail() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const similar = useMarketProducts({ category: p?.category_id ?? null, limit: 12 });
-  const storeReviews = useReviews({ seller: p?.owner_id });
+  const storeReviews = useReviews(p ? { seller: p.owner_id } : {});
   const media = useStoreMedia(p ? [p.owner_id] : []);
   const avatarPath = p ? media.data?.[p.owner_id]?.avatar_path ?? null : null;
   const avatarUrl = useImageUrls(avatarPath ? [avatarPath] : []).data?.[avatarPath ?? ""];
