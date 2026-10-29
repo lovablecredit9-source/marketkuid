@@ -11,6 +11,7 @@ import { AppShell } from "@/components/marketku/shell";
 import { pageMeta } from "@/lib/meta";
 import { ChatAvatar } from "@/components/marketku/chat-avatar";
 import { useUnreadChats } from "@/lib/chat";
+import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/pesan")({
   head: () => pageMeta("Chat — Marketku", "Ruang chat pembeli dan seller Marketku."),
@@ -44,6 +45,7 @@ function Pesan() {
     queryKey: ["conversations", user?.id], enabled: !!user, refetchInterval: 8000,
     queryFn: async () => (await supabase.from("conversations").select("*").order("last_at", { ascending: false }).limit(200)).data ?? [],
   });
+  const loadingInbox = !ready || (!!user && convs.isPending);
   const rows = (convs.data ?? []).map((c) => {
     const buyer = c.buyer_id === user?.id;
     const senderName = c.last_sender_id ? (c.last_sender_id === c.seller_id ? c.store_name : c.buyer_name) : null;

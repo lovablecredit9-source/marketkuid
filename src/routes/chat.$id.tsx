@@ -242,6 +242,7 @@ function ChatRoom() {
       </header>
 
       <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 px-3 py-4">
+        {(!ready || conv.isPending || msgs.isPending) ? <LoadingLine label="Memuat percakapan..." className="pt-12" /> : <>
         {c === null && <p className="pt-20 text-center text-sm text-muted-foreground">Percakapan tidak ditemukan.</p>}
         {count === 0 && c && !typing && (
           <div className="flex flex-col items-center pt-32 text-center text-muted-foreground"><MessageCircle className="h-6 w-6 text-primary" /><p className="mt-3 text-sm">Tulis pesan pertamamu untuk memulai chat{isBuyer ? " dengan seller" : ""}.</p></div>
