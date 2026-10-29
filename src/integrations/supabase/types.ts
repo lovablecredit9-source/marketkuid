@@ -809,6 +809,13 @@ export type Database = {
         }
         Returns: string
       }
+      product_like_counts: {
+        Args: { p_ids: string[] }
+        Returns: {
+          likes: number
+          product_id: string
+        }[]
+      }
       public_stores: {
         Args: { p_ids: string[] }
         Returns: {
