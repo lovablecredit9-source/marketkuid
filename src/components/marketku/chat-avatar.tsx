@@ -1,3 +1,6 @@
+import { Check, CheckCheck } from "lucide-react";
+import type { TickState } from "@/lib/chat";
+
 export function ChatAvatar({ name, url, size = "h-12 w-12" }: { name: string; url?: string | undefined; size?: string }) {
   return url
     ? <img src={url} alt={name} className={`${size} shrink-0 rounded-full border object-cover`} />
@@ -10,16 +13,33 @@ export const EMOJIS = [
   "😎", "😇", "😢", "😭", "😡", "😴", "🤝", "💪", "❤️", "💙",
 ];
 
-/** "Online" within 2 minutes, otherwise "Terakhir online X lalu". */
+const hhmm = (d: Date) => d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+const dayStart = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+
+/** "Online" within 2 minutes; else "Terakhir dilihat hari ini 14.30" / "kemarin 14.30" / "27 Okt 2026 14.30". */
 export function lastSeenLabel(iso: string | null | undefined, now = Date.now()) {
   if (!iso) return "Belum pernah online";
-  const diff = Math.max(0, now - new Date(iso).getTime());
-  const min = Math.floor(diff / 60_000);
-  if (min < 2) return "Online";
-  if (min < 60) return `Terakhir online ${min} menit lalu`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `Terakhir online ${h} jam lalu`;
-  const d = Math.floor(h / 24);
-  if (d < 30) return `Terakhir online ${d} hari lalu`;
-  return `Terakhir online ${new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}`;
+  const t = new Date(iso).getTime();
+  if (now - t < 2 * 60_000) return "Online";
+  const d = new Date(iso);
+  const days = Math.round((dayStart(now) - dayStart(t)) / 86_400_000);
+  if (days <= 0) return `Terakhir dilihat hari ini ${hhmm(d)}`;
+  if (days === 1) return `Terakhir dilihat kemarin ${hhmm(d)}`;
+  return `Terakhir dilihat ${d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })} ${hhmm(d)}`;
+}
+
+/** WhatsApp-style ticks: 1 grey = terkirim, 2 grey = diterima, 2 blue = dibaca. */
+export function MsgTicks({ state, className = "" }: { state: TickState; className?: string }) {
+  const label = state === "read" ? "Dibaca" : state === "delivered" ? "Diterima" : "Terkirim";
+  const Icon = state === "sent" ? Check : CheckCheck;
+  return <Icon aria-label={label} className={`inline h-3.5 w-3.5 transition-colors duration-300 ${state === "read" ? "text-chat-read" : "opacity-80"} ${className}`} strokeWidth={2.5} />;
+}
+
+/** Bouncing three dots shown while the partner types. */
+export function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-1" aria-label="Sedang mengetik">
+      {[0, 1, 2].map((i) => <span key={i} className="mk-typing-dot h-2 w-2 rounded-full bg-muted-foreground/70" style={{ animationDelay: `${i * 0.15}s` }} />)}
+    </span>
+  );
 }

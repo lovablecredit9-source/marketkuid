@@ -2,6 +2,13 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { inSellerCenter } from "@/lib/chat";
+
+/** Buyer presence = any visit; seller presence only inside an unlocked Seller Center. */
+export function beatPresence(uid: string | undefined) {
+  if (!uid) return;
+  void supabase.rpc("touch_presence", { p_seller: inSellerCenter(uid) });
+}
 
 type AuthState = { user: User | null; session: Session | null; ready: boolean };
 
@@ -23,13 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => data.subscription.unsubscribe();
   }, [queryClient]);
 
-  // "Terakhir online" heartbeat for chat partners.
+  // "Terakhir dilihat" heartbeat for chat partners (also marks incoming messages delivered).
   const uid = state.user?.id;
   useEffect(() => {
     if (!uid) return;
-    const beat = () => { if (document.visibilityState === "visible") void supabase.rpc("touch_last_seen"); };
+    const beat = () => { if (document.visibilityState === "visible") beatPresence(uid); };
     beat();
-    const t = window.setInterval(beat, 60_000);
+    const t = window.setInterval(beat, 45_000);
     document.addEventListener("visibilitychange", beat);
     return () => { window.clearInterval(t); document.removeEventListener("visibilitychange", beat); };
   }, [uid]);
