@@ -141,7 +141,8 @@
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    /* var(--border) (not --color-border) so scoped themes like .seller-panel override it */
+    border-color: var(--border);
   }
 
   body {
