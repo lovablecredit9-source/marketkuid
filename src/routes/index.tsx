@@ -10,7 +10,8 @@ import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { useCategories, useImageUrls } from "@/lib/products";
-import { BRAND_GROUPS, CATEGORY_IMAGES, HOME_BANNERS } from "@/lib/home-assets";
+import { BRAND_GROUPS, HOME_BANNERS } from "@/lib/home-assets";
+import { categoryIcon } from "@/lib/category-icons";
 
 type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -187,7 +188,7 @@ function CategoryStrip() {
     <div className="-mx-3 flex overflow-x-auto px-3 py-1 [scrollbar-width:none]" data-tour="kategori">
       {cats.data.slice(0, 14).map((c) => {
         const I = CAT_ICON[c.name] ?? LayoutGrid;
-        const img = CATEGORY_IMAGES[c.name];
+        const img = categoryIcon(c.name);
         return (
           <Link key={c.id} to="/cari" search={{ kategori: c.id }} className="flex shrink-0 items-center gap-2.5 border-r px-4 text-sm font-medium transition last:border-r-0 active:scale-95">
             {img ? (

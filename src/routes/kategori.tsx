@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { ArrowLeft, PackageSearch } from "lucide-react";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList } from "@/components/marketku/product-card";
-import { useCategories } from "@/lib/products";
+import { useCategories, descendantIds } from "@/lib/products";
 import { useCategoryCounts, useMarketProducts } from "@/lib/market";
-import { BRAND_GROUPS, CATEGORY_IMAGES } from "@/lib/home-assets";
+import { categoryIcon } from "@/lib/category-icons";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/kategori")({
@@ -13,7 +13,6 @@ export const Route = createFileRoute("/kategori")({
   component: KategoriPage,
 });
 
-const BRAND_IMAGES: Record<string, string> = Object.fromEntries(BRAND_GROUPS.flatMap((g) => g.brands.map((b) => [b.name, b.img])));
 
 function Tile({ name, count, img, to }: { name: string; count: number; img?: string | undefined; to: { kategori?: string } }) {
   return (
@@ -35,10 +34,15 @@ function KategoriPage() {
   const counts = useCategoryCounts();
   const products = useMarketProducts({ limit: 200 });
   const list = products.data ?? [];
-  const sorted = useMemo(() => {
-    const c = counts.data;
-    return [...(cats.data ?? [])].sort((a, b) => (c?.get(b.id) ?? 0) - (c?.get(a.id) ?? 0) || a.sort - b.sort);
+  // A parent tile counts the products of all its sub-categories too.
+  const tally = useMemo(() => {
+    const all = cats.data ?? [];
+    return new Map(all.map((c) => [c.id, descendantIds(all, c.id).reduce((n, id) => n + (counts.data?.get(id) ?? 0), 0)]));
   }, [cats.data, counts.data]);
+  const sorted = useMemo(
+    () => [...(cats.data ?? [])].sort((a, b) => (tally.get(b.id) ?? 0) - (tally.get(a.id) ?? 0) || a.sort - b.sort),
+    [cats.data, tally],
+  );
   const total = useMemo(() => [...(counts.data?.values() ?? [])].reduce((a, n) => a + n, 0), [counts.data]);
 
   return (
@@ -55,7 +59,7 @@ function KategoriPage() {
         ) : (
           <div className="grid grid-cols-3 gap-3" data-tour="kategori-grid">
             <Tile name="Semua" count={total} to={{}} />
-            {sorted.map((c) => <Tile key={c.id} name={c.name} count={counts.data?.get(c.id) ?? 0} img={CATEGORY_IMAGES[c.name] ?? BRAND_IMAGES[c.name]} to={{ kategori: c.id }} />)}
+            {sorted.map((c) => <Tile key={c.id} name={c.name} count={tally.get(c.id) ?? 0} img={categoryIcon(c.name)} to={{ kategori: c.id }} />)}
           </div>
         )}
 
