@@ -297,6 +297,42 @@ export type Database = {
         }
         Relationships: []
       }
+      deposit_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          id: string
+          proof_path: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          proof_path: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          proof_path?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_path: string | null
@@ -499,6 +535,33 @@ export type Database = {
           unique_code?: number
           updated_at?: string
           voucher_code?: string | null
+        }
+        Relationships: []
+      }
+      payment_settings: {
+        Row: {
+          account_name: string | null
+          id: number
+          instructions: string | null
+          min_deposit: number
+          qris_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string | null
+          id?: number
+          instructions?: string | null
+          min_deposit?: number
+          qris_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string | null
+          id?: number
+          instructions?: string | null
+          min_deposit?: number
+          qris_path?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1078,6 +1141,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          ref_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          ref_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          ref_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -1110,6 +1239,11 @@ export type Database = {
     }
     Functions: {
       ad_refresh_queue: { Args: never; Returns: undefined }
+      admin_review_deposit: {
+        Args: { p_approve: boolean; p_id: string; p_note?: string }
+        Returns: undefined
+      }
+      admin_stats: { Args: never; Returns: Json }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
       category_product_counts: {
@@ -1137,9 +1271,20 @@ export type Database = {
         }
         Returns: string
       }
+      create_deposit: {
+        Args: { p_amount: number; p_proof: string }
+        Returns: string
+      }
       delete_message: {
         Args: { p_for_all: boolean; p_id: string }
         Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
       is_conversation_participant: { Args: { p_id: string }; Returns: boolean }
@@ -1226,7 +1371,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1353,6 +1498,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

@@ -36,3 +36,8 @@
 - [x] Kategori induk ikut menampilkan produk sub-kategori di pencarian & halaman Kategori
 - [x] Animasi muat ikon refresh berputar di Seller Center
 - [x] Kolom Detail Lanjutan dengan label naik saat diketik
+
+## Admin & deposit
+- [x] Admin Panel /admin (ringkasan, deposit, QRIS, pengguna, toko, produk, pesanan)
+- [x] Top up saldo manual via QRIS + bukti transfer (/topup), disetujui admin
+- [ ] Pakai Saldo Marketku untuk bayar checkout, tarik saldo

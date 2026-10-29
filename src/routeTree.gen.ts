@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AkunRouteImport } from './routes/akun'
 import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
@@ -27,6 +28,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
+import { Route as TopupRouteImport } from './routes/topup'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
@@ -58,6 +60,11 @@ import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AkunRoute = AkunRouteImport.update({
@@ -143,6 +150,11 @@ const SellerRoute = SellerRouteImport.update({
 const SyaratRoute = SyaratRouteImport.update({
   id: '/syarat',
   path: '/syarat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TopupRoute = TopupRouteImport.update({
+  id: '/topup',
+  path: '/topup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -283,6 +295,7 @@ const ApiPublicTelegramBotIdRoute = ApiPublicTelegramBotIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -300,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -330,6 +344,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -346,6 +361,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -377,6 +393,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -394,6 +411,7 @@ export interface FileRoutesById {
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun_/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -426,6 +444,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -443,6 +462,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/seller'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun/pengaturan'
     | '/chat/$id'
@@ -473,6 +493,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -489,6 +510,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun/pengaturan'
     | '/chat/$id'
@@ -519,6 +541,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -536,6 +559,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/seller'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun_/pengaturan'
     | '/chat/$id'
@@ -567,6 +591,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AkunRoute: typeof AkunRoute
   BantuanRoute: typeof BantuanRoute
   CariRoute: typeof CariRoute
@@ -584,6 +609,7 @@ export interface RootRouteChildren {
   RiwayatRoute: typeof RiwayatRoute
   SellerRoute: typeof SellerRouteWithChildren
   SyaratRoute: typeof SyaratRoute
+  TopupRoute: typeof TopupRoute
   WishlistRoute: typeof WishlistRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
   ChatIdRoute: typeof ChatIdRoute
@@ -601,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/akun': {
@@ -720,6 +753,13 @@ declare module '@tanstack/react-router' {
       path: '/syarat'
       fullPath: '/syarat'
       preLoaderRoute: typeof SyaratRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/topup': {
+      id: '/topup'
+      path: '/topup'
+      fullPath: '/topup'
+      preLoaderRoute: typeof TopupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -973,6 +1013,7 @@ const SellerRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AkunRoute: AkunRoute,
   BantuanRoute: BantuanRoute,
   CariRoute: CariRoute,
@@ -990,6 +1031,7 @@ const rootRouteChildren: RootRouteChildren = {
   RiwayatRoute: RiwayatRoute,
   SellerRoute: SellerRouteWithChildren,
   SyaratRoute: SyaratRoute,
+  TopupRoute: TopupRoute,
   WishlistRoute: WishlistRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
   ChatIdRoute: ChatIdRoute,

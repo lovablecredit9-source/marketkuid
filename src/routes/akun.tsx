@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { clearSellerLocks } from "@/lib/chat";
 import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
+import { useIsAdmin, useWallet } from "@/lib/wallet";
 
 export const Route = createFileRoute("/akun")({
   head: () => ({
@@ -111,6 +112,8 @@ function AkunDashboard({ user }: { user: User }) {
     },
   });
   const store = useSellerStore(user.id);
+  const wallet = useWallet(user.id);
+  const isAdmin = useIsAdmin(user.id);
 
   const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
   const isSeller = !!store.data;
@@ -147,6 +150,11 @@ function AkunDashboard({ user }: { user: User }) {
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
       <div className="space-y-4 px-3 pt-4">
+        {isAdmin.data && (
+          <button onClick={() => navigate({ to: "/admin" })} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-[0.98]">
+            <ShieldCheck className="h-4 w-4" /> Buka Admin Panel
+          </button>
+        )}
         <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
@@ -173,13 +181,13 @@ function AkunDashboard({ user }: { user: User }) {
         <section className="rounded-2xl border border-primary/30 bg-gradient-to-br from-accent/60 to-card p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-muted-foreground"><Wallet className="h-4 w-4" /> SALDO MARKETKU</p>
-            <button aria-label="Muat ulang" onClick={() => soon("Muat ulang saldo")} className="grid h-8 w-8 place-items-center rounded-lg border bg-card transition active:rotate-180"><RefreshCw className="h-4 w-4" /></button>
+            <button aria-label="Muat ulang" onClick={() => wallet.refetch()} className="grid h-8 w-8 place-items-center rounded-lg border bg-card"><RefreshCw className={`h-4 w-4 ${wallet.isFetching ? "animate-spin" : ""}`} /></button>
           </div>
-          <p className="mt-3 mk-acc-mono text-2xl">Rp 0</p>
-          <button onClick={() => soon("Riwayat saldo")} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat & tarik dana <ArrowUpRight className="h-3 w-3" /></button>
+          <p className="mt-3 mk-acc-mono text-2xl">Rp {(wallet.data ?? 0).toLocaleString("id-ID")}</p>
+          <button onClick={() => navigate({ to: "/topup" })} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat deposit <ArrowUpRight className="h-3 w-3" /></button>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
-            <button onClick={() => window.open("https://wa.me/6285769302532?text=" + encodeURIComponent("Halo admin Marketku, saya mau top up / deposit saldo."), "_blank")} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
+            <button onClick={() => navigate({ to: "/topup" })} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Saldo otomatis kembali ke akunmu kalau order dibatalkan atau di-refund.</p>
         </section>
