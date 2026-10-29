@@ -162,14 +162,14 @@ function Banner({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct
 }
 
 function Ticker({ items }: { items: CardProduct[] }) {
-  const row = items.map((p) => (
-    <Link key={p.id} to="/produk/$id" params={{ id: p.id }} className="shrink-0 px-4 text-sm font-semibold">
+  const row = (k: string) => items.map((p) => (
+    <Link key={`${k}${p.id}`} to="/produk/$id" params={{ id: p.id }} className="shrink-0 px-4 text-sm font-semibold">
       {p.name} <span className="text-muted-foreground">-</span> <span className="text-primary">{rpBuyer(p.minPrice)}</span>
     </Link>
   ));
   return (
     <div className="overflow-hidden">
-      <div className="mk-marquee flex w-max">{row}{row.map((r) => ({ ...r, key: `${r.key}-2` }))}</div>
+      <div className="mk-marquee flex w-max">{row("a")}{row("b")}</div>
     </div>
   );
 }
