@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -180,7 +180,7 @@ function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: strin
       setBusy(null);
     }
   };
-  const pick = (kind: "avatar" | "banner") => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const pick = (kind: "avatar" | "banner") => (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
     e.target.value = "";
     if (f) void replace(kind, f);

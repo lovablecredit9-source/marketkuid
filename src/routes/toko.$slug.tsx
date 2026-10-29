@@ -8,6 +8,7 @@ import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, Stars } from "@/components/marketku/product-card";
 import { ratingBars, ratingOf, useMarketProducts, useReviews, dbError, fmtDate } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
+import { useImageUrls, useStoreMedia } from "@/lib/products";
 
 export const Route = createFileRoute("/toko/$slug")({
   head: () => pageMeta("Toko Seller — Marketku", "Lihat produk, rating, dan ulasan pembeli dari toko seller di Marketku."),
@@ -28,6 +29,11 @@ function Toko() {
   const s = store.data;
   const products = useMarketProducts({ owner: s?.owner_id ?? "__none__", limit: 100 });
   const reviews = useReviews({ seller: s?.owner_id ?? "" });
+  const media = useStoreMedia(s?.owner_id ? [s.owner_id] : []);
+  const m = s?.owner_id ? media.data?.[s.owner_id] : undefined;
+  const mediaUrls = useImageUrls([m?.avatar_path ?? "", m?.banner_path ?? ""]);
+  const avatarUrl = m?.avatar_path ? mediaUrls.data?.[m.avatar_path] : undefined;
+  const bannerUrl = m?.banner_path ? mediaUrls.data?.[m.banner_path] : undefined;
   const follow = useQuery({
     queryKey: ["follow", user?.id, s?.owner_id], enabled: !!user && !!s,
     queryFn: async () => !!(await supabase.from("store_follows").select("seller_id").eq("user_id", user!.id).eq("seller_id", s!.owner_id).maybeSingle()).data,
@@ -64,9 +70,13 @@ function Toko() {
     <AppShell>
       <div className="space-y-4 px-3 pt-3">
         <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-          <div className="h-24 bg-gradient-to-br from-accent to-primary/20" />
+          {bannerUrl
+            ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="aspect-[3/1] w-full object-cover" />
+            : <div className="h-24 bg-gradient-to-br from-accent to-primary/20" />}
           <div className="-mt-10 px-4 pb-4">
-            <span className="grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-accent text-2xl font-bold text-primary">{initials(s.store_name)}</span>
+            {avatarUrl
+              ? <img src={avatarUrl} alt={`Foto ${s.store_name}`} className="relative h-20 w-20 rounded-full border-4 border-card bg-card object-cover" />
+              : <span className="relative grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-accent text-2xl font-bold text-primary">{initials(s.store_name)}</span>}
             <h1 className="mt-2 text-2xl font-bold">{s.store_name}</h1>
             <div className="mt-2 flex flex-wrap gap-2">
               <button onClick={() => void chat()} className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition active:scale-95"><MessageCircle className="h-4 w-4" /> Kirim Pesan</button>
