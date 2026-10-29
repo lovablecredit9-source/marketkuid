@@ -751,10 +751,12 @@ export type Database = {
       }
       seller_stores: {
         Row: {
+          avatar_path: string | null
           bank_holder: string | null
           bank_number: string | null
           bank_provider: string | null
           bank_type: string | null
+          banner_path: string | null
           contact_name: string | null
           contact_phone: string | null
           created_at: string
@@ -767,10 +769,12 @@ export type Database = {
           telegram_username: string | null
         }
         Insert: {
+          avatar_path?: string | null
           bank_holder?: string | null
           bank_number?: string | null
           bank_provider?: string | null
           bank_type?: string | null
+          banner_path?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -783,10 +787,12 @@ export type Database = {
           telegram_username?: string | null
         }
         Update: {
+          avatar_path?: string | null
           bank_holder?: string | null
           bank_number?: string | null
           bank_provider?: string | null
           bank_type?: string | null
+          banner_path?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -1133,6 +1139,14 @@ export type Database = {
           owner_id: string
           slug: string
           store_name: string
+        }[]
+      }
+      store_media: {
+        Args: { p_ids: string[] }
+        Returns: {
+          avatar_path: string
+          banner_path: string
+          owner_id: string
         }[]
       }
       track_ad_click: { Args: { p_campaign: string }; Returns: undefined }

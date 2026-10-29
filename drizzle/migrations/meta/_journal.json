@@ -71,6 +71,13 @@
       "when": 1793247034749,
       "tag": "0009_ads_wallet_telegram_bots",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793248523499,
+      "tag": "0010_store_avatar_banner",
+      "breakpoints": true
     }
   ]
 }
