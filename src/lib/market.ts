@@ -63,6 +63,13 @@ export const SELLER_FILTER: Record<string, string[]> = {
   Semua: [], Menunggu: ["pending"], Dibayar: ["paid", "processing"], Selesai: ["completed"], Dibatalkan: ["cancelled"], Refund: ["refunded"], Gagal: ["failed"],
 };
 
+/** "variantId:qty,variantId:qty" → list (invalid parts dropped, qty clamped 1..1000). */
+export function parseItems(s: string | undefined) {
+  return (s ?? "").split(",").map((x) => x.split(":")).filter(([v, q]) => v && /^[0-9a-f-]{36}$/i.test(v) && Number(q) > 0)
+    .map(([v, q]) => ({ variant_id: v!, qty: Math.min(1000, Math.floor(Number(q))) }));
+}
+
+
 /* ---------- data hooks ---------- */
 
 type RawProduct = {

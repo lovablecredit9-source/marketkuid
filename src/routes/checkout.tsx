@@ -6,7 +6,7 @@ import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2,
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls } from "@/lib/products";
-import { dbError, unitPrice, type Discount } from "@/lib/market";
+import { dbError, parseItems, unitPrice, type Discount } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
@@ -16,12 +16,6 @@ export const Route = createFileRoute("/checkout")({
   head: () => pageMeta("Checkout — Marketku", "Selesaikan pesananmu dengan pembayaran QRIS di Marketku."),
   component: Checkout,
 });
-
-/** "variantId:qty,variantId:qty" → list (invalid parts dropped, qty clamped 1..1000). */
-export function parseItems(s: string | undefined) {
-  return (s ?? "").split(",").map((x) => x.split(":")).filter(([v, q]) => v && /^[0-9a-f-]{36}$/i.test(v) && Number(q) > 0)
-    .map(([v, q]) => ({ variant_id: v!, qty: Math.min(1000, Math.floor(Number(q))) }));
-}
 
 function Checkout() {
   const { items } = Route.useSearch();
