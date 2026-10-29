@@ -20,4 +20,5 @@
 - [x] Real chat conversations
 - [x] Seller Iklan pages, Program Seller, Analitik, Pelanggan
 - [x] Seller products on beranda & pencarian
+- [x] Home: owner banners (2), category image icons, AI & App Premium brand shortcuts
 - [ ] QRIS payment, withdraw, rekber, Telegram bot (need payment gateway / bot credentials)
