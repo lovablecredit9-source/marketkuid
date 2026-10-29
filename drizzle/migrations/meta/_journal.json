@@ -99,6 +99,13 @@
       "when": 1793254043038,
       "tag": "0013_chat_ticks_typing_product",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793266871672,
+      "tag": "0014_partner_state_fallback",
+      "breakpoints": true
     }
   ]
 }
