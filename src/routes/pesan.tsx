@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { UserRoundSearch, SquareCheck, Search, RefreshCw, MessageCircle, X, Trash2, Store } from "lucide-react";
+import { SquareCheck, Search, RefreshCw, MessageCircle, X, Trash2, Store, User, Repeat2 } from "lucide-react";
+import { useSellerStore } from "@/lib/seller";
+import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/marketku/shell";
@@ -13,6 +15,14 @@ export const Route = createFileRoute("/pesan")({
   component: Pesan,
 });
 
+const MODE_KEY = "marketku-chat-mode";
+
+export function ChatAvatar({ name, url, size = "h-12 w-12" }: { name: string; url?: string; size?: string }) {
+  return url
+    ? <img src={url} alt={name} className={`${size} shrink-0 rounded-full border object-cover`} />
+    : <span className={`${size} grid shrink-0 place-items-center rounded-full border-2 border-accent bg-gradient-to-br from-primary to-tone-cyan font-bold text-primary-foreground`}>{name.charAt(0).toUpperCase()}</span>;
+}
+
 const timeLabel = (s: string) => {
   const d = new Date(s);
   return d.toDateString() === new Date().toDateString() ? d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
@@ -22,7 +32,11 @@ function Pesan() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"semua" | "belum">("semua");
-  const [role, setRole] = useState<"semua" | "pembeli" | "seller">("semua");
+  const store = useSellerStore(user?.id);
+  const isSeller = !!store.data;
+  const [mode, setMode] = useState<"pembeli" | "seller">("pembeli");
+  useEffect(() => { if (window.localStorage.getItem(MODE_KEY) === "seller") setMode("seller"); }, []);
+  const role = isSeller ? mode : "pembeli";
   const [search, setSearch] = useState(false);
   const [select, setSelect] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
@@ -33,11 +47,24 @@ function Pesan() {
   });
   const rows = (convs.data ?? []).map((c) => {
     const buyer = c.buyer_id === user?.id;
-    return { ...c, buyer, name: (buyer ? c.store_name : c.buyer_name) ?? "Pengguna", unread: buyer ? c.buyer_unread : c.seller_unread, hidden: buyer ? c.buyer_hidden : c.seller_hidden };
-  }).filter((c) => !c.hidden && (c.last_message || c.buyer));
+    const senderName = c.last_sender_id ? (c.last_sender_id === c.seller_id ? c.store_name : c.buyer_name) : null;
+    return {
+      ...c, buyer, name: (buyer ? c.store_name : c.buyer_name) ?? "Pengguna",
+      preview: c.last_message ? (senderName ? `${senderName}: ${c.last_message}` : c.last_message) : "Belum ada pesan",
+      unread: buyer ? c.buyer_unread : c.seller_unread, hidden: buyer ? c.buyer_hidden : c.seller_hidden,
+    };
+  }).filter((c) => !c.hidden && (c.last_message || c.buyer) && (role === "pembeli") === c.buyer);
   const ql = q.trim().toLowerCase();
-  const list = rows.filter((c) => (tab === "semua" || c.unread > 0) && (role === "semua" || (role === "pembeli") === c.buyer) && (!ql || `${c.name} ${c.last_message ?? ""}`.toLowerCase().includes(ql)));
-  const unread = rows.reduce((a, c) => a + (c.unread > 0 ? 1 : 0), 0);
+  const list = rows.filter((c) => (tab === "semua" || c.unread > 0) && (!ql || `${c.name} ${c.last_message ?? ""}`.toLowerCase().includes(ql)));
+  const unread = rows.reduce((a, c) => a + c.unread, 0);
+  const media = useStoreMedia([...new Set(rows.filter((c) => c.buyer).map((c) => c.seller_id))]);
+  const avatarPaths = Object.values(media.data ?? {}).map((m) => m.avatar_path ?? "").filter(Boolean);
+  const avatarUrls = useImageUrls(avatarPaths);
+  const avatarOf = (c: (typeof rows)[number]) => {
+    if (!c.buyer) return undefined;
+    const p = media.data?.[c.seller_id]?.avatar_path;
+    return p ? avatarUrls.data?.[p] : undefined;
+  };
   const btn = (on: boolean) => `grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${on ? "border-primary text-primary ring-2 ring-primary/20" : ""}`;
   const remove = async () => {
     const { error } = await supabase.rpc("hide_conversations", { p_ids: picked });
@@ -46,11 +73,13 @@ function Pesan() {
     setPicked([]); setSelect(false);
     void qc.invalidateQueries({ queryKey: ["conversations"] });
   };
-  const cycleRole = () => {
-    const next = role === "semua" ? "pembeli" : role === "pembeli" ? "seller" : "semua";
-    setRole(next);
-    toast(next === "semua" ? "Semua chat" : next === "pembeli" ? "Chat sebagai pembeli" : "Chat sebagai seller");
+  const switchRole = () => {
+    const next = role === "seller" ? "pembeli" : "seller";
+    setMode(next); window.localStorage.setItem(MODE_KEY, next);
+    setPicked([]); setSelect(false);
+    toast(next === "seller" ? "Chat sebagai seller" : "Chat sebagai pembeli");
   };
+  const RoleIcon = role === "seller" ? Store : User;
 
   return (
     <AppShell>
@@ -60,7 +89,12 @@ function Pesan() {
             <h1 className="text-2xl font-bold">Chat</h1>
             <span className="grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">{unread}</span>
             <div className="ml-auto flex gap-1.5">
-              <button aria-label="Saring peran chat" onClick={cycleRole} className={btn(role !== "semua")}><UserRoundSearch className="h-4 w-4" /></button>
+              {isSeller && (
+                <button aria-label={role === "seller" ? "Ganti ke chat pembeli" : "Ganti ke chat seller"} onClick={switchRole} className={`relative ${btn(false)}`}>
+                  <RoleIcon className="h-4 w-4" />
+                  <Repeat2 className="absolute bottom-1 right-1 h-3 w-3 text-primary" />
+                </button>
+              )}
               <button aria-label="Pilih chat" onClick={() => { setSelect(!select); setPicked([]); }} className={btn(select)}><SquareCheck className="h-4 w-4" /></button>
               <button aria-label="Cari chat" onClick={() => setSearch(!search)} className={btn(search || select)}><Search className="h-4 w-4" /></button>
               <button aria-label="Muat ulang" onClick={() => void qc.invalidateQueries({ queryKey: ["conversations"] })} className={btn(false)}><RefreshCw className="h-4 w-4" /></button>
@@ -92,14 +126,14 @@ function Pesan() {
               const inner = (
                 <>
                   {select && <span className={`grid h-5 w-5 shrink-0 place-items-center rounded border-2 ${on ? "border-primary bg-primary" : ""}`} />}
-                  <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground">{c.name.charAt(0).toUpperCase()}{!c.buyer && <Store className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-card p-0.5 text-primary" />}</span>
+                  <ChatAvatar name={c.name} url={avatarOf(c)} />
                   <span className="min-w-0 flex-1">
-                    <span className="flex justify-between gap-2"><b className="truncate">{c.name}</b><span className="shrink-0 text-xs text-muted-foreground">{timeLabel(c.last_at)}</span></span>
-                    <span className="flex items-center gap-2"><span className="line-clamp-2 flex-1 text-sm text-muted-foreground">{c.last_message ?? "Belum ada pesan"}</span>{c.unread > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{c.unread}</span>}</span>
+                    <span className="flex justify-between gap-2"><b className={`truncate text-[15px] ${c.unread > 0 ? "text-primary" : ""}`}>{c.name}</b><span className="shrink-0 text-xs text-muted-foreground">{timeLabel(c.last_at)}</span></span>
+                    <span className="mt-0.5 flex items-start gap-2"><span className="line-clamp-2 flex-1 text-sm text-muted-foreground">{c.preview}</span>{c.unread > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{c.unread}</span>}</span>
                   </span>
                 </>
               );
-              const cls = `flex w-full items-center gap-3 rounded-xl p-3 text-left transition active:scale-[0.99] ${c.unread > 0 ? "bg-accent/60" : ""}`;
+              const cls = `flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${c.unread > 0 ? "border-primary/20 bg-accent/60" : "border-transparent"}`;
               return select
                 ? <button key={c.id} onClick={() => setPicked(on ? picked.filter((x) => x !== c.id) : [...picked, c.id])} className={cls}>{inner}</button>
                 : <Link key={c.id} to="/chat/$id" params={{ id: c.id }} className={cls}>{inner}</Link>;
