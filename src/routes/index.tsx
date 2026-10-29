@@ -50,7 +50,6 @@ function Index() {
   const liked = useMemo(() => [...list].sort((a, b) => b.likes - a.likes || b.sold_count - a.sold_count || b.rating.avg - a.rating.avg), [list]);
   const best = useMemo(() => list.filter((p) => p.sold_count > 0).sort((a, b) => b.sold_count - a.sold_count).slice(0, 10), [list]);
   const fresh = useMemo(() => [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10), [list]);
-  const banners = useMemo(() => list.filter((p) => p.images.length > 0).slice(0, 5), [list]);
 
   return (
     <AppShell>
