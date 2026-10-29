@@ -14,6 +14,7 @@ import logo from "@/assets/logo-marketku.png.asset.json";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 import { useCart } from "@/lib/market";
 import { supportWaUrl } from "@/lib/support";
+import { useUnreadChats } from "@/lib/chat";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -182,8 +183,11 @@ const tabs = [
 ] as const;
 
 export function BottomNav() {
+  const { user } = useAuth();
+  const unread = useUnreadChats(user?.id).data?.total ?? 0;
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
+    // Same font on every tab, matching the Akun page.
+    <nav className="mk-acc-serif fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
       <div className="grid grid-cols-4 rounded-2xl border bg-card p-1 shadow-lg">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
@@ -193,7 +197,14 @@ export function BottomNav() {
             className="group relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-xs font-semibold text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
           >
             <span className="absolute -top-1 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-out group-data-[status=active]:w-1/2" />
-            <Icon className="h-5 w-5 transition-transform duration-300 ease-out group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
+            <span className="relative">
+              <Icon className="h-5 w-5 transition-transform duration-300 ease-out group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
+              {to === "/pesan" && unread > 0 && (
+                <span key={unread} aria-label={`${unread} pesan belum dibaca`} className="mk-badge-pop mk-acc-heading absolute -right-3 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+            </span>
             {label}
           </Link>
         ))}
