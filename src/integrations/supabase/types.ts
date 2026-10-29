@@ -14,6 +14,326 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          clicks: number
+          created_at: string
+          daily_budget: number
+          ends_at: string | null
+          id: string
+          impressions: number
+          name: string
+          owner_id: string
+          placement: string
+          product_id: string
+          spend: number
+          starts_at: string | null
+          status: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          daily_budget: number
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          name: string
+          owner_id: string
+          placement?: string
+          product_id: string
+          spend?: number
+          starts_at?: string | null
+          status?: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          daily_budget?: number
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          name?: string
+          owner_id?: string
+          placement?: string
+          product_id?: string
+          spend?: number
+          starts_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_campaigns_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          created_at: string
+          product_id: string
+          qty: number
+          user_id: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          qty?: number
+          user_id: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          qty?: number
+          user_id?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          buyer_hidden: boolean
+          buyer_id: string
+          buyer_name: string | null
+          buyer_unread: number
+          created_at: string
+          id: string
+          last_at: string
+          last_message: string | null
+          seller_hidden: boolean
+          seller_id: string
+          seller_unread: number
+          store_name: string | null
+        }
+        Insert: {
+          buyer_hidden?: boolean
+          buyer_id: string
+          buyer_name?: string | null
+          buyer_unread?: number
+          created_at?: string
+          id?: string
+          last_at?: string
+          last_message?: string | null
+          seller_hidden?: boolean
+          seller_id: string
+          seller_unread?: number
+          store_name?: string | null
+        }
+        Update: {
+          buyer_hidden?: boolean
+          buyer_id?: string
+          buyer_name?: string | null
+          buyer_unread?: number
+          created_at?: string
+          id?: string
+          last_at?: string
+          last_message?: string | null
+          seller_hidden?: boolean
+          seller_id?: string
+          seller_unread?: number
+          store_name?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivered: string[]
+          id: string
+          image_path: string | null
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_name: string
+          product_type: string | null
+          qty: number
+          seller_id: string
+          unit_price: number
+          variant_id: string | null
+          variant_name: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivered?: string[]
+          id?: string
+          image_path?: string | null
+          line_total: number
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          product_type?: string | null
+          qty: number
+          seller_id: string
+          unit_price: number
+          variant_id?: string | null
+          variant_name: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivered?: string[]
+          id?: string
+          image_path?: string | null
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          product_type?: string | null
+          qty?: number
+          seller_id?: string
+          unit_price?: number
+          variant_id?: string | null
+          variant_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          admin_fee: number
+          buyer_id: string
+          buyer_name: string | null
+          buyer_note: string | null
+          buyer_whatsapp: string | null
+          checkout_id: string
+          completed_at: string | null
+          created_at: string
+          discount: number
+          expires_at: string | null
+          id: string
+          order_no: number
+          paid_at: string | null
+          seller_id: string
+          status: string
+          store_name: string | null
+          subtotal: number
+          total: number
+          unique_code: number
+          updated_at: string
+          voucher_code: string | null
+        }
+        Insert: {
+          admin_fee?: number
+          buyer_id: string
+          buyer_name?: string | null
+          buyer_note?: string | null
+          buyer_whatsapp?: string | null
+          checkout_id: string
+          completed_at?: string | null
+          created_at?: string
+          discount?: number
+          expires_at?: string | null
+          id?: string
+          order_no?: never
+          paid_at?: string | null
+          seller_id: string
+          status?: string
+          store_name?: string | null
+          subtotal?: number
+          total?: number
+          unique_code?: number
+          updated_at?: string
+          voucher_code?: string | null
+        }
+        Update: {
+          admin_fee?: number
+          buyer_id?: string
+          buyer_name?: string | null
+          buyer_note?: string | null
+          buyer_whatsapp?: string | null
+          checkout_id?: string
+          completed_at?: string | null
+          created_at?: string
+          discount?: number
+          expires_at?: string | null
+          id?: string
+          order_no?: never
+          paid_at?: string | null
+          seller_id?: string
+          status?: string
+          store_name?: string | null
+          subtotal?: number
+          total?: number
+          unique_code?: number
+          updated_at?: string
+          voucher_code?: string | null
+        }
+        Relationships: []
+      }
       product_categories: {
         Row: {
           created_at: string
@@ -34,6 +354,63 @@ export type Database = {
           sort?: number
         }
         Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          buyer_id: string
+          buyer_label: string
+          comment: string | null
+          created_at: string
+          helpful_count: number
+          id: string
+          order_item_id: string
+          product_id: string
+          rating: number
+          seller_id: string
+          topic: string | null
+        }
+        Insert: {
+          buyer_id: string
+          buyer_label?: string
+          comment?: string | null
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          order_item_id: string
+          product_id: string
+          rating: number
+          seller_id: string
+          topic?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          buyer_label?: string
+          comment?: string | null
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          order_item_id?: string
+          product_id?: string
+          rating?: number
+          seller_id?: string
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: true
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_stock: {
         Row: {
@@ -371,6 +748,24 @@ export type Database = {
           },
         ]
       }
+      store_follows: {
+        Row: {
+          created_at: string
+          seller_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          seller_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          seller_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -402,7 +797,63 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cancel_order: { Args: { p_order: string }; Returns: undefined }
+      hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
+      mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
+      place_order: {
+        Args: {
+          p_items: Json
+          p_note: string
+          p_voucher: string
+          p_whatsapp: string
+        }
+        Returns: string
+      }
+      public_stores: {
+        Args: { p_ids: string[] }
+        Returns: {
+          created_at: string
+          description: string
+          is_open: boolean
+          owner_id: string
+          slug: string
+          store_name: string
+        }[]
+      }
+      seller_advance_order: {
+        Args: { p_delivery: string; p_order: string; p_status: string }
+        Returns: undefined
+      }
+      seller_customers: {
+        Args: never
+        Returns: {
+          buyer_id: string
+          buyer_name: string
+          completed: number
+          last_order: string
+          orders: number
+          spent: number
+        }[]
+      }
+      start_conversation: { Args: { p_seller: string }; Returns: string }
+      store_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          created_at: string
+          description: string
+          is_open: boolean
+          owner_id: string
+          slug: string
+          store_name: string
+        }[]
+      }
+      variant_stock: {
+        Args: { p_product_ids: string[] }
+        Returns: {
+          available: number
+          variant_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
