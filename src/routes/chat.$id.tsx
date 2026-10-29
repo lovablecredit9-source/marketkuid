@@ -114,11 +114,12 @@ function ChatRoom() {
   const typing = !!partnerState.data?.typing;
   const media = useStoreMedia(c && isBuyer ? [c.seller_id] : []);
   // Only the buyer side can tap the header to visit the seller's store; buyers have no store page.
+  // store_by_slug also accepts the owner id, so stores without a slug are still reachable.
   const store = useQuery({
     queryKey: ["chat_store_slug", c?.seller_id], enabled: !!c && isBuyer,
     queryFn: async () => (await supabase.rpc("public_stores", { p_ids: [c!.seller_id] })).data?.[0]?.slug ?? null,
   });
-  const storeSlug = isBuyer ? store.data ?? null : null;
+  const storeSlug = c && isBuyer ? store.data || c.seller_id : null;
   const storeAvatar = c ? media.data?.[c.seller_id]?.avatar_path ?? null : null;
   const attachPaths = list.map((m) => m.attachment_path ?? "").filter(Boolean);
   const avatarUrl = useImageUrls(storeAvatar ? [storeAvatar] : []).data?.[storeAvatar ?? ""];
