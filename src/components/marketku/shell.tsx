@@ -12,6 +12,7 @@ import { useCategories } from "@/lib/products";
 import { toast } from "sonner";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
+import { useCart } from "@/lib/market";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -55,6 +56,8 @@ export function Header({ title }: { title?: string | undefined }) {
   const navigate = useNavigate();
   const [notif, setNotif] = useState(false);
   const [menu, setMenu] = useState(false);
+  const cart = useCart();
+  const cartCount = cart.data?.length ?? 0;
   if (title) {
     return (
       <header className="sticky top-0 z-30 px-3 pt-3">
@@ -76,7 +79,9 @@ export function Header({ title }: { title?: string | undefined }) {
         <div className="ml-auto flex items-center">
           <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>
           <IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn>
-          <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}><ShoppingCart className="h-5 w-5" /></IconBtn>
+          <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}>
+            <span className="relative"><ShoppingCart className="h-5 w-5" />{cartCount > 0 && <span className="absolute -right-2.5 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
+          </IconBtn>
           <IconBtn label="Menu" onClick={() => setMenu(true)}><Menu className="h-5 w-5" /></IconBtn>
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
@@ -134,7 +139,7 @@ export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: 
                 <p className="px-1 pb-2 text-xs font-bold tracking-widest text-muted-foreground">KATEGORI POPULER</p>
                 <div className="flex flex-wrap gap-2">
                   {cats.data!.slice(0, 10).map((c) => (
-                    <button key={c.id} onClick={() => go(() => navigate({ to: "/cari", search: { q: c.name } }))} className="rounded-lg border px-3 py-1.5 text-sm transition active:scale-95">{c.name}</button>
+                    <button key={c.id} onClick={() => go(() => navigate({ to: "/cari", search: { kategori: c.id } }))} className="rounded-lg border px-3 py-1.5 text-sm transition active:scale-95">{c.name}</button>
                   ))}
                 </div>
               </div>
