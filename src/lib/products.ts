@@ -102,16 +102,38 @@ export function priceRange(prices: number[]) {
   return lo === hi ? rp(lo) : `${rp(lo)} – ${rp(hi)}`;
 }
 
+export type CategoryRow = { id: string; name: string; sort: number; parent_id: string | null };
+
 export function useCategories() {
   return useQuery({
     queryKey: ["product_categories"],
     staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("product_categories").select("id, name, sort").order("sort");
+    queryFn: async (): Promise<CategoryRow[]> => {
+      const { data, error } = await supabase.from("product_categories").select("id, name, sort, parent_id").order("sort");
       if (error) throw error;
       return data;
     },
   });
+}
+
+/** Direct sub-categories of `parent` (null = top level), alphabetically like the original picker. */
+export function childCategories(cats: CategoryRow[], parent: string | null) {
+  return cats.filter((c) => (c.parent_id ?? null) === parent).sort((a, b) => a.name.localeCompare(b.name, "id"));
+}
+
+/** The category plus every category nested under it. */
+export function descendantIds(cats: Pick<CategoryRow, "id" | "parent_id">[], id: string): string[] {
+  const out = [id];
+  for (let i = 0; i < out.length; i++) for (const c of cats) if (c.parent_id === out[i] && !out.includes(c.id)) out.push(c.id);
+  return out;
+}
+
+/** Top-down chain of categories from the root to `id`, e.g. [Aplikasi, App Premium, Canva]. */
+export function categoryPath(cats: CategoryRow[], id: string | null): CategoryRow[] {
+  const path: CategoryRow[] = [];
+  let cur = id ? cats.find((c) => c.id === id) : undefined;
+  while (cur && path.length < 10) { path.unshift(cur); cur = cur.parent_id ? cats.find((c) => c.id === cur!.parent_id) : undefined; }
+  return path;
 }
 
 export function useCategoryCounts() {

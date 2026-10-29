@@ -120,6 +120,13 @@
       "when": 1793268005396,
       "tag": "0016_chat_message_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793304793776,
+      "tag": "0017_category_tree",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 /** Spinner + label used while a page section is loading (e.g. "Memuat inbox..."). */
@@ -8,6 +8,15 @@ export function LoadingLine({ label, className = "" }: { label: string; classNam
     <div role="status" aria-live="polite" className={`mk-fade-in flex items-center justify-center gap-3 text-sm text-muted-foreground ${className}`}>
       <Loader2 className="h-5 w-5 animate-spin" />
       <span>{label}</span>
+    </div>
+  );
+}
+
+/** Seller Center page loader: a lone spinning refresh icon, like the original panel. */
+export function SellerLoading({ label = "Memuat", className = "py-24" }: { label?: string; className?: string }) {
+  return (
+    <div role="status" aria-label={label} className={`mk-fade-in grid place-items-center ${className}`}>
+      <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground [animation-duration:1.1s]" strokeWidth={1.8} />
     </div>
   );
 }
