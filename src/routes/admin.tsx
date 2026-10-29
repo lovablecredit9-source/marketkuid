@@ -134,7 +134,7 @@ function Pill({ children, tone = "muted" }: { children: ReactNode; tone?: "muted
 }
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   return (
-    <div className="admin-panel fixed inset-0 z-50 flex items-end justify-center bg-black/60 !bg-black/60 sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="mk-fade-in max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border bg-card p-4 sm:rounded-3xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-bold">{title}</h2>
