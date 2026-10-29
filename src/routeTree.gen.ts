@@ -42,6 +42,8 @@ import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
 import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
+import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
+import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 
@@ -210,6 +212,16 @@ const SellerWithdrawRoute = SellerWithdrawRouteImport.update({
   path: '/withdraw',
   getParentRoute: () => SellerRoute,
 } as any)
+const TokoSlugRoute = TokoSlugRouteImport.update({
+  id: '/toko/$slug',
+  path: '/toko/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UlasanIdRoute = UlasanIdRouteImport.update({
+  id: '/ulasan/$id',
+  path: '/ulasan/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerPanduanSlugRoute = SellerPanduanSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -254,6 +266,8 @@ export interface FileRoutesByFullPath {
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
+  '/toko/$slug': typeof TokoSlugRoute
+  '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -290,6 +304,8 @@ export interface FileRoutesByTo {
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
+  '/toko/$slug': typeof TokoSlugRoute
+  '/ulasan/$id': typeof UlasanIdRoute
   '/seller': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -328,6 +344,8 @@ export interface FileRoutesById {
   '/seller/transaksi': typeof SellerTransaksiRoute
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
+  '/toko/$slug': typeof TokoSlugRoute
+  '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
@@ -367,6 +385,8 @@ export interface FileRouteTypes {
     | '/seller/transaksi'
     | '/seller/voucher'
     | '/seller/withdraw'
+    | '/toko/$slug'
+    | '/ulasan/$id'
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -403,6 +423,8 @@ export interface FileRouteTypes {
     | '/seller/transaksi'
     | '/seller/voucher'
     | '/seller/withdraw'
+    | '/toko/$slug'
+    | '/ulasan/$id'
     | '/seller'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -440,6 +462,8 @@ export interface FileRouteTypes {
     | '/seller/transaksi'
     | '/seller/voucher'
     | '/seller/withdraw'
+    | '/toko/$slug'
+    | '/ulasan/$id'
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
@@ -466,6 +490,8 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
   ProdukIdRoute: typeof ProdukIdRoute
+  TokoSlugRoute: typeof TokoSlugRoute
+  UlasanIdRoute: typeof UlasanIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -701,6 +727,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerWithdrawRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/toko/$slug': {
+      id: '/toko/$slug'
+      path: '/toko/$slug'
+      fullPath: '/toko/$slug'
+      preLoaderRoute: typeof TokoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ulasan/$id': {
+      id: '/ulasan/$id'
+      path: '/ulasan/$id'
+      fullPath: '/ulasan/$id'
+      preLoaderRoute: typeof UlasanIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/panduan/$slug': {
       id: '/seller/panduan/$slug'
       path: '/$slug'
@@ -788,6 +828,8 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
   ProdukIdRoute: ProdukIdRoute,
+  TokoSlugRoute: TokoSlugRoute,
+  UlasanIdRoute: UlasanIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
