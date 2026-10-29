@@ -32,7 +32,7 @@ function Stat({ icon: I, value, label, full }: { icon: typeof Coins; value: numb
   return (
     <div className={`rounded-2xl border bg-card p-4 shadow-sm ${full ? "col-span-2" : ""}`}>
       <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><I className="h-4 w-4" /></span>
-      <p className="mt-3 text-base font-medium">{value}</p>
+      <p className="mk-acc-mono mt-3 text-base font-medium">{value}</p>
       <p className="mt-1 text-xs font-semibold tracking-wider text-muted-foreground">{label}</p>
     </div>
   );
@@ -49,10 +49,10 @@ function Tile({ icon: I, label, tone, onClick }: { icon: typeof Coins; label: st
 
 function Akun() {
   const { user, ready } = useAuth();
-  if (!ready) return <AppShell title="Akun Saya"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
+  if (!ready) return <AppShell title="Akun Saya" className="mk-acc-serif"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
   if (user) return <AkunDashboard user={user} />;
   return (
-    <AppShell title="Akun Saya">
+    <AppShell title="Akun Saya" className="mk-acc-serif">
       <div className="relative overflow-hidden px-6 pt-24">
         <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
         <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
@@ -116,7 +116,7 @@ function AkunDashboard({ user }: { user: User }) {
 
   if (isSeller && view === "seller") {
     return (
-      <AppShell title="Akun Saya">
+      <AppShell title="Akun Saya" className="mk-acc-serif">
         <SellerAccount storeName={store.data!.store_name} onBuyer={() => switchView("buyer")} onCenter={() => navigate({ to: "/seller" })} onTour={() => setTour(true)} />
         <div className="px-3 pt-4">{logoutBtn}</div>
         <WelcomeTour id="seller-account" steps={SELLER_WELCOME} open={tour} onOpenChange={setTour} />
@@ -128,14 +128,14 @@ function AkunDashboard({ user }: { user: User }) {
     .toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }).toUpperCase();
 
   return (
-    <AppShell title="Akun Saya">
+    <AppShell title="Akun Saya" className="mk-acc-serif">
       <div className="space-y-4 px-3 pt-4">
         <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="truncate text-lg font-bold">{name}</h1>
+                <h1 className="mk-acc-heading truncate text-lg font-bold">{name}</h1>
                 <span className="rounded-full border border-primary/30 bg-accent px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary">MEMBER</span>
               </div>
               <p className="truncate text-sm text-muted-foreground">{user.email}</p>
@@ -158,7 +158,7 @@ function AkunDashboard({ user }: { user: User }) {
             <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-muted-foreground"><Wallet className="h-4 w-4" /> SALDO MARKETKU</p>
             <button aria-label="Muat ulang" onClick={() => soon("Muat ulang saldo")} className="grid h-8 w-8 place-items-center rounded-lg border bg-card transition active:rotate-180"><RefreshCw className="h-4 w-4" /></button>
           </div>
-          <p className="mt-3 font-mono text-2xl">Rp 0</p>
+          <p className="mt-3 mk-acc-mono text-2xl">Rp 0</p>
           <button onClick={() => soon("Riwayat saldo")} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat & tarik dana <ArrowUpRight className="h-3 w-3" /></button>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
@@ -244,7 +244,7 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
           <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-7 w-7" /></div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-lg font-bold">{storeName}</h1>
+              <h1 className="mk-acc-heading truncate text-lg font-bold">{storeName}</h1>
               <span className="h-3 w-3 rounded-full bg-success ring-2 ring-success/30" aria-label="Aktif" />
             </div>
             <span className="mt-1.5 inline-block rounded-lg border bg-card px-3 py-1 text-sm text-muted-foreground">Status: <b className="font-semibold text-foreground">Seller</b></span>
@@ -273,7 +273,7 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
             </button>
           ))}
         </div>
-        <p className="mt-3 font-mono text-2xl">Rp 0</p>
+        <p className="mt-3 mk-acc-mono text-2xl">Rp 0</p>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">{active.hint} <ArrowUpRight className="h-3 w-3" /></p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button onClick={() => navigate({ to: "/seller/withdraw" })} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Tarik dana</button>
