@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useImageUrls, warrantyLabel, type Warranty } from "@/lib/products";
 import { ratingBars, ratingOf, unitPrice, useCartActions, useMarketProducts, useProductDetail, useReviews, dbError, fmtDate, type Discount } from "@/lib/market";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
-import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
+import { ProductImage, Stars, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { productTypeText } from "@/components/marketku/product-sheet";
 import { pageMeta } from "@/lib/meta";
 
@@ -219,10 +219,6 @@ function ProdukDetail() {
       </Dialog.Root>
     </AppShell>
   );
-}
-
-export function Stars({ n, size = "h-3.5 w-3.5" }: { n: number; size?: string }) {
-  return <span className="flex gap-0.5">{[1, 2, 3, 4, 5].map((i) => <Star key={i} className={`${size} ${i <= n ? "fill-warning text-warning" : "text-muted-foreground/40"}`} />)}</span>;
 }
 
 function Similar({ items }: { items: { id: string; name: string; images: string[]; minPrice: number; rating: { avg: number; count: number }; sold_count: number }[] }) {

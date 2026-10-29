@@ -97,3 +97,7 @@ export function ProductList({ items, compact = false }: { items: CardProduct[]; 
     </div>
   );
 }
+
+export function Stars({ n, size = "h-3.5 w-3.5" }: { n: number; size?: string }) {
+  return <span className="flex gap-0.5">{[1, 2, 3, 4, 5].map((i) => <Star key={i} className={`${size} ${i <= n ? "fill-warning text-warning" : "text-muted-foreground/40"}`} />)}</span>;
+}

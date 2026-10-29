@@ -28,6 +28,7 @@ import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
+import { Route as ProdukIdRouteImport } from './routes/produk.$id'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
@@ -139,6 +140,11 @@ const AkunPengaturanRoute = AkunPengaturanRouteImport.update({
   path: '/akun/pengaturan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdukIdRoute = ProdukIdRouteImport.update({
+  id: '/produk/$id',
+  path: '/produk/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerIndexRoute = SellerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun_/pengaturan': typeof AkunPengaturanRoute
+  '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -345,6 +354,7 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun/pengaturan'
+    | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun/pengaturan'
+    | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun_/pengaturan'
+    | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   SyaratRoute: typeof SyaratRoute
   WishlistRoute: typeof WishlistRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
+  ProdukIdRoute: typeof ProdukIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       path: '/akun/pengaturan'
       fullPath: '/akun/pengaturan'
       preLoaderRoute: typeof AkunPengaturanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produk/$id': {
+      id: '/produk/$id'
+      path: '/produk/$id'
+      fullPath: '/produk/$id'
+      preLoaderRoute: typeof ProdukIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller/': {
@@ -767,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   SyaratRoute: SyaratRoute,
   WishlistRoute: WishlistRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
+  ProdukIdRoute: ProdukIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
