@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emptyVariant, stockLines, validateInfo, validateVariants, warrantyLabel, priceRange } from "@/lib/products";
+import { emptyVariant, stockLines, validateInfo, validateVariants, warrantyLabel, priceRange, descendantIds, categoryPath, childCategories } from "@/lib/products";
 
 describe("product form rules", () => {
   it("info needs name, type and category", () => {
