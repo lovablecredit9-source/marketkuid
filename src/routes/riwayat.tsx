@@ -1,8 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Search, Package, ChevronDown } from "lucide-react";
+import { Search, Package, ChevronDown, Store, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { BUYER_FILTER, fmtDateTime } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
+import { rpBuyer } from "@/components/marketku/product-card";
+import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/riwayat")({
@@ -10,12 +16,24 @@ export const Route = createFileRoute("/riwayat")({
   component: Riwayat,
 });
 
-export const ORDER_STATUSES = ["Semua", "Proses", "Berhasil", "Refund Diproses", "Tidak Berhasil", "Garansi Aktif", "Dikomplain"] as const;
+const ORDER_STATUSES = Object.keys(BUYER_FILTER);
 
 function Riwayat() {
-  const [status, setStatus] = useState<(typeof ORDER_STATUSES)[number]>("Semua");
+  const { user, ready } = useAuth();
+  const [status, setStatus] = useState("Semua");
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const orders = useQuery({
+    queryKey: ["my_orders", user?.id], enabled: !!user,
+    queryFn: async () => (await supabase.from("orders").select("id, order_no, checkout_id, store_name, status, total, created_at, order_items(product_name, variant_name, qty)").eq("buyer_id", user!.id).order("created_at", { ascending: false }).limit(200)).data ?? [],
+  });
+  const want = BUYER_FILTER[status] ?? [];
+  const special = status === "Garansi Aktif" || status === "Dikomplain";
+  const ql = q.trim().toLowerCase();
+  const list = (orders.data ?? []).filter((o) =>
+    !special && (want.length === 0 || want.includes(o.status)) &&
+    (!ql || `m-${o.order_no} ${o.store_name ?? ""} ${o.order_items.map((i) => i.product_name).join(" ")}`.toLowerCase().includes(ql)));
+
   return (
     <AppShell>
       <div className="space-y-4 px-3 pt-3">
@@ -31,7 +49,25 @@ function Riwayat() {
             </label>
           </div>
         </div>
-        <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
+        {ready && !user ? (
+          <EmptyState icon={Package} title="Masuk untuk melihat pesanan" desc="Riwayat pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} />
+        ) : list.length === 0 ? (
+          orders.isLoading ? <div className="h-32 animate-pulse rounded-2xl border bg-card" /> :
+          <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
+        ) : (
+          <div className="space-y-3">
+            {list.map((o) => (
+              <Link key={o.id} to="/pesanan/$id" params={{ id: o.id }} className="block rounded-2xl border bg-card p-4 transition active:scale-[0.99]">
+                <div className="flex items-start justify-between gap-2">
+                  <div><p className="flex items-center gap-1.5 text-sm font-bold"><Store className="h-4 w-4 text-primary" />{o.store_name}</p><p className="text-xs text-muted-foreground">M-{o.order_no} · {fmtDateTime(o.created_at)}</p></div>
+                  <StatusBadge status={o.status} />
+                </div>
+                <p className="mt-2 line-clamp-1 text-sm">{o.order_items.map((i) => `${i.product_name} (${i.variant_name}) ×${i.qty}`).join(", ")}</p>
+                <div className="mt-2 flex items-center justify-between text-sm"><span className="text-muted-foreground">Total</span><span className="flex items-center gap-1 font-bold">{rpBuyer(Number(o.total))}<ChevronRight className="h-4 w-4 text-muted-foreground" /></span></div>
+              </Link>
+            ))}
+          </div>
+        )}
         <Link to="/" className="block text-center font-semibold text-primary">← Kembali ke Beranda</Link>
       </div>
 

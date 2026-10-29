@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { QrCode, Clock, Store, Copy, XCircle, CheckCircle2, Package, Star, Loader2, MessageCircle } from "lucide-react";
+import { QrCode, Clock, Store, Copy, XCircle, Package, Star, Loader2, MessageCircle } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ORDER_LABEL, dbError, fmtDateTime } from "@/lib/market";
+import { dbError, fmtDateTime } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
+import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/pesanan/$id")({
@@ -129,11 +130,6 @@ function Pesanan() {
 }
 
 const Row = ({ a, b }: { a: string; b: string }) => <div className="flex justify-between"><span className="text-muted-foreground">{a}</span><span>{b}</span></div>;
-
-export function StatusBadge({ status }: { status: string }) {
-  const cls = status === "completed" ? "bg-success/15 text-success" : status === "pending" ? "bg-warning/20 text-warning" : ["cancelled", "failed"].includes(status) ? "bg-destructive/10 text-destructive" : "bg-accent text-primary";
-  return <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${cls}`}>{status === "completed" && <CheckCircle2 className="mr-1 inline h-3 w-3" />}{ORDER_LABEL[status] ?? status}</span>;
-}
 
 function ReviewForm({ itemId, productId, sellerId, onDone }: { itemId: string; productId: string; sellerId: string; onDone: () => void }) {
   const { user } = useAuth();

@@ -28,6 +28,8 @@ import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as PesananIdRouteImport } from './routes/pesanan.$id'
 import { Route as ProdukIdRouteImport } from './routes/produk.$id'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
@@ -142,6 +144,16 @@ const AkunPengaturanRoute = AkunPengaturanRouteImport.update({
   path: '/akun/pengaturan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PesananIdRoute = PesananIdRouteImport.update({
+  id: '/pesanan/$id',
+  path: '/pesanan/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdukIdRoute = ProdukIdRouteImport.update({
   id: '/produk/$id',
   path: '/produk/$id',
@@ -253,6 +265,8 @@ export interface FileRoutesByFullPath {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -291,6 +305,8 @@ export interface FileRoutesByTo {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -331,6 +347,8 @@ export interface FileRoutesById {
   '/syarat': typeof SyaratRoute
   '/wishlist': typeof WishlistRoute
   '/akun_/pengaturan': typeof AkunPengaturanRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -372,6 +390,8 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun/pengaturan'
+    | '/chat/$id'
+    | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -410,6 +430,8 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun/pengaturan'
+    | '/chat/$id'
+    | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -449,6 +471,8 @@ export interface FileRouteTypes {
     | '/syarat'
     | '/wishlist'
     | '/akun_/pengaturan'
+    | '/chat/$id'
+    | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -489,6 +513,8 @@ export interface RootRouteChildren {
   SyaratRoute: typeof SyaratRoute
   WishlistRoute: typeof WishlistRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
+  ChatIdRoute: typeof ChatIdRoute
+  PesananIdRoute: typeof PesananIdRoute
   ProdukIdRoute: typeof ProdukIdRoute
   TokoSlugRoute: typeof TokoSlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
@@ -627,6 +653,20 @@ declare module '@tanstack/react-router' {
       path: '/akun/pengaturan'
       fullPath: '/akun/pengaturan'
       preLoaderRoute: typeof AkunPengaturanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pesanan/$id': {
+      id: '/pesanan/$id'
+      path: '/pesanan/$id'
+      fullPath: '/pesanan/$id'
+      preLoaderRoute: typeof PesananIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produk/$id': {
@@ -827,6 +867,8 @@ const rootRouteChildren: RootRouteChildren = {
   SyaratRoute: SyaratRoute,
   WishlistRoute: WishlistRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
+  ChatIdRoute: ChatIdRoute,
+  PesananIdRoute: PesananIdRoute,
   ProdukIdRoute: ProdukIdRoute,
   TokoSlugRoute: TokoSlugRoute,
   UlasanIdRoute: UlasanIdRoute,
