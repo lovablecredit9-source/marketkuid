@@ -3,7 +3,7 @@ import { useState, type ReactNode } from "react";
 import { Store } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
-import { SellerBottomNav, SellerHeader, SellerMenuSheet } from "@/components/marketku/seller-ui";
+import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 
 export const Route = createFileRoute("/seller")({
   head: () => ({
@@ -27,6 +27,7 @@ function SellerLayout() {
   const { user, ready } = useAuth();
   const store = useSellerStore(user?.id);
   const [menu, setMenu] = useState(false);
+  const [theme, setTheme] = useSellerTheme();
 
   if (!ready || (user && store.isLoading)) return <Gate><p className="text-muted-foreground">Memuat...</p></Gate>;
   if (!user || !store.data) {
@@ -47,10 +48,10 @@ function SellerLayout() {
   return (
     <div className="seller-panel min-h-screen">
       <div className="mx-auto min-h-screen max-w-md">
-        <SellerHeader initial={store.data.store_name.charAt(0).toUpperCase()} onMenu={() => setMenu(true)} />
+        <SellerHeader store={store.data} email={user.email ?? ""} onMenu={() => setMenu(true)} theme={theme} onTheme={setTheme} />
         <main className="space-y-4 px-3 pb-28 pt-3"><Outlet /></main>
         <SellerBottomNav onMenu={() => setMenu(true)} menuOpen={menu} />
-        <SellerMenuSheet open={menu} onOpenChange={setMenu} storeName={store.data.store_name} />
+        <SellerMenuSheet open={menu} onOpenChange={setMenu} />
       </div>
     </div>
   );

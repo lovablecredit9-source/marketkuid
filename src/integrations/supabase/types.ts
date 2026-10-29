@@ -240,20 +240,50 @@ export type Database = {
       }
       seller_stores: {
         Row: {
+          bank_holder: string | null
+          bank_number: string | null
+          bank_provider: string | null
+          bank_type: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
+          description: string | null
+          is_open: boolean
+          notify_orders: boolean
           owner_id: string
+          slug: string | null
           store_name: string
           telegram_username: string | null
         }
         Insert: {
+          bank_holder?: string | null
+          bank_number?: string | null
+          bank_provider?: string | null
+          bank_type?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
+          description?: string | null
+          is_open?: boolean
+          notify_orders?: boolean
           owner_id: string
+          slug?: string | null
           store_name: string
           telegram_username?: string | null
         }
         Update: {
+          bank_holder?: string | null
+          bank_number?: string | null
+          bank_provider?: string | null
+          bank_type?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
+          description?: string | null
+          is_open?: boolean
+          notify_orders?: boolean
           owner_id?: string
+          slug?: string | null
           store_name?: string
           telegram_username?: string | null
         }
@@ -263,6 +293,106 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_vouchers: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          max_discount: number | null
+          min_qty: number
+          min_spend: number
+          name: string
+          owner_id: string
+          per_user_limit: number
+          starts_at: string | null
+          updated_at: string
+          usage_limit: number | null
+          used_count: number
+          value: number
+          value_type: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind: string
+          max_discount?: number | null
+          min_qty?: number
+          min_spend?: number
+          name: string
+          owner_id: string
+          per_user_limit?: number
+          starts_at?: string | null
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          value: number
+          value_type: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          max_discount?: number | null
+          min_qty?: number
+          min_spend?: number
+          name?: string
+          owner_id?: string
+          per_user_limit?: number
+          starts_at?: string | null
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          value?: number
+          value_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_vouchers_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "seller_stores"
+            referencedColumns: ["owner_id"]
+          },
+        ]
+      }
+      wishlists: {
+        Row: {
+          created_at: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]

@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AkunRouteImport } from './routes/akun'
+import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DisputeRouteImport } from './routes/dispute'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
@@ -20,10 +22,21 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as SellerBotRouteImport } from './routes/seller.bot'
+import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
+import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
+import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
+import { Route as SellerPembayaranRouteImport } from './routes/seller.pembayaran'
+import { Route as SellerPengaturanRouteImport } from './routes/seller.pengaturan'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
+import { Route as SellerRekberRouteImport } from './routes/seller.rekber'
 import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
+import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
+import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
+import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 
 const IndexRoute = IndexRouteImport.update({
@@ -36,6 +49,11 @@ const AkunRoute = AkunRouteImport.update({
   path: '/akun',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BantuanRoute = BantuanRouteImport.update({
+  id: '/bantuan',
+  path: '/bantuan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CariRoute = CariRouteImport.update({
   id: '/cari',
   path: '/cari',
@@ -44,6 +62,11 @@ const CariRoute = CariRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisputeRoute = DisputeRouteImport.update({
+  id: '/dispute',
+  path: '/dispute',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -81,14 +104,54 @@ const SellerRoute = SellerRouteImport.update({
   path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerIndexRoute = SellerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerBotRoute = SellerBotRouteImport.update({
+  id: '/bot',
+  path: '/bot',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerBroadcastRoute = SellerBroadcastRouteImport.update({
+  id: '/broadcast',
+  path: '/broadcast',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerGaransiRoute = SellerGaransiRouteImport.update({
+  id: '/garansi',
+  path: '/garansi',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPanduanRoute = SellerPanduanRouteImport.update({
+  id: '/panduan',
+  path: '/panduan',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPembayaranRoute = SellerPembayaranRouteImport.update({
+  id: '/pembayaran',
+  path: '/pembayaran',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPengaturanRoute = SellerPengaturanRouteImport.update({
+  id: '/pengaturan',
+  path: '/pengaturan',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProdukRoute = SellerProdukRouteImport.update({
   id: '/produk',
   path: '/produk',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerRekberRoute = SellerRekberRouteImport.update({
+  id: '/rekber',
+  path: '/rekber',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerSaldoRoute = SellerSaldoRouteImport.update({
@@ -101,6 +164,21 @@ const SellerTransaksiRoute = SellerTransaksiRouteImport.update({
   path: '/transaksi',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerVoucherRoute = SellerVoucherRouteImport.update({
+  id: '/voucher',
+  path: '/voucher',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerWithdrawRoute = SellerWithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPanduanSlugRoute = SellerPanduanSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SellerPanduanRoute,
+} as any)
 const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
   id: '/produk_/baru',
   path: '/produk/baru',
@@ -110,8 +188,10 @@ const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
@@ -119,35 +199,61 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/wishlist': typeof WishlistRoute
+  '/seller/bot': typeof SellerBotRoute
+  '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
+  '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
+  '/seller/rekber': typeof SellerRekberRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
+  '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/wishlist': typeof WishlistRoute
+  '/seller/bot': typeof SellerBotRoute
+  '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
+  '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
+  '/seller/rekber': typeof SellerRekberRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
+  '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
@@ -155,10 +261,21 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/wishlist': typeof WishlistRoute
+  '/seller/bot': typeof SellerBotRoute
+  '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
+  '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
+  '/seller/rekber': typeof SellerRekberRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
+  '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRouteTypes {
@@ -166,8 +283,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
@@ -175,34 +294,60 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/wishlist'
+    | '/seller/bot'
+    | '/seller/broadcast'
+    | '/seller/garansi'
+    | '/seller/panduan'
+    | '/seller/pembayaran'
+    | '/seller/pengaturan'
     | '/seller/produk'
+    | '/seller/rekber'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
+    | '/seller/withdraw'
     | '/seller/'
+    | '/seller/panduan/$slug'
     | '/seller/produk/baru'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/wishlist'
+    | '/seller/bot'
+    | '/seller/broadcast'
+    | '/seller/garansi'
+    | '/seller/panduan'
+    | '/seller/pembayaran'
+    | '/seller/pengaturan'
     | '/seller/produk'
+    | '/seller/rekber'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
+    | '/seller/withdraw'
     | '/seller'
+    | '/seller/panduan/$slug'
     | '/seller/produk/baru'
   id:
     | '__root__'
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
@@ -210,18 +355,31 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/wishlist'
+    | '/seller/bot'
+    | '/seller/broadcast'
+    | '/seller/garansi'
+    | '/seller/panduan'
+    | '/seller/pembayaran'
+    | '/seller/pengaturan'
     | '/seller/produk'
+    | '/seller/rekber'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
+    | '/seller/withdraw'
     | '/seller/'
+    | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AkunRoute: typeof AkunRoute
+  BantuanRoute: typeof BantuanRoute
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
+  DisputeRoute: typeof DisputeRoute
   KeranjangRoute: typeof KeranjangRoute
   LoginRoute: typeof LoginRoute
   PesanRoute: typeof PesanRoute
@@ -229,6 +387,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RiwayatRoute: typeof RiwayatRoute
   SellerRoute: typeof SellerRouteWithChildren
+  WishlistRoute: typeof WishlistRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -247,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AkunRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bantuan': {
+      id: '/bantuan'
+      path: '/bantuan'
+      fullPath: '/bantuan'
+      preLoaderRoute: typeof BantuanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cari': {
       id: '/cari'
       path: '/cari'
@@ -259,6 +425,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dispute': {
+      id: '/dispute'
+      path: '/dispute'
+      fullPath: '/dispute'
+      preLoaderRoute: typeof DisputeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -310,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/': {
       id: '/seller/'
       path: '/'
@@ -317,11 +497,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerIndexRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/bot': {
+      id: '/seller/bot'
+      path: '/bot'
+      fullPath: '/seller/bot'
+      preLoaderRoute: typeof SellerBotRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/broadcast': {
+      id: '/seller/broadcast'
+      path: '/broadcast'
+      fullPath: '/seller/broadcast'
+      preLoaderRoute: typeof SellerBroadcastRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/garansi': {
+      id: '/seller/garansi'
+      path: '/garansi'
+      fullPath: '/seller/garansi'
+      preLoaderRoute: typeof SellerGaransiRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/panduan': {
+      id: '/seller/panduan'
+      path: '/panduan'
+      fullPath: '/seller/panduan'
+      preLoaderRoute: typeof SellerPanduanRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/pembayaran': {
+      id: '/seller/pembayaran'
+      path: '/pembayaran'
+      fullPath: '/seller/pembayaran'
+      preLoaderRoute: typeof SellerPembayaranRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/pengaturan': {
+      id: '/seller/pengaturan'
+      path: '/pengaturan'
+      fullPath: '/seller/pengaturan'
+      preLoaderRoute: typeof SellerPengaturanRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/produk': {
       id: '/seller/produk'
       path: '/produk'
       fullPath: '/seller/produk'
       preLoaderRoute: typeof SellerProdukRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/rekber': {
+      id: '/seller/rekber'
+      path: '/rekber'
+      fullPath: '/seller/rekber'
+      preLoaderRoute: typeof SellerRekberRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/saldo': {
@@ -338,6 +567,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerTransaksiRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/voucher': {
+      id: '/seller/voucher'
+      path: '/voucher'
+      fullPath: '/seller/voucher'
+      preLoaderRoute: typeof SellerVoucherRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/withdraw': {
+      id: '/seller/withdraw'
+      path: '/withdraw'
+      fullPath: '/seller/withdraw'
+      preLoaderRoute: typeof SellerWithdrawRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/panduan/$slug': {
+      id: '/seller/panduan/$slug'
+      path: '/$slug'
+      fullPath: '/seller/panduan/$slug'
+      preLoaderRoute: typeof SellerPanduanSlugRouteImport
+      parentRoute: typeof SellerPanduanRoute
+    }
     '/seller/produk_/baru': {
       id: '/seller/produk_/baru'
       path: '/produk/baru'
@@ -348,18 +598,48 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SellerPanduanRouteChildren {
+  SellerPanduanSlugRoute: typeof SellerPanduanSlugRoute
+}
+
+const SellerPanduanRouteChildren: SellerPanduanRouteChildren = {
+  SellerPanduanSlugRoute: SellerPanduanSlugRoute,
+}
+
+const SellerPanduanRouteWithChildren = SellerPanduanRoute._addFileChildren(
+  SellerPanduanRouteChildren,
+)
+
 interface SellerRouteChildren {
+  SellerBotRoute: typeof SellerBotRoute
+  SellerBroadcastRoute: typeof SellerBroadcastRoute
+  SellerGaransiRoute: typeof SellerGaransiRoute
+  SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
+  SellerPembayaranRoute: typeof SellerPembayaranRoute
+  SellerPengaturanRoute: typeof SellerPengaturanRoute
   SellerProdukRoute: typeof SellerProdukRoute
+  SellerRekberRoute: typeof SellerRekberRoute
   SellerSaldoRoute: typeof SellerSaldoRoute
   SellerTransaksiRoute: typeof SellerTransaksiRoute
+  SellerVoucherRoute: typeof SellerVoucherRoute
+  SellerWithdrawRoute: typeof SellerWithdrawRoute
   SellerIndexRoute: typeof SellerIndexRoute
   SellerProdukBaruRoute: typeof SellerProdukBaruRoute
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
+  SellerBotRoute: SellerBotRoute,
+  SellerBroadcastRoute: SellerBroadcastRoute,
+  SellerGaransiRoute: SellerGaransiRoute,
+  SellerPanduanRoute: SellerPanduanRouteWithChildren,
+  SellerPembayaranRoute: SellerPembayaranRoute,
+  SellerPengaturanRoute: SellerPengaturanRoute,
   SellerProdukRoute: SellerProdukRoute,
+  SellerRekberRoute: SellerRekberRoute,
   SellerSaldoRoute: SellerSaldoRoute,
   SellerTransaksiRoute: SellerTransaksiRoute,
+  SellerVoucherRoute: SellerVoucherRoute,
+  SellerWithdrawRoute: SellerWithdrawRoute,
   SellerIndexRoute: SellerIndexRoute,
   SellerProdukBaruRoute: SellerProdukBaruRoute,
 }
@@ -370,8 +650,10 @@ const SellerRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AkunRoute: AkunRoute,
+  BantuanRoute: BantuanRoute,
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
+  DisputeRoute: DisputeRoute,
   KeranjangRoute: KeranjangRoute,
   LoginRoute: LoginRoute,
   PesanRoute: PesanRoute,
@@ -379,6 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RiwayatRoute: RiwayatRoute,
   SellerRoute: SellerRouteWithChildren,
+  WishlistRoute: WishlistRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

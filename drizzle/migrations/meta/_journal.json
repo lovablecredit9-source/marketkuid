@@ -22,6 +22,20 @@
       "when": 1793231450737,
       "tag": "0002_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793235409002,
+      "tag": "0003_seller_settings_vouchers_wishlist",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793235508548,
+      "tag": "0004_lock_seller_bank_account",
+      "breakpoints": true
     }
   ]
 }
