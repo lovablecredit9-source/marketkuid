@@ -11,9 +11,11 @@
 - [ ] Store logo/banner upload
 
 ## Buyer
-- [x] Wishlist, Dispute, Bantuan pages
-- [ ] Side menu drawer, notification dropdown
-- [ ] Syarat/Privasi/Kontak, Pengaturan Akun pages
-- [ ] Riwayat status picker, home footer
+- [x] Wishlist, Laporan & Dispute, Bantuan/Syarat/Privasi/Kontak, Rekber, Pengaturan Akun pages
+- [x] Side menu drawer, notification dropdown, dark mode toggle
+- [x] Riwayat status picker, home features + blue footer
+- [x] Chat search & select mode (UI), account welcome tours
+- [x] Seller tours on Dasbor/Produk/Credits/Transaksi; product filter & sort menus; credits top-up panel; Panduan accordion with 21 articles
 - [ ] Product detail, store page, reviews, real cart & checkout
-- [ ] Chat inbox actions (search, select, delete) with real chats
+- [ ] Real chat conversations
+- [ ] Seller Iklan pages, Program Seller, Analitik, Pelanggan
