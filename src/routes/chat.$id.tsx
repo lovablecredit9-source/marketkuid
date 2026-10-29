@@ -3,13 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
-import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2 } from "lucide-react";
+import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2, Copy, Trash2, Ban } from "lucide-react";
 import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel, stampLabel } from "@/components/marketku/chat-avatar";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { tickState } from "@/lib/chat";
+import { canDeleteForAll, tickState } from "@/lib/chat";
 import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
@@ -80,6 +80,10 @@ function ChatRoom() {
   const end = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastTyping = useRef(0);
+  const pressTimer = useRef<number | null>(null);
+  type Picked = { id: string; body: string; mine: boolean; created_at: string; deleted_at: string | null; attachment_path: string | null };
+  const [picked, setPicked] = useState<Picked | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => { setAttached(produk ?? null); }, [produk]);
   useEffect(() => { try { setMuted(JSON.parse(window.localStorage.getItem(PROMO_KEY) ?? "[]")); } catch { setMuted([]); } }, []);
@@ -91,7 +95,7 @@ function ChatRoom() {
   });
   const msgs = useQuery({
     queryKey: ["messages", id], enabled: !!user, refetchInterval: 3000,
-    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
+    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at, deleted_at, hidden_for").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
   });
   const c = conv.data;
   const isBuyer = c?.buyer_id === user?.id;
@@ -100,7 +104,7 @@ function ChatRoom() {
     queryKey: ["follow", user?.id, c?.seller_id], enabled: !!user && !!c && isBuyer,
     queryFn: async () => !!(await supabase.from("store_follows").select("seller_id").eq("user_id", user!.id).eq("seller_id", c!.seller_id).maybeSingle()).data,
   });
-  const list = msgs.data ?? [];
+  const list = (msgs.data ?? []).filter((m) => !(user && (m.hidden_for ?? []).includes(user.id)));
   const count = list.length;
   const incoming = list.filter((m) => m.sender_id !== user?.id).length;
   const partnerState = useQuery({
@@ -174,6 +178,31 @@ function ChatRoom() {
     toast.success(follow.data ? "Berhenti mengikuti seller" : "Mengikuti seller");
     void qc.invalidateQueries({ queryKey: ["follow", user.id, c.seller_id] });
   };
+  const startPress = (m: Picked) => {
+    if (pressTimer.current) window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(() => { pressTimer.current = null; navigator.vibrate?.(15); setPicked(m); }, 450);
+  };
+  const cancelPress = () => { if (pressTimer.current) { window.clearTimeout(pressTimer.current); pressTimer.current = null; } };
+  const copyMsg = async () => {
+    if (!picked) return;
+    try { await navigator.clipboard.writeText(picked.body); toast.success("Pesan disalin"); } catch { toast.error("Gagal menyalin pesan"); }
+    setPicked(null);
+  };
+  const deleteMsg = async (forAll: boolean) => {
+    if (!picked) return;
+    if (forAll && !canDeleteForAll(picked)) { toast.error("Pesan lebih dari 1 jam tidak bisa dihapus untuk semua orang"); return; }
+    setBusy(true);
+    const path = forAll ? picked.attachment_path : null;
+    const { error } = await supabase.rpc("delete_message", { p_id: picked.id, p_for_all: forAll });
+    setBusy(false);
+    if (error) { toast.error(dbError(error)); return; }
+    if (path) void supabase.storage.from("chat-attachments").remove([path]);
+    toast.success(forAll ? "Pesan dihapus untuk semua orang" : "Pesan dihapus untuk kamu");
+    setPicked(null);
+    void qc.invalidateQueries({ queryKey: ["messages", id] });
+    void qc.invalidateQueries({ queryKey: ["conversations"] });
+  };
+
   const promoOff = c ? muted.includes(c.seller_id) : false;
   const togglePromo = () => {
     if (!c) return;
@@ -188,9 +217,9 @@ function ChatRoom() {
         <button aria-label="Kembali" onClick={() => router.history.back()} className="grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90"><ArrowLeft className="h-5 w-5" /></button>
         <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-bold leading-tight">{partner}</p>
-          <p className={`flex items-center gap-1.5 truncate text-sm ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
-            {!typing && <span className={`h-2 w-2 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+          <p className="truncate text-base font-bold leading-tight">{partner}</p>
+          <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
+            {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
             <span key={status} className="truncate animate-in fade-in-0">{status}</span>
           </p>
         </div>
@@ -206,9 +235,17 @@ function ChatRoom() {
           const mine = m.sender_id === user?.id;
           const prod = m.product_id ? products.data?.[m.product_id] : undefined;
           const lastMine = mine && !list.slice(i + 1).some((x) => x.sender_id === user?.id);
+          const gone = !!m.deleted_at;
+          const pick: Picked = { id: m.id, body: m.body, mine, created_at: m.created_at, deleted_at: m.deleted_at, attachment_path: m.attachment_path };
           return (
             <div key={m.id} className={`mk-pop-in flex flex-col ${mine ? "items-end" : "items-start"}`}>
-              <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border bg-card"}`}>
+              <div
+                onPointerDown={() => startPress(pick)} onPointerUp={cancelPress} onPointerLeave={cancelPress} onPointerMove={cancelPress}
+                onContextMenu={(e) => { e.preventDefault(); cancelPress(); setPicked(pick); }}
+                className={`max-w-[78%] select-none rounded-2xl px-3.5 py-2 text-sm shadow-sm transition ${picked?.id === m.id ? "scale-[0.98] ring-2 ring-primary/40" : ""} ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border bg-card"}`}>
+                {gone ? (
+                  <p className={`flex items-center gap-1.5 italic ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}><Ban className="h-3.5 w-3.5" /> {mine ? "Kamu menghapus pesan ini" : "Pesan ini telah dihapus"}</p>
+                ) : <>
                 {prod && <ProductCard p={prod} url={prod.image ? productImgs.data?.[prod.image] : undefined} />}
                 {m.attachment_path && (
                   attachUrls.data?.[m.attachment_path]
@@ -216,9 +253,10 @@ function ChatRoom() {
                     : <span className="mb-1 block h-40 w-48 animate-pulse rounded-xl bg-muted" />
                 )}
                 {!(m.attachment_path && m.body === "📷 Foto") && <p className="whitespace-pre-wrap break-words">{m.body}</p>}
+                </>}
                 <p className={`mt-0.5 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
                   {stampLabel(m.created_at)}
-                  {mine && <MsgTicks state={tickState(m)} />}
+                  {mine && !gone && <MsgTicks state={tickState(m)} />}
                 </p>
               </div>
               {lastMine && (
@@ -268,6 +306,26 @@ function ChatRoom() {
         </div>
         <button aria-label="Kirim" disabled={(!text.trim() && !pending) || uploading} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-success text-primary-foreground transition active:scale-90 disabled:opacity-50"><SendHorizontal className="h-5 w-5" /></button>
       </form>
+
+      <Dialog.Root open={!!picked} onOpenChange={(o) => { if (!o) setPicked(null); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+          <Dialog.Content aria-describedby={undefined} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md rounded-t-3xl bg-card pb-6 shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom">
+            <Dialog.Title className="sr-only">Opsi pesan</Dialog.Title>
+            <div className="mx-auto my-3 h-1 w-12 rounded-full bg-muted" />
+            {picked && (
+              <>
+                <p className="mx-6 mb-2 line-clamp-2 rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">{picked.deleted_at ? "Pesan ini telah dihapus" : picked.body}</p>
+                {!picked.deleted_at && <button onClick={() => void copyMsg()} className="flex w-full items-center gap-4 border-b px-6 py-4 text-left font-medium transition active:bg-muted"><Copy className="h-5 w-5" /> Salin pesan</button>}
+                <button disabled={busy} onClick={() => void deleteMsg(false)} className="flex w-full items-center gap-4 border-b px-6 py-4 text-left font-medium transition active:bg-muted disabled:opacity-50"><Trash2 className="h-5 w-5" /> Hapus untuk saya</button>
+                {picked.mine && !picked.deleted_at && (canDeleteForAll(picked)
+                  ? <button disabled={busy} onClick={() => void deleteMsg(true)} className="flex w-full items-center gap-4 px-6 py-4 text-left font-medium text-destructive transition active:bg-muted disabled:opacity-50"><Trash2 className="h-5 w-5" /> Hapus untuk semua orang</button>
+                  : <p className="flex items-center gap-4 px-6 py-4 text-sm text-muted-foreground"><Trash2 className="h-5 w-5" /> Hapus untuk semua orang hanya bisa maksimal 1 jam setelah dikirim</p>)}
+              </>
+            )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       <Dialog.Root open={menu} onOpenChange={setMenu}>
         <Dialog.Portal>
