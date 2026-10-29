@@ -85,8 +85,8 @@ function Produk() {
           const on = (tab ?? "produk") === k;
           return (
             <button key={k} onClick={() => setTab(k)}
-              className={`flex items-center justify-center gap-3 rounded-xl py-3.5 font-semibold transition active:scale-95 ${on ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" : "text-foreground/80"}`}>
-              <span className={`grid h-8 w-8 place-items-center rounded-lg ${on ? "" : "bg-accent"}`}><I className="h-5 w-5" /></span>{label}
+              className={`flex items-center justify-center gap-2.5 rounded-xl py-2.5 text-sm font-medium transition active:scale-95 ${on ? "bg-primary text-primary-foreground" : "text-foreground/80"}`}>
+              <span className={`grid h-7 w-7 place-items-center rounded-lg ${on ? "" : "bg-accent"}`}><I className="h-4 w-4" strokeWidth={1.75} /></span>{label}
             </button>
           );
         })}
@@ -117,7 +117,7 @@ function Produk() {
           <div className="relative">
           <SellerCard data-tour="p-search" className="flex items-stretch overflow-hidden">
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari produk..."
-              className="min-w-0 flex-1 rounded-l-2xl border-r bg-background/40 px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
+              className="min-w-0 flex-1 rounded-l-2xl border-r bg-background/40 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
             <IconCell label={`Filter: ${statusLabel[status]}`} active={status !== "all" || menu === "filter"} dot={status !== "all"}
               onClick={() => setMenu(menu === "filter" ? null : "filter")}><SlidersHorizontal className="h-5 w-5" /></IconCell>
             <IconCell label={`Urutkan: ${sortLabel[sort]}`} onClick={() => setMenu(menu === "sort" ? null : "sort")} active dot>
@@ -183,8 +183,8 @@ function Produk() {
           </div>
 
           <button data-tour="p-add" onClick={() => navigate({ to: "/seller/produk/baru", search: {} })}
-            className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-xl bg-foreground px-5 py-3.5 font-semibold text-background shadow-2xl transition active:scale-95">
-            <Plus className="h-5 w-5" /> Tambah Produk Baru
+            className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-background shadow-2xl transition active:scale-95">
+            <Plus className="h-4 w-4" /> Tambah Produk Baru
           </button>
         </>
       )}
@@ -204,8 +204,8 @@ function metaText(p: MyProduct) {
 function ProductRow({ p, img, onClick, meta }: { p: MyProduct; img?: string | undefined; onClick: () => void; meta?: string }) {
   const m = meta ?? metaText(p);
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 border-b px-3 py-3 text-left last:border-b-0 transition active:bg-accent">
-      <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
+    <button onClick={onClick} className="flex w-full items-center gap-3 border-b px-3 py-2.5 text-left last:border-b-0 transition active:bg-accent">
+      <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
         {img ? <img src={img} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-6 w-6 text-muted-foreground" />}
       </span>
       <span className="min-w-0 flex-1">
