@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AkunRouteImport } from './routes/akun'
 import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
@@ -59,6 +60,11 @@ import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AkunRoute = AkunRouteImport.update({
@@ -289,6 +295,7 @@ const ApiPublicTelegramBotIdRoute = ApiPublicTelegramBotIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -385,6 +393,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
@@ -435,6 +444,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -530,6 +541,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/akun'
     | '/bantuan'
     | '/cari'
@@ -579,6 +591,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AkunRoute: typeof AkunRoute
   BantuanRoute: typeof BantuanRoute
   CariRoute: typeof CariRoute
@@ -614,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/akun': {
@@ -993,6 +1013,7 @@ const SellerRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AkunRoute: AkunRoute,
   BantuanRoute: BantuanRoute,
   CariRoute: CariRoute,
