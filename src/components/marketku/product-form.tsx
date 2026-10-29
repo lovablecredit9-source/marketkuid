@@ -1,8 +1,9 @@
 import { useState, type ReactNode, type InputHTMLAttributes } from "react";
-import { AlertTriangle, Check, Folder, Search, Trash2, ShieldCheck, Percent, Gift, ChevronRight } from "lucide-react";
+import { AlertTriangle, Check, Folder, Search, Trash2, ShieldCheck, Percent, Gift, ChevronRight, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { SellerSheet } from "@/components/marketku/seller-ui";
-import { digits, warrantyLabel, useCategories, useCategoryCounts, type Bonus, type Discount, type Warranty, type WarrantyMode } from "@/lib/products";
+import { digits, warrantyLabel, useCategories, childCategories, categoryPath, type Bonus, type Discount, type Warranty, type WarrantyMode } from "@/lib/products";
+import { categoryIcon } from "@/lib/category-icons";
 
 export const fieldCls =
   "w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary";
@@ -161,28 +162,54 @@ export function BonusSheet({ open, onOpenChange, value, onSave }: { open: boolea
 
 export function KategoriSheet({ open, onOpenChange, value, onPick }: { open: boolean; onOpenChange: (v: boolean) => void; value: string | null; onPick: (id: string) => void }) {
   const cats = useCategories();
-  const counts = useCategoryCounts();
+  const all = cats.data ?? [];
   const [q, setQ] = useState("");
-  const list = (cats.data ?? []).filter((c) => c.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const [parent, setParent] = useState<string | null>(null);
+  const term = q.trim().toLowerCase();
+  const path = categoryPath(all, parent);
+  const kids = (id: string) => all.filter((c) => c.parent_id === id).length;
+  const list = term
+    ? all.filter((c) => c.name.toLowerCase().includes(term)).sort((a, b) => a.name.localeCompare(b.name, "id"))
+    : childCategories(all, parent);
+  const choose = (id: string) => {
+    if (kids(id) > 0) { setParent(id); setQ(""); return; }
+    onPick(id); onOpenChange(false);
+  };
   return (
-    <SellerSheet open={open} onOpenChange={onOpenChange} title="Pilih kategori produk">
+    <SellerSheet open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) { setQ(""); setParent(null); } }} title="Pilih kategori produk">
       <div className="flex items-center rounded-lg border bg-muted/30">
         <Search className="mx-3 h-4 w-4 text-muted-foreground" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari kategori" className="min-w-0 flex-1 border-l bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
       </div>
-      <p className="mt-4 border-b-2 border-foreground/20 pb-3 pl-2 text-sm font-semibold text-primary">Kategori</p>
-      <div className="mt-3 overflow-hidden rounded-xl border">
-        {cats.isLoading && <p className="p-4 text-sm text-muted-foreground">Memuat kategori...</p>}
+      <nav aria-label="Jalur kategori" className="mt-4 flex flex-wrap items-center gap-1 border-b-2 border-foreground/20 pb-3 pl-2 text-sm">
+        <button type="button" onClick={() => { setParent(null); setQ(""); }} className={path.length ? "font-medium text-primary" : "font-semibold text-primary"}>Kategori</button>
+        {path.map((c, i) => (
+          <span key={c.id} className="flex items-center gap-1">
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            {i === path.length - 1
+              ? <span className="text-foreground">{c.name}</span>
+              : <button type="button" onClick={() => setParent(c.id)} className="text-foreground/85">{c.name}</button>}
+          </span>
+        ))}
+      </nav>
+      <div key={`${parent}-${term}`} className="mk-fade-in mt-3 max-h-[52vh] overflow-y-auto rounded-xl border">
+        {cats.isLoading && <div className="grid place-items-center p-6"><RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
         {!cats.isLoading && list.length === 0 && <p className="p-4 text-sm text-muted-foreground">Kategori tidak ditemukan.</p>}
         {list.map((c) => {
-          const n = counts.data?.[c.id] ?? 0;
+          const n = kids(c.id);
+          const img = categoryIcon(c.name);
           return (
-            <button key={c.id} onClick={() => { onPick(c.id); onOpenChange(false); }}
+            <button type="button" key={c.id} onClick={() => choose(c.id)}
               className={`flex w-full items-center gap-3 border-b px-3 py-2.5 text-left last:border-b-0 transition active:bg-accent ${value === c.id ? "bg-primary/10" : ""}`}>
-              <span className="grid h-12 w-12 place-items-center rounded-lg border bg-background/50"><Folder className="h-5 w-5" strokeWidth={1.6} /></span>
-              <span className="flex-1 font-semibold">{c.name}</span>
-              {value === c.id ? <Check className="h-4 w-4 text-primary" /> : n > 0 && <span className="text-sm text-muted-foreground">{n}</span>}
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              {img
+                ? <img src={img} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                : <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border bg-background/50"><Folder className="h-5 w-5" strokeWidth={1.6} /></span>}
+              <span className="min-w-0 flex-1 truncate font-semibold">
+                {c.name}
+                {term && c.parent_id && <span className="block truncate text-xs font-normal text-muted-foreground">{categoryPath(all, c.parent_id).map((p) => p.name).join(" › ")}</span>}
+              </span>
+              {value === c.id && <Check className="h-4 w-4 text-primary" />}
+              {n > 0 && <><span className="text-sm text-muted-foreground">{n}</span><ChevronRight className="h-4 w-4 text-muted-foreground" /></>}
             </button>
           );
         })}
