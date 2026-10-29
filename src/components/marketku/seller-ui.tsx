@@ -98,12 +98,12 @@ export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
         <button aria-label="Menu" onClick={onMenu} className="grid h-9 w-9 place-items-center rounded-lg transition active:scale-90"><Menu className="h-5 w-5" /></button>
         <h1 className="ml-1 truncate text-base font-semibold">{titleFor(path)}</h1>
         <div className="ml-auto flex items-center gap-0.5" data-tour="topbar">
-          <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-5 w-5" /></HeadBtn>
-          <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-5 w-5" /></HeadBtn>
-          <HeadBtn tour="h-notif" label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-5 w-5" /></HeadBtn>
-          <HeadBtn label="Tema" active={open === "theme"} onClick={() => toggle("theme")}><Monitor className="h-5 w-5" /></HeadBtn>
+          <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn tour="h-notif" label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn label="Tema" active={open === "theme"} onClick={() => toggle("theme")}><Monitor className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
           <button data-tour="h-profile" aria-label="Menu profil" onClick={() => toggle("profile")}
-            className={`ml-1 grid h-10 w-10 place-items-center rounded-full border bg-card text-sm font-bold text-primary transition active:scale-90 ${open === "profile" ? "border-primary ring-2 ring-primary/40" : "border-primary/50"}`}>
+            className={`ml-1 grid h-9 w-9 place-items-center rounded-full border bg-card text-sm font-semibold text-primary transition active:scale-90 ${open === "profile" ? "border-primary ring-2 ring-primary/40" : "border-primary/50"}`}>
             {store.store_name.charAt(0).toUpperCase()}
           </button>
         </div>
