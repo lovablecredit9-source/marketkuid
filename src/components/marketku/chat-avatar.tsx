@@ -16,14 +16,14 @@ export const EMOJIS = [
 const hhmm = (d: Date) => d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
 const dayStart = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
 
-/** "Online" within 2 minutes; else "Terakhir dilihat hari ini 14.30" / "kemarin 14.30" / "27 Okt 2026 14.30". */
+/** "Online" within 2 minutes; else "Terakhir dilihat 14.30" (today) / "kemarin 14.30" / "27 Okt 2026 14.30". */
 export function lastSeenLabel(iso: string | null | undefined, now = Date.now()) {
   if (!iso) return "Belum pernah online";
   const t = new Date(iso).getTime();
   if (now - t < 2 * 60_000) return "Online";
   const d = new Date(iso);
   const days = Math.round((dayStart(now) - dayStart(t)) / 86_400_000);
-  if (days <= 0) return `Terakhir dilihat hari ini ${hhmm(d)}`;
+  if (days <= 0) return `Terakhir dilihat ${hhmm(d)}`;
   if (days === 1) return `Terakhir dilihat kemarin ${hhmm(d)}`;
   return `Terakhir dilihat ${d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })} ${hhmm(d)}`;
 }
