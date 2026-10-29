@@ -7,6 +7,7 @@ import { useSellerStore } from "@/lib/seller";
 import { isSellerUnlocked, unlockSeller } from "@/lib/chat";
 import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
+import { SellerLoading } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller")({
   head: () => ({
@@ -79,7 +80,7 @@ function SellerLayout() {
   // Mark the seller online (2 ticks for buyers) as soon as Seller Center opens.
   useEffect(() => { if (unlocked && user) beatPresence(user.id); }, [unlocked, user]);
 
-  if (!ready || unlocked === null || (user && store.isLoading)) return <Gate><p className="text-muted-foreground">Memuat...</p></Gate>;
+  if (!ready || unlocked === null || (user && store.isLoading)) return <Gate><SellerLoading label="Memuat Seller Center" className="py-0" /></Gate>;
   if (!user || !store.data) {
     return (
       <Gate>

@@ -8,11 +8,12 @@ import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import {
   PRODUCT_TYPES, MAX_PHOTOS, emptyVariant, fmtThousands, digits, parsePrice, stockLines, validateInfo, validateDetail,
-  validateVariants, warrantyLabel, useCategories, useImageUrls, uploadProductImage,
+  validateVariants, warrantyLabel, useCategories, useImageUrls, uploadProductImage, categoryPath,
   type ProductType, type VariantDraft, type Warranty, type Discount, type Bonus,
 } from "@/lib/products";
 import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, GaransiSheet, KategoriSheet, fieldCls } from "@/components/marketku/product-form";
 import { soon } from "@/components/marketku/shell";
+import { SellerLoading } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller/produk_/baru")({
   validateSearch: (s: Record<string, unknown>): { edit?: string } => (typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
@@ -93,7 +94,7 @@ function ProductWizard() {
   const cur: StepKey = steps[Math.min(step, steps.length - 1)] ?? "info";
   const isLast = step === steps.length - 1;
   const imgUrls = useImageUrls([...photos, ...variants.map((v) => v.image_url ?? "")]);
-  const catName = cats.data?.find((c) => c.id === categoryId)?.name;
+  const catName = categoryId ? categoryPath(cats.data ?? [], categoryId).map((c) => c.name).join(" › ") || undefined : undefined;
 
   const setV = (i: number, patch: Partial<VariantDraft>) => setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, ...patch } : v)));
 
@@ -190,7 +191,7 @@ function ProductWizard() {
     } finally { setSaving(false); }
   };
 
-  if (edit && existing.isLoading) return <p className="py-10 text-center text-muted-foreground">Memuat produk...</p>;
+  if (edit && existing.isLoading) return <SellerLoading label="Memuat produk" />;
 
   return (
     <div className="rounded-2xl border bg-card">
@@ -292,7 +293,8 @@ function ProductWizard() {
               <FloatInput label="@username_telegram atau 08123456789" alwaysFloat value={contact} maxLength={60} onChange={(e) => setContact(e.target.value)} className="[&>input]:border-primary" />
               <p className="mt-2 text-xs text-muted-foreground">Pembeli akan diarahkan ke kontak ini setelah bayar.</p></div>
             <div><FieldLabel required>Estimasi durasi pengerjaan</FieldLabel>
-              <input value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)} placeholder="Contoh: 1-3 hari kerja" className={fieldCls} /></div>
+              <FloatInput label="Contoh: 1-3 hari kerja" value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)}
+                onFocus={(e) => e.currentTarget.parentElement?.setAttribute("data-focus", "1")} onBlur={(e) => e.currentTarget.parentElement?.removeAttribute("data-focus")} /></div>
           </>
         )}
 
