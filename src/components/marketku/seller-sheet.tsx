@@ -3,6 +3,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { unlockSeller } from "@/lib/chat";
 
 export const validStoreName = (v: string) => v.trim().length >= 3 && v.trim().length <= 40;
 export const normalizeTelegram = (v: string) => v.trim().replace(/^@/, "");
