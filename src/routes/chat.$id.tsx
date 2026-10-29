@@ -113,6 +113,12 @@ function ChatRoom() {
   });
   const typing = !!partnerState.data?.typing;
   const media = useStoreMedia(c && isBuyer ? [c.seller_id] : []);
+  // Only the buyer side can tap the header to visit the seller's store; buyers have no store page.
+  const store = useQuery({
+    queryKey: ["chat_store_slug", c?.seller_id], enabled: !!c && isBuyer,
+    queryFn: async () => (await supabase.rpc("public_stores", { p_ids: [c!.seller_id] })).data?.[0]?.slug ?? null,
+  });
+  const storeSlug = isBuyer ? store.data ?? null : null;
   const storeAvatar = c ? media.data?.[c.seller_id]?.avatar_path ?? null : null;
   const attachPaths = list.map((m) => m.attachment_path ?? "").filter(Boolean);
   const avatarUrl = useImageUrls(storeAvatar ? [storeAvatar] : []).data?.[storeAvatar ?? ""];
@@ -215,14 +221,22 @@ function ChatRoom() {
     <div className="mx-auto flex h-[100dvh] max-w-md flex-col bg-background">
       <header className="flex items-center gap-3 border-b bg-card px-3 py-2.5">
         <button aria-label="Kembali" onClick={() => router.history.back()} className="grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90"><ArrowLeft className="h-5 w-5" /></button>
-        <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-base font-bold leading-tight">{partner}</p>
-          <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
-            {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
-            <span key={status} className="truncate animate-in fade-in-0">{status}</span>
-          </p>
-        </div>
+        <button
+          type="button"
+          disabled={!storeSlug}
+          aria-label={storeSlug ? `Kunjungi toko ${partner}` : undefined}
+          onClick={() => storeSlug && navigate({ to: "/toko/$slug", params: { slug: storeSlug } })}
+          className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left ${storeSlug ? "transition active:scale-[0.98]" : "cursor-default"}`}
+        >
+          <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-base font-bold leading-tight">{partner}</p>
+            <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
+              {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+              <span key={status} className="truncate animate-in fade-in-0">{status}</span>
+            </p>
+          </div>
+        </button>
         <button aria-label="Opsi chat" onClick={() => setMenu(true)} className={`grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90 ${menu ? "border-primary text-primary" : ""}`}><MoreVertical className="h-5 w-5" /></button>
       </header>
 
