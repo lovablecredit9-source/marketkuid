@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { canDeleteForAll, tickState } from "@/lib/chat";
 import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
+import { LoadingLine } from "@/components/marketku/loading";
 
 type S = { produk?: string };
 export const Route = createFileRoute("/chat/$id")({
@@ -288,6 +289,7 @@ function ChatRoom() {
             <div className="rounded-2xl rounded-bl-sm border bg-card px-4 py-3 shadow-sm"><TypingDots /></div>
           </div>
         )}
+        </>}
         <div ref={end} />
       </div>
 
