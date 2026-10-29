@@ -30,3 +30,9 @@
 - [x] Bot Telegram nyata: hubungkan token, aktif/nonaktif, refresh webhook, edit, menu selector, wajib join, hapus
 - [x] Bot menjawab di Telegram: /start, kategori, produk, promo, referral, bantuan, garansi, top up/tarik saldo (info)
 - [ ] Top up saldo iklan via QRIS & saldo/top up di bot (butuh payment gateway)
+
+## Screenshots4.zip (kategori produk seller)
+- [x] Pilih kategori produk bertingkat (breadcrumb, jumlah sub-kategori, ikon, cari)
+- [x] Kategori induk ikut menampilkan produk sub-kategori di pencarian & halaman Kategori
+- [x] Animasi muat ikon refresh berputar di Seller Center
+- [x] Kolom Detail Lanjutan dengan label naik saat diketik
