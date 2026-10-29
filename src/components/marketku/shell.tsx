@@ -75,7 +75,7 @@ export function Header({ title }: { title?: string | undefined }) {
     );
   }
   return (
-    <><div aria-hidden className="h-[3.3rem]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b bg-card">
+    <><div aria-hidden className="h-[94px]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto h-[94px] max-w-md border-b bg-card">
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
