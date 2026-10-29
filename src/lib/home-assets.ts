@@ -12,6 +12,21 @@ import appCapcut from "@/assets/home/app-capcut.png.asset.json";
 import appCanva from "@/assets/home/app-canva.png.asset.json";
 import appSpotify from "@/assets/home/app-spotify.png.asset.json";
 import appGetcontact from "@/assets/home/app-getcontact.png.asset.json";
+import cat_netflix from "@/assets/cat/cat-netflix.svg.asset.json";
+import cat_roblox from "@/assets/cat/cat-roblox.svg.asset.json";
+import cat_github from "@/assets/cat/cat-github.svg.asset.json";
+import cat_gmail from "@/assets/cat/cat-gmail.svg.asset.json";
+import cat_instagram from "@/assets/cat/cat-instagram.svg.asset.json";
+import cat_apple from "@/assets/cat/cat-apple.svg.asset.json";
+import cat_notion from "@/assets/cat/cat-notion.svg.asset.json";
+import cat_x from "@/assets/cat/cat-x.svg.asset.json";
+import cat_zoom from "@/assets/cat/cat-zoom.svg.asset.json";
+import cat_duolingo from "@/assets/cat/cat-duolingo.svg.asset.json";
+import cat_claude from "@/assets/cat/cat-claude.svg.asset.json";
+import cat_google from "@/assets/cat/cat-google.svg.asset.json";
+import cat_youtube from "@/assets/cat/cat-youtube.svg.asset.json";
+import cat_telegram from "@/assets/cat/cat-telegram.svg.asset.json";
+import cat_tiktok from "@/assets/cat/cat-tiktok.svg.asset.json";
 
 /** Home banners supplied by the owner. `to` is where a tap leads. */
 export const HOME_BANNERS = [
@@ -23,6 +38,24 @@ export const HOME_BANNERS = [
 export const CATEGORY_IMAGES: Record<string, string> = {
   Lainnya: catLainnya.url,
   "AI Tools": catAiTools.url,
+  "Lain-lain": catLainnya.url,
+  "App Premium": secAppPremium.url,
+  Aplikasi: secAppPremium.url,
+  "Netflix": cat_netflix.url,
+  "Roblox": cat_roblox.url,
+  "Github": cat_github.url,
+  "Gmail": cat_gmail.url,
+  "Instagram": cat_instagram.url,
+  "Apple": cat_apple.url,
+  "Notion": cat_notion.url,
+  "X (Twitter)": cat_x.url,
+  "Zoom": cat_zoom.url,
+  "Duolingo": cat_duolingo.url,
+  "Claude": cat_claude.url,
+  "Google": cat_google.url,
+  "Youtube": cat_youtube.url,
+  "Telegram": cat_telegram.url,
+  "Akun TikTok": cat_tiktok.url,
 };
 
 /** Brand shortcut groups on the home page; tapping a brand searches for it. */
