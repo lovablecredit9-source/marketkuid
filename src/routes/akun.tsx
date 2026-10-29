@@ -173,13 +173,13 @@ function AkunDashboard({ user }: { user: User }) {
         <section className="rounded-2xl border border-primary/30 bg-gradient-to-br from-accent/60 to-card p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-muted-foreground"><Wallet className="h-4 w-4" /> SALDO MARKETKU</p>
-            <button aria-label="Muat ulang" onClick={() => soon("Muat ulang saldo")} className="grid h-8 w-8 place-items-center rounded-lg border bg-card transition active:rotate-180"><RefreshCw className="h-4 w-4" /></button>
+            <button aria-label="Muat ulang" onClick={() => wallet.refetch()} className="grid h-8 w-8 place-items-center rounded-lg border bg-card"><RefreshCw className={`h-4 w-4 ${wallet.isFetching ? "animate-spin" : ""}`} /></button>
           </div>
-          <p className="mt-3 mk-acc-mono text-2xl">Rp 0</p>
-          <button onClick={() => soon("Riwayat saldo")} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat & tarik dana <ArrowUpRight className="h-3 w-3" /></button>
+          <p className="mt-3 mk-acc-mono text-2xl">Rp {(wallet.data ?? 0).toLocaleString("id-ID")}</p>
+          <button onClick={() => navigate({ to: "/topup" })} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat deposit <ArrowUpRight className="h-3 w-3" /></button>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
-            <button onClick={() => window.open("https://wa.me/6285769302532?text=" + encodeURIComponent("Halo admin Marketku, saya mau top up / deposit saldo."), "_blank")} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
+            <button onClick={() => navigate({ to: "/topup" })} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Saldo otomatis kembali ke akunmu kalau order dibatalkan atau di-refund.</p>
         </section>

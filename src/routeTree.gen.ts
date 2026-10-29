@@ -27,6 +27,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
+import { Route as TopupRouteImport } from './routes/topup'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
@@ -143,6 +144,11 @@ const SellerRoute = SellerRouteImport.update({
 const SyaratRoute = SyaratRouteImport.update({
   id: '/syarat',
   path: '/syarat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TopupRoute = TopupRouteImport.update({
+  id: '/topup',
+  path: '/topup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -300,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -394,6 +402,7 @@ export interface FileRoutesById {
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/akun_/pengaturan': typeof AkunPengaturanRoute
   '/chat/$id': typeof ChatIdRoute
@@ -443,6 +452,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/seller'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun/pengaturan'
     | '/chat/$id'
@@ -489,6 +499,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun/pengaturan'
     | '/chat/$id'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/seller'
     | '/syarat'
+    | '/topup'
     | '/wishlist'
     | '/akun_/pengaturan'
     | '/chat/$id'
@@ -584,6 +596,7 @@ export interface RootRouteChildren {
   RiwayatRoute: typeof RiwayatRoute
   SellerRoute: typeof SellerRouteWithChildren
   SyaratRoute: typeof SyaratRoute
+  TopupRoute: typeof TopupRoute
   WishlistRoute: typeof WishlistRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
   ChatIdRoute: typeof ChatIdRoute
@@ -720,6 +733,13 @@ declare module '@tanstack/react-router' {
       path: '/syarat'
       fullPath: '/syarat'
       preLoaderRoute: typeof SyaratRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/topup': {
+      id: '/topup'
+      path: '/topup'
+      fullPath: '/topup'
+      preLoaderRoute: typeof TopupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -990,6 +1010,7 @@ const rootRouteChildren: RootRouteChildren = {
   RiwayatRoute: RiwayatRoute,
   SellerRoute: SellerRouteWithChildren,
   SyaratRoute: SyaratRoute,
+  TopupRoute: TopupRoute,
   WishlistRoute: WishlistRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
   ChatIdRoute: ChatIdRoute,
