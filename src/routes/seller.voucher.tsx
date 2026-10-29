@@ -183,7 +183,7 @@ function VoucherWizard({ ownerId, row, onClose, onSaved }: { ownerId: string; ro
   return (
     <Dialog.Root open onOpenChange={(v) => !v && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-background/70 backdrop-blur-sm" />
+        <Dialog.Overlay className="seller-panel fixed inset-0 z-50 bg-background/70 backdrop-blur-sm" />
         <Dialog.Content aria-describedby={undefined} className="seller-panel fixed inset-x-0 bottom-0 top-[12vh] z-50 mx-auto flex max-w-md flex-col rounded-t-2xl border bg-card shadow-2xl animate-in slide-in-from-bottom">
           <div className="flex items-center gap-3 border-b px-4 py-4">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-foreground text-primary"><Percent className="h-5 w-5" /></span>
