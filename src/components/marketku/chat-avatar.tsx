@@ -28,6 +28,16 @@ export function lastSeenLabel(iso: string | null | undefined, now = Date.now()) 
   return `Terakhir dilihat ${d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })} ${hhmm(d)}`;
 }
 
+/** Short stamp: "14.30" today, "Kemarin 14.30", else "27 Okt 14.30" (year added if not this year). */
+export function stampLabel(iso: string, now = Date.now()) {
+  const d = new Date(iso);
+  const days = Math.round((dayStart(now) - dayStart(d.getTime())) / 86_400_000);
+  if (days <= 0) return hhmm(d);
+  if (days === 1) return `Kemarin ${hhmm(d)}`;
+  const sameYear = new Date(now).getFullYear() === d.getFullYear();
+  return `${d.toLocaleDateString("id-ID", { day: "numeric", month: "short", ...(sameYear ? {} : { year: "numeric" }) })} ${hhmm(d)}`;
+}
+
 /** WhatsApp-style ticks: 1 grey = terkirim, 2 grey = diterima, 2 blue = dibaca. */
 export function MsgTicks({ state, className = "" }: { state: TickState; className?: string }) {
   const label = state === "read" ? "Dibaca" : state === "delivered" ? "Diterima" : "Terkirim";

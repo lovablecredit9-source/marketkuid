@@ -202,9 +202,10 @@ function ChatRoom() {
         {count === 0 && c && !typing && (
           <div className="flex flex-col items-center pt-32 text-center text-muted-foreground"><MessageCircle className="h-6 w-6 text-primary" /><p className="mt-3 text-sm">Tulis pesan pertamamu untuk memulai chat{isBuyer ? " dengan seller" : ""}.</p></div>
         )}
-        {list.map((m) => {
+        {list.map((m, i) => {
           const mine = m.sender_id === user?.id;
           const prod = m.product_id ? products.data?.[m.product_id] : undefined;
+          const lastMine = mine && !list.slice(i + 1).some((x) => x.sender_id === user?.id);
           return (
             <div key={m.id} className={`mk-pop-in flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border bg-card"}`}>
