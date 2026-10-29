@@ -22,3 +22,10 @@
 - [x] Seller products on beranda & pencarian
 - [x] Home: owner banners (2), category image icons, AI & App Premium brand shortcuts
 - [ ] QRIS payment, withdraw, rekber, Telegram bot (need payment gateway / bot credentials)
+
+## Screenshots2.zip (kategori, iklan, bot telegram)
+- [ ] Halaman Semua Kategori (/kategori) + jumlah produk + Semua Produk; tombol "Lihat semua" di beranda
+- [ ] Iklan: Dashboard, Performa, Saldo (Top Up QRIS + Klaim Voucher + riwayat), Buat Iklan (kata kunci, mode pencocokan, durasi, perkiraan biaya), Campaign (filter status)
+- [ ] Produk bersponsor tampil di beranda & pencarian (impresi/klik tercatat)
+- [ ] Bot Telegram nyata: hubungkan token, aktif/nonaktif, refresh webhook, edit, menu selector, wajib join, hapus
+- [ ] Bot menjawab di Telegram: /start, kategori, produk, promo, referral, bantuan, garansi, top up/tarik saldo (info)
