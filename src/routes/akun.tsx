@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { AppShell, MenuRow, Section, soon, toggleDark } from "@/components/marketku/shell";
 import { SellerSheet } from "@/components/marketku/seller-sheet";
+import { LoadingLine } from "@/components/marketku/loading";
 import { BUYER_WELCOME, SELLER_WELCOME, WelcomeTour } from "@/components/marketku/welcome-tour";
 import { supabase } from "@/integrations/supabase/client";
 import { clearSellerLocks } from "@/lib/chat";
@@ -48,9 +49,21 @@ function Tile({ icon: I, label, tone, onClick }: { icon: typeof Coins; label: st
   );
 }
 
+function AkunLoading() {
+  return (
+    <AppShell title="Akun Saya" className="mk-acc-serif">
+      <div className="relative min-h-[70vh] overflow-hidden px-6 pt-20">
+        <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
+        <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
+        <LoadingLine label="Memuat profil & saldo..." className="relative text-base" />
+      </div>
+    </AppShell>
+  );
+}
+
 function Akun() {
   const { user, ready } = useAuth();
-  if (!ready) return <AppShell title="Akun Saya" className="mk-acc-serif"><div className="px-6 pt-24 text-center text-muted-foreground">Memuat...</div></AppShell>;
+  if (!ready) return <AkunLoading />;
   if (user) return <AkunDashboard user={user} />;
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
@@ -115,6 +128,8 @@ function AkunDashboard({ user }: { user: User }) {
       <LogOut className="h-4 w-4" /> Keluar
     </button>
   );
+
+  if (profile.isPending || store.isPending) return <AkunLoading />;
 
   if (isSeller && view === "seller") {
     return (

@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { canDeleteForAll, tickState } from "@/lib/chat";
 import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
+import { LoadingLine } from "@/components/marketku/loading";
 
 type S = { produk?: string };
 export const Route = createFileRoute("/chat/$id")({
@@ -229,19 +230,27 @@ function ChatRoom() {
           onClick={() => storeSlug && navigate({ to: "/toko/$slug", params: { slug: storeSlug } })}
           className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left ${storeSlug ? "transition active:scale-[0.98]" : "cursor-default"}`}
         >
-          <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-bold leading-tight">{partner}</p>
-            <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
-              {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
-              <span key={status} className="truncate animate-in fade-in-0">{status}</span>
-            </p>
-          </div>
+          {c ? <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} /> : <span className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-muted" />}
+          {c ? (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-bold leading-tight">{partner}</p>
+              <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
+                {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+                <span key={status} className="truncate animate-in fade-in-0">{partnerState.isPending ? "Offline" : status}</span>
+              </p>
+            </div>
+          ) : (
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <span className="block h-4 w-32 animate-pulse rounded bg-muted" />
+              <span className="block h-3 w-16 animate-pulse rounded bg-muted" />
+            </div>
+          )}
         </button>
         <button aria-label="Opsi chat" onClick={() => setMenu(true)} className={`grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90 ${menu ? "border-primary text-primary" : ""}`}><MoreVertical className="h-5 w-5" /></button>
       </header>
 
       <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 px-3 py-4">
+        {(!ready || conv.isPending || msgs.isPending) ? <LoadingLine label="Memuat percakapan..." className="pt-12" /> : <>
         {c === null && <p className="pt-20 text-center text-sm text-muted-foreground">Percakapan tidak ditemukan.</p>}
         {count === 0 && c && !typing && (
           <div className="flex flex-col items-center pt-32 text-center text-muted-foreground"><MessageCircle className="h-6 w-6 text-primary" /><p className="mt-3 text-sm">Tulis pesan pertamamu untuk memulai chat{isBuyer ? " dengan seller" : ""}.</p></div>
@@ -287,6 +296,7 @@ function ChatRoom() {
             <div className="rounded-2xl rounded-bl-sm border bg-card px-4 py-3 shadow-sm"><TypingDots /></div>
           </div>
         )}
+        </>}
         <div ref={end} />
       </div>
 

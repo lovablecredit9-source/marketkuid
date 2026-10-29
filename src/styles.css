@@ -257,6 +257,10 @@
 .mk-pop-in { animation: mk-pop-in .22s ease-out both; }
 @keyframes mk-spin-once { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 .mk-spin-once { animation: mk-spin-once .7s cubic-bezier(.5,.1,.3,1); }
+@keyframes mk-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.mk-fade-in { animation: mk-fade-in .3s ease-out both; }
+@keyframes mk-boot-pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.mk-boot-text { animation: mk-boot-pulse 1.4s ease-in-out infinite; }
 @keyframes mk-badge-pop { 0% { transform: scale(.4); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
 .mk-badge-pop { animation: mk-badge-pop .35s ease-out; }
 @keyframes mk-ping-dot { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--destructive) 60%, transparent); } 100% { box-shadow: 0 0 0 6px transparent; } }

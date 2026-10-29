@@ -11,6 +11,7 @@ import { AppShell } from "@/components/marketku/shell";
 import { pageMeta } from "@/lib/meta";
 import { ChatAvatar } from "@/components/marketku/chat-avatar";
 import { useUnreadChats } from "@/lib/chat";
+import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/pesan")({
   head: () => pageMeta("Chat — Marketku", "Ruang chat pembeli dan seller Marketku."),
@@ -25,7 +26,7 @@ const timeLabel = (s: string) => {
 };
 
 function Pesan() {
-  const { user } = useAuth();
+  const { user, ready } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"semua" | "belum">("semua");
   const store = useSellerStore(user?.id);
@@ -44,6 +45,7 @@ function Pesan() {
     queryKey: ["conversations", user?.id], enabled: !!user, refetchInterval: 8000,
     queryFn: async () => (await supabase.from("conversations").select("*").order("last_at", { ascending: false }).limit(200)).data ?? [],
   });
+  const loadingInbox = !ready || (!!user && convs.isPending);
   const rows = (convs.data ?? []).map((c) => {
     const buyer = c.buyer_id === user?.id;
     const senderName = c.last_sender_id ? (c.last_sender_id === c.seller_id ? c.store_name : c.buyer_name) : null;
@@ -123,6 +125,7 @@ function Pesan() {
               </button>
             ))}
           </div>
+          {loadingInbox ? <LoadingLine label="Memuat inbox..." className="border-t px-6 py-16" /> : <>
           <div className="space-y-2 px-3 pb-3">
             {list.map((c) => {
               const on = picked.includes(c.id);
@@ -136,7 +139,7 @@ function Pesan() {
                   </span>
                 </>
               );
-              const cls = `flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${c.unread > 0 ? "border-primary/20 bg-accent/60" : "border-transparent"}`;
+              const cls = `mk-pop-in flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${c.unread > 0 ? "border-primary/20 bg-accent/60" : "border-transparent"}`;
               return select
                 ? <button key={c.id} onClick={() => setPicked(on ? picked.filter((x) => x !== c.id) : [...picked, c.id])} className={cls}>{inner}</button>
                 : <Link key={c.id} to="/chat/$id" params={{ id: c.id }} className={cls}>{inner}</Link>;
@@ -149,6 +152,7 @@ function Pesan() {
               <Link to={user ? "/cari" : "/login"} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition active:scale-95">{user ? "Cari produk" : "Masuk"}</Link>
             </div>
           )}
+          </>}
         </div>
       </div>
     </AppShell>

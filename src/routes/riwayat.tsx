@@ -10,6 +10,7 @@ import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
 import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
+import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/riwayat")({
   head: () => pageMeta("Riwayat Pesanan — Marketku", "Lihat daftar riwayat pesananmu di Marketku."),
@@ -49,10 +50,11 @@ function Riwayat() {
             </label>
           </div>
         </div>
-        {ready && !user ? (
+        {!ready || (user && orders.isPending) ? (
+          <LoadingLine label="Memuat pesanan..." className="rounded-2xl border bg-card py-12" />
+        ) : !user ? (
           <EmptyState icon={Package} title="Masuk untuk melihat pesanan" desc="Riwayat pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} />
         ) : list.length === 0 ? (
-          orders.isLoading ? <div className="h-32 animate-pulse rounded-2xl border bg-card" /> :
           <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
         ) : (
           <div className="space-y-3">
