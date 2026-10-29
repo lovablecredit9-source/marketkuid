@@ -59,11 +59,7 @@ export function ProductCard({ p, url, wished, onWish, compact = false }: { p: Ca
           )}
         </div>
       </Link>
-      <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={onWish}
-        className="relative -mt-[calc(100%)] hidden" />
-      <div className="relative p-3">
-        <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={onWish}
-          className="absolute -top-[calc(100%+0px)] right-2 hidden" />
+      <div className="p-3">
         {p.category && <span className="inline-block rounded-md border px-2 py-0.5 text-[11px] text-muted-foreground">{p.category}</span>}
         <Link to="/produk/$id" params={{ id: p.id }} className={`mt-1.5 block font-semibold leading-snug ${compact ? "line-clamp-2 text-sm" : "line-clamp-2"}`}>{p.name}</Link>
         <p className="mt-1.5 font-bold text-primary">{rpBuyer(p.minPrice)}</p>
