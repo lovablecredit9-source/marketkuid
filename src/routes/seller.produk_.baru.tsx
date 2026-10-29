@@ -273,7 +273,7 @@ function ProductWizard() {
               )}
               {photos.length < MAX_PHOTOS && (
                 <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="flex w-full flex-col items-center gap-3 rounded-xl border border-dashed border-foreground/25 py-9 text-center transition active:scale-[0.99]">
+                  className="flex w-full flex-col items-center gap-3 rounded-xl border border-dashed border-primary/30 py-9 text-center transition active:scale-[0.99]">
                   {uploading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : <span className="flex items-center gap-3 text-muted-foreground"><Camera className="h-5 w-5" /><Plus className="h-4 w-4" /></span>}
                   <span className="text-sm text-muted-foreground">{uploading ? "Mengunggah..." : "Klik untuk upload foto"}</span>
                   <span className="text-xs">JPG, PNG, atau WebP</span>
@@ -426,7 +426,7 @@ function VariantCard({ v, idx, active, canDelete, img, onActivate, onChange, onI
   const price = parsePrice(v.price);
   const qty = stockLines(v.stock).length;
   return (
-    <div className={`overflow-hidden rounded-xl border ${active ? "border-foreground/80" : ""}`}>
+    <div className={`overflow-hidden rounded-xl border ${active ? "border-primary/60" : ""}`}>
       <div className="flex items-center gap-3 border-b p-3">
         <button type="button" aria-label="Foto varian" onClick={onImage} className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
           {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : <ImageIcon className="h-5 w-5" strokeWidth={1.6} />}

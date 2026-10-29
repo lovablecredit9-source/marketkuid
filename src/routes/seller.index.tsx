@@ -46,7 +46,7 @@ function Dasbor() {
   const pending = st.preorderTodo;
   return (
     <>
-      <SellerCard className="border-foreground/80 p-4">
+      <SellerCard className="border-primary/50 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold">Aktivitas Pending</h2>
