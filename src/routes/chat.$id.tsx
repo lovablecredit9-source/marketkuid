@@ -54,7 +54,7 @@ function ChatRoom() {
   });
   const msgs = useQuery({
     queryKey: ["messages", id], enabled: !!user, refetchInterval: 4000,
-    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
+    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
   });
   const c = conv.data;
   const isBuyer = c?.buyer_id === user?.id;
