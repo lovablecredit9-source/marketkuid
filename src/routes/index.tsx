@@ -10,6 +10,7 @@ import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { useMarketProducts, type CardProduct } from "@/lib/market";
 import { useCategories, useImageUrls } from "@/lib/products";
+import { BRAND_GROUPS, CATEGORY_IMAGES, HOME_BANNERS } from "@/lib/home-assets";
 
 type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -61,15 +62,13 @@ function Index() {
       </form>
 
       <div className="space-y-5 px-3 pt-3">
-        {products.isLoading ? (
-          <div className="h-36 animate-pulse rounded-2xl border bg-card" />
-        ) : banners.length ? (
-          <Banner items={banners} urlOf={urlOf} />
-        ) : null}
+        <Banner />
 
-        {list.length > 0 && <Ticker items={list.slice(0, 12)} />}
+        {list.length > 0 && <Ticker items={list.slice(0, 12)} urlOf={urlOf} />}
 
         <CategoryStrip />
+
+        {BRAND_GROUPS.map((g) => <BrandGroup key={g.title} group={g} />)}
 
         {products.isLoading ? (
           <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <div key={i} className="h-56 animate-pulse rounded-2xl border bg-card" />)}</div>
@@ -136,24 +135,28 @@ function Index() {
   );
 }
 
-/** Auto-sliding banner built from real seller product photos. */
-function Banner({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
+/** Auto-sliding promo banners supplied by the owner. */
+function Banner() {
+  const items = HOME_BANNERS;
   const [i, setI] = useState(0);
   useEffect(() => {
     if (items.length < 2) return;
     const t = window.setInterval(() => setI((v) => (v + 1) % items.length), 4000);
     return () => window.clearInterval(t);
   }, [items.length]);
-  const cur = items[Math.min(i, items.length - 1)]!;
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-card shadow-sm" data-tour="banner">
-      <Link to="/produk/$id" params={{ id: cur.id }} className="block" aria-label={cur.name}>
-        <ProductImage url={urlOf(cur)} alt={cur.name} className="aspect-[21/9]" />
-      </Link>
+    <div className="relative overflow-hidden rounded-2xl shadow-sm" data-tour="banner">
+      <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${i * 100}%)` }}>
+        {items.map((b) => (
+          <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : undefined} className="block w-full shrink-0" aria-label={b.alt}>
+            <img src={b.src} alt={b.alt} className="aspect-[4/1] w-full object-cover" />
+          </Link>
+        ))}
+      </div>
       {items.length > 1 && (
-        <div className="absolute bottom-2 right-3 flex gap-1.5">
-          {items.map((p, n) => (
-            <button key={p.id} aria-label={`Banner ${n + 1}`} onClick={() => setI(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-5 bg-primary" : "w-1.5 bg-card/80"}`} />
+        <div className="absolute bottom-2 right-3 flex gap-1.5 rounded-full bg-foreground/40 px-1.5 py-1">
+          {items.map((b, n) => (
+            <button key={b.src} aria-label={`Banner ${n + 1}`} onClick={() => setI(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-5 bg-card" : "w-1.5 bg-card/60"}`} />
           ))}
         </div>
       )}
@@ -161,14 +164,15 @@ function Banner({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct
   );
 }
 
-function Ticker({ items }: { items: CardProduct[] }) {
+function Ticker({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
   const row = (k: string) => items.map((p) => (
-    <Link key={`${k}${p.id}`} to="/produk/$id" params={{ id: p.id }} className="shrink-0 px-4 text-sm font-semibold">
+    <Link key={`${k}${p.id}`} to="/produk/$id" params={{ id: p.id }} className="flex shrink-0 items-center gap-2 border-r px-4 text-sm font-semibold uppercase last:border-r-0">
+      {urlOf(p) && <img src={urlOf(p)} alt="" className="h-7 w-7 rounded-full object-cover" />}
       {p.name} <span className="text-muted-foreground">-</span> <span className="text-primary">{rpBuyer(p.minPrice)}</span>
     </Link>
   ));
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden py-1">
       <div className="mk-marquee flex w-max">{row("a")}{row("b")}</div>
     </div>
   );
@@ -178,17 +182,47 @@ function CategoryStrip() {
   const cats = useCategories();
   if (!cats.data?.length) return null;
   return (
-    <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none]" data-tour="kategori">
+    <div className="-mx-3 flex overflow-x-auto px-3 py-1 [scrollbar-width:none]" data-tour="kategori">
       {cats.data.map((c) => {
         const I = CAT_ICON[c.name] ?? LayoutGrid;
+        const img = CATEGORY_IMAGES[c.name];
         return (
-          <Link key={c.id} to="/cari" search={{ kategori: c.id }} className="flex shrink-0 items-center gap-2 rounded-full border bg-card py-1.5 pl-1.5 pr-3.5 text-sm font-medium transition active:scale-95">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-accent text-primary"><I className="h-4 w-4" /></span>
+          <Link key={c.id} to="/cari" search={{ kategori: c.id }} className="flex shrink-0 items-center gap-2.5 border-r px-4 text-sm font-medium transition last:border-r-0 active:scale-95">
+            {img ? (
+              <img src={img} alt="" className="h-8 w-8 rounded-full object-cover" />
+            ) : (
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><I className="h-4 w-4" /></span>
+            )}
             {c.name}
           </Link>
         );
       })}
     </div>
+  );
+}
+
+/** Brand shortcuts (AI, App Premium) — each brand opens the search for that name. */
+function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
+  const cats = useCategories();
+  const cat = cats.data?.find((c) => c.name === group.category);
+  return (
+    <section>
+      <div className="flex items-center gap-2.5 border-b-2 border-border pb-2">
+        <img src={group.icon} alt="" className="h-8 w-8 rounded-lg object-cover" />
+        <h2 className="flex-1 text-xl font-bold">{group.title}</h2>
+        <Link to="/cari" search={cat ? { kategori: cat.id } : undefined} className="flex items-center gap-1 rounded-lg border-2 border-primary/70 px-3 py-1 text-sm font-semibold text-primary transition active:scale-95">
+          Semua <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-4 gap-3 px-2 pt-3">
+        {group.brands.map((b) => (
+          <Link key={b.name} to="/cari" search={{ q: b.name }} className="flex flex-col items-center gap-1.5 transition active:scale-95">
+            <img src={b.img} alt={b.name} className="aspect-square w-full max-w-16 rounded-xl object-cover" />
+            <span className="truncate text-xs text-muted-foreground">{b.name}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
