@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 import { useCart } from "@/lib/market";
+import { supportWaUrl } from "@/lib/support";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -86,6 +87,7 @@ export function Header({ title }: { title?: string | undefined }) {
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
+      <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>
       <SideMenu open={menu} onOpenChange={setMenu} />
     </header>
   );
