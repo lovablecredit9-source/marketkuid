@@ -104,6 +104,7 @@ function AkunDashboard({ user }: { user: User }) {
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
+    clearSellerLocks();
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
   };
