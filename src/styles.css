@@ -230,6 +230,31 @@
   --destructive: oklch(0.58 0.22 27);
 }
 
+/* Admin Panel: its own graphite + emerald theme, separate from buyer and seller UI */
+.admin-panel {
+  --background: oklch(0.16 0.012 250);
+  --foreground: oklch(0.96 0.005 250);
+  --card: oklch(0.205 0.014 250);
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.22 0.014 250);
+  --popover-foreground: oklch(0.96 0.005 250);
+  --primary: oklch(0.72 0.16 160);
+  --primary-foreground: oklch(0.18 0.03 160);
+  --primary-glow: oklch(0.8 0.13 175);
+  --muted: oklch(0.25 0.014 250);
+  --muted-foreground: oklch(0.7 0.015 250);
+  --accent: oklch(0.27 0.03 165);
+  --accent-foreground: oklch(0.95 0.02 160);
+  --border: oklch(0.3 0.016 250);
+  --input: oklch(0.3 0.016 250);
+  --ring: oklch(0.72 0.16 160);
+  --success: oklch(0.75 0.15 160);
+  --warning: oklch(0.82 0.15 80);
+  --destructive: oklch(0.68 0.2 22);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 /* Akun page: copies the original marketku.id account page, which renders body
    text in the browser default serif, headings in system-ui, numbers in mono. */
 @utility mk-acc-serif {
