@@ -253,6 +253,7 @@ export type Database = {
           id: string
           last_at: string
           last_message: string | null
+          last_sender_id: string | null
           seller_hidden: boolean
           seller_id: string
           seller_unread: number
@@ -267,6 +268,7 @@ export type Database = {
           id?: string
           last_at?: string
           last_message?: string | null
+          last_sender_id?: string | null
           seller_hidden?: boolean
           seller_id: string
           seller_unread?: number
@@ -281,6 +283,7 @@ export type Database = {
           id?: string
           last_at?: string
           last_message?: string | null
+          last_sender_id?: string | null
           seller_hidden?: boolean
           seller_id?: string
           seller_unread?: number
@@ -290,6 +293,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_path: string | null
           body: string
           conversation_id: string
           created_at: string
@@ -297,6 +301,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          attachment_path?: string | null
           body: string
           conversation_id: string
           created_at?: string
@@ -304,6 +309,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          attachment_path?: string | null
           body?: string
           conversation_id?: string
           created_at?: string
@@ -727,6 +733,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          last_seen_at: string | null
           updated_at: string
           username: string | null
           whatsapp: string | null
@@ -735,6 +742,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id: string
+          last_seen_at?: string | null
           updated_at?: string
           username?: string | null
           whatsapp?: string | null
@@ -743,6 +751,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          last_seen_at?: string | null
           updated_at?: string
           username?: string | null
           whatsapp?: string | null
@@ -1069,6 +1078,7 @@ export type Database = {
         }[]
       }
       claim_ad_voucher: { Args: { p_code: string }; Returns: number }
+      conversation_partner_seen: { Args: { p_id: string }; Returns: string }
       create_ad_campaign: {
         Args: {
           p_days: number
@@ -1079,6 +1089,7 @@ export type Database = {
         Returns: string
       }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
+      is_conversation_participant: { Args: { p_id: string }; Returns: boolean }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
       place_order: {
         Args: {
@@ -1149,6 +1160,7 @@ export type Database = {
           owner_id: string
         }[]
       }
+      touch_last_seen: { Args: never; Returns: undefined }
       track_ad_click: { Args: { p_campaign: string }; Returns: undefined }
       variant_stock: {
         Args: { p_product_ids: string[] }
