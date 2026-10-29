@@ -43,6 +43,7 @@ function Transaksi() {
   const [st, setSt] = useState("Semua");
   const [menu, setMenu] = useState(false);
   const [open, setOpen] = useState<SellerOrder | null>(null);
+  const navigate = useNavigate();
   const all = orders.data ?? [];
   const s = sellerStats(all);
   const want = SELLER_FILTER[st] ?? [];
@@ -55,21 +56,27 @@ function Transaksi() {
     return !ql || `m-${o.order_no} ${o.buyer_name ?? ""} ${o.order_items.map((i) => i.product_name).join(" ")}`.toLowerCase().includes(ql);
   });
 
+  const openChat = async (o: SellerOrder) => {
+    const { data } = await supabase.from("conversations").select("id").eq("buyer_id", o.buyer_id).eq("seller_id", o.seller_id).maybeSingle();
+    if (!data) { toast("Pembeli belum memulai chat dengan tokomu"); return; }
+    navigate({ to: "/chat/$id", params: { id: data.id } });
+  };
+
   return (
     <>
       <div className="flex items-center gap-4 px-1">
-        <ShoppingBag className="h-6 w-6 text-primary" />
+        <ShoppingBag className="h-5 w-5 text-primary" strokeWidth={1.75} />
         <div>
-          <h2 className="text-2xl font-bold">Pesanan Saya</h2>
-          <p className="text-muted-foreground">{list.length} transaksi ditemukan</p>
+          <h2 className="text-xl font-semibold">Pesanan Saya</h2>
+          <p className="text-sm text-muted-foreground">{list.length} transaksi ditemukan</p>
         </div>
       </div>
 
       <SellerCard className="flex gap-1 overflow-x-auto p-1.5">
         {filters.map(({ k, label, icon: I }) => (
           <button key={k} onClick={() => setF(k)}
-            className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition active:scale-95 ${f === k ? "bg-primary text-primary-foreground" : "text-foreground/80"}`}>
-            <I className="h-4 w-4" /> {label}
+            className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition active:scale-95 ${f === k ? "bg-primary text-primary-foreground" : "text-foreground/80"}`}>
+            <I className="h-4 w-4" strokeWidth={1.75} /> {label}
           </button>
         ))}
       </SellerCard>
@@ -84,8 +91,8 @@ function Transaksi() {
       <div className="relative">
         <SellerCard data-tour="t-search" className="flex items-stretch overflow-hidden">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari order ID, produk, pelanggan..."
-            className="min-w-0 flex-1 border-r bg-background/40 px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
-          <button aria-label={`Filter: ${st}`} onClick={() => setMenu(!menu)} className={`grid w-14 place-items-center transition active:scale-90 ${menu || st !== "Semua" ? "text-primary ring-2 ring-inset ring-primary" : ""}`}><SlidersHorizontal className="h-5 w-5" /></button>
+            className="min-w-0 flex-1 border-r bg-background/40 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
+          <button aria-label={`Filter: ${st}`} onClick={() => setMenu(!menu)} className={`grid w-12 place-items-center transition active:scale-90 ${menu || st !== "Semua" ? "text-primary ring-2 ring-inset ring-primary" : ""}`}><SlidersHorizontal className="h-[18px] w-[18px]" strokeWidth={1.75} /></button>
         </SellerCard>
         {menu && (
           <>
@@ -103,17 +110,18 @@ function Transaksi() {
 
       <SellerCard data-tour="t-list" className="divide-y overflow-hidden">
         {list.length === 0 ? <SellerEmpty icon={ShoppingBag} title="Belum ada pesanan" desc="Pesanan dari pembeli akan muncul di sini." /> : list.map((o) => (
-          <button key={o.id} onClick={() => setOpen(o)} className="block w-full px-4 py-3 text-left transition active:bg-accent/40">
+          <div key={o.id} role="button" tabIndex={0} onClick={() => setOpen(o)} onKeyDown={(e) => { if (e.key === "Enter") setOpen(o); }} className="block w-full cursor-pointer px-3.5 py-3 text-left transition active:bg-accent/40">
             <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0"><p className="truncate font-bold uppercase">{o.order_items[0]?.product_name}{o.order_items.length > 1 ? ` +${o.order_items.length - 1}` : ""}</p><p className="text-xs text-muted-foreground">M-{o.order_no}</p></div>
-              <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold ${tone(o.status)}`}>{ORDER_LABEL[o.status]}</span>
+              <div className="min-w-0"><p className="truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}{o.order_items.length > 1 ? ` +${o.order_items.length - 1}` : ""}</p><p className="mt-0.5 font-mono text-xs tracking-wider text-muted-foreground">M-{o.order_no}</p></div>
+              <span className={`flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${tone(o.status)}`}>{o.status === "completed" ? <CircleCheck className="h-3 w-3" /> : <Clock className="h-3 w-3" />}{ORDER_LABEL[o.status]}</span>
             </div>
-            <div className="mt-1 flex justify-between text-sm"><span className="text-muted-foreground">{o.buyer_name}</span><b>{rpSeller(Number(o.subtotal) - Number(o.discount))}</b></div>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-muted-foreground">{fmtDateTime(o.created_at)}</span>
-              <span className="flex items-center gap-1 rounded-full border border-primary/40 px-2 py-0.5 text-primary"><QrCode className="h-3 w-3" /> QRIS Marketku</span>
+            <div className="mt-1.5 flex justify-between text-sm"><span className="text-muted-foreground">{o.buyer_name}</span><span className="font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span></div>
+            <div className="mt-2 flex items-center gap-1.5 text-[11px]">
+              <span className="mr-auto text-muted-foreground">{fmtDateTime(o.created_at)}</span>
+              <span className="flex items-center gap-1 rounded-full border border-primary/60 px-2 py-1 text-primary"><QrCode className="h-3 w-3" /> QRIS Marketku</span>
+              <button onClick={(e) => { e.stopPropagation(); void openChat(o); }} className="flex items-center gap-1 rounded-lg border px-2 py-1 font-medium transition active:scale-95"><MessageCircle className="h-3 w-3" /> Chat</button>
             </div>
-          </button>
+          </div>
         ))}
       </SellerCard>
       <OrderSheet order={open} onClose={() => setOpen(null)} />
