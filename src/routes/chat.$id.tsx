@@ -230,14 +230,21 @@ function ChatRoom() {
           onClick={() => storeSlug && navigate({ to: "/toko/$slug", params: { slug: storeSlug } })}
           className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left ${storeSlug ? "transition active:scale-[0.98]" : "cursor-default"}`}
         >
-          <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-bold leading-tight">{partner}</p>
-            <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
-              {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
-              <span key={status} className="truncate animate-in fade-in-0">{status}</span>
-            </p>
-          </div>
+          {c ? <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} /> : <span className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-muted" />}
+          {c ? (
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-bold leading-tight">{partner}</p>
+              <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
+                {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+                <span key={status} className="truncate animate-in fade-in-0">{partnerState.isPending ? "Offline" : status}</span>
+              </p>
+            </div>
+          ) : (
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <span className="block h-4 w-32 animate-pulse rounded bg-muted" />
+              <span className="block h-3 w-16 animate-pulse rounded bg-muted" />
+            </div>
+          )}
         </button>
         <button aria-label="Opsi chat" onClick={() => setMenu(true)} className={`grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90 ${menu ? "border-primary text-primary" : ""}`}><MoreVertical className="h-5 w-5" /></button>
       </header>
