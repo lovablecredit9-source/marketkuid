@@ -193,7 +193,7 @@ function ProductWizard() {
   if (edit && existing.isLoading) return <p className="py-10 text-center text-muted-foreground">Memuat produk...</p>;
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card">
+    <div className="rounded-2xl border bg-card">
       {/* Stepper */}
       <div className="flex items-start px-4 pb-2 pt-5">
         {steps.map((k, i) => (
@@ -374,7 +374,7 @@ function ProductWizard() {
         )}
       </div>
 
-      <div className="sticky bottom-[68px] flex items-center justify-between border-t bg-card px-5 py-4">
+      <div className="sticky bottom-[68px] z-10 flex items-center justify-between rounded-b-2xl border-t bg-card px-5 py-4">
         <button type="button" onClick={back} className="flex items-center gap-2 px-2 py-2 font-semibold text-foreground/85 transition active:scale-95">
           {step > 0 && <ArrowLeft className="h-4 w-4" />}{step === 0 ? "Batal" : "Kembali"}
         </button>
