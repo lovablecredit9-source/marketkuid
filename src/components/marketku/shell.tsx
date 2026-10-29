@@ -213,11 +213,11 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({ children, title, nav = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; className?: string }) {
+export function AppShell({ children, title, nav = true, header = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; className?: string }) {
   useStoredDark();
   return (
     <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
-      <Header title={title} />
+      {header && <Header title={title} />}
       <main className={nav ? "pb-28" : "pb-8"}>{children}</main>
       {nav && <BottomNav />}
     </div>

@@ -77,19 +77,28 @@ function ProdukDetail() {
   const w = v?.warranty as Warranty | null;
 
   return (
-    <AppShell nav={false}>
+    <AppShell nav={false} header={false}>
       <div className="pb-28">
         <div className="relative">
-          <ProductImage url={shown ? urls.data?.[shown] : undefined} alt={p.name} className="aspect-[4/3]" />
-          <button aria-label="Kembali" onClick={() => router.history.back()} className="absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-card/90 shadow transition active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-          <button aria-label="Bagikan" onClick={() => void share()} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-card/90 shadow transition active:scale-90"><Share2 className="h-4 w-4" /></button>
+          <button type="button" aria-label="Lihat foto produk" onClick={() => gallery.length && setViewer(true)} className="block w-full">
+            <ProductImage url={shown ? urls.data?.[shown] : undefined} alt={p.name} className="aspect-square w-full" />
+          </button>
+          <button aria-label="Kembali" onClick={() => router.history.back()} className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><ArrowLeft className="h-5 w-5" /></button>
+          <div className="absolute right-3 top-3 flex gap-2">
+            <button aria-label="Bagikan" onClick={() => void share()} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><Share2 className="h-5 w-5" /></button>
+            <button aria-label="Menu lainnya" onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><MoreVertical className="h-5 w-5" /></button>
+          </div>
           {closed && <span className="absolute inset-x-0 bottom-0 bg-foreground/70 py-1.5 text-center text-xs font-bold text-background">Toko sedang tutup</span>}
-          {gallery.length > 1 && (
-            <div className="absolute bottom-3 right-3 flex gap-1">
-              {gallery.map((g, i) => <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-1.5 rounded-full transition-all ${i === img ? "w-5 bg-primary" : "w-1.5 bg-card"}`} />)}
-            </div>
-          )}
         </div>
+        {gallery.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto bg-card px-4 pt-3">
+            {gallery.map((g, i) => (
+              <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition active:scale-95 ${i === img ? "border-primary" : "border-border opacity-70"}`}>
+                <ProductImage url={urls.data?.[g]} alt={`${p.name} ${i + 1}`} className="h-full w-full" />
+              </button>
+            ))}
+          </div>
+        )}
 
         <section className="space-y-3 bg-card px-4 py-4">
           <div className="flex items-start justify-between gap-3">
