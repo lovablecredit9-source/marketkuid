@@ -127,6 +127,13 @@
       "when": 1793304793776,
       "tag": "0017_category_tree",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793317129406,
+      "tag": "0018_admin_wallet_deposit",
+      "breakpoints": true
     }
   ]
 }
