@@ -68,7 +68,7 @@ function ProdukDetail() {
     if (own) { toast("Ini produk toko kamu sendiri"); return; }
     const { data, error } = await supabase.rpc("start_conversation", { p_seller: p.owner_id });
     if (error || !data) { toast.error(dbError(error)); return; }
-    navigate({ to: "/chat/$id", params: { id: data } });
+    navigate({ to: "/chat/$id", params: { id: data }, search: { produk: p.id } });
   };
   const share = async () => {
     const url = window.location.href;

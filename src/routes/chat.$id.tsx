@@ -1,17 +1,21 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2 } from "lucide-react";
-import { ChatAvatar, EMOJIS, lastSeenLabel } from "@/components/marketku/chat-avatar";
+import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel } from "@/components/marketku/chat-avatar";
+import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { tickState } from "@/lib/chat";
 import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
+type S = { produk?: string };
 export const Route = createFileRoute("/chat/$id")({
+  validateSearch: (s: Record<string, unknown>): S => (typeof s["produk"] === "string" && s["produk"] ? { produk: s["produk"] } : {}),
   head: () => pageMeta("Ruang Chat — Marketku", "Percakapan antara pembeli dan seller di Marketku."),
   component: ChatRoom,
 });
@@ -31,8 +35,38 @@ function useChatFileUrls(paths: string[]) {
   });
 }
 
+type ChatProduct = { id: string; name: string; image: string | null; price: number | null };
+function useChatProducts(ids: string[]) {
+  const key = [...new Set(ids)].sort();
+  return useQuery({
+    queryKey: ["chat_products", key], enabled: key.length > 0, staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase.from("products").select("id, name, images, product_variants(price)").in("id", key);
+      const m: Record<string, ChatProduct> = {};
+      for (const p of data ?? []) {
+        const prices = (p.product_variants ?? []).map((v) => Number(v.price));
+        m[p.id] = { id: p.id, name: p.name, image: p.images?.[0] ?? null, price: prices.length ? Math.min(...prices) : null };
+      }
+      return m;
+    },
+  });
+}
+
+function ProductCard({ p, url, compact = false }: { p: ChatProduct; url?: string | undefined; compact?: boolean }) {
+  return (
+    <Link to="/produk/$id" params={{ id: p.id }} className={`flex items-center gap-3 rounded-xl border bg-card p-2 text-left text-foreground transition active:scale-[0.98] ${compact ? "" : "mb-1.5"}`}>
+      <ProductImage url={url} path={p.image} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg" />
+      <span className="min-w-0 flex-1">
+        <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{p.name}</span>
+        {p.price !== null && <span className="mt-0.5 block text-xs font-bold text-primary">{rpBuyer(p.price)}</span>}
+      </span>
+    </Link>
+  );
+}
+
 function ChatRoom() {
   const { id } = Route.useParams();
+  const { produk } = Route.useSearch();
   const { user, ready } = useAuth();
   const router = useRouter();
   const navigate = useNavigate();
@@ -42,9 +76,12 @@ function ChatRoom() {
   const [muted, setMuted] = useState<string[]>([]);
   const [emoji, setEmoji] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [attached, setAttached] = useState<string | null>(produk ?? null);
   const end = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lastTyping = useRef(0);
 
+  useEffect(() => { setAttached(produk ?? null); }, [produk]);
   useEffect(() => { try { setMuted(JSON.parse(window.localStorage.getItem(PROMO_KEY) ?? "[]")); } catch { setMuted([]); } }, []);
   useEffect(() => { if (ready && !user) navigate({ to: "/login" }); }, [ready, user, navigate]);
 
@@ -53,8 +90,8 @@ function ChatRoom() {
     queryFn: async () => (await supabase.from("conversations").select("*").eq("id", id).maybeSingle()).data,
   });
   const msgs = useQuery({
-    queryKey: ["messages", id], enabled: !!user, refetchInterval: 4000,
-    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
+    queryKey: ["messages", id], enabled: !!user, refetchInterval: 3000,
+    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
   });
   const c = conv.data;
   const isBuyer = c?.buyer_id === user?.id;
@@ -63,30 +100,48 @@ function ChatRoom() {
     queryKey: ["follow", user?.id, c?.seller_id], enabled: !!user && !!c && isBuyer,
     queryFn: async () => !!(await supabase.from("store_follows").select("seller_id").eq("user_id", user!.id).eq("seller_id", c!.seller_id).maybeSingle()).data,
   });
-  const count = msgs.data?.length ?? 0;
-  const seen = useQuery({
-    queryKey: ["partner_seen", id], enabled: !!user && !!c, refetchInterval: 60_000,
-    queryFn: async () => (await supabase.rpc("conversation_partner_seen", { p_id: id })).data ?? null,
+  const list = msgs.data ?? [];
+  const count = list.length;
+  const incoming = list.filter((m) => m.sender_id !== user?.id).length;
+  const partnerState = useQuery({
+    queryKey: ["partner_state", id], enabled: !!user && !!c, refetchInterval: 2500,
+    queryFn: async () => (await supabase.rpc("chat_partner_state", { p_id: id })).data?.[0] ?? null,
   });
+  const typing = !!partnerState.data?.typing;
   const media = useStoreMedia(c && isBuyer ? [c.seller_id] : []);
   const storeAvatar = c ? media.data?.[c.seller_id]?.avatar_path ?? null : null;
-  const attachPaths = (msgs.data ?? []).map((m) => m.attachment_path ?? "").filter(Boolean);
+  const attachPaths = list.map((m) => m.attachment_path ?? "").filter(Boolean);
   const avatarUrl = useImageUrls(storeAvatar ? [storeAvatar] : []).data?.[storeAvatar ?? ""];
   const attachUrls = useChatFileUrls(attachPaths);
-  const status = lastSeenLabel(seen.data);
+  const productIds = [...list.map((m) => m.product_id ?? "").filter(Boolean), ...(attached ? [attached] : [])];
+  const products = useChatProducts(productIds);
+  const productImgs = useImageUrls(Object.values(products.data ?? {}).map((p) => p.image ?? "").filter(Boolean));
+  const status = typing ? "sedang mengetik..." : lastSeenLabel(partnerState.data?.seen_at);
+  const pending = attached ? products.data?.[attached] : undefined;
 
+  // Opening the chat (and each new incoming message) marks it read → blue ticks for the sender.
   useEffect(() => {
     if (!c || !user) return;
-    void supabase.rpc("mark_conversation_read", { p_id: id }).then(() => qc.invalidateQueries({ queryKey: ["conversations"] }));
-  }, [c, user, id, count, qc]);
-  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [count]);
+    void supabase.rpc("mark_conversation_read", { p_id: id }).then(() => {
+      void qc.invalidateQueries({ queryKey: ["conversations"] });
+      void qc.invalidateQueries({ queryKey: ["unread_chats"] });
+    });
+  }, [c, user, id, incoming, qc]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [count, typing]);
 
+  const onType = (v: string) => {
+    setText(v);
+    const now = Date.now();
+    if (v.trim() && now - lastTyping.current > 3000) { lastTyping.current = now; void supabase.rpc("set_typing", { p_id: id }); }
+  };
   const send = async () => {
-    const body = text.trim();
+    const body = text.trim() || (attached ? "Halo, saya mau tanya produk ini" : "");
     if (!body || !user) return;
-    setText("");
-    const { error } = await supabase.from("messages").insert({ conversation_id: id, sender_id: user.id, body: body.slice(0, 2000) });
-    if (error) { toast.error(dbError(error)); setText(body); return; }
+    const prod = attached;
+    setText(""); setAttached(null); lastTyping.current = 0;
+    const { error } = await supabase.from("messages").insert({ conversation_id: id, sender_id: user.id, body: body.slice(0, 2000), product_id: prod });
+    if (error) { toast.error(dbError(error)); setText(body); setAttached(prod); return; }
+    if (prod) navigate({ to: "/chat/$id", params: { id }, search: {}, replace: true });
     void qc.invalidateQueries({ queryKey: ["messages", id] });
   };
   const sendImage = async (file: File) => {
@@ -134,34 +189,57 @@ function ChatRoom() {
         <ChatAvatar name={partner || "?"} url={isBuyer ? avatarUrl : undefined} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-bold leading-tight">{partner}</p>
-          <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><span className={`h-2 w-2 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />{status}</p>
+          <p className={`flex items-center gap-1.5 truncate text-sm ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
+            {!typing && <span className={`h-2 w-2 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+            <span key={status} className="truncate animate-in fade-in-0">{status}</span>
+          </p>
         </div>
         <button aria-label="Opsi chat" onClick={() => setMenu(true)} className={`grid h-10 w-10 place-items-center rounded-xl border transition active:scale-90 ${menu ? "border-primary text-primary" : ""}`}><MoreVertical className="h-5 w-5" /></button>
       </header>
 
       <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 px-3 py-4">
         {c === null && <p className="pt-20 text-center text-sm text-muted-foreground">Percakapan tidak ditemukan.</p>}
-        {count === 0 && c && (
+        {count === 0 && c && !typing && (
           <div className="flex flex-col items-center pt-32 text-center text-muted-foreground"><MessageCircle className="h-6 w-6 text-primary" /><p className="mt-3 text-sm">Tulis pesan pertamamu untuk memulai chat{isBuyer ? " dengan seller" : ""}.</p></div>
         )}
-        {(msgs.data ?? []).map((m) => {
+        {list.map((m) => {
           const mine = m.sender_id === user?.id;
+          const prod = m.product_id ? products.data?.[m.product_id] : undefined;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div key={m.id} className={`mk-pop-in flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border bg-card"}`}>
+                {prod && <ProductCard p={prod} url={prod.image ? productImgs.data?.[prod.image] : undefined} />}
                 {m.attachment_path && (
                   attachUrls.data?.[m.attachment_path]
                     ? <a href={attachUrls.data[m.attachment_path]} target="_blank" rel="noreferrer"><img src={attachUrls.data[m.attachment_path]} alt="Lampiran foto" className="mb-1 max-h-64 w-full rounded-xl object-cover" /></a>
                     : <span className="mb-1 block h-40 w-48 animate-pulse rounded-xl bg-muted" />
                 )}
                 {!(m.attachment_path && m.body === "📷 Foto") && <p className="whitespace-pre-wrap break-words">{m.body}</p>}
-                <p className={`mt-0.5 text-right text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</p>
+                <p className={`mt-0.5 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+                  {new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                  {mine && <MsgTicks state={tickState(m)} />}
+                </p>
               </div>
             </div>
           );
         })}
+        {typing && (
+          <div className="mk-pop-in flex justify-start">
+            <div className="rounded-2xl rounded-bl-sm border bg-card px-4 py-3 shadow-sm"><TypingDots /></div>
+          </div>
+        )}
         <div ref={end} />
       </div>
+
+      {pending && (
+        <div className="mk-pop-in flex items-center gap-2 border-t bg-accent/50 px-3 py-2">
+          <div className="min-w-0 flex-1">
+            <p className="mb-1 text-[11px] font-semibold text-muted-foreground">Tanyakan produk ini</p>
+            <ProductCard compact p={pending} url={pending.image ? productImgs.data?.[pending.image] : undefined} />
+          </div>
+          <button type="button" aria-label="Lepas produk" onClick={() => { setAttached(null); navigate({ to: "/chat/$id", params: { id }, search: {}, replace: true }); }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full border bg-card transition active:scale-90"><X className="h-4 w-4" /></button>
+        </div>
+      )}
 
       <form onSubmit={(e) => { e.preventDefault(); void send(); }} className="relative flex items-center gap-2 border-t bg-card p-3">
         {emoji && (
@@ -173,7 +251,7 @@ function ChatRoom() {
           </>
         )}
         <div className={`flex min-h-14 flex-1 items-center rounded-[28px] border bg-background pl-5 pr-2 transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 ${emoji ? "border-primary ring-2 ring-primary/20" : ""}`}>
-          <textarea ref={inputRef} rows={1} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ketik pesan..." maxLength={2000}
+          <textarea ref={inputRef} rows={1} value={text} onChange={(e) => onType(e.target.value)} placeholder="Ketik pesan..." maxLength={2000}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); void send(); } }}
             className="max-h-28 flex-1 resize-none bg-transparent py-4 text-sm outline-none placeholder:text-muted-foreground" />
           <label aria-label="Lampirkan foto" className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-muted-foreground transition active:scale-90 ${uploading ? "pointer-events-none" : ""}`}>
@@ -182,7 +260,7 @@ function ChatRoom() {
           </label>
           <button type="button" aria-label="Pilih emoji" onClick={() => setEmoji(!emoji)} className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition active:scale-90 ${emoji ? "bg-accent text-primary" : "text-muted-foreground"}`}><Smile className="h-5 w-5" /></button>
         </div>
-        <button aria-label="Kirim" disabled={!text.trim() || uploading} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-success text-primary-foreground transition active:scale-90 disabled:opacity-50"><SendHorizontal className="h-5 w-5" /></button>
+        <button aria-label="Kirim" disabled={(!text.trim() && !pending) || uploading} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-success text-primary-foreground transition active:scale-90 disabled:opacity-50"><SendHorizontal className="h-5 w-5" /></button>
       </form>
 
       <Dialog.Root open={menu} onOpenChange={setMenu}>
