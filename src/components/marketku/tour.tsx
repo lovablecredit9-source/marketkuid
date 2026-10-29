@@ -40,8 +40,8 @@ export function PageTour({ id, steps, panel = false, auto = true }: { id: string
     return () => { clearTimeout(t); window.removeEventListener("resize", measure); window.removeEventListener("scroll", measure, true); };
   }, [i, steps, measure]);
 
-  if (i === null || typeof document === "undefined") return null;
-  const step = steps[i];
+  const step = i === null ? undefined : steps[i];
+  if (i === null || !step || typeof document === "undefined") return null;
   const last = i === steps.length - 1;
   const close = () => { window.localStorage.setItem(key, "1"); setI(null); };
 

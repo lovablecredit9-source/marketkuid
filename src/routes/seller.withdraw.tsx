@@ -99,7 +99,7 @@ function Withdraw() {
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">
-          {[["Saldo tersedia", "tersedia"], ["Saldo ditahan", "ditahan"], ["Saldo sengketa", "sengketa"], ["Saldo freeze", "freeze"]].map(([l, k]) => (
+          {([["Saldo tersedia", "tersedia"], ["Saldo ditahan", "ditahan"], ["Saldo sengketa", "sengketa"], ["Saldo freeze", "freeze"]] as const).map(([l, k]) => (
             <button key={k} onClick={() => setDetail(l)} className="rounded-xl border bg-background/40 p-3 text-left transition active:scale-95">
               <p className="text-xs text-muted-foreground">{l}</p><p className="mt-1 font-bold">{rpSeller(0)}</p>
             </button>

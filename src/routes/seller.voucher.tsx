@@ -211,7 +211,7 @@ function VoucherWizard({ ownerId, row, onClose, onSaved }: { ownerId: string; ro
                 <p className="text-sm text-muted-foreground">Tentukan jenis promosi yang paling sesuai untuk strategi Anda</p>
                 <div className="grid grid-cols-3 gap-2">
                   {VOUCHER_KINDS.map((k) => {
-                    const I = kindIcon[k.value]; const on = d.kind === k.value;
+                    const I = kindIcon[k.value] ?? Tag; const on = d.kind === k.value;
                     return (
                       <button key={k.value} onClick={() => set("kind", k.value)}
                         className={`relative rounded-xl border p-3 text-left transition active:scale-95 ${on ? "border-primary bg-accent" : "bg-background/40"}`}>

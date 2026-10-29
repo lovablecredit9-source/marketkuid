@@ -25,7 +25,7 @@ type TabKey = (typeof TABS)[number]["key"];
 
 export const Route = createFileRoute("/seller/pengaturan")({
   validateSearch: (s: Record<string, unknown>): { tab?: TabKey } =>
-    TABS.some((t) => t.key === s.tab) ? { tab: s.tab as TabKey } : {},
+    TABS.some((t) => t.key === s['tab']) ? { tab: s['tab'] as TabKey } : {},
   head: () => pageMeta("Pengaturan Seller — Marketku", "Atur profil toko, akun, keamanan, rekening, dan koneksi."),
   component: Pengaturan,
 });
