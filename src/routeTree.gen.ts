@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AkunRouteImport } from './routes/akun'
+import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DisputeRouteImport } from './routes/dispute'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
@@ -20,6 +22,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
@@ -46,6 +49,11 @@ const AkunRoute = AkunRouteImport.update({
   path: '/akun',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BantuanRoute = BantuanRouteImport.update({
+  id: '/bantuan',
+  path: '/bantuan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CariRoute = CariRouteImport.update({
   id: '/cari',
   path: '/cari',
@@ -54,6 +62,11 @@ const CariRoute = CariRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisputeRoute = DisputeRouteImport.update({
+  id: '/dispute',
+  path: '/dispute',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -89,6 +102,11 @@ const RiwayatRoute = RiwayatRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerIndexRoute = SellerIndexRouteImport.update({
@@ -170,8 +188,10 @@ const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
@@ -179,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/wishlist': typeof WishlistRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -198,14 +219,17 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/wishlist': typeof WishlistRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -226,8 +250,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/akun': typeof AkunRoute
+  '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
+  '/dispute': typeof DisputeRoute
   '/keranjang': typeof KeranjangRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
@@ -235,6 +261,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/seller': typeof SellerRouteWithChildren
+  '/wishlist': typeof WishlistRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
@@ -256,8 +283,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
@@ -265,6 +294,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/wishlist'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -284,14 +314,17 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
     | '/register'
     | '/reset-password'
     | '/riwayat'
+    | '/wishlist'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -311,8 +344,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/akun'
+    | '/bantuan'
     | '/cari'
     | '/checkout'
+    | '/dispute'
     | '/keranjang'
     | '/login'
     | '/pesan'
@@ -320,6 +355,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/seller'
+    | '/wishlist'
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
@@ -340,8 +376,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AkunRoute: typeof AkunRoute
+  BantuanRoute: typeof BantuanRoute
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
+  DisputeRoute: typeof DisputeRoute
   KeranjangRoute: typeof KeranjangRoute
   LoginRoute: typeof LoginRoute
   PesanRoute: typeof PesanRoute
@@ -349,6 +387,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RiwayatRoute: typeof RiwayatRoute
   SellerRoute: typeof SellerRouteWithChildren
+  WishlistRoute: typeof WishlistRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -367,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AkunRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bantuan': {
+      id: '/bantuan'
+      path: '/bantuan'
+      fullPath: '/bantuan'
+      preLoaderRoute: typeof BantuanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cari': {
       id: '/cari'
       path: '/cari'
@@ -379,6 +425,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dispute': {
+      id: '/dispute'
+      path: '/dispute'
+      fullPath: '/dispute'
+      preLoaderRoute: typeof DisputeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -428,6 +481,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller/': {
@@ -590,8 +650,10 @@ const SellerRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AkunRoute: AkunRoute,
+  BantuanRoute: BantuanRoute,
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
+  DisputeRoute: DisputeRoute,
   KeranjangRoute: KeranjangRoute,
   LoginRoute: LoginRoute,
   PesanRoute: PesanRoute,
@@ -599,6 +661,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RiwayatRoute: RiwayatRoute,
   SellerRoute: SellerRouteWithChildren,
+  WishlistRoute: WishlistRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
