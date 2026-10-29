@@ -159,14 +159,13 @@ function StoreAvatarThumb({ path }: { path: string | null }) {
 function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: string; avatar: string | null; banner: string | null; onChanged: () => unknown }) {
   const urls = useImageUrls([avatar ?? "", banner ?? ""]);
   const [busy, setBusy] = useState<"avatar" | "banner" | null>(null);
-  const col = { avatar: "avatar_path", banner: "banner_path" } as const;
 
   const replace = async (kind: "avatar" | "banner", file: File | null) => {
     const old = kind === "avatar" ? avatar : banner;
     setBusy(kind);
     try {
       const path = file ? await uploadStoreImage(userId, file, kind) : null;
-      const { error } = await supabase.from("seller_stores").update({ [col[kind]]: path }).eq("owner_id", userId);
+      const { error } = await supabase.from("seller_stores").update(kind === "avatar" ? { avatar_path: path } : { banner_path: path }).eq("owner_id", userId);
       if (error) {
         if (path) await supabase.storage.from("product-images").remove([path]);
         throw new Error("Gagal menyimpan foto");
