@@ -24,6 +24,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
 import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
+import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
 import { Route as SellerPembayaranRouteImport } from './routes/seller.pembayaran'
 import { Route as SellerPengaturanRouteImport } from './routes/seller.pengaturan'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
@@ -32,6 +33,7 @@ import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
 import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
+import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 
 const IndexRoute = IndexRouteImport.update({
@@ -109,6 +111,11 @@ const SellerGaransiRoute = SellerGaransiRouteImport.update({
   path: '/garansi',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerPanduanRoute = SellerPanduanRouteImport.update({
+  id: '/panduan',
+  path: '/panduan',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerPembayaranRoute = SellerPembayaranRouteImport.update({
   id: '/pembayaran',
   path: '/pembayaran',
@@ -149,6 +156,11 @@ const SellerWithdrawRoute = SellerWithdrawRouteImport.update({
   path: '/withdraw',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerPanduanSlugRoute = SellerPanduanSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SellerPanduanRoute,
+} as any)
 const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
   id: '/produk_/baru',
   path: '/produk/baru',
@@ -170,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pembayaran': typeof SellerPembayaranRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
@@ -179,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesByTo {
@@ -195,6 +209,7 @@ export interface FileRoutesByTo {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pembayaran': typeof SellerPembayaranRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
@@ -204,6 +219,7 @@ export interface FileRoutesByTo {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRoutesById {
@@ -222,6 +238,7 @@ export interface FileRoutesById {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/garansi': typeof SellerGaransiRoute
+  '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pembayaran': typeof SellerPembayaranRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
@@ -231,6 +248,7 @@ export interface FileRoutesById {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
 }
 export interface FileRouteTypes {
@@ -250,6 +268,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/panduan'
     | '/seller/pembayaran'
     | '/seller/pengaturan'
     | '/seller/produk'
@@ -259,6 +278,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/seller/'
+    | '/seller/panduan/$slug'
     | '/seller/produk/baru'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -275,6 +295,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/panduan'
     | '/seller/pembayaran'
     | '/seller/pengaturan'
     | '/seller/produk'
@@ -284,6 +305,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/seller'
+    | '/seller/panduan/$slug'
     | '/seller/produk/baru'
   id:
     | '__root__'
@@ -301,6 +323,7 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/garansi'
+    | '/seller/panduan'
     | '/seller/pembayaran'
     | '/seller/pengaturan'
     | '/seller/produk'
@@ -310,6 +333,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/seller/'
+    | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
   fileRoutesById: FileRoutesById
 }
@@ -434,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerGaransiRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/panduan': {
+      id: '/seller/panduan'
+      path: '/panduan'
+      fullPath: '/seller/panduan'
+      preLoaderRoute: typeof SellerPanduanRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/pembayaran': {
       id: '/seller/pembayaran'
       path: '/pembayaran'
@@ -490,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerWithdrawRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/panduan/$slug': {
+      id: '/seller/panduan/$slug'
+      path: '/$slug'
+      fullPath: '/seller/panduan/$slug'
+      preLoaderRoute: typeof SellerPanduanSlugRouteImport
+      parentRoute: typeof SellerPanduanRoute
+    }
     '/seller/produk_/baru': {
       id: '/seller/produk_/baru'
       path: '/produk/baru'
@@ -500,10 +538,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SellerPanduanRouteChildren {
+  SellerPanduanSlugRoute: typeof SellerPanduanSlugRoute
+}
+
+const SellerPanduanRouteChildren: SellerPanduanRouteChildren = {
+  SellerPanduanSlugRoute: SellerPanduanSlugRoute,
+}
+
+const SellerPanduanRouteWithChildren = SellerPanduanRoute._addFileChildren(
+  SellerPanduanRouteChildren,
+)
+
 interface SellerRouteChildren {
   SellerBotRoute: typeof SellerBotRoute
   SellerBroadcastRoute: typeof SellerBroadcastRoute
   SellerGaransiRoute: typeof SellerGaransiRoute
+  SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
   SellerPembayaranRoute: typeof SellerPembayaranRoute
   SellerPengaturanRoute: typeof SellerPengaturanRoute
   SellerProdukRoute: typeof SellerProdukRoute
@@ -520,6 +571,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerBotRoute: SellerBotRoute,
   SellerBroadcastRoute: SellerBroadcastRoute,
   SellerGaransiRoute: SellerGaransiRoute,
+  SellerPanduanRoute: SellerPanduanRouteWithChildren,
   SellerPembayaranRoute: SellerPembayaranRoute,
   SellerPengaturanRoute: SellerPengaturanRoute,
   SellerProdukRoute: SellerProdukRoute,
