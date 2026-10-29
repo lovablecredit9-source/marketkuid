@@ -253,7 +253,7 @@ function ProdukDetail() {
             </div>
             <div className="flex min-h-0 flex-1 items-center justify-center py-4">
               {shown && urls.data?.[shown]
-                ? <img key={shown} src={urls.data[shown]} alt={p.name} className="mk-pop-in max-h-full max-w-full rounded-2xl border object-contain shadow-2xl" />
+                ? <img key={shown} src={urls.data[shown]} alt={p.name} className="mk-pop-in max-h-[calc(100dvh-13rem)] max-w-full rounded-2xl border object-contain shadow-2xl" />
                 : <ProductImage alt={p.name} className="aspect-square w-full rounded-2xl" />}
             </div>
             {gallery.length > 1 && (
