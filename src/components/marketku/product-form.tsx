@@ -184,7 +184,7 @@ export function KategoriSheet({ open, onOpenChange, value, onPick }: { open: boo
         <Search className="mx-3 h-4 w-4 text-muted-foreground" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari kategori" className="min-w-0 flex-1 border-l bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground" />
       </div>
-      <nav aria-label="Jalur kategori" className="mt-4 flex flex-wrap items-center gap-1 border-b-2 border-foreground/20 pb-3 pl-2 text-sm">
+      <nav aria-label="Jalur kategori" className="mt-4 flex flex-wrap items-center gap-1 border-b border-primary/25 pb-3 pl-2 text-sm">
         <button type="button" onClick={() => { setParent(null); setQ(""); }} className={path.length ? "font-medium text-primary" : "font-semibold text-primary"}>Kategori</button>
         {path.map((c, i) => (
           <span key={c.id} className="flex items-center gap-1">

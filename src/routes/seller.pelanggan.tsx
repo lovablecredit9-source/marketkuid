@@ -75,7 +75,7 @@ function Pelanggan() {
       </div>
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none]">
         {SORTS.map(([k, l]) => (
-          <button key={k} onClick={() => setSort(k)} className={`flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition active:scale-95 ${sort === k ? "border-foreground text-primary" : "bg-card text-foreground/80"}`}>
+          <button key={k} onClick={() => setSort(k)} className={`flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition active:scale-95 ${sort === k ? "border-primary/60 text-primary" : "bg-card text-foreground/80"}`}>
             {l} {sort === k ? <ChevronDown className="h-4 w-4" /> : <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />}
           </button>
         ))}
