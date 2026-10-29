@@ -50,6 +50,13 @@
       "when": 1793240247145,
       "tag": "0006_fix_place_order_names",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793241206520,
+      "tag": "0007_buyer_name_fallback",
+      "breakpoints": true
     }
   ]
 }
