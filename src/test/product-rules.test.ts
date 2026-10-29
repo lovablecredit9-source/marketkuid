@@ -26,3 +26,24 @@ describe("product form rules", () => {
     expect(priceRange([20000, 30000])).toBe("Rp. 20.000,- – Rp. 30.000,-");
   });
 });
+
+describe("category tree", () => {
+  const cats = [
+    { id: "apl", name: "Aplikasi", sort: 1, parent_id: null },
+    { id: "prem", name: "App Premium", sort: 2, parent_id: "apl" },
+    { id: "canva", name: "Canva", sort: 3, parent_id: "prem" },
+    { id: "zoom", name: "Zoom", sort: 4, parent_id: "apl" },
+    { id: "ai", name: "AI Tools", sort: 5, parent_id: null },
+  ];
+  it("a parent category includes every nested sub-category", () => {
+    expect(descendantIds(cats, "apl").sort()).toEqual(["apl", "canva", "prem", "zoom"]);
+    expect(descendantIds(cats, "ai")).toEqual(["ai"]);
+  });
+  it("breadcrumb goes Kategori > Aplikasi > App Premium > Canva", () => {
+    expect(categoryPath(cats, "canva").map((c) => c.name)).toEqual(["Aplikasi", "App Premium", "Canva"]);
+  });
+  it("picker lists only direct children, alphabetically", () => {
+    expect(childCategories(cats, "apl").map((c) => c.name)).toEqual(["App Premium", "Zoom"]);
+    expect(childCategories(cats, null).map((c) => c.name)).toEqual(["AI Tools", "Aplikasi"]);
+  });
+});
