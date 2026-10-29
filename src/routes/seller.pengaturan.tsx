@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Settings, X, Search, Store, User, Lock, Landmark, Link2, MonitorSmartphone, KeyRound, RotateCcw, Save, Bell,
-  CircleCheck, AlertTriangle, Send, Phone, Camera, ImagePlus, Trash2,
+  CircleCheck, AlertTriangle, Send, Phone, Camera, ImagePlus, Trash2, Mail, Loader2,
 } from "lucide-react";
 import { uploadStoreImage, useImageUrls } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,54 +113,96 @@ function ProfilToko() {
     toast.success("Profil toko disimpan");
     void refresh();
   };
+  const media = useStoreMediaEditor(user?.id ?? "", store?.avatar_path ?? null, store?.banner_path ?? null, refresh);
   if (!store) return null;
+  const busy = media.busy;
   return (
     <>
-      <Head title="Profil Toko" desc="Identitas, kontak, dan media" />
-      <StoreMediaEditor userId={user!.id} avatar={store.avatar_path} banner={store.banner_path} onChanged={refresh} />
-      <SellerCard className="flex items-center gap-3 p-4">
-        <StoreAvatarThumb path={store.avatar_path} />
-        <div className="min-w-0">
-          <p className="truncate font-bold uppercase">{store.store_name}</p>
-          {store.telegram_username && <p className="text-sm text-muted-foreground">@{store.telegram_username}</p>}
-          <span className="mt-1 inline-flex gap-1">
-            <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-bold text-success">Aktif</span>
-            <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary">{store.is_open ? "Toko buka" : "Toko tutup"}</span>
-          </span>
+      <div className="flex items-start gap-3 pt-2">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border bg-card text-primary"><User className="h-5 w-5" /></span>
+        <div><h3 className="text-xl font-bold leading-tight">Profil Seller</h3><p className="text-sm text-muted-foreground">Identitas, kontak, media, dan notifikasi toko.</p></div>
+      </div>
+      <SellerCard className="space-y-4 p-5">
+        <div className="flex items-center gap-4">
+          <label aria-label="Ganti foto profil toko" className={`group relative grid h-24 w-24 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl border bg-background transition active:scale-95 ${busy ? "pointer-events-none" : ""}`}>
+            {media.avatarUrl ? <img src={media.avatarUrl} alt="Foto profil toko" className="h-full w-full object-cover" /> : <User className="h-7 w-7 text-muted-foreground" />}
+            <span className={`absolute inset-0 grid place-items-center bg-background/70 transition ${busy === "avatar" ? "opacity-100" : "opacity-0 group-active:opacity-100"}`}>
+              {busy === "avatar" ? <Loader2 className="h-6 w-6 animate-spin text-primary" /> : <Camera className="h-6 w-6" />}
+            </span>
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={media.pick("avatar")} />
+          </label>
+          <div className="min-w-0">
+            <p className="truncate font-bold uppercase">{store.store_name}</p>
+            {store.telegram_username && <p className="truncate text-muted-foreground">@{store.telegram_username}</p>}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success">Aktif</span>
+              <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">{store.is_open ? "Toko buka" : "Toko tutup"}</span>
+              <span className="text-sm text-muted-foreground">Klik foto untuk ganti</span>
+            </div>
+            {store.avatar_path && <button disabled={!!busy} onClick={() => void media.replace("avatar", null)} className="mt-1 text-xs font-semibold text-destructive disabled:opacity-60">Hapus foto profil</button>}
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-semibold text-foreground/80">Foto Banner Toko</p>
+          <div className="relative">
+            <label className={`relative grid aspect-[3/1] min-h-32 w-full cursor-pointer place-items-center overflow-hidden rounded-xl border bg-background transition active:scale-[0.99] ${busy ? "pointer-events-none" : ""}`}>
+              {media.bannerUrl
+                ? <img src={media.bannerUrl} alt="Banner toko" className="h-full w-full object-cover" />
+                : <span className="flex flex-col items-center gap-2 text-sm text-muted-foreground"><ImagePlus className="h-7 w-7" />Klik untuk upload banner toko</span>}
+              {busy === "banner" && <span className="absolute inset-0 grid place-items-center bg-background/70"><Loader2 className="h-6 w-6 animate-spin text-primary" /></span>}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={media.pick("banner")} />
+            </label>
+            {store.banner_path && <button aria-label="Hapus banner" disabled={!!busy} onClick={() => void media.replace("banner", null)} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg bg-background/80 text-destructive backdrop-blur disabled:opacity-60"><Trash2 className="h-4 w-4" /></button>}
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Rekomendasi 1200×400px untuk tampilan toko marketku.id</p>
+        </div>
+
+        <p className="pt-1 text-sm font-semibold tracking-wide text-muted-foreground">IDENTITAS</p>
+        <FloatField label="Nama Toko *" value={f.store_name} maxLength={40} onChange={(v) => set("store_name", v)} />
+        <div>
+          <FloatField label="Slug Toko" value={f.slug} maxLength={40} onChange={(v) => set("slug", slugify(v, true))} />
+          <p className="mt-1 text-xs text-muted-foreground">marketku.id/{f.slug || "slug-toko"}</p>
+        </div>
+        <FloatField label="Deskripsi Toko" textarea value={f.description} maxLength={500} onChange={(v) => set("description", v)} />
+
+        <p className="pt-1 text-sm font-semibold tracking-wide text-muted-foreground">KONTAK <span className="font-normal">(opsional)</span></p>
+        <FloatField icon={User} label="Nama Kontak (opsional)" value={f.contact_name} maxLength={60} onChange={(v) => set("contact_name", v)} />
+        <FloatField icon={Phone} label="Nomor WhatsApp / Telepon (opsional)" inputMode="tel" value={f.contact_phone} onChange={(v) => set("contact_phone", v.replace(/[^\d]/g, ""))} />
+        <FloatField icon={Mail} label="Username Telegram" value={f.telegram_username} onChange={(v) => set("telegram_username", v.replace(/[^A-Za-z0-9_@]/g, ""))} />
+        <div className="rounded-xl border bg-background p-4 text-sm"><b className="block">Kontak bersifat opsional</b><span className="mt-1 block leading-relaxed text-muted-foreground">Jika diisi, gunakan awalan 628xxxx agar admin dapat menghubungi kamu.</span></div>
+        <div className="grid grid-cols-[auto_1fr] gap-2">
+          <button onClick={() => setF(init())} className="flex items-center gap-2 rounded-xl border bg-background px-4 py-3 text-sm font-semibold text-muted-foreground transition active:scale-95"><RotateCcw className="h-4 w-4" /> Reset</button>
+          <button disabled={saving} onClick={() => void save()} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition active:scale-95 disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Menyimpan..." : "Simpan Profil"}</button>
         </div>
       </SellerCard>
-      <p className="text-xs font-semibold tracking-widest text-muted-foreground">IDENTITAS</p>
-      <Labeled label="Nama Toko *"><SellerInput value={f.store_name} maxLength={40} onChange={(e) => set("store_name", e.target.value)} /></Labeled>
-      <Labeled label="Slug Toko" hint={`marketku.id/${f.slug || "slug-toko"}`}><SellerInput value={f.slug} maxLength={40} onChange={(e) => set("slug", slugify(e.target.value, true))} /></Labeled>
-      <Labeled label="Deskripsi Toko" hint="Deskripsi singkat tentang toko">
-        <textarea value={f.description} maxLength={500} rows={3} onChange={(e) => set("description", e.target.value)} className="w-full rounded-xl border bg-background/60 px-4 py-3 text-sm outline-none focus:border-primary" />
-      </Labeled>
-      <p className="text-xs font-semibold tracking-widest text-muted-foreground">KONTAK (OPSIONAL)</p>
-      <Labeled label="Nama Kontak"><SellerInput value={f.contact_name} maxLength={60} onChange={(e) => set("contact_name", e.target.value)} placeholder="Nama kontak (opsional)" /></Labeled>
-      <Labeled label="Nomor WhatsApp / Telepon"><SellerInput inputMode="tel" value={f.contact_phone} onChange={(e) => set("contact_phone", e.target.value.replace(/[^\d]/g, ""))} placeholder="628xxxx" /></Labeled>
-      <Labeled label="Username Telegram"><SellerInput value={f.telegram_username} onChange={(e) => set("telegram_username", e.target.value.replace(/[^A-Za-z0-9_@]/g, ""))} placeholder="@username" /></Labeled>
-      <SellerCard className="p-3 text-xs text-muted-foreground"><b className="text-foreground">Kontak bersifat opsional.</b> Jika diisi, gunakan awalan 628xxxx agar admin dapat menghubungi kamu.</SellerCard>
-      <div className="grid grid-cols-[auto_1fr] gap-2">
-        <button onClick={() => setF(init())} className="flex items-center gap-2 rounded-xl border bg-card px-4 py-3 text-sm font-semibold"><RotateCcw className="h-4 w-4" /> Reset</button>
-        <button disabled={saving} onClick={() => void save()} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition active:scale-95 disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Menyimpan..." : "Simpan Profil"}</button>
-      </div>
     </>
   );
 }
 
-function StoreAvatarThumb({ path }: { path: string | null }) {
-  const urls = useImageUrls(path ? [path] : []);
-  const url = path ? urls.data?.[path] : undefined;
-  return url
-    ? <img src={url} alt="Foto profil toko" className="h-14 w-14 shrink-0 rounded-xl border object-cover" />
-    : <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border bg-background/60"><Store className="h-6 w-6" /></span>;
+function FloatField({ label, value, onChange, icon: I, textarea, maxLength, inputMode }: {
+  label: string; value: string; onChange: (v: string) => void; icon?: typeof User; textarea?: boolean; maxLength?: number; inputMode?: "tel" | "text";
+}) {
+  const pad = I ? "pl-12" : "pl-5";
+  const field = `peer w-full rounded-xl border bg-transparent ${pad} pr-4 text-base outline-none transition focus:border-primary [&:not(:placeholder-shown)]:border-primary`;
+  const float = "peer-focus:top-0 peer-focus:text-xs peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-primary";
+  return (
+    <label className="relative block">
+      {textarea
+        ? <textarea placeholder=" " rows={3} value={value} maxLength={maxLength} onChange={(e) => onChange(e.target.value)} className={`${field} resize-y py-4`} />
+        : <input placeholder=" " value={value} maxLength={maxLength} inputMode={inputMode} onChange={(e) => onChange(e.target.value)} className={`${field} h-14`} />}
+      {I && <I className={`pointer-events-none absolute left-4 h-5 w-5 text-muted-foreground ${textarea ? "top-4" : "top-1/2 -translate-y-1/2"}`} />}
+      <span className={`pointer-events-none absolute -translate-y-1/2 ${I ? "left-11" : "left-4"} bg-card px-1 text-muted-foreground transition-all ${textarea ? "top-6" : "top-1/2"} ${float}`}>{label}</span>
+    </label>
+  );
 }
 
-function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: string; avatar: string | null; banner: string | null; onChanged: () => unknown }) {
+function useStoreMediaEditor(userId: string, avatar: string | null, banner: string | null, onChanged: () => unknown) {
   const urls = useImageUrls([avatar ?? "", banner ?? ""]);
   const [busy, setBusy] = useState<"avatar" | "banner" | null>(null);
 
   const replace = async (kind: "avatar" | "banner", file: File | null) => {
+    if (!userId) return;
     const old = kind === "avatar" ? avatar : banner;
     setBusy(kind);
     try {
@@ -184,43 +226,7 @@ function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: strin
     e.target.value = "";
     if (f) void replace(kind, f);
   };
-  const bannerUrl = banner ? urls.data?.[banner] : undefined;
-  const avatarUrl = avatar ? urls.data?.[avatar] : undefined;
-
-  return (
-    <>
-      <p className="text-xs font-semibold tracking-widest text-muted-foreground">MEDIA TOKO</p>
-      <SellerCard className="overflow-hidden p-0">
-        <div className="relative aspect-[3/1] w-full bg-gradient-to-br from-primary/30 to-background">
-          {bannerUrl && <img src={bannerUrl} alt="Banner toko" className="h-full w-full object-cover" />}
-          {!bannerUrl && <span className="absolute inset-0 grid place-items-center text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><ImagePlus className="h-4 w-4" /> Belum ada banner</span></span>}
-          <div className="absolute right-2 top-2 flex gap-1.5">
-            <label className={`flex cursor-pointer items-center gap-1.5 rounded-lg bg-background/80 px-2.5 py-1.5 text-xs font-semibold backdrop-blur transition active:scale-95 ${busy ? "pointer-events-none opacity-60" : ""}`}>
-              <ImagePlus className="h-3.5 w-3.5" /> {busy === "banner" ? "Mengunggah..." : banner ? "Ganti Banner" : "Upload Banner"}
-              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={pick("banner")} />
-            </label>
-            {banner && <button aria-label="Hapus banner" disabled={!!busy} onClick={() => void replace("banner", null)} className="grid h-7 w-7 place-items-center rounded-lg bg-background/80 text-destructive backdrop-blur disabled:opacity-60"><Trash2 className="h-3.5 w-3.5" /></button>}
-          </div>
-        </div>
-        <div className="flex items-start gap-3 px-4 pb-4">
-          <div className="relative -mt-10 shrink-0">
-            {avatarUrl
-              ? <img src={avatarUrl} alt="Foto profil toko" className="h-20 w-20 rounded-full border-4 border-card object-cover" />
-              : <span className="grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-background"><Store className="h-7 w-7 text-muted-foreground" /></span>}
-            <label aria-label="Ganti foto profil toko" className={`absolute -bottom-0.5 -right-0.5 grid h-8 w-8 cursor-pointer place-items-center rounded-full border-2 border-card bg-primary text-primary-foreground transition active:scale-95 ${busy ? "pointer-events-none opacity-60" : ""}`}>
-              <Camera className="h-4 w-4" />
-              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={pick("avatar")} />
-            </label>
-          </div>
-          <div className="min-w-0 flex-1 pt-2 text-xs text-muted-foreground">
-            <p className="font-semibold text-foreground">{busy === "avatar" ? "Mengunggah foto..." : "Foto profil & banner"}</p>
-            <p>JPG, PNG, atau WebP, maks 5 MB. Banner disarankan rasio 3:1.</p>
-            {avatar && <button disabled={!!busy} onClick={() => void replace("avatar", null)} className="mt-1 font-semibold text-destructive disabled:opacity-60">Hapus foto profil</button>}
-          </div>
-        </div>
-      </SellerCard>
-    </>
-  );
+  return { busy, replace, pick, avatarUrl: avatar ? urls.data?.[avatar] : undefined, bannerUrl: banner ? urls.data?.[banner] : undefined };
 }
 
 function InfoAkun() {
