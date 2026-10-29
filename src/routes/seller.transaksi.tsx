@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -122,7 +122,7 @@ function Transaksi() {
   );
 }
 
-function Section({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+function Section({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border-b">
@@ -131,7 +131,7 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
     </div>
   );
 }
-const Line = ({ a, b }: { a: string; b: React.ReactNode }) => <div className="flex justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
+const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
 
 function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose: () => void }) {
   const { user } = useAuth();
