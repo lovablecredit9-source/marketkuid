@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageCircle, Package, ShoppingBag, Star, Store, UserPlus, UserCheck } from "lucide-react";
+import { MessageCircle, Package, ShoppingBag, Star, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
@@ -35,10 +35,7 @@ function Toko() {
   const avatarUrl = m?.avatar_path ? mediaUrls.data?.[m.avatar_path] : undefined;
   const bannerUrl = m?.banner_path ? mediaUrls.data?.[m.banner_path] : undefined;
   const reviewImgs = useImageUrls([...new Set((reviews.data ?? []).map((x) => x.products?.images?.[0] ?? "").filter(Boolean))]);
-  const follow = useQuery({
-    queryKey: ["follow", user?.id, s?.owner_id], enabled: !!user && !!s,
-    queryFn: async () => !!(await supabase.from("store_follows").select("seller_id").eq("user_id", user!.id).eq("seller_id", s!.owner_id).maybeSingle()).data,
-  });
+
 
   if (store.isLoading) return <AppShell><div className="m-3 h-72 animate-pulse rounded-2xl border bg-card" /></AppShell>;
   if (!s) return <AppShell><div className="p-3"><EmptyState icon={Store} title="Toko tidak ditemukan" desc="Link toko ini tidak tersedia." /></div></AppShell>;
@@ -55,16 +52,6 @@ function Toko() {
     const { data, error } = await supabase.rpc("start_conversation", { p_seller: s.owner_id });
     if (error || !data) { toast.error(dbError(error)); return; }
     navigate({ to: "/chat/$id", params: { id: data } });
-  };
-  const toggleFollow = async () => {
-    if (!user) { navigate({ to: "/login" }); return; }
-    const on = follow.data;
-    const { error } = on
-      ? await supabase.from("store_follows").delete().eq("user_id", user.id).eq("seller_id", s.owner_id)
-      : await supabase.from("store_follows").insert({ user_id: user.id, seller_id: s.owner_id });
-    if (error) { toast.error("Gagal memperbarui"); return; }
-    toast.success(on ? "Berhenti mengikuti toko" : "Mengikuti toko");
-    void qc.invalidateQueries({ queryKey: ["follow", user.id, s.owner_id] });
   };
 
   return (
