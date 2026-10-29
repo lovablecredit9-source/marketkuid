@@ -15,6 +15,7 @@ import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DisputeRouteImport } from './routes/dispute'
+import { Route as KategoriRouteImport } from './routes/kategori'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as LoginRouteImport } from './routes/login'
@@ -81,6 +82,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const DisputeRoute = DisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KategoriRoute = KategoriRouteImport.update({
+  id: '/kategori',
+  path: '/kategori',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -321,6 +328,7 @@ export interface FileRoutesByTo {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
@@ -413,6 +422,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/kategori'
     | '/keranjang'
     | '/kontak'
     | '/login'
@@ -548,6 +560,7 @@ export interface RootRouteChildren {
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
   DisputeRoute: typeof DisputeRoute
+  KategoriRoute: typeof KategoriRoute
   KeranjangRoute: typeof KeranjangRoute
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
@@ -610,6 +623,13 @@ declare module '@tanstack/react-router' {
       path: '/dispute'
       fullPath: '/dispute'
       preLoaderRoute: typeof DisputeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kategori': {
+      id: '/kategori'
+      path: '/kategori'
+      fullPath: '/kategori'
+      preLoaderRoute: typeof KategoriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -938,6 +958,7 @@ const rootRouteChildren: RootRouteChildren = {
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
   DisputeRoute: DisputeRoute,
+  KategoriRoute: KategoriRoute,
   KeranjangRoute: KeranjangRoute,
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
