@@ -79,7 +79,7 @@ function Index() {
           <>
             <LikedSection items={liked} urlOf={urlOf} />
 
-            <Section icon={TrendingUp} tone="bg-warning text-warning-foreground" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
+            <Section icon={TrendingUp} tone="bg-warning text-foreground" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
               {best.length ? (
                 <Rail>{best.map((p, i) => <MiniCard key={p.id} p={p} url={urlOf(p)} rank={i + 1} />)}</Rail>
               ) : (
@@ -224,7 +224,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
         <div className="relative overflow-hidden rounded-lg">
           <ProductImage url={url} alt={p.name} className="aspect-square" />
           {out && <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full bg-foreground/75 px-2.5 py-0.5 text-[10px] font-semibold text-background">{out}</span>}
-          {rank && <span className="absolute left-1.5 top-1.5 rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-warning-foreground">#{rank}</span>}
+          {rank && <span className="absolute left-1.5 top-1.5 rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-foreground">#{rank}</span>}
         </div>
       </Link>
       <button aria-label={on ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggle(p.id, on)} className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full bg-card/90 shadow transition active:scale-90">
