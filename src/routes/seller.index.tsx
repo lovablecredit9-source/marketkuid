@@ -49,23 +49,23 @@ function Dasbor() {
       <SellerCard className="border-foreground/80 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold">Aktivitas Pending</h2>
-            <p className="text-sm text-muted-foreground">Pesanan pre-order yang perlu ditindaklanjuti.</p>
+            <h2 className="text-base font-semibold">Aktivitas Pending</h2>
+            <p className="text-xs text-muted-foreground">Pesanan pre-order yang perlu ditindaklanjuti.</p>
           </div>
-          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${pending ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}>{pending ? `${pending} perlu diproses` : "Semua beres"}</span>
+          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${pending ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}>{pending ? `${pending} perlu diproses` : "Semua beres"}</span>
         </div>
-        <button onClick={() => navigate({ to: "/seller/transaksi" })} className="mt-4 flex w-full items-center gap-4 rounded-xl border bg-background/40 p-4 text-left transition active:scale-[0.98]">
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-warning/20 text-warning"><Clock className="h-5 w-5" /></span>
+        <button onClick={() => navigate({ to: "/seller/transaksi" })} className="mt-3 flex w-full items-center gap-3 rounded-xl border bg-background/40 p-3 text-left transition active:scale-[0.98]">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-warning/20 text-warning"><Clock className="h-4 w-4" /></span>
           <span className="flex-1">
-            <span className="block text-sm text-muted-foreground">Pre-order Belum Diproses</span>
-            <span className="block text-xl font-bold">{pending}</span>
+            <span className="block text-xs text-muted-foreground">Pre-order Belum Diproses</span>
+            <span className="block text-lg font-semibold">{pending}</span>
           </span>
         </button>
       </SellerCard>
 
       <SellerCard data-tour="quick">
-        <h3 className="border-b px-4 py-3 text-sm font-bold tracking-wide text-muted-foreground">AKSI CEPAT</h3>
-        <div className="space-y-3 p-4">
+        <h3 className="border-b px-4 py-3 text-xs font-medium tracking-wide text-muted-foreground">AKSI CEPAT</h3>
+        <div className="space-y-2.5 p-3">
           <div data-tour="qa-withdraw"><ActionRow icon={Wallet} title="Withdraw" desc="Tarik saldo penjualan ke rekening bank" onClick={() => navigate({ to: "/seller/withdraw" })} /></div>
           <ActionRow icon={Package} title="Kelola Produk" desc="Tambah, ubah harga, dan atur stok produk" onClick={() => navigate({ to: "/seller/produk" })} />
           <ActionRow icon={ShoppingBag} title="Lihat Pesanan" desc="Pantau dan proses pesanan pembeli" onClick={() => navigate({ to: "/seller/transaksi" })} />
@@ -92,16 +92,16 @@ function Dasbor() {
       </SellerCard>
 
       <SellerCard data-tour="recent">
-        <div className="flex items-center justify-between border-b px-4 py-4">
-          <h3 className="flex items-center gap-2 font-bold"><ShoppingBag className="h-5 w-5" /> Transaksi Terbaru</h3>
-          <button onClick={() => navigate({ to: "/seller/transaksi" })} className="flex items-center gap-1 text-sm font-semibold text-primary">Lihat semua <ArrowUpRight className="h-3 w-3" /></button>
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold"><ShoppingBag className="h-4 w-4" /> Transaksi Terbaru</h3>
+          <button onClick={() => navigate({ to: "/seller/transaksi" })} className="flex items-center gap-1 text-xs font-medium text-primary">Lihat semua <ArrowUpRight className="h-3 w-3" /></button>
         </div>
         {all.length === 0 ? <SellerEmpty icon={ShoppingBag} title="Belum ada transaksi" desc="Transaksi pembeli akan muncul di sini." /> : (
           <div className="divide-y">
             {all.slice(0, 5).map((o) => (
               <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left">
-                <span className="min-w-0 flex-1"><span className="block truncate font-semibold uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
-                <span className="text-right"><span className="block font-bold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className="text-xs text-muted-foreground">{ORDER_LABEL[o.status]}</span></span>
+                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
+                <span className="text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className="text-xs text-muted-foreground">{ORDER_LABEL[o.status]}</span></span>
               </button>
             ))}
           </div>
@@ -109,17 +109,17 @@ function Dasbor() {
       </SellerCard>
 
       <SellerCard data-tour="best">
-        <div className="flex items-center justify-between border-b px-4 py-4">
-          <h3 className="flex items-center gap-2 font-bold"><TrendingUp className="h-5 w-5" /> Produk Terlaris</h3>
-          <button onClick={() => navigate({ to: "/seller/produk" })} className="flex items-center gap-1 text-sm font-semibold text-primary">Kelola <ArrowUpRight className="h-3 w-3" /></button>
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold"><TrendingUp className="h-4 w-4" /> Produk Terlaris</h3>
+          <button onClick={() => navigate({ to: "/seller/produk" })} className="flex items-center gap-1 text-xs font-medium text-primary">Kelola <ArrowUpRight className="h-3 w-3" /></button>
         </div>
         {st.bestSellers.length === 0 ? <SellerEmpty icon={Package} title="Belum ada produk terjual" desc="Produk terlaris akan tampil setelah ada penjualan." /> : (
           <div className="divide-y">
             {st.bestSellers.map((b, i) => (
               <div key={b.name} className="flex items-center gap-3 px-4 py-3">
-                <span className="w-5 font-bold text-muted-foreground">{i + 1}</span>
-                <span className="min-w-0 flex-1 truncate font-semibold uppercase">{b.name}</span>
-                <span className="text-right"><span className="block font-bold">{b.qty} terjual</span><span className="text-xs text-muted-foreground">{rpSeller(b.revenue)}</span></span>
+                <span className="w-5 text-sm font-medium text-muted-foreground">{i + 1}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium uppercase">{b.name}</span>
+                <span className="text-right"><span className="block text-sm font-semibold">{b.qty} terjual</span><span className="text-xs text-muted-foreground">{rpSeller(b.revenue)}</span></span>
               </div>
             ))}
           </div>

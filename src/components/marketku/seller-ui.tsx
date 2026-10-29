@@ -96,14 +96,14 @@ export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
     <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
       <div ref={ref} className="relative flex items-center gap-1 px-3 py-3">
         <button aria-label="Menu" onClick={onMenu} className="grid h-9 w-9 place-items-center rounded-lg transition active:scale-90"><Menu className="h-5 w-5" /></button>
-        <h1 className="ml-1 truncate text-lg font-bold">{titleFor(path)}</h1>
+        <h1 className="ml-1 truncate text-base font-semibold">{titleFor(path)}</h1>
         <div className="ml-auto flex items-center gap-0.5" data-tour="topbar">
-          <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-5 w-5" /></HeadBtn>
-          <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-5 w-5" /></HeadBtn>
-          <HeadBtn tour="h-notif" label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-5 w-5" /></HeadBtn>
-          <HeadBtn label="Tema" active={open === "theme"} onClick={() => toggle("theme")}><Monitor className="h-5 w-5" /></HeadBtn>
+          <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn tour="h-notif" label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
+          <HeadBtn label="Tema" active={open === "theme"} onClick={() => toggle("theme")}><Monitor className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
           <button data-tour="h-profile" aria-label="Menu profil" onClick={() => toggle("profile")}
-            className={`ml-1 grid h-10 w-10 place-items-center rounded-full border bg-card text-sm font-bold text-primary transition active:scale-90 ${open === "profile" ? "border-primary ring-2 ring-primary/40" : "border-primary/50"}`}>
+            className={`ml-1 grid h-9 w-9 place-items-center rounded-full border bg-card text-sm font-semibold text-primary transition active:scale-90 ${open === "profile" ? "border-primary ring-2 ring-primary/40" : "border-primary/50"}`}>
             {store.store_name.charAt(0).toUpperCase()}
           </button>
         </div>
@@ -167,15 +167,15 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
       <div className="flex items-stretch justify-around px-2 py-2">
         {navTabs.map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to} data-tour={`nav-${label.toLowerCase()}`} activeOptions={{ exact: to === "/seller" }}
-            className="group relative flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-foreground/80 transition-all duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary">
+            className="group relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-foreground/80 transition-all duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary">
             <span className="absolute -top-2 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 group-data-[status=active]:w-3" />
-            <Icon className="h-5 w-5 transition-transform duration-300 group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
+            <Icon className="h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" strokeWidth={1.75} />
             <span className="hidden group-data-[status=active]:inline">{label}</span>
           </Link>
         ))}
         <button aria-label="Menu" onClick={onMenu}
-          className={`group relative flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 ${menuOpen ? "bg-accent text-primary" : "text-foreground/80"}`}>
-          <Menu className="h-5 w-5 transition-transform duration-300 group-active:-translate-y-1" />
+          className={`group relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300 active:scale-95 ${menuOpen ? "bg-accent text-primary" : "text-foreground/80"}`}>
+          <Menu className="h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1" strokeWidth={1.75} />
           {menuOpen && <span>Menu</span>}
         </button>
       </div>
@@ -355,33 +355,33 @@ export function SellerCard({ children, className = "", ...rest }: HTMLAttributes
 
 export function ActionRow({ icon: I, title, desc, onClick }: { icon: typeof Package; title: string; desc: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-4 rounded-xl border bg-background/40 px-4 py-4 text-left transition active:scale-[0.98]">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent"><I className="h-4 w-4" /></span>
-      <span className="flex-1">
-        <span className="block font-semibold">{title}</span>
-        <span className="mt-0.5 block text-sm text-muted-foreground">{desc}</span>
+    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-xl border bg-background/40 px-3 py-3 text-left transition active:scale-[0.98]">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent"><I className="h-4 w-4" strokeWidth={1.75} /></span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium">{title}</span>
+        <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{desc}</span>
       </span>
-      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
     </button>
   );
 }
 
 export function StatCell({ icon: I, label, value, sub, valueClass = "" }: { icon: typeof Package; label: string; value: string; sub?: string; valueClass?: string }) {
   return (
-    <div className="p-4">
-      <p className="flex items-center gap-2 text-sm text-foreground/85"><I className="h-4 w-4 shrink-0" /> <span className="truncate">{label}</span></p>
-      <p className={`mt-1 text-lg font-bold ${valueClass}`}>{value}</p>
-      {sub && <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>}
+    <div className="min-w-0 px-3 py-3">
+      <p className="flex items-center gap-1.5 text-xs text-foreground/80"><I className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} /> <span className="truncate">{label}</span></p>
+      <p className={`mt-1 text-base font-semibold ${valueClass}`}>{value}</p>
+      {sub && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{sub}</p>}
     </div>
   );
 }
 
 export function SellerEmpty({ icon: I, title, desc, action }: { icon: typeof Package; title: string; desc: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center px-6 py-10 text-center">
-      <span className="grid h-12 w-12 place-items-center rounded-xl bg-accent text-primary"><I className="h-6 w-6" /></span>
-      <p className="mt-3 font-semibold">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+    <div className="flex flex-col items-center px-6 py-8 text-center">
+      <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-primary"><I className="h-5 w-5" strokeWidth={1.75} /></span>
+      <p className="mt-3 text-sm font-medium">{title}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
