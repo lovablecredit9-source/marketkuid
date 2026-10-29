@@ -248,6 +248,7 @@ export type Database = {
           buyer_hidden: boolean
           buyer_id: string
           buyer_name: string | null
+          buyer_typing_at: string | null
           buyer_unread: number
           created_at: string
           id: string
@@ -256,6 +257,7 @@ export type Database = {
           last_sender_id: string | null
           seller_hidden: boolean
           seller_id: string
+          seller_typing_at: string | null
           seller_unread: number
           store_name: string | null
         }
@@ -263,6 +265,7 @@ export type Database = {
           buyer_hidden?: boolean
           buyer_id: string
           buyer_name?: string | null
+          buyer_typing_at?: string | null
           buyer_unread?: number
           created_at?: string
           id?: string
@@ -271,6 +274,7 @@ export type Database = {
           last_sender_id?: string | null
           seller_hidden?: boolean
           seller_id: string
+          seller_typing_at?: string | null
           seller_unread?: number
           store_name?: string | null
         }
@@ -278,6 +282,7 @@ export type Database = {
           buyer_hidden?: boolean
           buyer_id?: string
           buyer_name?: string | null
+          buyer_typing_at?: string | null
           buyer_unread?: number
           created_at?: string
           id?: string
@@ -286,6 +291,7 @@ export type Database = {
           last_sender_id?: string | null
           seller_hidden?: boolean
           seller_id?: string
+          seller_typing_at?: string | null
           seller_unread?: number
           store_name?: string | null
         }
@@ -297,7 +303,10 @@ export type Database = {
           body: string
           conversation_id: string
           created_at: string
+          delivered_at: string | null
           id: string
+          product_id: string | null
+          read_at: string | null
           sender_id: string
         }
         Insert: {
@@ -305,7 +314,10 @@ export type Database = {
           body: string
           conversation_id: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
+          product_id?: string | null
+          read_at?: string | null
           sender_id: string
         }
         Update: {
@@ -313,7 +325,10 @@ export type Database = {
           body?: string
           conversation_id?: string
           created_at?: string
+          delivered_at?: string | null
           id?: string
+          product_id?: string | null
+          read_at?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -322,6 +337,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -734,6 +756,7 @@ export type Database = {
           full_name: string
           id: string
           last_seen_at: string | null
+          seller_seen_at: string | null
           updated_at: string
           username: string | null
           whatsapp: string | null
@@ -743,6 +766,7 @@ export type Database = {
           full_name?: string
           id: string
           last_seen_at?: string | null
+          seller_seen_at?: string | null
           updated_at?: string
           username?: string | null
           whatsapp?: string | null
@@ -752,6 +776,7 @@ export type Database = {
           full_name?: string
           id?: string
           last_seen_at?: string | null
+          seller_seen_at?: string | null
           updated_at?: string
           username?: string | null
           whatsapp?: string | null
@@ -1077,6 +1102,13 @@ export type Database = {
           products: number
         }[]
       }
+      chat_partner_state: {
+        Args: { p_id: string }
+        Returns: {
+          seen_at: string
+          typing: boolean
+        }[]
+      }
       claim_ad_voucher: { Args: { p_code: string }; Returns: number }
       conversation_partner_seen: { Args: { p_id: string }; Returns: string }
       create_ad_campaign: {
@@ -1133,6 +1165,7 @@ export type Database = {
           spent: number
         }[]
       }
+      set_typing: { Args: { p_id: string }; Returns: undefined }
       sponsored_products: {
         Args: { p_limit?: number; p_query: string }
         Returns: {
@@ -1161,6 +1194,7 @@ export type Database = {
         }[]
       }
       touch_last_seen: { Args: never; Returns: undefined }
+      touch_presence: { Args: { p_seller: boolean }; Returns: undefined }
       track_ad_click: { Args: { p_campaign: string }; Returns: undefined }
       variant_stock: {
         Args: { p_product_ids: string[] }
