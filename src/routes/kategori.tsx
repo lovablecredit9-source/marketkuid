@@ -19,7 +19,7 @@ function Tile({ name, count, img, to }: { name: string; count: number; img?: str
   return (
     <Link to="/cari" search={to} className="flex flex-col items-center rounded-xl border bg-card px-2 py-4 text-center shadow-sm transition active:scale-95">
       {img ? (
-        <img src={img} alt="" className="h-12 w-12 rounded-xl object-cover" />
+        <img src={img} alt="" className="h-12 w-12 rounded-xl object-cover ring-1 ring-border" />
       ) : (
         <span className="grid h-12 w-12 place-items-center rounded-xl bg-accent text-lg font-semibold text-primary">{name.charAt(0).toUpperCase()}</span>
       )}

@@ -185,7 +185,7 @@ function CategoryStrip() {
   if (!cats.data?.length) return null;
   return (
     <div className="-mx-3 flex overflow-x-auto px-3 py-1 [scrollbar-width:none]" data-tour="kategori">
-      {cats.data.map((c) => {
+      {cats.data.slice(0, 14).map((c) => {
         const I = CAT_ICON[c.name] ?? LayoutGrid;
         const img = CATEGORY_IMAGES[c.name];
         return (
