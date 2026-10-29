@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2 } from "lucide-react";
-import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel } from "@/components/marketku/chat-avatar";
+import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel, stampLabel } from "@/components/marketku/chat-avatar";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
@@ -202,11 +202,12 @@ function ChatRoom() {
         {count === 0 && c && !typing && (
           <div className="flex flex-col items-center pt-32 text-center text-muted-foreground"><MessageCircle className="h-6 w-6 text-primary" /><p className="mt-3 text-sm">Tulis pesan pertamamu untuk memulai chat{isBuyer ? " dengan seller" : ""}.</p></div>
         )}
-        {list.map((m) => {
+        {list.map((m, i) => {
           const mine = m.sender_id === user?.id;
           const prod = m.product_id ? products.data?.[m.product_id] : undefined;
+          const lastMine = mine && !list.slice(i + 1).some((x) => x.sender_id === user?.id);
           return (
-            <div key={m.id} className={`mk-pop-in flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div key={m.id} className={`mk-pop-in flex flex-col ${mine ? "items-end" : "items-start"}`}>
               <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border bg-card"}`}>
                 {prod && <ProductCard p={prod} url={prod.image ? productImgs.data?.[prod.image] : undefined} />}
                 {m.attachment_path && (
@@ -216,10 +217,15 @@ function ChatRoom() {
                 )}
                 {!(m.attachment_path && m.body === "📷 Foto") && <p className="whitespace-pre-wrap break-words">{m.body}</p>}
                 <p className={`mt-0.5 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
-                  {new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                  {stampLabel(m.created_at)}
                   {mine && <MsgTicks state={tickState(m)} />}
                 </p>
               </div>
+              {lastMine && (
+                <p className="mt-1 pr-1 text-[11px] text-muted-foreground">
+                  {m.read_at ? `Dilihat • ${stampLabel(m.read_at)}` : m.delivered_at ? `Diterima • ${stampLabel(m.delivered_at)}` : `Belum dilihat • ${stampLabel(m.created_at)}`}
+                </p>
+              )}
             </div>
           );
         })}

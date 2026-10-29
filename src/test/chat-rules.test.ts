@@ -29,3 +29,11 @@ describe("unread totals", () => {
     expect(r).toEqual({ buyer: 2, seller: 1, total: 3 });
   });
 });
+
+import { stampLabel } from "@/components/marketku/chat-avatar";
+describe("stampLabel", () => {
+  const now = new Date(2026, 9, 29, 10, 0).getTime();
+  it("today shows jam only", () => expect(stampLabel(new Date(2026, 9, 29, 9, 5).toISOString(), now)).toBe("09.05"));
+  it("yesterday shows Kemarin + jam", () => expect(stampLabel(new Date(2026, 9, 28, 21, 40).toISOString(), now)).toBe("Kemarin 21.40"));
+  it("older shows tanggal + jam", () => expect(stampLabel(new Date(2026, 9, 26, 8, 0).toISOString(), now)).toBe("26 Okt 08.00"));
+});
