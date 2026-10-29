@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Search, Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
+import { ProductList } from "@/components/marketku/product-card";
+import { useMarketProducts } from "@/lib/market";
 
 type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -28,6 +30,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [q, setQ] = useState("");
   const navigate = useNavigate();
+  const products = useMarketProducts({ limit: 20 });
+  const list = products.data ?? [];
   return (
     <AppShell>
       <form
@@ -49,7 +53,13 @@ function Index() {
             <h2 className="font-bold">Pilihan Untukmu</h2>
             <Link to="/cari" className="text-sm font-semibold text-primary">Lihat semua</Link>
           </div>
-          <EmptyState icon={Package} title="Belum ada produk" desc="Produk akan tampil di sini setelah seller menambahkannya." />
+          {products.isLoading ? (
+            <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl border bg-card" />)}</div>
+          ) : list.length ? (
+            <ProductList items={list} />
+          ) : (
+            <EmptyState icon={Package} title="Belum ada produk" desc="Produk akan tampil di sini setelah seller menambahkannya." />
+          )}
         </section>
 
         <section className="space-y-1 rounded-2xl border bg-card p-2">

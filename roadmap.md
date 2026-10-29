@@ -16,6 +16,8 @@
 - [x] Riwayat status picker, home features + blue footer
 - [x] Chat search & select mode (UI), account welcome tours
 - [x] Seller tours on Dasbor/Produk/Credits/Transaksi; product filter & sort menus; credits top-up panel; Panduan accordion with 21 articles
-- [ ] Product detail, store page, reviews, real cart & checkout
-- [ ] Real chat conversations
-- [ ] Seller Iklan pages, Program Seller, Analitik, Pelanggan
+- [x] Product detail, store page, reviews, real cart & checkout (orders saved; QRIS payment pending gateway)
+- [x] Real chat conversations
+- [x] Seller Iklan pages, Program Seller, Analitik, Pelanggan
+- [x] Seller products on beranda & pencarian
+- [ ] QRIS payment, withdraw, rekber, Telegram bot (need payment gateway / bot credentials)

@@ -6,6 +6,10 @@ import {
 import { ActionRow, SellerCard, SellerEmpty, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 import { PageTour } from "@/components/marketku/tour";
 import { pageMeta } from "@/lib/meta";
+import { useAuth } from "@/lib/auth";
+import { useMyProducts } from "@/lib/products";
+import { ORDER_LABEL } from "@/lib/market";
+import { sellerStats, useSellerOrders } from "@/lib/seller-orders";
 
 export const Route = createFileRoute("/seller/")({
   head: () => pageMeta("Dasbor Seller — Marketku", "Ringkasan aktivitas, saldo, dan penjualan toko kamu di Marketku."),
@@ -32,6 +36,14 @@ const tour = [
 
 function Dasbor() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const orders = useSellerOrders(user?.id);
+  const products = useMyProducts(user?.id);
+  const all = orders.data ?? [];
+  const st = sellerStats(all);
+  const prods = products.data ?? [];
+  const active = prods.filter((p) => p.status === "active").length;
+  const pending = st.preorderTodo;
   return (
     <>
       <SellerCard className="border-foreground/80 p-4">
@@ -40,13 +52,13 @@ function Dasbor() {
             <h2 className="text-lg font-bold">Aktivitas Pending</h2>
             <p className="text-sm text-muted-foreground">Pesanan pre-order yang perlu ditindaklanjuti.</p>
           </div>
-          <span className="shrink-0 rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground">Semua beres</span>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${pending ? "bg-warning/20 text-warning" : "bg-muted text-muted-foreground"}`}>{pending ? `${pending} perlu diproses` : "Semua beres"}</span>
         </div>
         <button onClick={() => navigate({ to: "/seller/transaksi" })} className="mt-4 flex w-full items-center gap-4 rounded-xl border bg-background/40 p-4 text-left transition active:scale-[0.98]">
           <span className="grid h-10 w-10 place-items-center rounded-lg bg-warning/20 text-warning"><Clock className="h-5 w-5" /></span>
           <span className="flex-1">
             <span className="block text-sm text-muted-foreground">Pre-order Belum Diproses</span>
-            <span className="block text-xl font-bold">0</span>
+            <span className="block text-xl font-bold">{pending}</span>
           </span>
         </button>
       </SellerCard>
@@ -71,12 +83,12 @@ function Dasbor() {
       </SellerCard>
 
       <SellerCard data-tour="perf" className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
-        <StatCell icon={DollarSign} label="Total Pendapatan" value={rpSeller(0)} sub={`Hari ini: ${rpSeller(0)}`} />
-        <StatCell icon={ShoppingBag} label="Transaksi" value="0" sub="0 selesai" />
-        <StatCell icon={Package} label="Produk Aktif" value="0" sub="Total: 0" />
-        <StatCell icon={Clock} label="Menunggu" value="0" sub="menunggu bayar" />
-        <StatCell icon={Users} label="Pelanggan" value="0" sub="unik bertransaksi" />
-        <StatCell icon={Percent} label="Konversi" value="0%" sub={`avg ${rpSeller(0)}`} />
+        <StatCell icon={DollarSign} label="Total Pendapatan" value={rpSeller(st.revenue)} sub={`Hari ini: ${rpSeller(st.today)}`} />
+        <StatCell icon={ShoppingBag} label="Transaksi" value={String(st.total)} sub={`${st.completed} selesai`} />
+        <StatCell icon={Package} label="Produk Aktif" value={String(active)} sub={`Total: ${prods.length}`} />
+        <StatCell icon={Clock} label="Menunggu" value={String(st.waiting)} sub="menunggu bayar" />
+        <StatCell icon={Users} label="Pelanggan" value={String(st.buyers)} sub="unik bertransaksi" />
+        <StatCell icon={Percent} label="Konversi" value={`${st.conversion}%`} sub={`avg ${rpSeller(st.avgOrder)}`} />
       </SellerCard>
 
       <SellerCard data-tour="recent">
@@ -84,7 +96,16 @@ function Dasbor() {
           <h3 className="flex items-center gap-2 font-bold"><ShoppingBag className="h-5 w-5" /> Transaksi Terbaru</h3>
           <button onClick={() => navigate({ to: "/seller/transaksi" })} className="flex items-center gap-1 text-sm font-semibold text-primary">Lihat semua <ArrowUpRight className="h-3 w-3" /></button>
         </div>
-        <SellerEmpty icon={ShoppingBag} title="Belum ada transaksi" desc="Transaksi pembeli akan muncul di sini." />
+        {all.length === 0 ? <SellerEmpty icon={ShoppingBag} title="Belum ada transaksi" desc="Transaksi pembeli akan muncul di sini." /> : (
+          <div className="divide-y">
+            {all.slice(0, 5).map((o) => (
+              <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+                <span className="min-w-0 flex-1"><span className="block truncate font-semibold uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
+                <span className="text-right"><span className="block font-bold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className="text-xs text-muted-foreground">{ORDER_LABEL[o.status]}</span></span>
+              </button>
+            ))}
+          </div>
+        )}
       </SellerCard>
 
       <SellerCard data-tour="best">
@@ -92,7 +113,17 @@ function Dasbor() {
           <h3 className="flex items-center gap-2 font-bold"><TrendingUp className="h-5 w-5" /> Produk Terlaris</h3>
           <button onClick={() => navigate({ to: "/seller/produk" })} className="flex items-center gap-1 text-sm font-semibold text-primary">Kelola <ArrowUpRight className="h-3 w-3" /></button>
         </div>
-        <SellerEmpty icon={Package} title="Belum ada produk terjual" desc="Produk terlaris akan tampil setelah ada penjualan." />
+        {st.bestSellers.length === 0 ? <SellerEmpty icon={Package} title="Belum ada produk terjual" desc="Produk terlaris akan tampil setelah ada penjualan." /> : (
+          <div className="divide-y">
+            {st.bestSellers.map((b, i) => (
+              <div key={b.name} className="flex items-center gap-3 px-4 py-3">
+                <span className="w-5 font-bold text-muted-foreground">{i + 1}</span>
+                <span className="min-w-0 flex-1 truncate font-semibold uppercase">{b.name}</span>
+                <span className="text-right"><span className="block font-bold">{b.qty} terjual</span><span className="text-xs text-muted-foreground">{rpSeller(b.revenue)}</span></span>
+              </div>
+            ))}
+          </div>
+        )}
       </SellerCard>
       <PageTour id="seller-dashboard" steps={tour} panel />
     </>
