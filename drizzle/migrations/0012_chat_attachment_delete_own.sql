@@ -1,0 +1,2 @@
+CREATE POLICY "Chat senders delete own attachments" ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'chat-attachments' AND owner_id = auth.uid()::text AND public.is_conversation_participant((storage.foldername(name))[1]));
