@@ -134,6 +134,13 @@
       "when": 1793317129406,
       "tag": "0018_admin_wallet_deposit",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793317162629,
+      "tag": "0019_grant_owner_admin",
+      "breakpoints": true
     }
   ]
 }
