@@ -202,8 +202,8 @@ function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: strin
             {banner && <button aria-label="Hapus banner" disabled={!!busy} onClick={() => void replace("banner", null)} className="grid h-7 w-7 place-items-center rounded-lg bg-background/80 text-destructive backdrop-blur disabled:opacity-60"><Trash2 className="h-3.5 w-3.5" /></button>}
           </div>
         </div>
-        <div className="-mt-8 flex items-end gap-3 px-4 pb-4">
-          <div className="relative">
+        <div className="flex items-start gap-3 px-4 pb-4">
+          <div className="relative -mt-10 shrink-0">
             {avatarUrl
               ? <img src={avatarUrl} alt="Foto profil toko" className="h-20 w-20 rounded-full border-4 border-card object-cover" />
               : <span className="grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-background"><Store className="h-7 w-7 text-muted-foreground" /></span>}
@@ -212,7 +212,7 @@ function StoreMediaEditor({ userId, avatar, banner, onChanged }: { userId: strin
               <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={pick("avatar")} />
             </label>
           </div>
-          <div className="min-w-0 flex-1 pb-1 text-xs text-muted-foreground">
+          <div className="min-w-0 flex-1 pt-2 text-xs text-muted-foreground">
             <p className="font-semibold text-foreground">{busy === "avatar" ? "Mengunggah foto..." : "Foto profil & banner"}</p>
             <p>JPG, PNG, atau WebP, maks 5 MB. Banner disarankan rasio 3:1.</p>
             {avatar && <button disabled={!!busy} onClick={() => void replace("avatar", null)} className="mt-1 font-semibold text-destructive disabled:opacity-60">Hapus foto profil</button>}
