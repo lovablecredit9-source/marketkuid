@@ -1,4 +1,4 @@
-export function ChatAvatar({ name, url, size = "h-12 w-12" }: { name: string; url?: string; size?: string }) {
+export function ChatAvatar({ name, url, size = "h-12 w-12" }: { name: string; url?: string | undefined; size?: string }) {
   return url
     ? <img src={url} alt={name} className={`${size} shrink-0 rounded-full border object-cover`} />
     : <span className={`${size} grid shrink-0 place-items-center rounded-full border-2 border-accent bg-gradient-to-br from-primary to-tone-cyan font-bold text-primary-foreground`}>{name.charAt(0).toUpperCase()}</span>;
