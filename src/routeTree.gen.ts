@@ -53,6 +53,7 @@ import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
+import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/telegram.$botId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -274,6 +275,11 @@ const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
   path: '/produk/baru',
   getParentRoute: () => SellerRoute,
 } as any)
+const ApiPublicTelegramBotIdRoute = ApiPublicTelegramBotIdRouteImport.update({
+  id: '/api/public/telegram/$botId',
+  path: '/api/public/telegram/$botId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -365,6 +372,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -412,6 +420,7 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
+  '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
+    | '/api/public/telegram/$botId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -505,6 +515,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
+    | '/api/public/telegram/$botId'
   id:
     | '__root__'
     | '/'
@@ -551,6 +562,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
+    | '/api/public/telegram/$botId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -579,6 +591,7 @@ export interface RootRouteChildren {
   ProdukIdRoute: typeof ProdukIdRoute
   TokoSlugRoute: typeof TokoSlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
+  ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -891,6 +904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProdukBaruRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/api/public/telegram/$botId': {
+      id: '/api/public/telegram/$botId'
+      path: '/api/public/telegram/$botId'
+      fullPath: '/api/public/telegram/$botId'
+      preLoaderRoute: typeof ApiPublicTelegramBotIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -977,6 +997,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukIdRoute: ProdukIdRoute,
   TokoSlugRoute: TokoSlugRoute,
   UlasanIdRoute: UlasanIdRoute,
+  ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

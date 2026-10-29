@@ -1,11 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import { MAX_BOTS, isAdminUsername, isAdminWa, isBotToken, isChatRef } from "@/lib/telegram";
 
 const isId = (s: unknown): s is string => typeof s === "string" && /^[0-9a-f-]{36}$/i.test(s);
 
 /** Loads the caller's own bot (RLS proves ownership) and then its token via the admin client. */
-async function ownBot(supabase: { from: (t: "telegram_bots") => any }, id: string) {
+async function ownBot(supabase: SupabaseClient<Database>, id: string) {
   const { data } = await supabase.from("telegram_bots").select("id").eq("id", id).maybeSingle();
   if (!data) throw new Error("Bot tidak ditemukan");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
