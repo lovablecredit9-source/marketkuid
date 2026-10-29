@@ -1,9 +1,17 @@
+import * as Dialog from "@radix-ui/react-dialog";
 import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { Bell, Search, ShoppingCart, Menu, Home, Package, MessageCircle, User, ChevronRight } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Bell, Search, ShoppingCart, Menu, Home, Package, MessageCircle, User, ChevronRight, X, Handshake, Clock, ShieldAlert,
+  Heart, LayoutGrid, HelpCircle, Moon, Store,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { useCategories } from "@/lib/products";
 import { toast } from "sonner";
 import logo from "@/assets/logo-marketku.png.asset.json";
-import { toneClass, type Tone } from "@/lib/seller";
+import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -15,33 +23,139 @@ export function Logo({ className = "h-8" }: { className?: string }) {
   );
 }
 
+const DARK_KEY = "marketku-dark";
+/** Toggle and persist the buyer app dark theme. */
+export function toggleDark() {
+  const on = document.documentElement.classList.toggle("dark");
+  window.localStorage.setItem(DARK_KEY, on ? "1" : "0");
+  return on;
+}
+function useStoredDark() {
+  useEffect(() => {
+    if (window.localStorage.getItem(DARK_KEY) === "1") document.documentElement.classList.add("dark");
+  }, []);
+}
+
+export function NotifDrop({ onClose, className = "" }: { onClose: () => void; className?: string }) {
+  return (
+    <>
+      <button aria-label="Tutup notifikasi" className="fixed inset-0 z-40 cursor-default" onClick={onClose} />
+      <div className={`absolute z-50 mt-2 w-72 overflow-hidden rounded-2xl border bg-card shadow-2xl animate-in fade-in-0 zoom-in-95 ${className}`}>
+        <div className="flex items-start justify-between border-b px-4 py-3">
+          <div><p className="font-bold">Notifikasi</p><p className="text-xs text-muted-foreground">Semua sudah dibaca</p></div>
+          <button onClick={onClose} className="text-xs font-semibold text-primary">Hapus semua</button>
+        </div>
+        <p className="px-4 py-6 text-center text-sm text-muted-foreground">Belum ada notifikasi.</p>
+      </div>
+    </>
+  );
+}
+
 export function Header({ title }: { title?: string | undefined }) {
   const navigate = useNavigate();
+  const [notif, setNotif] = useState(false);
+  const [menu, setMenu] = useState(false);
   if (title) {
     return (
       <header className="sticky top-0 z-30 px-3 pt-3">
-        <div className="flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
+        <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
           <span className="border-l pl-3 text-sm font-semibold">{title}</span>
-          <button onClick={() => soon("Notifikasi")} aria-label="Notifikasi" className="ml-auto grid h-9 w-9 place-items-center rounded-full border">
+          <button onClick={() => setNotif(!notif)} aria-label="Notifikasi" className={`ml-auto grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${notif ? "border-primary text-primary" : ""}`}>
             <Bell className="h-4 w-4" />
           </button>
+          {notif && <NotifDrop onClose={() => setNotif(false)} className="right-0 top-full" />}
         </div>
       </header>
     );
   }
   return (
     <header className="sticky top-0 z-30 border-b bg-card">
-      <div className="flex items-center gap-1 px-3 py-2">
+      <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
-          <IconBtn label="Notifikasi" onClick={() => soon("Notifikasi")}><Bell className="h-5 w-5" /></IconBtn>
+          <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>
           <IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn>
           <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}><ShoppingCart className="h-5 w-5" /></IconBtn>
-          <IconBtn label="Menu" onClick={() => navigate({ to: "/akun" })}><Menu className="h-5 w-5" /></IconBtn>
+          <IconBtn label="Menu" onClick={() => setMenu(true)}><Menu className="h-5 w-5" /></IconBtn>
         </div>
+        {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
+      <SideMenu open={menu} onOpenChange={setMenu} />
     </header>
+  );
+}
+
+const sideLinks = [
+  { to: "/", label: "Beranda", icon: Home },
+  { to: "/rekber", label: "Rekber", icon: Handshake },
+  { to: "/riwayat", label: "Riwayat", icon: Clock },
+  { to: "/pesan", label: "Pesan", icon: MessageCircle },
+  { to: "/dispute", label: "Dispute", icon: ShieldAlert },
+  { to: "/wishlist", label: "Wishlist", icon: Heart },
+  { to: "/cari", label: "Kategori", icon: LayoutGrid },
+  { to: "/bantuan", label: "Bantuan", icon: HelpCircle },
+] as const;
+
+export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const cats = useCategories();
+  const store = useSellerStore(user?.id);
+  const profile = useQuery({
+    queryKey: ["profile", user?.id], enabled: !!user,
+    queryFn: async () => (await supabase.from("profiles").select("full_name, username, created_at").eq("id", user!.id).maybeSingle()).data,
+  });
+  const name = profile.data?.full_name || user?.email?.split("@")[0];
+  const go = (fn: () => void) => { onOpenChange(false); fn(); };
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+        <Dialog.Content aria-describedby={undefined} className="fixed inset-y-0 right-0 z-50 flex w-[80%] max-w-[320px] flex-col bg-card shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right">
+          <div className="flex items-center justify-between px-4 pt-4">
+            <img src={logo.url} alt="Marketku" className="h-9 w-auto" />
+            <Dialog.Title className="sr-only">Menu Marketku</Dialog.Title>
+            <Dialog.Close aria-label="Tutup menu" className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+          </div>
+          {name && <p className="flex items-center gap-2 border-b px-4 pb-3 pt-2 text-sm font-bold uppercase"><User className="h-4 w-4" /> {name}</p>}
+          <nav className="flex-1 overflow-y-auto px-3 py-2">
+            {sideLinks.map(({ to, label, icon: I }) => (
+              <Link key={label} to={to} onClick={() => onOpenChange(false)} activeOptions={{ exact: true }}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 font-medium transition active:scale-[0.98] data-[status=active]:bg-accent data-[status=active]:text-primary">
+                <I className="h-5 w-5" strokeWidth={1.75} /> {label}
+              </Link>
+            ))}
+            <button onClick={() => toggleDark()} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 font-medium transition active:scale-[0.98]">
+              <Moon className="h-5 w-5" strokeWidth={1.75} /> Mode Gelap
+            </button>
+            {(cats.data?.length ?? 0) > 0 && (
+              <div className="mt-2 border-t pt-3">
+                <p className="px-1 pb-2 text-xs font-bold tracking-widest text-muted-foreground">KATEGORI POPULER</p>
+                <div className="flex flex-wrap gap-2">
+                  {cats.data!.slice(0, 10).map((c) => (
+                    <button key={c.id} onClick={() => go(() => navigate({ to: "/cari", search: { q: c.name } }))} className="rounded-lg border px-3 py-1.5 text-sm transition active:scale-95">{c.name}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </nav>
+          <div className="space-y-2 border-t p-3">
+            {user ? (
+              <>
+                <button onClick={() => go(() => navigate({ to: "/akun" }))} className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition active:scale-[0.98]"><User className="h-4 w-4" /> Profil & Saldo</button>
+                {store.data && <button onClick={() => go(() => navigate({ to: "/seller" }))} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Seller Center</button>}
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => go(() => navigate({ to: "/login" }))} className="rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">Masuk</button>
+                <button onClick={() => go(() => navigate({ to: "/register" }))} className="rounded-xl border py-3 text-sm font-semibold">Daftar</button>
+              </div>
+            )}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -82,6 +196,7 @@ export function BottomNav() {
 }
 
 export function AppShell({ children, title, nav = true }: { children: ReactNode; title?: string; nav?: boolean }) {
+  useStoredDark();
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background">
       <Header title={title} />
@@ -102,7 +217,7 @@ export function EmptyState({ icon: Icon, title, desc, action }: { icon: typeof H
   );
 }
 
-export function PrimaryLink({ to, children }: { to: "/" | "/cari"; children: ReactNode }) {
+export function PrimaryLink({ to, children }: { to: "/" | "/cari" | "/login"; children: ReactNode }) {
   return (
     <Link to={to} className="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-md">
       {children}

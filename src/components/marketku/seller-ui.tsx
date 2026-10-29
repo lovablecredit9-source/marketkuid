@@ -96,10 +96,10 @@ export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
         <h1 className="ml-1 truncate text-lg font-bold">{titleFor(path)}</h1>
         <div className="ml-auto flex items-center gap-0.5" data-tour="topbar">
           <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-5 w-5" /></HeadBtn>
-          <HeadBtn label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-5 w-5" /></HeadBtn>
-          <HeadBtn label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-5 w-5" /></HeadBtn>
+          <HeadBtn tour="h-panduan" label="Panduan" onClick={() => { close(); startTour(); }}><HelpCircle className="h-5 w-5" /></HeadBtn>
+          <HeadBtn tour="h-notif" label="Notifikasi" active={open === "notif"} onClick={() => toggle("notif")}><Bell className="h-5 w-5" /></HeadBtn>
           <HeadBtn label="Tema" active={open === "theme"} onClick={() => toggle("theme")}><Monitor className="h-5 w-5" /></HeadBtn>
-          <button aria-label="Menu profil" onClick={() => toggle("profile")}
+          <button data-tour="h-profile" aria-label="Menu profil" onClick={() => toggle("profile")}
             className={`ml-1 grid h-10 w-10 place-items-center rounded-full border bg-card text-sm font-bold text-primary transition active:scale-90 ${open === "profile" ? "border-primary ring-2 ring-primary/40" : "border-primary/50"}`}>
             {store.store_name.charAt(0).toUpperCase()}
           </button>
@@ -154,8 +154,8 @@ function DropItem({ icon: I, label, onClick }: { icon: typeof Package; label: st
   return <button onClick={onClick} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-foreground/90 transition active:bg-accent"><I className="h-4 w-4" /> {label}</button>;
 }
 
-function HeadBtn({ children, label, onClick, active }: { children: ReactNode; label: string; onClick: () => void; active?: boolean }) {
-  return <button aria-label={label} onClick={onClick} className={`grid h-9 w-9 place-items-center rounded-full text-foreground/90 transition active:scale-90 ${active ? "bg-accent text-primary ring-1 ring-primary/60" : ""}`}>{children}</button>;
+function HeadBtn({ children, label, onClick, active, tour }: { children: ReactNode; label: string; onClick: () => void; active?: boolean; tour?: string }) {
+  return <button data-tour={tour} aria-label={label} onClick={onClick} className={`grid h-9 w-9 place-items-center rounded-full text-foreground/90 transition active:scale-90 ${active ? "bg-accent text-primary ring-1 ring-primary/60" : ""}`}>{children}</button>;
 }
 
 export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
@@ -163,7 +163,7 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
     <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md border-t bg-background" data-tour="bottomnav">
       <div className="flex items-stretch justify-around px-2 py-2">
         {navTabs.map(({ to, label, icon: Icon }) => (
-          <Link key={to} to={to} activeOptions={{ exact: to === "/seller" }}
+          <Link key={to} to={to} data-tour={`nav-${label.toLowerCase()}`} activeOptions={{ exact: to === "/seller" }}
             className="group relative flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-foreground/80 transition-all duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary">
             <span className="absolute -top-2 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 group-data-[status=active]:w-3" />
             <Icon className="h-5 w-5 transition-transform duration-300 group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />

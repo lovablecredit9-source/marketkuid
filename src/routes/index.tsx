@@ -1,7 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Store, Zap, ShieldCheck, Headphones, Package } from "lucide-react";
-import { AppShell, EmptyState, Logo, soon } from "@/components/marketku/shell";
+import { Search, Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import logo from "@/assets/logo-marketku.png.asset.json";
+import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
+
+type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" };
+const FOOTER: { title: string; links: FLink[] }[] = [
+  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/cari" }] },
+  { title: "Seller", links: [{ label: "Mulai Jualan", to: "/akun" }, { label: "Seller Center", to: "/seller" }, { label: "Panduan Seller", to: "/seller/panduan" }, { label: "Biaya Layanan", to: "/syarat" }] },
+  { title: "Bantuan", links: [{ label: "Pusat Bantuan", to: "/bantuan" }, { label: "Syarat & Ketentuan", to: "/syarat" }, { label: "Kebijakan Privasi", to: "/privasi" }, { label: "Hubungi Kami", to: "/kontak" }] },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,25 +52,43 @@ function Index() {
           <EmptyState icon={Package} title="Belum ada produk" desc="Produk akan tampil di sini setelah seller menambahkannya." />
         </section>
 
-        <section className="space-y-2">
+        <section className="space-y-1 rounded-2xl border bg-card p-2">
           {[
-            { icon: Store, t: "Mulai Jualan", d: "Buka toko digitalmu gratis" },
-            { icon: Zap, t: "Transaksi Instan", d: "Pembayaran via QRIS Marketku" },
-            { icon: ShieldCheck, t: "Dijamin Aman", d: "Dana ditahan sampai pesanan selesai" },
-            { icon: Headphones, t: "Support 24/7", d: "Siap bantu kapan saja" },
+            { icon: Zap, t: "Kirim Instan", d: "Otomatis setelah bayar" },
+            { icon: ShieldCheck, t: "Transaksi Aman", d: "Terenkripsi SSL" },
+            { icon: BadgePercent, t: "Diskon Tiap Hari", d: "Promo eksklusif" },
+            { icon: Headphones, t: "Support 24/7", d: "Selalu siap bantu" },
           ].map(({ icon: I, t, d }) => (
-            <button key={t} onClick={() => soon(t)} className="flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left">
+            <div key={t} className="flex items-center gap-3 p-2">
               <span className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary"><I className="h-5 w-5" /></span>
               <span><span className="block text-sm font-bold">{t}</span><span className="text-xs text-muted-foreground">{d}</span></span>
-            </button>
+            </div>
           ))}
         </section>
-
-        <footer className="rounded-2xl bg-primary p-5 text-primary-foreground">
-          <div className="inline-block rounded-lg bg-card px-2 py-1"><Logo className="h-7" /></div>
-          <p className="mt-3 text-sm opacity-90">Marketplace produk digital yang aman, cepat, dan terpercaya.</p>
-        </footer>
       </div>
+
+      <footer className="mt-6 bg-primary px-5 pb-8 pt-8 text-primary-foreground">
+        <img src={logo.url} alt="Marketku" className="h-9 w-auto brightness-0 invert" />
+        <p className="mt-4 text-sm leading-relaxed opacity-90">Marketplace untuk beli dan jual produk digital dengan mudah dan cepat.</p>
+        <div className="mt-4 flex gap-2">
+          {[Facebook, Instagram, Twitter, Youtube].map((I, n) => (
+            <button key={n} aria-label="Media sosial" onClick={() => soon("Media sosial Marketku")} className="grid h-9 w-9 place-items-center rounded-lg border border-primary-foreground/30 transition active:scale-90"><I className="h-4 w-4" /></button>
+          ))}
+        </div>
+        {FOOTER.map((col) => (
+          <div key={col.title} className="mt-7">
+            <h3 className="font-bold">{col.title}</h3>
+            <ul className="mt-3 space-y-2.5 text-sm opacity-90">
+              {col.links.map((l) => <li key={l.label}>{l.to ? <Link to={l.to}>{l.label}</Link> : <button onClick={() => soon(l.label)}>{l.label}</button>}</li>)}
+            </ul>
+          </div>
+        ))}
+        <div className="mt-8 border-t border-primary-foreground/20 pt-5">
+          <p className="text-xs font-bold tracking-widest opacity-80">METODE PEMBAYARAN</p>
+          <span className="mt-3 inline-block rounded-lg bg-primary-foreground/15 px-3 py-1.5 text-xs font-semibold">QRIS — Support ewallet dan bank</span>
+        </div>
+        <p className="mt-6 text-xs opacity-70">© {new Date().getFullYear()} Marketku. Marketplace produk digital.</p>
+      </footer>
     </AppShell>
   );
 }

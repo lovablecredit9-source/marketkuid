@@ -1,35 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { AlertTriangle, Search } from "lucide-react";
-import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
+import { ShieldCheck } from "lucide-react";
+import { AppShell } from "@/components/marketku/shell";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/dispute")({
-  head: () => pageMeta("Dispute Pesanan — Marketku", "Ajukan dan pantau sengketa pesanan di Marketku."),
+  head: () => pageMeta("Laporan & Dispute — Marketku", "Lihat laporan dan sengketa pesanan sebagai pembeli maupun penjual."),
   component: Dispute,
 });
 
-const TABS = ["Semua", "Terbuka", "Ditinjau", "Selesai"] as const;
-
 function Dispute() {
-  const [tab, setTab] = useState<(typeof TABS)[number]>("Semua");
+  const [role, setRole] = useState<"pembeli" | "penjual">("pembeli");
   return (
-    <AppShell title="Dispute">
-      <div className="space-y-4 px-3 pt-3">
-        <div className="rounded-2xl bg-accent/50 p-4">
-          <h1 className="text-lg font-bold">Dispute Pesanan</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Ajukan sengketa jika produk tidak sesuai. Dana ditahan sampai masalah selesai.</p>
-          <div className="mt-3 flex gap-2 overflow-x-auto">
-            {TABS.map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${tab === t ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>{t}</button>
-            ))}
-          </div>
-          <label className="mt-3 flex items-center gap-2 rounded-xl border bg-card px-4 py-3">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input placeholder="Cari kode pesanan" className="w-full bg-transparent outline-none" />
-          </label>
+    <AppShell>
+      <div className="relative overflow-hidden px-4 pt-5">
+        <div aria-hidden className="pointer-events-none absolute -left-40 top-48 h-[26rem] w-[44rem] rounded-[50%] border border-primary/10" />
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><ShieldCheck className="h-6 w-6 text-primary" /> Laporan &amp; Dispute</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Lihat laporan yang sedang berjalan maupun yang sudah selesai. Klik untuk membuka ruang penyelesaian.</p>
+        <div className="mt-4 inline-flex rounded-xl border bg-card p-1">
+          {(["pembeli", "penjual"] as const).map((r) => (
+            <button key={r} onClick={() => setRole(r)} className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${role === r ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
+              Sebagai {r === "pembeli" ? "Pembeli" : "Penjual"}
+            </button>
+          ))}
         </div>
-        <EmptyState icon={AlertTriangle} title="Belum ada dispute" desc="Sengketa pesanan akan muncul di sini." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
+        <div className="relative flex flex-col items-center py-24 text-center">
+          <ShieldCheck className="h-9 w-9 text-primary" />
+          <p className="mt-4 text-lg font-bold">Belum ada laporan dispute</p>
+          <p className="mt-2 max-w-xs text-sm text-muted-foreground">Semua transaksimu aman. Laporan yang kamu buat atau terima akan tampil di sini.</p>
+        </div>
       </div>
     </AppShell>
   );

@@ -7,8 +7,9 @@ import {
   ShieldAlert, ShieldCheck, Bell, Moon, HelpCircle, Send, Store, LogOut, Wallet, Sparkles, ExternalLink,
   Package, CircleCheck,
 } from "lucide-react";
-import { AppShell, MenuRow, Section, soon } from "@/components/marketku/shell";
+import { AppShell, MenuRow, Section, soon, toggleDark } from "@/components/marketku/shell";
 import { SellerSheet } from "@/components/marketku/seller-sheet";
+import { BUYER_WELCOME, SELLER_WELCOME, WelcomeTour } from "@/components/marketku/welcome-tour";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
@@ -75,6 +76,7 @@ function AkunDashboard({ user }: { user: User }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [sellerOpen, setSellerOpen] = useState(false);
+  const [tour, setTour] = useState(false);
   const [view, setView] = useState<"buyer" | "seller">("seller");
 
   useEffect(() => {
@@ -115,8 +117,9 @@ function AkunDashboard({ user }: { user: User }) {
   if (isSeller && view === "seller") {
     return (
       <AppShell title="Akun Saya">
-        <SellerAccount storeName={store.data!.store_name} onBuyer={() => switchView("buyer")} onCenter={() => navigate({ to: "/seller" })} />
+        <SellerAccount storeName={store.data!.store_name} onBuyer={() => switchView("buyer")} onCenter={() => navigate({ to: "/seller" })} onTour={() => setTour(true)} />
         <div className="px-3 pt-4">{logoutBtn}</div>
+        <WelcomeTour id="seller-account" steps={SELLER_WELCOME} open={tour} onOpenChange={setTour} />
       </AppShell>
     );
   }
@@ -139,7 +142,7 @@ function AkunDashboard({ user }: { user: User }) {
               <span className="mt-1.5 inline-block rounded-full border bg-card px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-muted-foreground">GABUNG {joined}</span>
             </div>
           </div>
-          <button onClick={() => soon("Atur Profil")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent/60 py-2.5 text-sm font-semibold text-primary transition active:scale-[0.98]">
+          <button onClick={() => navigate({ to: "/akun/pengaturan" })} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent/60 py-2.5 text-sm font-semibold text-primary transition active:scale-[0.98]">
             <Settings className="h-4 w-4" /> Atur Profil
           </button>
         </section>
@@ -174,24 +177,25 @@ function AkunDashboard({ user }: { user: User }) {
           <h3 className="mb-3 text-xs font-bold tracking-widest text-muted-foreground">BELANJA</h3>
           <div className="grid grid-cols-3 gap-2">
             <Tile icon={ShoppingBag} tone="amber" label="Pesanan" onClick={() => navigate({ to: "/riwayat" })} />
-            <Tile icon={Heart} tone="pink" label="Wishlist" onClick={() => soon("Wishlist")} />
+            <Tile icon={Heart} tone="pink" label="Wishlist" onClick={() => navigate({ to: "/wishlist" })} />
             <Tile icon={ShoppingCart} tone="cyan" label="Keranjang" onClick={() => navigate({ to: "/keranjang" })} />
             <Tile icon={Gift} tone="amber" label="Voucher" onClick={() => soon("Voucher")} />
             <Tile icon={MessageCircle} tone="green" label="Pesan" onClick={() => navigate({ to: "/pesan" })} />
             <Tile icon={Clock} tone="blue" label="Riwayat" onClick={() => navigate({ to: "/riwayat" })} />
-            <Tile icon={ShieldAlert} tone="amber" label="Dispute" onClick={() => soon("Dispute")} />
+            <Tile icon={ShieldAlert} tone="amber" label="Dispute" onClick={() => navigate({ to: "/dispute" })} />
           </div>
         </section>
 
         <Section title="AKUN">
-          <MenuRow icon={Settings} tone="slate" title="Pengaturan Akun" desc="Nama, email, no HP, dan password" />
+          <MenuRow icon={Settings} tone="slate" title="Pengaturan Akun" desc="Nama, email, no HP, dan password" onClick={() => navigate({ to: "/akun/pengaturan" })} />
           <MenuRow icon={Bell} tone="blue" title="Notifikasi" desc="Atur preferensi email & push" />
-          <MenuRow icon={Moon} tone="blue" title="Tema Gelap" desc="Aktifkan mode gelap" onClick={() => document.documentElement.classList.toggle("dark")} />
+          <MenuRow icon={Moon} tone="blue" title="Tema Gelap" desc="Aktifkan mode gelap" onClick={() => toggleDark()} />
         </Section>
 
         <Section title="BANTUAN">
-          <MenuRow icon={HelpCircle} tone="cyan" title="Pusat Bantuan" desc="FAQ & panduan pengguna" />
-          <MenuRow icon={Send} tone="green" title="Hubungi Kami" desc="Kirim pesan ke tim support" />
+          <MenuRow icon={Sparkles} tone="amber" title="Lihat Welcome Tour" desc="Panduan singkat memakai akun Marketku" onClick={() => setTour(true)} />
+          <MenuRow icon={HelpCircle} tone="cyan" title="Pusat Bantuan" desc="FAQ & panduan pengguna" onClick={() => navigate({ to: "/bantuan" })} />
+          <MenuRow icon={Send} tone="green" title="Hubungi Kami" desc="Kirim pesan ke tim support" onClick={() => navigate({ to: "/kontak" })} />
         </Section>
 
         {isSeller ? (
@@ -202,6 +206,7 @@ function AkunDashboard({ user }: { user: User }) {
 
         {logoutBtn}
       </div>
+      <WelcomeTour id="buyer-account" steps={BUYER_WELCOME} open={tour} onOpenChange={setTour} />
       <SellerSheet open={sellerOpen} onOpenChange={setSellerOpen} userId={user.id}
         onCreated={() => { switchView("seller"); void queryClient.invalidateQueries({ queryKey: ["seller_store", user.id] }); }} />
     </AppShell>
@@ -228,7 +233,8 @@ const revenueTabs = [
   { key: "credits", label: "Credits", hint: "Saldo potongan komisi & markup", action: "Top up credit" },
 ] as const;
 
-function SellerAccount({ storeName, onBuyer, onCenter }: { storeName: string; onBuyer: () => void; onCenter: () => void }) {
+function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: string; onBuyer: () => void; onCenter: () => void; onTour: () => void }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<(typeof revenueTabs)[number]["key"]>("tersedia");
   const active = revenueTabs.find((t) => t.key === tab)!;
   return (
@@ -245,7 +251,7 @@ function SellerAccount({ storeName, onBuyer, onCenter }: { storeName: string; on
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => soon("Atur Toko")} className="flex items-center justify-center gap-2 rounded-full border border-success/50 bg-success/10 py-2.5 text-sm font-semibold text-tone-green transition active:scale-95">
+          <button onClick={() => navigate({ to: "/seller/pengaturan" })} className="flex items-center justify-center gap-2 rounded-full border border-success/50 bg-success/10 py-2.5 text-sm font-semibold text-tone-green transition active:scale-95">
             <Settings className="h-4 w-4" /> Atur Toko
           </button>
           <button onClick={onCenter} className="flex items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent py-2.5 text-sm font-semibold text-primary transition active:scale-95">
@@ -270,8 +276,8 @@ function SellerAccount({ storeName, onBuyer, onCenter }: { storeName: string; on
         <p className="mt-3 font-mono text-2xl">Rp 0</p>
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">{active.hint} <ArrowUpRight className="h-3 w-3" /></p>
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => soon("Tarik dana")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik dana</button>
-          <button onClick={() => soon("Top up credit")} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top up credit</button>
+          <button onClick={() => navigate({ to: "/seller/withdraw" })} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Tarik dana</button>
+          <button onClick={() => navigate({ to: "/seller/saldo" })} className="rounded-xl border bg-card py-3 text-sm font-semibold transition active:scale-95">Top up credit</button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">Saldo terjadwal otomatis pindah ke "Tersedia" begitu pesanan selesai.</p>
       </section>
@@ -283,14 +289,14 @@ function SellerAccount({ storeName, onBuyer, onCenter }: { storeName: string; on
       </div>
 
       <Section title="AKUN">
-        <MenuRow icon={Settings} tone="slate" title="Pengaturan Akun" desc="Nama, email, no HP, dan password" />
-        <MenuRow icon={Moon} tone="blue" title="Tema Gelap" desc="Aktifkan mode gelap" onClick={() => document.documentElement.classList.toggle("dark")} />
+        <MenuRow icon={Settings} tone="slate" title="Pengaturan Akun" desc="Nama, email, no HP, dan password" onClick={() => navigate({ to: "/akun/pengaturan" })} />
+        <MenuRow icon={Moon} tone="blue" title="Tema Gelap" desc="Aktifkan mode gelap" onClick={() => toggleDark()} />
       </Section>
 
       <Section title="BANTUAN">
-        <MenuRow icon={Sparkles} tone="amber" title="Lihat Welcome Tour" desc="Panduan singkat memakai dashboard seller" />
-        <MenuRow icon={HelpCircle} tone="cyan" title="Pusat Bantuan Seller" desc="Panduan onboarding, kebijakan, & kasus khusus" />
-        <MenuRow icon={Send} tone="green" title="Hubungi Tim Marketku" desc="Kontak langsung untuk masalah toko" />
+        <MenuRow icon={Sparkles} tone="amber" title="Lihat Welcome Tour" desc="Panduan singkat memakai dashboard seller" onClick={onTour} />
+        <MenuRow icon={HelpCircle} tone="cyan" title="Pusat Bantuan Seller" desc="Panduan onboarding, kebijakan, & kasus khusus" onClick={() => navigate({ to: "/seller/panduan" })} />
+        <MenuRow icon={Send} tone="green" title="Hubungi Tim Marketku" desc="Kontak langsung untuk masalah toko" onClick={() => navigate({ to: "/kontak" })} />
       </Section>
 
       <BigCard tone="green" icon={ShoppingBag} title="Lihat akun pembeli saya" desc="Buka dashboard buyer untuk belanja, wishlist, dan riwayat order." onClick={onBuyer} />

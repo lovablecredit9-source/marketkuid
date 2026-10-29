@@ -52,10 +52,10 @@ export function PageTour({ id, steps, panel = false, auto = true }: { id: string
     : { top: "30%" };
 
   return createPortal(
-    <div className={`${panel ? "seller-panel bg-transparent" : ""} fixed inset-0 z-[60]`}>
+    <div className={`${panel ? "seller-panel !bg-transparent" : ""} fixed inset-0 z-[60]`}>
       {rect ? (
-        <div aria-hidden className="pointer-events-none fixed rounded-xl ring-2 ring-primary transition-all duration-300"
-          style={{ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8, boxShadow: "0 0 0 9999px color-mix(in oklch, var(--background) 72%, transparent)" }} />
+        <div aria-hidden className="pointer-events-none fixed rounded-xl border-2 border-primary transition-all duration-300"
+          style={{ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8, boxShadow: "0 0 0 9999px color-mix(in oklch, var(--background) 62%, transparent)" }} />
       ) : (
         <div aria-hidden className="fixed inset-0 bg-background/70" />
       )}
