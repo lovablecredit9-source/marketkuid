@@ -192,7 +192,7 @@ function FloatField({ label, value, onChange, icon: I, textarea, maxLength, inpu
         ? <textarea placeholder=" " rows={3} value={value} maxLength={maxLength} onChange={(e) => onChange(e.target.value)} className={`${field} resize-y py-4`} />
         : <input placeholder=" " value={value} maxLength={maxLength} inputMode={inputMode} onChange={(e) => onChange(e.target.value)} className={`${field} h-14`} />}
       {I && <I className={`pointer-events-none absolute left-4 h-5 w-5 text-muted-foreground ${textarea ? "top-4" : "top-1/2 -translate-y-1/2"}`} />}
-      <span className={`pointer-events-none absolute -translate-y-1/2 ${I ? "left-11" : "left-4"} bg-card px-1 text-muted-foreground transition-all ${textarea ? "top-6" : "top-1/2"} ${float}`}>{label}</span>
+      <span className={`pointer-events-none absolute max-w-[calc(100%-4rem)] -translate-y-1/2 truncate whitespace-nowrap ${I ? "left-11" : "left-4"} bg-card px-1 text-[15px] text-muted-foreground transition-all ${textarea ? "top-6" : "top-1/2"} ${float}`}>{label}</span>
     </label>
   );
 }

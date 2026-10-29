@@ -58,11 +58,11 @@ function Toko() {
       <div className="space-y-4 px-3 pt-3">
         <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
           {bannerUrl
-            ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="aspect-[4/1] min-h-28 w-full object-cover" />
+            ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="h-36 w-full object-cover" />
             : (
-              <div className="relative grid aspect-[4/1] min-h-28 place-items-center overflow-hidden bg-gradient-to-b from-accent to-card">
-                <svg aria-hidden className="absolute inset-0 h-full w-full text-primary/15" preserveAspectRatio="none" viewBox="0 0 400 100"><path d="M0 0 L60 50 L0 100 M400 0 L340 50 L400 100" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
-                <p className="relative text-xs text-muted-foreground">Ukuran banner rekomendasi 1600 × 400 px</p>
+              <div className="relative h-36 overflow-hidden bg-gradient-to-b from-accent to-card">
+                <svg aria-hidden className="absolute inset-0 h-full w-full text-primary/20" preserveAspectRatio="none" viewBox="0 0 400 140"><path d="M0 10 L70 60 L0 120 M400 10 L330 60 L400 120" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+                <p className="absolute inset-x-0 top-10 px-6 text-center text-[11px] text-muted-foreground">Ukuran banner rekomendasi 1600 × 400 px</p>
               </div>
             )}
           <div className="-mt-10 px-5 pb-4">
