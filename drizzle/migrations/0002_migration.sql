@@ -1,0 +1,2 @@
+CREATE POLICY "Anyone views product images" ON storage.objects FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'product-images');
