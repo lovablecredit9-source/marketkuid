@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal } from "lucide-react";
-import { soon } from "@/components/marketku/shell";
+import { Check } from "lucide-react";
+import { PageTour } from "@/components/marketku/tour";
+
+const STATUS = ["Semua", "Menunggu", "Dibayar", "Selesai", "Dibatalkan", "Refund", "Gagal"] as const;
+const tour = [
+  { title: "Ringkasan", desc: "Pesanan selesai, dibatalkan, dan nilai penjualan sekilas.", target: "t-stats" },
+  { title: "Cari & saring", desc: "Cari order ID, produk, atau pelanggan, lalu saring status.", target: "t-search" },
+  { title: "Daftar transaksi", desc: "Pesanan masuk tampil di sini secara real-time. Klik untuk detail.", target: "t-list" },
+  { title: "Selesai", desc: "Pesanan baru otomatis muncul saat ada pembelian." },
+];
 import { SellerCard, SellerEmpty, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 
 export const Route = createFileRoute("/seller/transaksi")({
@@ -27,6 +36,8 @@ const filters = [
 function Transaksi() {
   const [f, setF] = useState<(typeof filters)[number]["k"]>("semua");
   const [q, setQ] = useState("");
+  const [st, setSt] = useState<(typeof STATUS)[number]>("Semua");
+  const [menu, setMenu] = useState(false);
   return (
     <>
       <div className="flex items-center gap-4 px-1">
@@ -46,22 +57,37 @@ function Transaksi() {
         ))}
       </SellerCard>
 
-      <SellerCard className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
+      <SellerCard data-tour="t-stats" className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
         <StatCell icon={CircleCheck} label="Selesai" value="0" />
         <StatCell icon={CircleX} label="Dibatalkan" value="0" />
         <StatCell icon={DollarSign} label="Nilai Selesai" value={rpSeller(0)} />
         <StatCell icon={BarChart3} label="Jenis Produk" value="0" />
       </SellerCard>
 
-      <SellerCard className="flex items-stretch overflow-hidden">
+      <div className="relative">
+      <SellerCard data-tour="t-search" className="flex items-stretch overflow-hidden">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari order ID, produk, pelanggan..."
           className="min-w-0 flex-1 border-r bg-background/40 px-4 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40" />
-        <button aria-label="Filter" onClick={() => soon("Filter pesanan")} className="grid w-14 place-items-center transition active:scale-90"><SlidersHorizontal className="h-5 w-5" /></button>
+        <button aria-label={`Filter: ${st}`} onClick={() => setMenu(!menu)} className={`grid w-14 place-items-center transition active:scale-90 ${menu || st !== "Semua" ? "text-primary ring-2 ring-inset ring-primary" : ""}`}><SlidersHorizontal className="h-5 w-5" /></button>
       </SellerCard>
+      {menu && (
+        <>
+          <button aria-label="Tutup menu" className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(false)} />
+          <div className="absolute right-0 top-full z-40 mt-1 w-48 overflow-hidden rounded-xl border bg-popover py-1 shadow-2xl animate-in fade-in-0 zoom-in-95">
+            {STATUS.map((s) => (
+              <button key={s} onClick={() => { setSt(s); setMenu(false); }} className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition active:bg-accent ${st === s ? "font-semibold text-primary" : "text-foreground/90"}`}>
+                {s} {st === s && <Check className="h-4 w-4" />}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      </div>
 
-      <SellerCard>
+      <SellerCard data-tour="t-list">
         <SellerEmpty icon={ShoppingBag} title="Belum ada pesanan" desc="Pesanan dari pembeli akan muncul di sini." />
       </SellerCard>
+      <PageTour id="seller-transaksi" steps={tour} panel />
     </>
   );
 }
