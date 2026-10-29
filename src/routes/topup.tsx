@@ -8,7 +8,7 @@ import { LoadingLine } from "@/components/marketku/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pageMeta } from "@/lib/meta";
-import { DEFAULT_MIN_DEPOSIT, DEPOSIT_STATUS, depositAmountError, uploadPaymentImage, usePaymentSettings, usePaymentUrls, useWallet } from "@/lib/wallet";
+import { DEFAULT_MIN_DEPOSIT, depositStatus, depositAmountError, uploadPaymentImage, usePaymentSettings, usePaymentUrls, useWallet } from "@/lib/wallet";
 
 export const Route = createFileRoute("/topup")({
   head: () => pageMeta("Top Up Saldo — Marketku", "Isi Saldo Marketku lewat QRIS dan kirim bukti transfer untuk dicek admin."),
@@ -53,8 +53,8 @@ function TopUp() {
 
   const submit = async () => {
     const err = depositAmountError(n, min);
-    if (err) return toast.error(err);
-    if (!file) return toast.error("Upload bukti transfer dulu");
+    if (err) { toast.error(err); return; }
+    if (!file) { toast.error("Upload bukti transfer dulu"); return; }
     setBusy(true);
     try {
       const path = await uploadPaymentImage(user.id, file);
@@ -122,7 +122,7 @@ function TopUp() {
             <p className="py-6 text-center text-sm text-muted-foreground">Belum ada deposit.</p>
           ) : (
             <ul className="mt-2 divide-y">
-              {history.data!.map((d) => { const s = DEPOSIT_STATUS[d.status] ?? DEPOSIT_STATUS.pending!; return (
+              {history.data!.map((d) => { const s = depositStatus(d.status); return (
                 <li key={d.id} className="flex items-center justify-between gap-3 py-2.5">
                   <div className="min-w-0">
                     <p className="mk-acc-mono text-sm">{rupiah(d.amount)}</p>

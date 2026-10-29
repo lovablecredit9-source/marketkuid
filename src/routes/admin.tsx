@@ -8,7 +8,7 @@ import { LoadingLine } from "@/components/marketku/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { pageMeta } from "@/lib/meta";
-import { DEPOSIT_STATUS, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
+import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ ...pageMeta("Admin Panel — Marketku", "Panel admin Marketku untuk deposit, QRIS, pengguna, toko, produk, dan pesanan."), meta: [...pageMeta("Admin Panel — Marketku", "Panel admin Marketku.").meta, { name: "robots", content: "noindex" }] }),
@@ -89,13 +89,15 @@ function SearchBar({ value, onChange, q, placeholder }: { value: string; onChang
   );
 }
 
+type Stats = Record<"users" | "stores" | "products" | "orders" | "orders_done" | "gmv" | "deposits_pending" | "deposits_approved" | "wallet_total", number>;
+
 function Overview({ onGo }: { onGo: (t: Tab) => void }) {
   const stats = useQuery({
     queryKey: ["admin_stats"],
-    queryFn: async () => { const { data, error } = await supabase.rpc("admin_stats"); if (error) throw error; return data as Record<string, number>; },
+    queryFn: async () => { const { data, error } = await supabase.rpc("admin_stats"); if (error) throw error; return data as unknown as Stats; },
   });
   if (stats.isPending) return <LoadingLine label="Memuat ringkasan..." className="py-16" />;
-  const s = stats.data ?? {};
+  const s: Partial<Stats> = stats.data ?? {};
   return (
     <>
       <div className="flex items-center justify-between"><h1 className="text-base font-semibold">Ringkasan</h1><Refresh q={stats} /></div>
@@ -147,9 +149,9 @@ function Deposits() {
   const review = async (id: string, approve: boolean) => {
     const note = approve ? null : window.prompt("Alasan ditolak (opsional)") ?? null;
     setBusy(id);
-    const { error } = await supabase.rpc("admin_review_deposit", { p_id: id, p_approve: approve, p_note: note ?? undefined });
+    const { error } = await supabase.rpc("admin_review_deposit", { p_id: id, p_approve: approve, ...(note ? { p_note: note } : {}) });
     setBusy(null);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(approve ? "Deposit disetujui, saldo ditambahkan" : "Deposit ditolak");
     qc.invalidateQueries({ queryKey: ["admin_deposits"] });
     qc.invalidateQueries({ queryKey: ["admin_stats"] });
@@ -166,7 +168,7 @@ function Deposits() {
       {list.isPending ? <LoadingLine label="Memuat deposit..." className="py-16" /> : rows.length === 0 ? (
         <p className="py-16 text-center text-sm text-muted-foreground">Belum ada deposit.</p>
       ) : rows.map((d) => {
-        const p = profiles.data?.[d.user_id]; const s = DEPOSIT_STATUS[d.status] ?? DEPOSIT_STATUS.pending!; const url = proofs.data?.[d.proof_path];
+        const p = profiles.data?.[d.user_id]; const s = depositStatus(d.status); const url = proofs.data?.[d.proof_path];
         return (
           <div key={d.id} className="rounded-2xl border bg-card p-3 shadow-sm">
             <div className="flex items-start justify-between gap-2">
@@ -222,7 +224,7 @@ function QrisSettings() {
     setBusy(true);
     const { error } = await supabase.from("payment_settings").update({ account_name: name.trim() || null, instructions: instr.trim() || null, min_deposit: Math.max(1000, Number(min.replace(/\D/g, "") || "10000")), updated_at: new Date().toISOString(), ...patch }).eq("id", 1);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Pengaturan QRIS disimpan");
     qc.invalidateQueries({ queryKey: ["payment_settings"] });
   };

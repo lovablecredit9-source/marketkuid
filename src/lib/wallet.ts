@@ -11,11 +11,12 @@ export function depositAmountError(amount: number, min = DEFAULT_MIN_DEPOSIT): s
   return null;
 }
 
-export const DEPOSIT_STATUS: Record<string, { label: string; cls: string }> = {
+const DEPOSIT_STATUS = {
   pending: { label: "Menunggu", cls: "bg-amber-500/15 text-amber-600" },
   approved: { label: "Disetujui", cls: "bg-emerald-500/15 text-emerald-600" },
   rejected: { label: "Ditolak", cls: "bg-destructive/15 text-destructive" },
 };
+export const depositStatus = (s: string) => DEPOSIT_STATUS[s as keyof typeof DEPOSIT_STATUS] ?? DEPOSIT_STATUS.pending;
 
 export function useIsAdmin(uid: string | undefined) {
   return useQuery({
