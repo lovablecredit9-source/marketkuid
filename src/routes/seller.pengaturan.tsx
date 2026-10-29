@@ -168,7 +168,7 @@ function ProfilToko() {
 
         <p className="pt-1 text-sm font-semibold tracking-wide text-muted-foreground">KONTAK <span className="font-normal">(opsional)</span></p>
         <FloatField icon={User} label="Nama Kontak (opsional)" value={f.contact_name} maxLength={60} onChange={(v) => set("contact_name", v)} />
-        <FloatField icon={Phone} label="Nomor WhatsApp / Telepon (opsional)" inputMode="tel" value={f.contact_phone} onChange={(v) => set("contact_phone", v.replace(/[^\d]/g, ""))} />
+        <FloatField icon={Phone} label="No. WhatsApp / Telepon (opsional)" inputMode="tel" value={f.contact_phone} onChange={(v) => set("contact_phone", v.replace(/[^\d]/g, ""))} />
         <FloatField icon={Mail} label="Username Telegram" value={f.telegram_username} onChange={(v) => set("telegram_username", v.replace(/[^A-Za-z0-9_@]/g, ""))} />
         <div className="rounded-xl border bg-background p-4 text-sm"><b className="block">Kontak bersifat opsional</b><span className="mt-1 block leading-relaxed text-muted-foreground">Jika diisi, gunakan awalan 628xxxx agar admin dapat menghubungi kamu.</span></div>
         <div className="grid grid-cols-[auto_1fr] gap-2">
