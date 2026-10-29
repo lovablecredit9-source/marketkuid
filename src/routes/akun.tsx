@@ -179,7 +179,7 @@ function AkunDashboard({ user }: { user: User }) {
           <button onClick={() => soon("Riwayat saldo")} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat & tarik dana <ArrowUpRight className="h-3 w-3" /></button>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
-            <button onClick={() => soon("Top Up")} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
+            <button onClick={() => window.open("https://wa.me/6285769302532?text=" + encodeURIComponent("Halo admin Marketku, saya mau top up / deposit saldo."), "_blank")} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Saldo otomatis kembali ke akunmu kalau order dibatalkan atau di-refund.</p>
         </section>

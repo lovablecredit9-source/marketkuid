@@ -62,7 +62,7 @@ export function Header({ title }: { title?: string | undefined }) {
   const cartCount = cart.data?.length ?? 0;
   if (title) {
     return (
-      <header className="sticky top-0 z-30 px-3 pt-3">
+      <><div aria-hidden className="h-[4.25rem]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md bg-background/80 px-3 pb-1 pt-3 backdrop-blur">
         <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
           <span className="mk-acc-heading border-l pl-3 text-sm font-semibold">{title}</span>
@@ -71,11 +71,11 @@ export function Header({ title }: { title?: string | undefined }) {
           </button>
           {notif && <NotifDrop onClose={() => setNotif(false)} className="right-0 top-full" />}
         </div>
-      </header>
+      </header></>
     );
   }
   return (
-    <header className="sticky top-0 z-30 border-b bg-card">
+    <><div aria-hidden className="h-[3.3rem]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b bg-card">
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
@@ -90,7 +90,7 @@ export function Header({ title }: { title?: string | undefined }) {
       </div>
       <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>
       <SideMenu open={menu} onOpenChange={setMenu} />
-    </header>
+    </header></>
   );
 }
 
