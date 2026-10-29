@@ -24,6 +24,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
 import { Route as SellerSaldoRouteImport } from './routes/seller.saldo'
 import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
+import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +102,11 @@ const SellerTransaksiRoute = SellerTransaksiRouteImport.update({
   path: '/transaksi',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerVoucherRoute = SellerVoucherRouteImport.update({
+  id: '/voucher',
+  path: '/voucher',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProdukBaruRoute = SellerProdukBaruRouteImport.update({
   id: '/produk_/baru',
   path: '/produk/baru',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
   '/seller/': typeof SellerIndexRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
   '/seller': typeof SellerIndexRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
 }
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/seller/produk': typeof SellerProdukRoute
   '/seller/saldo': typeof SellerSaldoRoute
   '/seller/transaksi': typeof SellerTransaksiRoute
+  '/seller/voucher': typeof SellerVoucherRoute
   '/seller/': typeof SellerIndexRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
 }
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
     | '/seller/'
     | '/seller/produk/baru'
   fileRoutesByTo: FileRoutesByTo
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
     | '/seller'
     | '/seller/produk/baru'
   id:
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/seller/produk'
     | '/seller/saldo'
     | '/seller/transaksi'
+    | '/seller/voucher'
     | '/seller/'
     | '/seller/produk_/baru'
   fileRoutesById: FileRoutesById
@@ -338,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerTransaksiRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/voucher': {
+      id: '/seller/voucher'
+      path: '/voucher'
+      fullPath: '/seller/voucher'
+      preLoaderRoute: typeof SellerVoucherRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/produk_/baru': {
       id: '/seller/produk_/baru'
       path: '/produk/baru'
@@ -352,6 +371,7 @@ interface SellerRouteChildren {
   SellerProdukRoute: typeof SellerProdukRoute
   SellerSaldoRoute: typeof SellerSaldoRoute
   SellerTransaksiRoute: typeof SellerTransaksiRoute
+  SellerVoucherRoute: typeof SellerVoucherRoute
   SellerIndexRoute: typeof SellerIndexRoute
   SellerProdukBaruRoute: typeof SellerProdukBaruRoute
 }
@@ -360,6 +380,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerProdukRoute: SellerProdukRoute,
   SellerSaldoRoute: SellerSaldoRoute,
   SellerTransaksiRoute: SellerTransaksiRoute,
+  SellerVoucherRoute: SellerVoucherRoute,
   SellerIndexRoute: SellerIndexRoute,
   SellerProdukBaruRoute: SellerProdukBaruRoute,
 }
