@@ -58,7 +58,7 @@ export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () 
   if (!open) return null;
   const chat = async (buyer: string) => {
     const { data, error } = await supabase.rpc("seller_start_conversation", { p_buyer: buyer });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["conversations"] });
     navigate({ to: "/chat/$id", params: { id: data as string } });
   };
