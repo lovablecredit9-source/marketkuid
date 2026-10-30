@@ -40,4 +40,7 @@
 ## Admin & deposit
 - [x] Admin Panel /admin (ringkasan, deposit, QRIS, pengguna, toko, produk, pesanan)
 - [x] Top up saldo manual via QRIS + bukti transfer (/topup), disetujui admin
+- [x] Login admin terpisah (/admin/login) + tampilan Admin Console baru
+- [x] Blokir akun & toko (1/3/7/14/30 hari, custom, permanen), turunkan produk, atur saldo manual, log aktivitas
+- [x] Top up via QRIS, DANA, GoPay, OVO, ShopeePay, LinkAja, bank (diatur admin)
 - [ ] Pakai Saldo Marketku untuk bayar checkout, tarik saldo
