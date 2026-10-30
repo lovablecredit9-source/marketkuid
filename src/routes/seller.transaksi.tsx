@@ -164,34 +164,64 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
     onClose(); navigate({ to: "/chat/$id", params: { id: data.id } });
   };
   const done = o.status === "completed";
+  const bad = ["cancelled", "failed"].includes(o.status);
+  const gross = Number(o.subtotal) - Number(o.discount);
+  const fee = bad ? 0 : Math.ceil(gross * 0.03);
+  const esc = escrowOf(o);
   return (
-    <SellerSheet open onOpenChange={(v) => !v && onClose()} title={<span>Ringkasan Pembayaran<span className="block text-xs font-normal text-muted-foreground">M-{o.order_no}</span></span>}
+    <SellerSheet open onOpenChange={(v) => !v && onClose()} title={<span>Ringkasan Pembayaran<span className="block font-mono text-xs font-normal text-muted-foreground">M-{o.order_no}</span></span>}
       footer={<>
         <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="flex items-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold"><Copy className="h-4 w-4" /> Salin Order ID</button>
         <button onClick={onClose} className="flex-1 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
       </>}>
-      <div className={`mb-3 rounded-xl border p-3 ${done ? "border-success/40 bg-success/10" : "bg-background/40"}`}>
-        <p className={`text-sm font-bold ${done ? "text-success" : ""}`}>{done ? "TRANSAKSI BERHASIL" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
-        <p className="text-xs text-muted-foreground">{fmtDateTime(o.updated_at)}</p>
+      <div className={`mb-3 flex items-center gap-3 rounded-xl border p-3 ${done ? "border-success/40 bg-success/10" : bad ? "border-destructive/40 bg-destructive/10" : "bg-background/40"}`}>
+        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${done ? "bg-success/80 text-background" : bad ? "bg-destructive/80 text-background" : "bg-primary/20 text-primary"}`}>{bad ? <CircleX className="h-4 w-4" /> : done ? <CircleCheck className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</span>
+        <div className="min-w-0 flex-1">
+          <p className={`text-sm font-bold ${done ? "text-success" : bad ? "text-destructive" : ""}`}>{done ? "TRANSAKSI BERHASIL" : bad ? "DIBATALKAN" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
+          <p className={`text-xs ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-muted-foreground"}`}>{done ? "Dikonfirmasi & selesai" : bad ? "Pesanan dibatalkan" : "Menunggu proses"}</p>
+        </div>
+        <p className={`text-right font-mono text-[11px] leading-5 ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-muted-foreground"}`}>{new Date(o.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })}<br />{new Date(o.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
       </div>
-      <Section title="IDENTITAS TRANSAKSI" defaultOpen>
-        {o.order_items.map((i) => <Line key={i.id} a={`${i.variant_name} ×${i.qty}`} b={i.product_name} />)}
-        <Line a="Tipe item" b={o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Instan"} />
-        {o.order_items.flatMap((i) => i.delivered).map((d, n) => <Line key={n} a="Data terkirim" b={<span className="break-all font-mono text-xs">{d}</span>} />)}
+      <Section title="IDENTITAS TRANSAKSI" defaultOpen={!bad}>
+        <div className="overflow-hidden rounded-xl border">
+          <div className="flex items-center gap-2 border-b px-3 py-2.5">
+            <b className="text-sm">{o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Instan"}</b>
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary">{o.order_items.reduce((a, i) => a + i.delivered.length, 0)} KREDENSIAL</span>
+            <button onClick={() => { void navigator.clipboard.writeText(o.order_items.flatMap((i) => i.delivered).join("\n")); toast.success("Disalin"); }} className="ml-auto flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold tracking-wider"><Copy className="h-3 w-3" /> SALIN</button>
+          </div>
+          <div className="space-y-2 p-3">
+            {o.order_items.flatMap((i) => i.delivered).length === 0 && <p className="text-xs text-muted-foreground">{o.order_items[0]?.product_type === "preorder" ? "Pesanan pre-order. Kirim data ke pembeli via chat." : "Belum ada data terkirim."}</p>}
+            {o.order_items.flatMap((i) => i.delivered).map((d, n) => (
+              <div key={n} className="rounded-lg border bg-background/40 p-3">
+                <div className="flex justify-between text-[10px] font-bold tracking-widest text-muted-foreground">KODE<button aria-label="Salin" onClick={() => { void navigator.clipboard.writeText(d); toast.success("Disalin"); }}><Copy className="h-3 w-3" /></button></div>
+                <p className="mt-1.5 break-all font-mono text-xs">{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
       <Section title="INFORMASI PELANGGAN">
         <Line a="Pelanggan" b={o.buyer_name ?? "-"} />
         <Line a="WhatsApp" b={o.buyer_whatsapp ?? "-"} />
+        {o.order_items.map((i) => <Line key={i.id} a="Produk" b={<span className="uppercase">{i.product_name}</span>} />)}
+        <Line a="Varian" b={o.order_items.map((i) => i.variant_name).join(", ")} />
+        <Line a="Jumlah" b={<span className="rounded-md border px-2 py-0.5 text-xs">{o.order_items.reduce((a, i) => a + i.qty, 0)} item</span>} />
         <Line a="Catatan pembeli" b={o.buyer_note ?? "-"} />
         <button onClick={() => void chat()} className="flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-sm font-semibold"><MessageCircle className="h-4 w-4" /> Chat pembeli</button>
       </Section>
-      <Section title="PEMBAYARAN">
-        <Line a="Metode bayar" b="QRIS Marketku" />
-        <Line a="Subtotal" b={rpSeller(Number(o.subtotal))} />
+      <Section title="PEMBAYARAN" defaultOpen={bad}>
+        <Line a="Metode bayar" b={<span className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary">⚡ {o.payment_method === "saldo" ? "Saldo Marketku" : "QRIS Marketku"}</span>} />
+        <Line a="Jalur dana" b="PG platform, dana lewat escrow" />
+        <Line a="Escrow" b={<EscrowBadge e={esc} />} />
+        <Line a="Subtotal" b={<span className="font-mono">{rpSeller(Number(o.subtotal))}</span>} />
         {Number(o.discount) > 0 && <Line a={`Voucher ${o.voucher_code ?? ""}`} b={`-${rpSeller(Number(o.discount))}`} />}
-        <Line a="Kode unik" b={`+Rp ${o.unique_code}`} />
-        <Line a="Total dibayar" b={rpSeller(Number(o.total))} />
-        <Line a="Seller receives" b={<span className="text-success">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span>} />
+        {!bad && <Line a="Komisi (3%)" b={<span className="font-mono text-warning">{rpSeller(fee)}</span>} />}
+        <Line a="Kode unik" b={<span className="font-mono">+Rp {o.unique_code}</span>} />
+        <div className="flex items-end justify-between rounded-xl border border-primary/30 bg-primary/5 p-3">
+          <div><p className="text-[10px] font-bold tracking-widest text-muted-foreground">TOTAL DIBAYAR</p><p className="mt-1 text-xs text-primary">Status: {bad ? "EXPIRED" : o.paid_at ? "PAID" : "PENDING"} ✓</p></div>
+          <div className="text-right"><p className="text-xl font-bold text-primary">{rpSeller(Number(o.total))}</p><p className="font-mono text-[10px] text-muted-foreground">{o.order_items.reduce((a, i) => a + i.qty, 0)} item · {bad ? "cancelled" : o.paid_at ? "Lunas" : "Belum"}</p></div>
+        </div>
+        <div className="flex items-center justify-between rounded-xl border border-success/30 bg-success/5 p-3"><span className="text-sm text-success">Seller Receives</span><b className="font-mono text-lg text-success">{rpSeller(gross - fee)}</b></div>
       </Section>
       <Section title="RIWAYAT WAKTU">
         <Line a="Dibuat" b={fmtDateTime(o.created_at)} />
