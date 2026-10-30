@@ -116,6 +116,7 @@ function Bayar() {
   const title = items.map((i) => i.product_name).join(", ");
   const qtyAll = items.reduce((a, i) => a + i.qty, 0);
   const expired = cd ? cd.ms === 0 : false;
+  if (expired && !waiting) return <PayResult id={id} paid={false} orderNo={pending[0]!.order_no} productId={items[0]?.product_id ?? null} />;
 
   return (
     <AppShell>

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2, Store, Wallet, Circle } from "lucide-react";
+import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2, Store, Wallet, Circle, TriangleAlert } from "lucide-react";
 import { useWallet } from "@/lib/wallet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -36,7 +36,7 @@ function Checkout() {
     enabled: wanted.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase.from("product_variants")
-        .select("id, name, price, discount, image_url, products(id, name, images, owner_id, require_buyer_note)")
+        .select("id, name, price, discount, image_url, warranty, products(id, name, images, owner_id, require_buyer_note)")
         .in("id", wanted.map((w) => w.variant_id));
       if (error) throw error;
       const owners = [...new Set((data ?? []).map((d) => d.products?.owner_id).filter(Boolean) as string[])];
@@ -56,8 +56,16 @@ function Checkout() {
   const phone = wa || profile.data?.whatsapp || "";
   const bal = wallet.data ?? 0;
   const lowSaldo = bal < subtotal;
+  const noWarranty = lines.some((l) => !l.warranty);
+  const [ask, setAsk] = useState(false);
+
+  const start = () => {
+    if (!user) { navigate({ to: "/login" }); return; }
+    if (noWarranty) setAsk(true); else void pay();
+  };
 
   const pay = async () => {
+    setAsk(false);
     if (!user) { navigate({ to: "/login" }); return; }
     if (noteReq && note.trim().length < 3) { toast.error("Catatan untuk seller wajib diisi"); return; }
     if (phone && !/^(\+?62|0)8\d{7,12}$/.test(phone)) { toast.error("Nomor WhatsApp tidak valid"); return; }
@@ -133,10 +141,23 @@ function Checkout() {
       </div>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md items-center justify-between border-t bg-card p-4">
         <div><p className="text-xs text-muted-foreground">Total dibayar</p><p className="text-xl font-bold">{rpBuyer(subtotal)}</p></div>
-        <button disabled={!lines.length || busy || (method === "saldo" && lowSaldo)} onClick={() => void pay()} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
+        <button disabled={!lines.length || busy || (method === "saldo" && lowSaldo)} onClick={start} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />} {method === "saldo" ? "Bayar pakai Saldo" : "Bayar Sekarang"}
         </button>
       </div>
+      {ask && (
+        <div className="fixed inset-0 z-50 flex items-end bg-foreground/30 backdrop-blur-[2px]" onClick={() => setAsk(false)}>
+          <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} className="mx-auto w-full max-w-md rounded-t-3xl bg-card p-5 pb-7 shadow-2xl animate-in slide-in-from-bottom">
+            <span className="grid h-12 w-12 place-items-center rounded-xl bg-warning text-primary-foreground"><TriangleAlert className="h-6 w-6" /></span>
+            <p className="mt-4 text-lg font-bold">Konfirmasi sebelum membayar</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">⚠️ Produk ini tidak memiliki garansi. Pastikan Anda sudah membaca dan memahami deskripsi produk sebelum membayar.</p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button onClick={() => setAsk(false)} className="rounded-xl border py-3 text-sm font-bold">Batal</button>
+              <button onClick={() => void pay()} className="rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground">Lanjutkan</button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
