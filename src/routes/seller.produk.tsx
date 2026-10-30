@@ -81,6 +81,7 @@ function Produk() {
   const imgs = useImageUrls(list.map((p) => p.images[0] ?? "").filter(Boolean));
   const thumb = (p: MyProduct) => imgs.data?.[p.images[0] ?? ""];
   const open = list.find((p) => p.id === openId) ?? null;
+  const delProduct = list.find((p) => p.id === delId) ?? null;
   const stockProduct = tab === "stok" && pid ? list.find((p) => p.id === pid) : undefined;
   const setTab = (t: "produk" | "stok") => navigate({ search: t === "stok" ? { tab: "stok" } : {} });
 
