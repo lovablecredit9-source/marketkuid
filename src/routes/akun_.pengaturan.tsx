@@ -38,6 +38,8 @@ function PengaturanAkun() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const store = useSellerStore(user?.id);
+  const sellerBal = useSellerBalance(store.data ? user?.id : undefined);
+  const sellerHolds = useSellerHolds(store.data ? user?.id : undefined);
   const profile = useQuery({
     queryKey: ["profile-full", user?.id], enabled: !!user,
     queryFn: async () => (await supabase.from("profiles").select("full_name, username, whatsapp").eq("id", user!.id).maybeSingle()).data,
