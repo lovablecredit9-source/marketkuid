@@ -43,4 +43,5 @@
 - [x] Login admin terpisah (/admin/login) + tampilan Admin Console baru
 - [x] Blokir akun & toko (1/3/7/14/30 hari, custom, permanen), turunkan produk, atur saldo manual, log aktivitas
 - [x] Top up via QRIS, DANA, GoPay, OVO, ShopeePay, LinkAja, bank (diatur admin)
-- [ ] Pakai Saldo Marketku untuk bayar checkout, tarik saldo
+- [x] Bayar pesanan pakai Saldo Marketku atau QRIS/e-wallet (bukti dicek admin di tab Bayar Order); produk berstok terkirim otomatis, seller dapat saldo saat pesanan selesai
+- [ ] Tarik saldo (withdraw) seller/pembeli
