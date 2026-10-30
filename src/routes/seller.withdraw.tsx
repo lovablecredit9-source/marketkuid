@@ -86,7 +86,7 @@ function Withdraw() {
   const quote = withdrawQuote(balance, sameDay);
   const bankShort = store?.bank_number ? maskNumber(store.bank_number) : "Belum diisi";
   const bankFull = store?.bank_number ? `${store.bank_provider} ${maskNumber(store.bank_number)}` : "Belum terdaftar";
-  const auto = !!(store as { auto_withdraw?: boolean } | undefined)?.auto_withdraw;
+  const auto = !!store?.auto_withdraw;
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["withdrawals"] });
@@ -120,11 +120,11 @@ function Withdraw() {
     if (!user?.id) return;
     if (!auto && !store?.bank_number) { toast.error("Daftarkan rekening dulu di Pengaturan → Keuangan"); return; }
     setAutoBusy(true);
-    const { error } = await supabase.from("seller_stores").update({ auto_withdraw: !auto } as never).eq("owner_id", user.id);
+    const { error } = await supabase.from("seller_stores").update({ auto_withdraw: !auto }).eq("owner_id", user.id);
     setAutoBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(auto ? "Auto Withdraw dinonaktifkan" : "Auto Withdraw diaktifkan");
-    qc.invalidateQueries({ queryKey: ["seller-store"] }); void storeQ.refetch?.();
+    qc.invalidateQueries({ queryKey: ["seller_store"] });
   };
 
   const filtered = useMemo(() => {
