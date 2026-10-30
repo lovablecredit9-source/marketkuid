@@ -1018,6 +1018,7 @@ export type Database = {
       }
       seller_stores: {
         Row: {
+          auto_withdraw: boolean
           avatar_path: string | null
           bank_holder: string | null
           bank_number: string | null
@@ -1036,6 +1037,7 @@ export type Database = {
           telegram_username: string | null
         }
         Insert: {
+          auto_withdraw?: boolean
           avatar_path?: string | null
           bank_holder?: string | null
           bank_number?: string | null
@@ -1054,6 +1056,7 @@ export type Database = {
           telegram_username?: string | null
         }
         Update: {
+          auto_withdraw?: boolean
           avatar_path?: string | null
           bank_holder?: string | null
           bank_number?: string | null
@@ -1410,6 +1413,63 @@ export type Database = {
           },
         ]
       }
+      withdrawal_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          auto: boolean
+          bank_holder: string | null
+          bank_number: string
+          bank_provider: string
+          bank_type: string | null
+          created_at: string
+          fee: number
+          id: string
+          net: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          same_day: boolean
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          auto?: boolean
+          bank_holder?: string | null
+          bank_number: string
+          bank_provider: string
+          bank_type?: string | null
+          created_at?: string
+          fee?: number
+          id?: string
+          net: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          same_day?: boolean
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          auto?: boolean
+          bank_holder?: string | null
+          bank_number?: string
+          bank_provider?: string
+          bank_type?: string | null
+          created_at?: string
+          fee?: number
+          id?: string
+          net?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          same_day?: boolean
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1442,6 +1502,10 @@ export type Database = {
         Returns: undefined
       }
       admin_review_order_payment: {
+        Args: { p_approve: boolean; p_id: string; p_note?: string }
+        Returns: undefined
+      }
+      admin_review_withdrawal: {
         Args: { p_approve: boolean; p_id: string; p_note?: string }
         Returns: undefined
       }
@@ -1489,6 +1553,7 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      auto_withdraw_tick: { Args: never; Returns: string }
       buyer_confirm_order: { Args: { p_order: string }; Returns: undefined }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
@@ -1584,6 +1649,10 @@ export type Database = {
       }
       record_product_view: { Args: { p_product: string }; Returns: undefined }
       release_seller_holds: { Args: never; Returns: undefined }
+      request_withdrawal: {
+        Args: { p_auto?: boolean; p_same_day?: boolean }
+        Returns: string
+      }
       seller_advance_order: {
         Args: { p_delivery: string; p_order: string; p_status: string }
         Returns: undefined
