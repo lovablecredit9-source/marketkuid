@@ -167,6 +167,7 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
   const navigate = useNavigate();
   const [delivery, setDelivery] = useState("");
   const [busy, setBusy] = useState(false);
+  const heldIds = useHeldIds(user?.id);
   if (!o) return null;
   const advance = async (status: "processing" | "completed") => {
     // Pre-order: data pesanan boleh dikirim via chat, kolom ini opsional.
@@ -187,7 +188,7 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
   const bad = ["cancelled", "failed"].includes(o.status);
   const gross = Number(o.subtotal) - Number(o.discount);
   const fee = bad ? 0 : Math.ceil(gross * 0.03);
-  const esc = escrowOf(o);
+  const esc = escrowOf(o, heldIds);
   return (
     <SellerSheet open onOpenChange={(v) => !v && onClose()} title={<span>Ringkasan Pembayaran<span className="block font-mono text-xs font-normal text-muted-foreground">M-{o.order_no}</span></span>}
       footer={<>
