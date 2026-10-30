@@ -83,7 +83,7 @@ function Register() {
     <AuthLayout>
       <AuthCard>
         <AuthTitle title="Buat akun" />
-        <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+        <form className="space-y-3.5" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           <Field label="Nama Lengkap" icon={User} name="name" placeholder="Nama lengkap kamu" value={f.name} onChange={set("name")} autoComplete="name" />
           <Field label="Email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={f.email} onChange={set("email")} onBlur={blur("email")} autoComplete="email"
             status={emailErr ? "error" : "ok"} message={f.email && !emailErr ? "Email siap dipakai untuk registrasi." : touched["email"] ? emailErr : undefined} />
@@ -91,15 +91,15 @@ function Register() {
             status={unameErr ? "error" : "ok"} message={!unameErr ? `Username ${uname} siap dipakai untuk login.` : touched["username"] || f.username ? unameErr : undefined} />
           <Field label="Nomor WhatsApp (opsional)" icon={MessageCircle} name="wa" type="tel" inputMode="numeric" placeholder="08xxxxxxxxxx" value={f.wa} onChange={(e) => setF({ ...f, wa: e.target.value.replace(/\D/g, "") })}
             hint="Buat notif pesanan, refund, dan dispute via WhatsApp. Bisa dilewati & ditambahkan nanti." />
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Field label="Password" icon={KeyRound} name="pass" password placeholder="Min. 8 karakter" value={f.pass} onChange={set("pass")} autoComplete="new-password" status="error" message={passErr || undefined} />
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="h-1 overflow-hidden rounded-full bg-muted">
               <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${(s / 4) * 100}%` }} />
             </div>
           </div>
           <Field label="Konfirmasi Password" icon={KeyRound} name="confirm" password placeholder="Ulangi password" value={f.confirm} onChange={set("confirm")} autoComplete="new-password" status="error" message={confirmErr || undefined} />
           <GradientButton type="submit" disabled={!valid || loading}>{loading ? "Mendaftarkan..." : "Daftarkan akun"}</GradientButton>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
             Dengan mendaftar, kamu menyetujui <button type="button" onClick={() => toast("Syarat & Ketentuan segera hadir")} className="text-primary">Syarat & Ketentuan</button> dan{" "}
             <button type="button" onClick={() => toast("Kebijakan Privasi segera hadir")} className="text-primary">Kebijakan Privasi</button>.
           </p>
