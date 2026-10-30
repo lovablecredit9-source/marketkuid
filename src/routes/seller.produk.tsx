@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
-import { Package, Boxes, CheckSquare, FileText, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Plus, ChevronRight, Check } from "lucide-react";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Package, Boxes, CheckSquare, FileText, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Plus, ChevronRight, Check, Save, Send, Pencil, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { PageTour } from "@/components/marketku/tour";
 import { useAuth } from "@/lib/auth";
 import { priceRange, useCategories, useImageUrls, useMyProducts, type MyProduct } from "@/lib/products";
 import { SellerCard, SellerEmpty, StatCell } from "@/components/marketku/seller-ui";
-import { ProductSheet, productTypeText } from "@/components/marketku/product-sheet";
+import { ConfirmDialog, ProductSheet, productTypeText } from "@/components/marketku/product-sheet";
 import { StockManager } from "@/components/marketku/stock-manager";
 
 type Search = { tab?: "stok"; pid?: string };
@@ -54,6 +57,9 @@ function Produk() {
   const [menu, setMenu] = useState<"filter" | "sort" | null>(null);
   const [sort, setSort] = useState<Sort>("new");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [delId, setDelId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const qc = useQueryClient();
 
   const list = products.data ?? [];
   const minPrice = (p: MyProduct) => Math.min(...p.product_variants.map((v) => Number(v.price)), Number.MAX_SAFE_INTEGER);
@@ -165,18 +171,11 @@ function Produk() {
               {shown.map((p) => <ProductRow key={p.id} p={p} img={thumb(p)} onClick={() => setOpenId(p.id)} />)}
             </SellerCard>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               {shown.map((p) => (
-                <button key={p.id} onClick={() => setOpenId(p.id)} className="overflow-hidden rounded-xl border bg-card text-left transition active:scale-[0.98]">
-                  <div className="grid aspect-square place-items-center bg-muted">
-                    {thumb(p) ? <img src={thumb(p)} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-8 w-8 text-muted-foreground" />}
-                  </div>
-                  <div className="p-3">
-                    <p className="line-clamp-2 text-sm font-medium uppercase">{p.name}</p>
-                    <p className="mt-1 text-xs font-medium text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</p>
-                    <p className="text-xs text-muted-foreground">{metaText(p)}</p>
-                  </div>
-                </button>
+                <GridCard key={p.id} p={p} img={thumb(p)} onOpen={() => setOpenId(p.id)}
+                  onEdit={() => navigate({ to: "/seller/produk/baru", search: { edit: p.id } })}
+                  onStock={() => navigate({ search: { tab: "stok", pid: p.id } })} onDelete={() => setDelId(p.id)} />
               ))}
             </div>
           )}
@@ -191,7 +190,74 @@ function Produk() {
 
       {tab !== "stok" && <PageTour id="seller-produk" steps={tour} panel />}
       {open && <ProductSheet product={open} onClose={() => setOpenId(null)} onStock={(id) => navigate({ search: { tab: "stok", pid: id } })} />}
+      <ConfirmDialog open={!!delProduct} onOpenChange={(o) => { if (!o) setDelId(null); }} title="Hapus Produk" busy={deleting} confirmLabel="Hapus Produk"
+        onConfirm={() => { if (delProduct) void removeProduct(delProduct, qc, setDeleting, () => setDelId(null)); }}>
+        <p className="font-semibold">Hapus produk <b>{delProduct?.name}</b>?</p>
+        <p className="mt-1 text-sm text-muted-foreground">Produk, varian, dan stoknya akan dihapus permanen.</p>
+      </ConfirmDialog>
     </>
+  );
+}
+
+async function removeProduct(p: MyProduct, qc: QueryClient, setBusy: (b: boolean) => void, done: () => void) {
+  setBusy(true);
+  const { error } = await supabase.from("products").delete().eq("id", p.id);
+  if (!error && p.images.length) await supabase.storage.from("product-images").remove(p.images);
+  setBusy(false);
+  if (error) { toast.error("Gagal menghapus produk"); return; }
+  toast.success(`Produk "${p.name}" berhasil dihapus`);
+  qc.setQueriesData<MyProduct[]>({ queryKey: ["my_products"] }, (old) => old?.filter((x) => x.id !== p.id));
+  done();
+  void qc.invalidateQueries({ queryKey: ["category_counts"] });
+}
+
+function GridCard({ p, img, onOpen, onEdit, onStock, onDelete }: {
+  p: MyProduct; img?: string | undefined; onOpen: () => void; onEdit: () => void; onStock: () => void; onDelete: () => void;
+}) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const avail = p.product_stock.filter((s) => s.status === "available").length;
+  const pre = p.product_type === "preorder";
+  const habis = !pre && avail === 0;
+  const isDraft = p.status === "draft";
+  const toggleDraft = async () => {
+    setBusy(true);
+    const status = isDraft ? "active" : "draft";
+    const { error } = await supabase.from("products").update({ status }).eq("id", p.id);
+    setBusy(false);
+    if (error) { toast.error("Gagal mengubah status"); return; }
+    await Promise.all([qc.invalidateQueries({ queryKey: ["my_products"] }), qc.invalidateQueries({ queryKey: ["category_counts"] })]);
+    toast.success(status === "draft" ? "Produk dipindah ke draft" : "Produk diaktifkan");
+  };
+  const btn = "flex min-w-0 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition active:scale-95 disabled:opacity-60";
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border bg-card">
+      <button onClick={onOpen} aria-label={`Detail ${p.name}`} className="relative grid aspect-[16/10] place-items-center overflow-hidden bg-muted">
+        {img ? <img src={img} alt={p.name} className="h-full w-full object-cover" /> : <Package className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />}
+        {habis && <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-destructive px-2.5 py-1 text-xs font-semibold text-destructive-foreground">HABIS</span>}
+        {isDraft && <span className="absolute left-2 top-2 rounded-md bg-tone-amber px-2 py-0.5 text-[10px] font-semibold text-background">DRAFT</span>}
+      </button>
+      <div className="flex flex-1 flex-col p-2.5">
+        <button onClick={onOpen} className="truncate text-left text-[13px] font-semibold uppercase">{p.name}</button>
+        <p className="mt-1 truncate text-[13px] font-medium text-primary">{priceRange(p.product_variants.map((v) => Number(v.price)))}</p>
+        <div className="mt-1.5 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-x-1 text-[11px] leading-tight">
+          <span className={habis ? "text-destructive" : "text-foreground/80"}>{pre ? <>Pre-<br />order</> : <>{avail}<br />stok</>}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-foreground/80">{p.sold_count}<br />terjual</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-foreground/80">{p.view_count}x<br />dilihat</span>
+        </div>
+        <div className="my-2.5 h-px bg-foreground/70" />
+        <div className="mt-auto grid grid-cols-2 gap-1.5">
+          <button onClick={() => void toggleDraft()} disabled={busy} className={`${btn} border-tone-amber/50 bg-tone-amber/10 text-tone-amber`}>
+            {isDraft ? <Send className="h-3.5 w-3.5 shrink-0" /> : <Save className="h-3.5 w-3.5 shrink-0" />}<span className="truncate">{isDraft ? "Aktifkan" : "Draftkan"}</span>
+          </button>
+          <button onClick={onEdit} className={`${btn} text-foreground`}><Pencil className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Edit</span></button>
+          <button onClick={onStock} className={`${btn} border-success/40 bg-success/10 text-success`}><Boxes className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Stok</span></button>
+          <button onClick={onDelete} className={`${btn} border-destructive/40 bg-destructive/10 text-destructive`}><Trash2 className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Hapus</span></button>
+        </div>
+      </div>
+    </div>
   );
 }
 
