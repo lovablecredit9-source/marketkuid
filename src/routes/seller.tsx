@@ -8,6 +8,7 @@ import { isSellerUnlocked, unlockSeller } from "@/lib/chat";
 import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 import { SellerLoading } from "@/components/marketku/loading";
+import { SellerBanBanner } from "@/components/marketku/ban-gate";
 
 export const Route = createFileRoute("/seller")({
   head: () => ({
@@ -108,7 +109,7 @@ function SellerLayout() {
     <div className="seller-panel min-h-screen">
       <div className="mx-auto min-h-screen max-w-md">
         <SellerHeader store={store.data} email={user.email ?? ""} onMenu={() => setMenu(true)} theme={theme} onTheme={setTheme} />
-        <main className="space-y-4 px-3 pb-28 pt-3"><Outlet /></main>
+        <main className="space-y-4 px-3 pb-28 pt-3"><SellerBanBanner /><Outlet /></main>
         <SellerBottomNav onMenu={() => setMenu(true)} menuOpen={menu} />
         <SellerMenuSheet open={menu} onOpenChange={setMenu} />
       </div>

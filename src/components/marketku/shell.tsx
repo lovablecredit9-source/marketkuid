@@ -15,6 +15,7 @@ import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 import { useCart } from "@/lib/market";
 import { supportWaUrl } from "@/lib/support";
 import { useUnreadChats } from "@/lib/chat";
+import { BanScreen, useAccountBan } from "@/components/marketku/ban-gate";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -215,10 +216,11 @@ export function BottomNav() {
 
 export function AppShell({ children, title, nav = true, header = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; className?: string }) {
   useStoredDark();
+  const ban = useAccountBan();
   return (
     <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
       {header && <Header title={title} />}
-      <main className={nav ? "pb-28" : "pb-8"}>{children}</main>
+      <main className={nav ? "pb-28" : "pb-8"}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
     </div>
   );
