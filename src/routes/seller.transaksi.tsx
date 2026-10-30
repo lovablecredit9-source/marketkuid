@@ -12,6 +12,7 @@ import { PageTour } from "@/components/marketku/tour";
 import { SellerCard, SellerEmpty, SellerSheet, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 import { ORDER_LABEL, SELLER_FILTER, dbError, fmtDateTime } from "@/lib/market";
 import { sellerStats, useSellerOrders, type SellerOrder } from "@/lib/seller-orders";
+import { useSellerHolds } from "@/components/marketku/seller-holds";
 import { pageMeta } from "@/lib/meta";
 
 const STATUS = Object.keys(SELLER_FILTER);
@@ -37,6 +38,7 @@ const tone = (s: string) => (["completed", "paid"].includes(s) ? "text-success b
 
 function Transaksi() {
   const { user } = useAuth();
+  const heldIds = useHeldIds(user?.id);
   const orders = useSellerOrders(user?.id);
   const [f, setF] = useState<(typeof filters)[number]["k"]>("semua");
   const [q, setQ] = useState("");
@@ -119,7 +121,7 @@ function Transaksi() {
             <div className="mt-2 flex items-center gap-1.5 text-[11px]">
               <span className="mr-auto text-muted-foreground">{fmtDateTime(o.created_at)}</span>
               <span className="flex items-center gap-1 rounded-full border border-primary/60 px-2 py-1 text-primary"><QrCode className="h-3 w-3" /> {o.payment_method === "saldo" ? "Saldo" : "QRIS Marketku"}</span>
-              <EscrowBadge e={escrowOf(o)} />
+              <EscrowBadge e={escrowOf(o, heldIds)} />
               <button onClick={(e) => { e.stopPropagation(); void openChat(o); }} className="flex items-center gap-1 rounded-lg border px-2 py-1 font-medium transition active:scale-95"><MessageCircle className="h-3 w-3" /> Chat</button>
             </div>
           </div>
@@ -144,9 +146,15 @@ const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex ite
 
 type Escrow = "ditahan" | "dicairkan" | "none";
 // Dana pesanan dibayar ditahan 5 jam (atau sampai pembeli konfirmasi), lalu dicairkan.
-function escrowOf(o: SellerOrder): Escrow {
+// `held` = order yang masih ada di daftar saldo tertahan dari server (belum masuk saldo penjualan).
+function escrowOf(o: SellerOrder, held?: Set<string>): Escrow {
   if (["cancelled", "failed"].includes(o.status) || !o.paid_at) return "none";
+  if (held) return held.has(o.id) ? "ditahan" : "dicairkan";
   return new Date(o.paid_at).getTime() + 5 * 3600_000 <= Date.now() ? "dicairkan" : "ditahan";
+}
+function useHeldIds(uid?: string) {
+  const data = useSellerHolds(uid).data;
+  return data ? new Set(data.map((h) => h.order_id)) : undefined;
 }
 function EscrowBadge({ e }: { e: Escrow }) {
   const c = e === "dicairkan" ? "bg-success/15 text-success" : e === "ditahan" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground";
