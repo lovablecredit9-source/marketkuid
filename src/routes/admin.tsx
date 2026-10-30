@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Ban, Check, ChevronRight, Copy, Eye, EyeOff, History, ImagePlus, LayoutDashboard, Loader2, LogOut, MessageCircle, Minus, Package,
-  Plus, Receipt, RefreshCw, Search, ShieldCheck, ShieldOff, Store, Trash2, TrendingUp, Users, Wallet, X, CreditCard, UserX, AlertTriangle,
+  Plus, QrCode, Receipt, RefreshCw, Search, ShieldCheck, ShieldOff, Store, Trash2, TrendingUp, Users, Wallet, X, CreditCard, UserX, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { rupiah } from "@/components/marketku/shell";
@@ -25,7 +25,8 @@ export const Route = createFileRoute("/admin")({
 const TABS = [
   { key: "ringkasan", label: "Ringkasan", icon: LayoutDashboard },
   { key: "deposit", label: "Deposit", icon: Wallet },
-  { key: "pembayaran", label: "Pembayaran", icon: CreditCard },
+  { key: "bayar", label: "Bayar Order", icon: QrCode },
+  { key: "pembayaran", label: "Metode", icon: CreditCard },
   { key: "pengguna", label: "Pengguna", icon: Users },
   { key: "toko", label: "Toko", icon: Store },
   { key: "produk", label: "Produk", icon: Package },
@@ -53,6 +54,10 @@ function Admin() {
   const denied = ready && (!user || isAdmin.data === false);
   useEffect(() => { if (denied) navigate({ to: "/admin/login", replace: true }); }, [denied, navigate]);
   const stats = useStats();
+  const orderPayCount = useQuery({
+    queryKey: ["admin_order_pay_count"], enabled: !!isAdmin.data, refetchInterval: 60_000,
+    queryFn: async () => (await supabase.from("order_payments").select("id", { count: "exact", head: true }).eq("status", "pending")).count ?? 0,
+  });
 
   if (!isAdmin.data) return <div className="admin-panel grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
@@ -62,6 +67,7 @@ function Admin() {
     navigate({ to: "/admin/login", replace: true });
   };
   const pending = stats.data?.deposits_pending ?? 0;
+  const payPending = orderPayCount.data ?? 0;
 
   return (
     <div className="admin-panel min-h-screen">
@@ -81,6 +87,7 @@ function Admin() {
               <button key={t.key} onClick={() => setTab(t.key)} className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition active:scale-95 ${tab === t.key ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "bg-card text-muted-foreground"}`}>
                 <t.icon className="h-3.5 w-3.5" /> {t.label}
                 {t.key === "deposit" && pending > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] text-white">{pending}</span>}
+                {t.key === "bayar" && payPending > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] text-white">{payPending}</span>}
               </button>
             ))}
           </nav>
@@ -88,6 +95,7 @@ function Admin() {
         <main className="mk-fade-in space-y-3 px-4 pb-16 pt-4" key={tab}>
           {tab === "ringkasan" && <Overview onGo={setTab} />}
           {tab === "deposit" && <Deposits />}
+          {tab === "bayar" && <OrderPaymentsTab />}
           {tab === "pembayaran" && <PaymentMethods />}
           {tab === "pengguna" && <UsersTab />}
           {tab === "toko" && <StoresTab />}
@@ -291,6 +299,86 @@ function Deposits() {
         </Sheet>
       )}
       {view && <button onClick={() => setView(null)} className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4"><img src={view} alt="Bukti transfer" className="max-h-full max-w-full rounded-xl" /></button>}
+    </>
+  );
+}
+
+/* ---------- Bayar Order (QRIS proof for orders) ---------- */
+
+function OrderPaymentsTab() {
+  const qc = useQueryClient();
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const list = useQuery({
+    queryKey: ["admin_order_payments", filter],
+    queryFn: async () => {
+      let q = supabase.from("order_payments").select("*").order("created_at", { ascending: false }).limit(100);
+      if (filter !== "all") q = q.eq("status", filter);
+      const { data, error } = await q; if (error) throw error;
+      const ids = [...new Set((data ?? []).map((p) => p.checkout_id))];
+      const { data: os } = ids.length ? await supabase.from("orders").select("checkout_id, order_no, store_name, buyer_name, status").in("checkout_id", ids) : { data: [] };
+      return (data ?? []).map((p) => ({ ...p, orders: (os ?? []).filter((o) => o.checkout_id === p.checkout_id) }));
+    },
+  });
+  const rows = list.data ?? [];
+  const proofs = usePaymentUrls(rows.map((r) => r.proof_path));
+  const [view, setView] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [reject, setReject] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const review = async (id: string, approve: boolean, n?: string) => {
+    setBusy(id);
+    const { error } = await supabase.rpc("admin_review_order_payment", { p_id: id, p_approve: approve, ...(n?.trim() ? { p_note: n.trim() } : {}) });
+    setBusy(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(approve ? "Pembayaran disetujui, pesanan diproses" : "Pembayaran ditolak");
+    setReject(null); setNote("");
+    qc.invalidateQueries({ queryKey: ["admin_order_payments"] });
+    qc.invalidateQueries({ queryKey: ["admin_order_pay_count"] });
+    qc.invalidateQueries({ queryKey: ["admin_stats"] });
+  };
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-hidden"><Chips value={filter} onChange={setFilter} items={[["pending", "Menunggu"], ["approved", "Disetujui"], ["rejected", "Ditolak"], ["all", "Semua"]]} /></div>
+        <Refresh q={list} />
+      </div>
+      <p className="text-xs text-muted-foreground">Bukti bayar pesanan via QRIS / e-wallet. Cocokkan nominal (termasuk kode unik) dengan mutasi masuk.</p>
+      {list.isPending ? <Loading label="Memuat pembayaran..." /> : rows.length === 0 ? <Empty text="Belum ada bukti pembayaran pesanan." /> : rows.map((p) => {
+        const s = depositStatus(p.status); const url = proofs.data?.[p.proof_path];
+        return (
+          <div key={p.id} className="rounded-2xl border bg-card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{p.orders[0]?.buyer_name || "Pembeli"}</p>
+                <p className="truncate text-xs text-muted-foreground">{fmtDate(p.created_at)} • {p.orders.map((o) => `M-${o.order_no} ${o.store_name ?? ""}`).join(", ")}</p>
+              </div>
+              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${s.cls}`}>{s.label}</span>
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <button onClick={() => url && setView(url)} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border bg-muted">{url ? <img src={url} alt="Bukti bayar" className="h-full w-full object-cover" /> : null}</button>
+              <div className="min-w-0 flex-1">
+                <p className="mk-acc-mono text-lg">{rupiah(Number(p.amount))}</p>
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="h-2 w-2 rounded-full" style={{ background: providerColor(p.method_label) }} /> via {p.method_label}</p>
+                {p.admin_note && <p className="text-xs text-muted-foreground">Catatan: {p.admin_note}</p>}
+              </div>
+            </div>
+            {p.status === "pending" && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button disabled={busy === p.id} onClick={() => setReject(p.id)} className="flex items-center justify-center gap-1 rounded-xl border border-destructive/40 py-2 text-sm font-semibold text-destructive disabled:opacity-50"><X className="h-4 w-4" /> Tolak</button>
+                <button disabled={busy === p.id} onClick={() => review(p.id, true)} className="flex items-center justify-center gap-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"><Check className="h-4 w-4" /> Setujui</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {reject && (
+        <Sheet title="Tolak pembayaran" onClose={() => setReject(null)}>
+          <label className="block text-xs font-semibold text-muted-foreground">Alasan (dilihat pembeli)<textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. Nominal tidak sesuai" className={inputCls} /></label>
+          <div className="mt-2 flex flex-wrap gap-1.5">{["Nominal tidak sesuai", "Bukti tidak jelas", "Dana belum masuk", "Bukti duplikat"].map((r) => <button key={r} onClick={() => setNote(r)} className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground">{r}</button>)}</div>
+          <button disabled={busy === reject} onClick={() => review(reject, false, note)} className="mt-4 w-full rounded-xl bg-destructive py-2.5 text-sm font-bold text-white disabled:opacity-60">Tolak Pembayaran</button>
+        </Sheet>
+      )}
+      {view && <button onClick={() => setView(null)} className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4"><img src={view} alt="Bukti bayar" className="max-h-full max-w-full rounded-xl" /></button>}
     </>
   );
 }
