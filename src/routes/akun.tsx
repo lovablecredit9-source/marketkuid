@@ -33,18 +33,18 @@ export const Route = createFileRoute("/akun")({
 
 function Stat({ icon: I, value, label, full }: { icon: typeof Coins; value: number; label: string; full?: boolean }) {
   return (
-    <div className={`rounded-2xl border bg-card p-4 shadow-sm ${full ? "col-span-2" : ""}`}>
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><I className="h-4 w-4" /></span>
-      <p className="mk-acc-mono mt-3 text-base font-medium">{value}</p>
-      <p className="mt-1 text-xs font-semibold tracking-wider text-muted-foreground">{label}</p>
+    <div className={`rounded-xl border bg-card p-3 shadow-sm ${full ? "col-span-2" : ""}`}>
+      <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-primary"><I className="h-3.5 w-3.5" /></span>
+      <p className="mk-acc-mono mt-2 text-sm font-medium">{value}</p>
+      <p className="mt-0.5 text-[10px] font-semibold tracking-wider text-muted-foreground">{label}</p>
     </div>
   );
 }
 
 function Tile({ icon: I, label, tone, onClick }: { icon: typeof Coins; label: string; tone: Tone; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-2 rounded-xl border bg-card py-4 text-sm font-semibold shadow-sm transition active:scale-95">
-      <span className={`grid h-9 w-9 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-5 w-5" /></span>
+    <button onClick={onClick} className="flex flex-col items-center gap-1.5 rounded-xl border bg-card py-2.5 text-xs font-semibold shadow-sm transition active:scale-95">
+      <span className={`grid h-8 w-8 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-4 w-4" /></span>
       {label}
     </button>
   );
@@ -75,9 +75,9 @@ function Akun() {
           <ShieldCheck className="ml-4 h-12 w-12 text-primary" />
           <h1 className="mt-8 text-center text-2xl font-bold">Masuk dulu untuk membuka akunmu</h1>
           <p className="mt-3 text-center text-base text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-8 flex justify-center gap-3">
             <Link to="/login" className="rounded-2xl bg-primary px-8 py-4 font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
-            <Link to="/register" className="rounded-2xl border border-primary/40 bg-card px-8 py-4 font-bold text-primary transition active:scale-95">Buat akun</Link>
+            <Link to="/register" className="rounded-xl border border-primary/40 bg-card px-8 py-4 font-bold text-primary transition active:scale-95">Buat akun</Link>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ function AkunDashboard({ user }: { user: User }) {
   };
 
   const logoutBtn = (
-    <button onClick={() => void signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-3 font-semibold text-destructive transition active:scale-[0.98]">
+    <button onClick={() => void signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 py-2.5 text-sm font-semibold text-destructive transition active:scale-[0.98]">
       <LogOut className="h-4 w-4" /> Keluar
     </button>
   );
@@ -137,7 +137,7 @@ function AkunDashboard({ user }: { user: User }) {
     return (
       <AppShell title="Akun Saya" className="mk-acc-serif">
         <SellerAccount storeName={store.data!.store_name} onBuyer={() => switchView("buyer")} onCenter={() => navigate({ to: "/seller" })} onTour={() => setTour(true)} />
-        <div className="px-5 pt-4">{logoutBtn}</div>
+        <div className="px-4 pt-3">{logoutBtn}</div>
         <WelcomeTour id="seller-account" steps={SELLER_WELCOME} open={tour} onOpenChange={setTour} />
       </AppShell>
     );
@@ -148,21 +148,21 @@ function AkunDashboard({ user }: { user: User }) {
 
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
-      <div className="space-y-4 px-5 pt-4">
-        <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
+      <div className="space-y-3 px-4 pt-3">
+        <section className="rounded-xl border bg-gradient-to-br from-card via-card to-accent/70 p-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-base font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="mk-acc-heading truncate text-lg font-bold">{name}</h1>
+                <h1 className="mk-acc-heading truncate text-base font-bold">{name}</h1>
                 <span className="rounded-full border border-primary/30 bg-accent px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary">MEMBER</span>
               </div>
-              <p className="truncate text-sm text-muted-foreground">{user.email}</p>
+              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
               <span className="mt-1.5 inline-block rounded-full border bg-card px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-muted-foreground">GABUNG {joined}</span>
             </div>
           </div>
-          <button onClick={() => navigate({ to: "/akun/pengaturan" })} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent/60 py-2.5 text-sm font-semibold text-primary transition active:scale-[0.98]">
-            <Settings className="h-4 w-4" /> Atur Profil
+          <button onClick={() => navigate({ to: "/akun/pengaturan" })} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent/60 py-2 text-xs font-semibold text-primary transition active:scale-[0.98]">
+            <Settings className="h-3.5 w-3.5" /> Atur Profil
           </button>
         </section>
 
@@ -172,28 +172,28 @@ function AkunDashboard({ user }: { user: User }) {
           </button>
         )}
 
-        <section className="rounded-2xl border border-primary/30 bg-gradient-to-br from-accent/60 to-card p-4 shadow-sm">
+        <section className="rounded-xl border border-primary/30 bg-gradient-to-br from-accent/60 to-card p-3 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-muted-foreground"><Wallet className="h-4 w-4" /> SALDO MARKETKU</p>
-            <button aria-label="Muat ulang" onClick={() => wallet.refetch()} className="grid h-8 w-8 place-items-center rounded-lg border bg-card"><RefreshCw className={`h-4 w-4 ${wallet.isFetching ? "animate-spin" : ""}`} /></button>
+            <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground"><Wallet className="h-3.5 w-3.5" /> SALDO MARKETKU</p>
+            <button aria-label="Muat ulang" onClick={() => wallet.refetch()} className="grid h-7 w-7 place-items-center rounded-md border bg-card"><RefreshCw className={`h-3.5 w-3.5 ${wallet.isFetching ? "animate-spin" : ""}`} /></button>
           </div>
-          <p className="mt-3 mk-acc-mono text-2xl">Rp {(wallet.data ?? 0).toLocaleString("id-ID")}</p>
-          <button onClick={() => navigate({ to: "/topup" })} className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">Lihat riwayat deposit <ArrowUpRight className="h-3 w-3" /></button>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
-            <button onClick={() => navigate({ to: "/topup" })} className="rounded-xl border bg-card py-3 text-sm font-semibold">Top Up</button>
+          <p className="mt-2 mk-acc-mono text-xl">Rp {(wallet.data ?? 0).toLocaleString("id-ID")}</p>
+          <button onClick={() => navigate({ to: "/topup" })} className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">Lihat riwayat deposit <ArrowUpRight className="h-3 w-3" /></button>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-2 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
+            <button onClick={() => navigate({ to: "/topup" })} className="rounded-xl border bg-card py-2 text-xs font-semibold">Top Up</button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">Saldo otomatis kembali ke akunmu kalau order dibatalkan atau di-refund.</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">Saldo otomatis kembali ke akunmu kalau order dibatalkan atau di-refund.</p>
         </section>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Stat icon={Coins} value={0} label="TOKEN" />
           <Stat icon={ShoppingBag} value={0} label="TOTAL ORDER" />
           <Stat icon={Heart} value={0} label="WISHLIST" full />
         </div>
 
-        <section className="rounded-2xl border bg-card p-4 shadow-sm">
-          <h3 className="mb-3 text-xs font-bold tracking-widest text-muted-foreground">BELANJA</h3>
+        <section className="rounded-xl border bg-card p-3 shadow-sm">
+          <h3 className="mb-2 text-[10px] font-bold tracking-widest text-muted-foreground">BELANJA</h3>
           <div className="grid grid-cols-3 gap-2">
             <Tile icon={ShoppingBag} tone="amber" label="Pesanan" onClick={() => navigate({ to: "/riwayat" })} />
             <Tile icon={Heart} tone="pink" label="Wishlist" onClick={() => navigate({ to: "/wishlist" })} />
@@ -235,11 +235,11 @@ function AkunDashboard({ user }: { user: User }) {
 function BigCard({ tone, icon: I, title, desc, onClick }: { tone: "amber" | "green"; icon: typeof Store; title: string; desc: string; onClick: () => void }) {
   const box = tone === "amber" ? "border-tone-amber/40 bg-tone-amber/5" : "border bg-card";
   return (
-    <button onClick={onClick} className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left shadow-sm transition active:scale-[0.98] ${box}`}>
-      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneClass[tone]}`}><I className="h-5 w-5" /></span>
+    <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left shadow-sm transition active:scale-[0.98] ${box}`}>
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-4 w-4" /></span>
       <span className="flex-1">
-        <span className="block text-base font-bold">{title}</span>
-        <span className="mt-0.5 block text-sm text-muted-foreground">{desc}</span>
+        <span className="block text-sm font-bold">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{desc}</span>
       </span>
       <ArrowUpRight className="h-4 w-4 rotate-45 text-muted-foreground" />
     </button>
@@ -257,51 +257,51 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
   const [tab, setTab] = useState<(typeof revenueTabs)[number]["key"]>("tersedia");
   const active = revenueTabs.find((t) => t.key === tab)!;
   return (
-    <div className="space-y-4 px-5 pt-4">
-      <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-7 w-7" /></div>
+    <div className="space-y-3 px-4 pt-3">
+      <section className="rounded-xl border bg-gradient-to-br from-card via-card to-accent/70 p-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-5 w-5" /></div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="mk-acc-heading truncate text-lg font-bold">{storeName}</h1>
-              <span className="h-3 w-3 rounded-full bg-success ring-2 ring-success/30" aria-label="Aktif" />
+              <h1 className="mk-acc-heading truncate text-base font-bold">{storeName}</h1>
+              <span className="h-2.5 w-2.5 rounded-full bg-success ring-2 ring-success/30" aria-label="Aktif" />
             </div>
-            <span className="mt-1.5 inline-block rounded-lg border bg-card px-3 py-1 text-sm text-muted-foreground">Status: <b className="font-semibold text-foreground">Seller</b></span>
+            <span className="mt-1.5 inline-block rounded-md border bg-card px-2 py-0.5 text-xs text-muted-foreground">Status: <b className="font-semibold text-foreground">Seller</b></span>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => navigate({ to: "/seller/pengaturan" })} className="flex items-center justify-center gap-2 rounded-full border border-success/50 bg-success/10 py-2.5 text-sm font-semibold text-tone-green transition active:scale-95">
-            <Settings className="h-4 w-4" /> Atur Toko
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button onClick={() => navigate({ to: "/seller/pengaturan" })} className="flex items-center justify-center gap-2 rounded-full border border-success/50 bg-success/10 py-2 text-xs font-semibold text-tone-green transition active:scale-95">
+            <Settings className="h-3.5 w-3.5" /> Atur Toko
           </button>
-          <button onClick={onCenter} className="flex items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent py-2.5 text-sm font-semibold text-primary transition active:scale-95">
-            <ExternalLink className="h-4 w-4" /> Seller Center
+          <button onClick={onCenter} className="flex items-center justify-center gap-2 rounded-full border border-primary/40 bg-accent py-2 text-xs font-semibold text-primary transition active:scale-95">
+            <ExternalLink className="h-3.5 w-3.5" /> Seller Center
           </button>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-success/40 bg-gradient-to-br from-success/10 to-card p-4 shadow-sm">
+      <section className="rounded-xl border border-success/40 bg-gradient-to-br from-success/10 to-card p-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-muted-foreground"><Wallet className="h-4 w-4" /> REVENUE TOKO</p>
-          <button aria-label="Muat ulang" onClick={() => soon("Muat ulang revenue")} className="grid h-8 w-8 place-items-center rounded-lg border bg-card transition active:rotate-180"><RefreshCw className="h-4 w-4" /></button>
+          <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground"><Wallet className="h-3.5 w-3.5" /> REVENUE TOKO</p>
+          <button aria-label="Muat ulang" onClick={() => soon("Muat ulang revenue")} className="grid h-7 w-7 place-items-center rounded-md border bg-card transition active:rotate-180"><RefreshCw className="h-3.5 w-3.5" /></button>
         </div>
-        <div className="mt-3 inline-flex rounded-xl border bg-muted/60 p-1">
+        <div className="mt-2 inline-flex rounded-lg border bg-muted/60 p-0.5">
           {revenueTabs.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              className={`rounded-md px-3 py-1 text-xs font-semibold transition ${tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
               {t.label}
             </button>
           ))}
         </div>
-        <p className="mt-3 mk-acc-mono text-2xl">Rp 0</p>
-        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">{active.hint} <ArrowUpRight className="h-3 w-3" /></p>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <button onClick={() => navigate({ to: "/seller/withdraw" })} className="rounded-xl bg-primary/50 py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Tarik dana</button>
-          <button onClick={() => navigate({ to: "/seller/saldo" })} className="rounded-xl border bg-card py-3 text-sm font-semibold transition active:scale-95">Top up credit</button>
+        <p className="mt-2 mk-acc-mono text-xl">Rp 0</p>
+        <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">{active.hint} <ArrowUpRight className="h-3 w-3" /></p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button onClick={() => navigate({ to: "/seller/withdraw" })} className="rounded-xl bg-primary/50 py-2 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Tarik dana</button>
+          <button onClick={() => navigate({ to: "/seller/saldo" })} className="rounded-xl border bg-card py-2 text-xs font-semibold transition active:scale-95">Top up credit</button>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">Saldo terjadwal otomatis pindah ke "Tersedia" begitu pesanan selesai.</p>
+        <p className="mt-2 text-[11px] text-muted-foreground">Saldo terjadwal otomatis pindah ke "Tersedia" begitu pesanan selesai.</p>
       </section>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Stat icon={Package} value={0} label="PRODUK AKTIF" />
         <Stat icon={Clock} value={0} label="PESANAN BARU" />
         <Stat icon={CircleCheck} value={0} label="SELESAI 30H" full />
