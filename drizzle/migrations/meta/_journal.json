@@ -183,6 +183,13 @@
       "when": 1793328244014,
       "tag": "0025_buyer_confirm_order",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793329034106,
+      "tag": "0026_product_view_count",
+      "breakpoints": true
     }
   ]
 }

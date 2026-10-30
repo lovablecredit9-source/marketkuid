@@ -923,6 +923,7 @@ export type Database = {
           status: string
           updated_at: string
           usage_guide: string
+          view_count: number
           work_estimate: string | null
         }
         Insert: {
@@ -942,6 +943,7 @@ export type Database = {
           status?: string
           updated_at?: string
           usage_guide?: string
+          view_count?: number
           work_estimate?: string | null
         }
         Update: {
@@ -961,6 +963,7 @@ export type Database = {
           status?: string
           updated_at?: string
           usage_guide?: string
+          view_count?: number
           work_estimate?: string | null
         }
         Relationships: [
@@ -1579,6 +1582,7 @@ export type Database = {
           store_name: string
         }[]
       }
+      record_product_view: { Args: { p_product: string }; Returns: undefined }
       release_seller_holds: { Args: never; Returns: undefined }
       seller_advance_order: {
         Args: { p_delivery: string; p_order: string; p_status: string }
