@@ -526,6 +526,51 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          buyer_id: string
+          checkout_id: string
+          created_at: string
+          id: string
+          method_id: string | null
+          method_label: string
+          proof_path: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          buyer_id: string
+          checkout_id: string
+          created_at?: string
+          id?: string
+          method_id?: string | null
+          method_label?: string
+          proof_path: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          buyer_id?: string
+          checkout_id?: string
+          created_at?: string
+          id?: string
+          method_id?: string | null
+          method_label?: string
+          proof_path?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           admin_fee: number
@@ -541,6 +586,7 @@ export type Database = {
           id: string
           order_no: number
           paid_at: string | null
+          payment_method: string | null
           seller_id: string
           status: string
           store_name: string | null
@@ -564,6 +610,7 @@ export type Database = {
           id?: string
           order_no?: never
           paid_at?: string | null
+          payment_method?: string | null
           seller_id: string
           status?: string
           store_name?: string | null
@@ -587,6 +634,7 @@ export type Database = {
           id?: string
           order_no?: never
           paid_at?: string | null
+          payment_method?: string | null
           seller_id?: string
           status?: string
           store_name?: string | null
@@ -1390,6 +1438,10 @@ export type Database = {
         Args: { p_approve: boolean; p_id: string; p_note?: string }
         Returns: undefined
       }
+      admin_review_order_payment: {
+        Args: { p_approve: boolean; p_id: string; p_note?: string }
+        Returns: undefined
+      }
       admin_set_product_hidden: {
         Args: { p_hidden: boolean; p_id: string; p_note: string }
         Returns: undefined
@@ -1465,8 +1517,13 @@ export type Database = {
         Args: { p_amount: number; p_method?: string; p_proof: string }
         Returns: string
       }
+      credit_seller_for_order: { Args: { p_order: string }; Returns: undefined }
       delete_message: {
         Args: { p_for_all: boolean; p_id: string }
+        Returns: undefined
+      }
+      fulfill_paid_order: {
+        Args: { p_method: string; p_order: string }
         Returns: undefined
       }
       has_role: {
@@ -1489,6 +1546,7 @@ export type Database = {
           reason: string
         }[]
       }
+      pay_order_with_wallet: { Args: { p_checkout: string }; Returns: number }
       place_order: {
         Args: {
           p_items: Json
@@ -1559,6 +1617,10 @@ export type Database = {
           banner_path: string
           owner_id: string
         }[]
+      }
+      submit_order_payment: {
+        Args: { p_checkout: string; p_method?: string; p_proof: string }
+        Returns: string
       }
       touch_last_seen: { Args: never; Returns: undefined }
       touch_presence: { Args: { p_seller: boolean }; Returns: undefined }

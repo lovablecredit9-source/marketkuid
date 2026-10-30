@@ -11,6 +11,7 @@ import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
 import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
+import { OrderPayBox } from "@/components/marketku/order-pay";
 
 export const Route = createFileRoute("/pesanan/$id")({
   head: () => pageMeta("Detail Pesanan — Marketku", "Status pembayaran, produk, dan pengiriman pesananmu di Marketku."),
@@ -46,6 +47,7 @@ function Pesanan() {
   const orders = q.data?.orders ?? [];
   const pending = orders.filter((o) => o.status === "pending");
   const due = pending.reduce((a, o) => a + Number(o.total), 0);
+  const saldoDue = pending.reduce((a, o) => a + Number(o.subtotal) - Number(o.discount), 0);
   const cd = useCountdown(pending[0]?.expires_at);
   const [busy, setBusy] = useState(false);
   const refresh = () => qc.invalidateQueries({ queryKey: ["order_view", id, user?.id] });
@@ -75,14 +77,11 @@ function Pesanan() {
       <div className="space-y-4 px-3 pt-4">
         {pending.length > 0 && (
           <section className="rounded-2xl border bg-card p-4 text-center">
-            <p className="flex items-center justify-center gap-2 font-bold"><QrCode className="h-5 w-5 text-primary" /> Bayar dengan QRIS Marketku</p>
-            <p className="mt-3 text-sm text-muted-foreground">Total yang harus dibayar</p>
-            <p className="text-3xl font-bold text-primary">{rpBuyer(due)}</p>
-            <p className="text-xs text-muted-foreground">Sudah termasuk kode unik QRIS</p>
+            <p className="flex items-center justify-center gap-2 font-bold"><QrCode className="h-5 w-5 text-primary" /> Selesaikan Pembayaran</p>
+            <p className="mt-3 text-sm text-muted-foreground">Total pesanan</p>
+            <p className="text-3xl font-bold text-primary">{rpBuyer(saldoDue)}</p>
             {cd && <p className={`mt-2 flex items-center justify-center gap-1 text-sm font-semibold ${cd.ms ? "text-warning" : "text-destructive"}`}><Clock className="h-4 w-4" /> {cd.ms ? `Bayar dalam ${cd.text}` : "Waktu bayar habis"}</p>}
-            <div className="mt-4 rounded-xl border border-dashed border-warning/60 bg-warning/10 p-3 text-left text-sm">
-              <b>Kode QRIS belum bisa ditampilkan.</b> Layanan pembayaran QRIS Marketku belum terhubung, jadi pesanan ini belum bisa dibayar. Pesananmu tetap tersimpan dan akan otomatis batal bila waktu bayar habis.
-            </div>
+            <OrderPayBox checkoutId={pending[0]!.checkout_id} saldoDue={saldoDue} qrisDue={due} onPaid={() => void refresh()} />
             <button disabled={busy} onClick={() => void cancel()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/40 py-2.5 text-sm font-semibold text-destructive transition active:scale-[0.98]">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Batalkan pesanan
             </button>
