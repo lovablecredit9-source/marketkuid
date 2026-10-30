@@ -52,11 +52,11 @@ function Tile({ icon: I, label, tone, onClick }: { icon: typeof Coins; label: st
 
 function AkunLoading() {
   return (
-    <AppShell title="Akun Saya" className="mk-acc-serif">
+    <AppShell title="Akun Saya">
       <div className="relative min-h-[70vh] overflow-hidden px-6 pt-20">
         <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
         <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
-        <LoadingLine label="Memuat profil & saldo..." className="relative text-base" />
+        <LoadingLine label="Memuat profil & saldo..." className="relative text-sm" />
       </div>
     </AppShell>
   );
@@ -67,16 +67,16 @@ function Akun() {
   if (!ready) return <AkunLoading />;
   if (user) return <AkunDashboard user={user} />;
   return (
-    <AppShell title="Akun Saya" className="mk-acc-serif">
-      <div className="relative overflow-hidden px-6 pt-24">
+    <AppShell title="Akun Saya" >
+      <div className="relative overflow-hidden px-6 pt-16">
         <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
         <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
         <div className="relative">
-          <ShieldCheck className="ml-4 h-12 w-12 text-primary" />
-          <h1 className="mt-8 text-center text-2xl font-bold">Masuk dulu untuk membuka akunmu</h1>
-          <p className="mt-3 text-center text-base text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
+          <ShieldCheck className="ml-4 h-7 w-7 text-primary" />
+          <h1 className="mt-5 text-center text-lg font-bold">Masuk dulu untuk membuka akunmu</h1>
+          <p className="mt-2 text-center text-sm text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link to="/login" className="rounded-2xl bg-primary px-8 py-4 font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
+            <Link to="/login" className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
             <Link to="/register" className="rounded-xl border border-primary/40 bg-card px-8 py-4 font-bold text-primary transition active:scale-95">Buat akun</Link>
           </div>
         </div>

@@ -22,7 +22,7 @@ export const soon = (label: string) => toast(`${label} segera hadir`);
 export function Logo({ className = "h-8" }: { className?: string }) {
   return (
     <Link to="/" aria-label="Marketku beranda">
-      <img src={logo.url} alt="Marketku" className={`${className} w-auto`} />
+      <img src={logo.url} alt="Marketku" className={`${className} w-auto dark:rounded-md dark:bg-foreground dark:px-1`} />
     </Link>
   );
 }
@@ -187,15 +187,15 @@ export function BottomNav() {
   const { user } = useAuth();
   const unread = useUnreadChats(user?.id).data?.total ?? 0;
   return (
-    // Same font on every tab, matching the Akun page.
-    <nav className="mk-acc-serif fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
+    // Plain sans labels like the original marketku.id nav.
+    <nav className="mk-acc-heading fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
       <div className="grid grid-cols-4 rounded-2xl border bg-card p-1 shadow-lg">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
             activeOptions={{ exact: to === "/" }}
-            className="group relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-xs font-semibold text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
+            className="group relative flex flex-col items-center gap-0.5 rounded-xl py-2 text-xs font-medium text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
           >
             <span className="absolute -top-1 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-out group-data-[status=active]:w-1/2" />
             <span className="relative">
