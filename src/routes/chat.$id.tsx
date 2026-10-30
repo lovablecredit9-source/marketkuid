@@ -144,7 +144,7 @@ function ChatRoom() {
   const onType = (v: string) => {
     setText(v);
     const now = Date.now();
-    if (v.trim() && now - lastTyping.current > 3000) { lastTyping.current = now; void supabase.rpc("set_typing", { p_id: id }); }
+    if (v.trim() && now - lastTyping.current > 3000) { lastTyping.current = now; supabase.rpc("set_typing", { p_id: id }).then(() => {}, () => {}); }
   };
   const send = async () => {
     const body = text.trim() || (attached ? "Halo, saya mau tanya produk ini" : "");
