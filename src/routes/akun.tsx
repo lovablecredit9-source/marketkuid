@@ -44,7 +44,7 @@ function Stat({ icon: I, value, label, full }: { icon: typeof Coins; value: numb
 function Tile({ icon: I, label, tone, onClick }: { icon: typeof Coins; label: string; tone: Tone; onClick: () => void }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1.5 rounded-xl border bg-card py-2.5 text-xs font-semibold shadow-sm transition active:scale-95">
-      <span className={`grid h-9 w-9 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-5 w-5" /></span>
+      <span className={`grid h-8 w-8 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-4 w-4" /></span>
       {label}
     </button>
   );
@@ -236,7 +236,7 @@ function BigCard({ tone, icon: I, title, desc, onClick }: { tone: "amber" | "gre
   const box = tone === "amber" ? "border-tone-amber/40 bg-tone-amber/5" : "border bg-card";
   return (
     <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left shadow-sm transition active:scale-[0.98] ${box}`}>
-      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneClass[tone]}`}><I className="h-5 w-5" /></span>
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${toneClass[tone]}`}><I className="h-4 w-4" /></span>
       <span className="flex-1">
         <span className="block text-sm font-bold">{title}</span>
         <span className="mt-0.5 block text-xs text-muted-foreground">{desc}</span>
