@@ -155,6 +155,13 @@
       "when": 1793319414286,
       "tag": "0021_order_payments_wallet_qris",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793319545450,
+      "tag": "0022_order_payment_guards",
+      "breakpoints": true
     }
   ]
 }
