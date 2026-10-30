@@ -44,4 +44,4 @@
 - [x] Blokir akun & toko (1/3/7/14/30 hari, custom, permanen), turunkan produk, atur saldo manual, log aktivitas
 - [x] Top up via QRIS, DANA, GoPay, OVO, ShopeePay, LinkAja, bank (diatur admin)
 - [x] Bayar pesanan pakai Saldo Marketku atau QRIS/e-wallet (bukti dicek admin di tab Bayar Order); produk berstok terkirim otomatis, seller dapat saldo saat pesanan selesai
-- [ ] Tarik saldo (withdraw) seller/pembeli
+- [x] Tarik saldo seller (reguler Rp2.000 / same day Rp3.000, riwayat, detail, pendapatan, auto withdraw, diproses admin)

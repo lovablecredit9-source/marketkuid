@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
   Wallet, Repeat, Landmark, Clock, CircleCheck, CircleX, Coins, ListChecks, ChevronRight, Inbox,
-  ReceiptText, History, Send, X, Search, CalendarDays, Loader2, Hourglass,
+  ReceiptText, History, Send, Check, X, Search, CalendarDays, Loader2, Hourglass,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
@@ -291,7 +291,7 @@ function Withdraw() {
       {/* Tarik saldo */}
       <CenterModal open={open} onClose={() => setOpen(false)} title="Tarik saldo" desc="Seluruh saldo tersedia akan ditarik ke rekening terdaftar.">
         <button onClick={() => quota && setSameDay((s) => !s)} className={`flex w-full gap-3 rounded-xl border p-3 text-left transition ${sameDay ? "border-primary" : ""}`}>
-          <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded ${sameDay ? "bg-primary text-primary-foreground" : "border bg-foreground"}`}>{sameDay && <CircleCheck className="h-3.5 w-3.5" />}</span>
+          <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded ${sameDay ? "bg-primary text-primary-foreground" : "border bg-foreground"}`}>{sameDay && <Check className="h-3.5 w-3.5" strokeWidth={3} />}</span>
           <span>
             <span className="block text-sm font-bold">Same day processing</span>
             <span className="mt-0.5 block text-xs text-muted-foreground">{sameDay ? "Diproses di hari yang sama, tiba lebih cepat." : "Penarikan diproses pukul 10.00 WIB. Penarikan setelah jam tersebut diproses keesokan harinya."}</span>
@@ -369,7 +369,7 @@ function CenterModal({ open, onClose, title, desc, children }: { open: boolean; 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-background/75 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
         <Dialog.Content aria-describedby={undefined} className="seller-panel fixed left-1/2 top-4 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 overflow-y-auto rounded-2xl border bg-card shadow-2xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95">
           <div className="flex items-start justify-between gap-3 border-b px-4 py-3">
             <div><Dialog.Title className="text-base font-bold">{title}</Dialog.Title>{desc && <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>}</div>
