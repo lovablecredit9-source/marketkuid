@@ -111,7 +111,7 @@ function Dasbor() {
             {all.slice(0, 5).map((o) => (
               <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left">
                 <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
-                <span className="text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className="text-xs text-muted-foreground">{ORDER_LABEL[o.status]}</span></span>
+                <span className="text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className={`text-xs font-medium ${["paid", "completed"].includes(o.status) ? "text-success" : ["cancelled", "failed"].includes(o.status) ? "text-destructive" : o.status === "pending" ? "text-warning" : "text-muted-foreground"}`}>{ORDER_LABEL[o.status]}</span></span>
               </button>
             ))}
           </div>
