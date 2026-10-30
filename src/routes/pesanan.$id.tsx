@@ -2,16 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { QrCode, Clock, Store, Copy, XCircle, Package, Star, Loader2, MessageCircle } from "lucide-react";
+import type React from "react";
+import { Clock, Copy, XCircle, Package, Star, Loader2, MessageCircle, ReceiptText, BadgeCheck, Check, Headphones } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { dbError, fmtDateTime } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
-import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
-import { OrderPayBox } from "@/components/marketku/order-pay";
 
 export const Route = createFileRoute("/pesanan/$id")({
   head: () => pageMeta("Detail Pesanan — Marketku", "Status pembayaran, produk, dan pengiriman pesananmu di Marketku."),
@@ -46,10 +45,11 @@ function Pesanan() {
   });
   const orders = q.data?.orders ?? [];
   const pending = orders.filter((o) => o.status === "pending");
-  const due = pending.reduce((a, o) => a + Number(o.total), 0);
-  const saldoDue = pending.reduce((a, o) => a + Number(o.subtotal) - Number(o.discount), 0);
+
+
   const cd = useCountdown(pending[0]?.expires_at);
   const [busy, setBusy] = useState(false);
+  const [allSteps, setAllSteps] = useState(false);
   const refresh = () => qc.invalidateQueries({ queryKey: ["order_view", id, user?.id] });
 
   const cancel = async () => {
@@ -73,7 +73,6 @@ function Pesanan() {
   if (!orders.length) return <AppShell><div className="p-3"><EmptyState icon={Package} title="Pesanan tidak ditemukan" desc="Pesanan ini tidak ada di akunmu." action={<PrimaryLink to="/cari">Belanja</PrimaryLink>} /></div></AppShell>;
 
   const first = orders[0]!;
-  const paid = orders.some((o) => o.paid_at);
   const stage = (s: string) => ({ pending: 0, paid: 1, processing: 2, completed: 3 } as Record<string, number>)[s] ?? -1;
   const st = Math.max(...orders.map((o) => stage(o.status)));
   const cancelled = orders.every((o) => ["cancelled", "failed"].includes(o.status));
@@ -83,7 +82,6 @@ function Pesanan() {
     { t: "Pesanan diproses seller", d: "Seller menyiapkan produk pesanan.", at: null, done: st >= 2 },
     { t: "Konfirmasi penerimaan", d: "Periksa produk sebelum mengonfirmasi penerimaan.", at: first.completed_at, done: st >= 3 },
   ];
-  const [allSteps, setAllSteps] = useState(false);
   const shown = cancelled ? [steps[0]!, { t: "Pesanan dibatalkan", d: "Pesanan ini tidak dilanjutkan.", at: first.updated_at, done: true }] : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.findLastIndex((x) => x.done)).slice(0, 2);
 
   return (
@@ -159,7 +157,6 @@ function Pesanan() {
 
         <SecHead icon={Headphones} t="Bantuan pesanan" d="Semua komunikasi dengan seller dilakukan melalui Marketku." />
         <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center justify-between rounded-2xl border bg-card px-4 py-3.5 text-left font-bold transition active:scale-[0.98]">Hubungi seller <MessageCircle className="h-4 w-4 text-muted-foreground" /></button>
-        {paid && <p className="hidden" />}
         <Link to="/riwayat" className="block text-center font-semibold text-primary">Lihat semua pesanan</Link>
       </div>
     </AppShell>
@@ -177,6 +174,7 @@ function ReviewForm({ itemId, productId, sellerId, onDone }: { itemId: string; p
   const [comment, setComment] = useState("");
   const [topic, setTopic] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [allSteps, setAllSteps] = useState(false);
   const send = async () => {
     if (!user || rating < 1) { toast.error("Pilih rating dulu"); return; }
     setBusy(true);
