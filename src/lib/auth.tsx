@@ -7,7 +7,8 @@ import { inSellerCenter } from "@/lib/chat";
 /** Buyer presence = any visit; seller presence only inside an unlocked Seller Center. */
 export function beatPresence(uid: string | undefined) {
   if (!uid) return;
-  void supabase.rpc("touch_presence", { p_seller: inSellerCenter(uid) });
+  // The query builder is lazy: it only sends the request once .then() is called.
+  supabase.rpc("touch_presence", { p_seller: inSellerCenter(uid) }).then(() => {}, () => {});
 }
 
 type AuthState = { user: User | null; session: Session | null; ready: boolean };

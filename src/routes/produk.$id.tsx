@@ -47,7 +47,7 @@ function ProdukDetail() {
     const key = `mk-viewed-${id}`;
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
-    void supabase.rpc("record_product_view", { p_product: id });
+    supabase.rpc("record_product_view", { p_product: id }).then(() => {}, () => {});
   }, [id]);
   const similar = useMarketProducts({ category: p?.category_id ?? null, limit: 12 });
   const storeReviews = useReviews(p ? { seller: p.owner_id } : {});

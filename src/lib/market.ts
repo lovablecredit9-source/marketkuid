@@ -251,7 +251,7 @@ export function useSponsored(q = "", limit = 6) {
     },
   });
 }
-export const trackAdClick = (campaignId: string) => { void supabase.rpc("track_ad_click", { p_campaign: campaignId }); };
+export const trackAdClick = (campaignId: string) => { supabase.rpc("track_ad_click", { p_campaign: campaignId }).then(() => {}, () => {}); };
 
 export function useCategoryCounts() {
   return useQuery({
