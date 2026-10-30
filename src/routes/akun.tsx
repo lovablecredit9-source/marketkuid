@@ -68,12 +68,12 @@ function Akun() {
   if (user) return <AkunDashboard user={user} />;
   return (
     <AppShell title="Akun Saya">
-      <div className="relative overflow-hidden px-6 pt-16">
+      <div className="relative overflow-hidden px-4 pt-16">
         <div aria-hidden className="pointer-events-none absolute -left-24 top-40 h-[22rem] w-[40rem] rounded-[50%] border border-primary/10" />
         <div aria-hidden className="pointer-events-none absolute -left-10 top-48 h-[20rem] w-[36rem] rounded-[50%] border border-primary/10" />
         <div className="relative">
           <ShieldCheck className="ml-4 h-7 w-7 text-primary" />
-          <h1 className="mt-5 text-center text-lg font-bold">Masuk dulu untuk membuka akunmu</h1>
+          <h1 className="mt-5 text-center text-[17px] font-bold">Masuk dulu untuk membuka akunmu</h1>
           <p className="mt-2 text-center text-sm text-foreground/80">Setelah login, kamu bisa lihat saldo, ringkasan pesanan, dan aktivitas wishlist.</p>
           <div className="mt-6 flex justify-center gap-3">
             <Link to="/login" className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition active:scale-95">Masuk</Link>
