@@ -247,11 +247,11 @@ export function PrimaryLink({ to, children }: { to: "/" | "/cari" | "/login"; ch
 
 export function MenuRow({ icon: Icon, title, desc, onClick, tone = "blue" }: { icon: typeof Home; title: string; desc: string; onClick?: () => void; tone?: Tone }) {
   return (
-    <button onClick={onClick ?? (() => soon(title))} className="flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left shadow-sm transition active:scale-[0.98]">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${toneClass[tone]}`}><Icon className="h-4 w-4" /></span>
+    <button onClick={onClick ?? (() => soon(title))} className="flex w-full items-center gap-2.5 rounded-lg border bg-card px-2.5 py-2 text-left shadow-sm transition active:scale-[0.98]">
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-md ${toneClass[tone]}`}><Icon className="h-3.5 w-3.5" /></span>
       <span className="flex-1">
-        <span className="block text-[15px] font-semibold">{title}</span>
-        <span className="block text-xs text-muted-foreground">{desc}</span>
+        <span className="block text-[13px] font-semibold">{title}</span>
+        <span className="block text-[11px] text-muted-foreground">{desc}</span>
       </span>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
     </button>
@@ -260,8 +260,8 @@ export function MenuRow({ icon: Icon, title, desc, onClick, tone = "blue" }: { i
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card p-4">
-      <h3 className="mb-3 text-xs font-bold tracking-widest text-muted-foreground">{title}</h3>
+    <section className="rounded-xl border bg-card p-3">
+      <h3 className="mb-2 text-[10px] font-bold tracking-widest text-muted-foreground">{title}</h3>
       <div className="space-y-2">{children}</div>
     </section>
   );
