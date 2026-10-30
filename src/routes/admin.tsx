@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Ban, Check, ChevronRight, Copy, Eye, EyeOff, History, ImagePlus, LayoutDashboard, Loader2, LogOut, MessageCircle, Minus, Package,
-  Plus, QrCode, Receipt, RefreshCw, Search, ShieldCheck, ShieldOff, Store, Trash2, TrendingUp, Users, Wallet, X, CreditCard, UserX, AlertTriangle,
+  Plus, QrCode, Receipt, RefreshCw, Search, ShieldCheck, ShieldOff, Store, Trash2, TrendingUp, Users, Wallet, X, CreditCard, UserX, AlertTriangle, Landmark, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { rupiah } from "@/components/marketku/shell";
@@ -26,6 +26,7 @@ const TABS = [
   { key: "ringkasan", label: "Ringkasan", icon: LayoutDashboard },
   { key: "deposit", label: "Deposit", icon: Wallet },
   { key: "bayar", label: "Bayar Order", icon: QrCode },
+  { key: "withdraw", label: "Withdraw", icon: Landmark },
   { key: "pembayaran", label: "Metode", icon: CreditCard },
   { key: "pengguna", label: "Pengguna", icon: Users },
   { key: "toko", label: "Toko", icon: Store },
@@ -59,6 +60,11 @@ function Admin() {
     queryFn: async () => (await supabase.from("order_payments").select("id", { count: "exact", head: true }).eq("status", "pending")).count ?? 0,
   });
 
+  const wdCount = useQuery({
+    queryKey: ["admin_wd_count"], enabled: !!isAdmin.data, refetchInterval: 60_000,
+    queryFn: async () => (await supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending")).count ?? 0,
+  });
+
   if (!isAdmin.data) return <div className="admin-panel grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   const signOut = async () => {
@@ -68,6 +74,7 @@ function Admin() {
   };
   const pending = stats.data?.deposits_pending ?? 0;
   const payPending = orderPayCount.data ?? 0;
+  const wdPending = wdCount.data ?? 0;
 
   return (
     <div className="admin-panel min-h-screen">
@@ -87,6 +94,7 @@ function Admin() {
               <button key={t.key} onClick={() => setTab(t.key)} className={`relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition active:scale-95 ${tab === t.key ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "bg-card text-muted-foreground"}`}>
                 <t.icon className="h-3.5 w-3.5" /> {t.label}
                 {t.key === "deposit" && pending > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] text-white">{pending}</span>}
+                {t.key === "withdraw" && wdPending > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] text-white">{wdPending}</span>}
                 {t.key === "bayar" && payPending > 0 && <span className="grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] text-white">{payPending}</span>}
               </button>
             ))}
@@ -96,6 +104,7 @@ function Admin() {
           {tab === "ringkasan" && <Overview onGo={setTab} />}
           {tab === "deposit" && <Deposits />}
           {tab === "bayar" && <OrderPaymentsTab />}
+          {tab === "withdraw" && <WithdrawalsTab />}
           {tab === "pembayaran" && <PaymentMethods />}
           {tab === "pengguna" && <UsersTab />}
           {tab === "toko" && <StoresTab />}
@@ -379,6 +388,88 @@ function OrderPaymentsTab() {
         </Sheet>
       )}
       {view && <button onClick={() => setView(null)} className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4"><img src={view} alt="Bukti bayar" className="max-h-full max-w-full rounded-xl" /></button>}
+    </>
+  );
+}
+
+/* ---------- Withdraw seller ---------- */
+
+function WithdrawalsTab() {
+  const qc = useQueryClient();
+  const [filter, setFilter] = useState<"pending" | "sent" | "rejected" | "all">("pending");
+  const list = useQuery({
+    queryKey: ["admin_withdrawals", filter],
+    queryFn: async () => {
+      let q = supabase.from("withdrawal_requests").select("*").order("created_at", { ascending: false }).limit(100);
+      if (filter !== "all") q = q.eq("status", filter);
+      const { data, error } = await q; if (error) throw error;
+      const ids = [...new Set((data ?? []).map((w) => w.user_id))];
+      const { data: ss } = ids.length ? await supabase.from("seller_stores").select("owner_id, store_name").in("owner_id", ids) : { data: [] };
+      return (data ?? []).map((w) => ({ ...w, store: ss?.find((s) => s.owner_id === w.user_id)?.store_name ?? "Seller" }));
+    },
+  });
+  const rows = list.data ?? [];
+  const [busy, setBusy] = useState<string | null>(null);
+  const [reject, setReject] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const review = async (id: string, approve: boolean, n?: string) => {
+    if (approve && !window.confirm("Tandai sudah ditransfer ke rekening seller?")) return;
+    setBusy(id);
+    const { error } = await supabase.rpc("admin_review_withdrawal", { p_id: id, p_approve: approve, ...(n?.trim() ? { p_note: n.trim() } : {}) });
+    setBusy(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(approve ? "Penarikan ditandai terkirim" : "Penarikan ditolak, saldo dikembalikan");
+    setReject(null); setNote("");
+    qc.invalidateQueries({ queryKey: ["admin_withdrawals"] });
+    qc.invalidateQueries({ queryKey: ["admin_wd_count"] });
+  };
+  const copy = (t: string) => { void navigator.clipboard.writeText(t); toast.success("Disalin"); };
+  const label = { pending: ["Diproses", "bg-amber-500/15 text-amber-400"], sent: ["Selesai", "bg-emerald-500/15 text-emerald-400"], rejected: ["Ditolak", "bg-destructive/15 text-destructive"] } as Record<string, [string, string]>;
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-hidden"><Chips value={filter} onChange={setFilter} items={[["pending", "Diproses"], ["sent", "Selesai"], ["rejected", "Ditolak"], ["all", "Semua"]]} /></div>
+        <Refresh q={list} />
+      </div>
+      <p className="text-xs text-muted-foreground">Transfer "Dana diterima" ke rekening seller secara manual, lalu tandai terkirim. Jika ditolak, saldo otomatis kembali ke seller.</p>
+      {list.isPending ? <Loading label="Memuat penarikan..." /> : rows.length === 0 ? <Empty text="Belum ada permintaan penarikan." /> : rows.map((w) => {
+        const [l, cls] = label[w.status] ?? ["-", ""];
+        return (
+          <div key={w.id} className="rounded-2xl border bg-card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{w.store}</p>
+                <p className="truncate text-xs text-muted-foreground">{fmtDate(w.created_at)} • {w.same_day ? "Same day" : w.auto ? "Auto" : "Reguler"}</p>
+              </div>
+              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cls}`}>{l}</span>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="rounded-xl bg-muted/50 p-2"><p className="text-muted-foreground">Nominal</p><p className="font-semibold">{rupiah(Number(w.amount))}</p></div>
+              <div className="rounded-xl bg-muted/50 p-2"><p className="text-muted-foreground">Biaya</p><p className="font-semibold">{rupiah(Number(w.fee))}</p></div>
+              <div className="rounded-xl bg-primary/10 p-2"><p className="text-muted-foreground">Transfer</p><p className="font-bold text-primary">{rupiah(Number(w.net))}</p></div>
+            </div>
+            <button onClick={() => copy(w.bank_number)} className="mt-2 flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs">
+              <span className="h-2 w-2 rounded-full" style={{ background: providerColor(w.bank_provider) }} />
+              <span className="flex-1"><b>{w.bank_provider}</b> {w.bank_number}{w.bank_holder ? ` • a.n. ${w.bank_holder}` : ""}</span>
+              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            {w.admin_note && <p className="mt-1.5 text-xs text-muted-foreground">Catatan: {w.admin_note}</p>}
+            {w.status === "pending" && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button disabled={busy === w.id} onClick={() => setReject(w.id)} className="flex items-center justify-center gap-1 rounded-xl border border-destructive/40 py-2 text-sm font-semibold text-destructive disabled:opacity-50"><X className="h-4 w-4" /> Tolak</button>
+                <button disabled={busy === w.id} onClick={() => void review(w.id, true)} className="flex items-center justify-center gap-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"><Send className="h-4 w-4" /> Terkirim</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {reject && (
+        <Sheet title="Tolak penarikan" onClose={() => setReject(null)}>
+          <label className="block text-xs font-semibold text-muted-foreground">Alasan (dilihat seller)<textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. nama tidak sesuai" className={inputCls} /></label>
+          <div className="mt-2 flex flex-wrap gap-1.5">{["nama tidak sesuai", "Nomor rekening salah", "Rekening tidak aktif", "Indikasi penipuan"].map((r) => <button key={r} onClick={() => setNote(r)} className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground">{r}</button>)}</div>
+          <button disabled={busy === reject || !note.trim()} onClick={() => void review(reject, false, note)} className="mt-4 w-full rounded-xl bg-destructive py-2.5 text-sm font-bold text-white disabled:opacity-60">Tolak & Kembalikan Saldo</button>
+        </Sheet>
+      )}
     </>
   );
 }
