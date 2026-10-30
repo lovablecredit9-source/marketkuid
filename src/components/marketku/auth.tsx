@@ -32,7 +32,7 @@ export function AuthCard({ children }: { children: ReactNode }) {
 export function AuthTitle({ title, desc }: { title: string; desc?: string }) {
   return (
     <div className="mb-4 text-center">
-      <h1 className="text-[19px] font-bold leading-tight">{title}</h1>
+      <h1 className="text-[17px] font-bold leading-tight">{title}</h1>
       {desc && <p className="mt-1 text-[12.5px] text-muted-foreground">{desc}</p>}
     </div>
   );
@@ -52,14 +52,14 @@ export function Field({ label, icon: Icon, hint, status, message, password, id, 
   const inputId = id ?? rest.name;
   return (
     <div className="space-y-1.5">
-      {label && <label htmlFor={inputId} className="block text-[12.5px] font-semibold">{label}</label>}
-      <div className="flex items-center gap-2.5 rounded-lg border border-input bg-card px-3 py-2.5 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+      {label && <label htmlFor={inputId} className="block text-xs font-semibold">{label}</label>}
+      <div className="flex items-center gap-2.5 rounded-lg border border-input bg-card px-3 py-2 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
         <Icon className="h-4 w-4 shrink-0 text-primary" />
         <input
           id={inputId}
           {...rest}
           type={password ? (show ? "text" : "password") : rest.type}
-          className="min-w-0 flex-1 bg-transparent text-[14px] leading-5 outline-none placeholder:text-muted-foreground"
+          className="min-w-0 flex-1 bg-transparent text-[15px] leading-5 outline-none placeholder:text-muted-foreground"
         />
         {password && (
           <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Sembunyikan password" : "Lihat password"} className="text-muted-foreground">
