@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type React from "react";
-import { Clock, Copy, XCircle, Package, Star, Loader2, MessageCircle, ReceiptText, BadgeCheck, Check, Headphones } from "lucide-react";
+import { Clock, Copy, XCircle, Package, Star, Loader2, MessageCircle, ReceiptText, BadgeCheck, Check, Headphones, Flag, Download } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -104,6 +104,10 @@ function Pesanan() {
           </section>
         )}
 
+        {orders.filter((o) => o.paid_at && ["paid", "processing", "completed"].includes(o.status)).map((o) => (
+          <Received key={`r-${o.id}`} order={o} onDone={() => void refresh()} onReport={() => void chat(o.seller_id)} />
+        ))}
+
         <SecHead icon={ReceiptText} t="Detail transaksi" d="Produk dan rincian pembayaran pesanan." />
         {orders.map((o) => (
           <section key={o.id} className="overflow-hidden rounded-2xl border bg-card">
@@ -167,6 +171,90 @@ const SecHead = ({ icon: I, t, d }: { icon: typeof Clock; t: string; d: string }
   <div className="flex gap-3 px-1"><I className="mt-0.5 h-6 w-6 shrink-0" /><div><h2 className="text-lg font-bold">{t}</h2><p className="text-sm text-muted-foreground">{d}</p></div></div>
 );
 const Row = ({ a, b }: { a: string; b: React.ReactNode }) => <div className="flex justify-between gap-3"><span className="text-muted-foreground">{a}</span><b className="text-right">{b}</b></div>;
+
+type OrderRow = { id: string; order_no: number; created_at: string; paid_at: string | null; status: string; order_items: { id: string; product_name: string; variant_name: string; delivered: string[] }[] };
+
+function saveFile(name: string, text: string, type: string) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// Kartu "Pesanan diterima": pembeli konfirmasi → dana diteruskan ke seller; otomatis selesai 5 jam setelah dibayar.
+function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () => void; onReport: () => void }) {
+  const [now, setNow] = useState(() => Date.now());
+  const [ask, setAsk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  useEffect(() => { const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
+  const left = Math.max(0, new Date(o.paid_at!).getTime() + 5 * 3600_000 - now);
+  const open = left > 0 && !confirmed;
+  const hh = (n: number) => String(n).padStart(2, "0");
+  const timer = `${hh(Math.floor(left / 3600000))}:${hh(Math.floor((left % 3600000) / 60000))}:${hh(Math.floor((left % 60000) / 1000))}`;
+  const codes = o.order_items.flatMap((i) => i.delivered.map((d) => ({ p: i.product_name, v: i.variant_name, d })));
+  const confirm = async () => {
+    setBusy(true);
+    const { error } = await supabase.rpc("buyer_confirm_order", { p_order: o.id });
+    setBusy(false);
+    if (error) { toast.error(dbError(error)); return; }
+    setAsk(false); setConfirmed(true);
+    toast.success("Pesanan selesai. Terima kasih!");
+    onDone();
+  };
+  const d = new Date(o.created_at);
+  return (
+    <>
+      <section className="overflow-hidden rounded-2xl border border-l-4 border-l-success bg-card">
+        <div className="flex items-center justify-between border-b px-4 py-2.5 text-sm text-muted-foreground">
+          <span>{d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}, {d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</span>
+          <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-xs"><Copy className="h-3 w-3" />M-{o.order_no}</button>
+        </div>
+        <div className="space-y-2.5 p-4">
+          <p className="font-bold uppercase leading-snug">{o.order_items.map((i) => i.product_name).join(", ")}</p>
+          {open ? (
+            <button onClick={() => setAsk(true)} className="w-full rounded-xl bg-success py-3 text-sm font-bold text-primary-foreground transition active:scale-[0.98]">Pesanan diterima</button>
+          ) : (
+            <p className="flex items-center justify-center gap-2 rounded-xl bg-success/15 py-3 text-sm font-bold text-success"><Check className="h-4 w-4" /> Pesanan selesai</p>
+          )}
+          <button onClick={onReport} className="flex w-full items-center justify-center gap-2 rounded-xl border border-warning/60 py-3 text-sm font-semibold text-warning transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan</button>
+        </div>
+      </section>
+      {open && (
+        <div className="rounded-2xl bg-warning/10 p-4 text-sm">
+          <p className="font-bold text-warning">⏱️ Pesanan akan dikonfirmasi otomatis dalam <span className="font-mono">{timer}</span></p>
+          <p className="mt-1 text-warning/80">Jika pesanan tidak dikonfirmasi, pesanan akan otomatis diselesaikan setelah waktu habis.</p>
+        </div>
+      )}
+      {codes.length > 0 && (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => saveFile(`M-${o.order_no}.csv`, "produk,varian,kode\n" + codes.map((c) => [c.p, c.v, c.d].map((x) => `"${x.replace(/"/g, '""')}"`).join(",")).join("\n"), "text/csv")} className="flex items-center justify-center gap-2 rounded-xl border bg-card py-3 text-sm font-semibold"><Download className="h-4 w-4" /> Download CSV</button>
+            <button onClick={() => saveFile(`M-${o.order_no}.txt`, codes.map((c) => c.d).join("\n"), "text/plain")} className="flex items-center justify-center gap-2 rounded-xl border bg-card py-3 text-sm font-semibold"><Download className="h-4 w-4" /> Download TXT</button>
+          </div>
+          <section className="overflow-hidden rounded-2xl border bg-card">
+            <p className="border-b px-4 py-3 font-bold">Detail pesanan</p>
+            {codes.map((c, n) => (
+              <div key={n} className="flex items-center gap-3 border-b px-4 py-3 last:border-0">
+                <div className="min-w-0 flex-1"><p className="text-xs font-bold tracking-wider text-muted-foreground">KODE</p><p className="mt-1 whitespace-pre-wrap break-all font-mono text-sm">{c.d}</p></div>
+                <button aria-label="Salin kode" onClick={() => { void navigator.clipboard.writeText(c.d); toast.success("Kode disalin"); }} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border"><Copy className="h-4 w-4" /></button>
+              </div>
+            ))}
+          </section>
+        </>
+      )}
+      {ask && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-6 backdrop-blur-sm" onClick={() => !busy && setAsk(false)}>
+          <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} className="w-full max-w-sm rounded-2xl bg-card p-5 text-center shadow-2xl animate-in zoom-in-95">
+            <p className="text-lg font-bold">Selesaikan pesanan?</p>
+            <p className="mt-2 text-sm text-muted-foreground">Jika pesanan diselesaikan, dana akan diteruskan ke seller dan <b className="text-foreground">tidak dapat dibatalkan</b> lagi. Pastikan data akses sudah kamu terima dengan benar.</p>
+            <button disabled={busy} onClick={() => setAsk(false)} className="mt-4 w-full rounded-xl border bg-muted/50 py-3 text-sm font-bold">Batal</button>
+            <button disabled={busy} onClick={() => void confirm()} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-success py-3 text-sm font-bold text-primary-foreground">{busy && <Loader2 className="h-4 w-4 animate-spin" />}Ya, Selesaikan</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 function ReviewForm({ itemId, productId, sellerId, onDone }: { itemId: string; productId: string; sellerId: string; onDone: () => void }) {
   const { user } = useAuth();
