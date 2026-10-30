@@ -141,6 +141,13 @@
       "when": 1793317162629,
       "tag": "0019_grant_owner_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793318138866,
+      "tag": "0020_admin_bans_payment_methods",
+      "breakpoints": true
     }
   ]
 }

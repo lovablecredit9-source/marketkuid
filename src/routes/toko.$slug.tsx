@@ -26,6 +26,10 @@ function Toko() {
     queryFn: async () => (await supabase.rpc("store_by_slug", { p_slug: slug })).data?.[0] ?? null,
   });
   const s = store.data;
+  const banned = useQuery({
+    queryKey: ["store_banned", s?.owner_id], enabled: !!s?.owner_id,
+    queryFn: async () => !!(await supabase.rpc("store_ban_status", { p_owner: s!.owner_id })).data,
+  });
   const products = useMarketProducts({ owner: s?.owner_id ?? "__none__", limit: 100 });
   const reviews = useReviews({ seller: s?.owner_id ?? "" });
   const media = useStoreMedia(s?.owner_id ? [s.owner_id] : []);
@@ -74,6 +78,7 @@ function Toko() {
               <button onClick={() => void chat()} className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground transition active:scale-95"><MessageCircle className="h-3.5 w-3.5" /> Kirim Pesan</button>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
+            {banned.data && <p className="mt-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
             {s.description && <p className="mt-2 text-sm">{s.description}</p>}
             <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
               {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, `${(r.count ? r.avg : 0).toFixed(1)} ★`, "Rating"]].map(([I, n, l]) => {

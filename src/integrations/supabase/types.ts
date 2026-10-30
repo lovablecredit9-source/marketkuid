@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_bans: {
+        Row: {
+          banned_by: string | null
+          banned_until: string | null
+          created_at: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_by?: string | null
+          banned_until?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_by?: string | null
+          banned_until?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ad_campaigns: {
         Row: {
           clicks: number
@@ -204,6 +228,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          note: string | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -303,6 +357,8 @@ export type Database = {
           amount: number
           created_at: string
           id: string
+          method_id: string | null
+          method_label: string | null
           proof_path: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -314,6 +370,8 @@ export type Database = {
           amount: number
           created_at?: string
           id?: string
+          method_id?: string | null
+          method_label?: string | null
           proof_path: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -325,6 +383,8 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: string
+          method_id?: string | null
+          method_label?: string | null
           proof_path?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -535,6 +595,42 @@ export type Database = {
           unique_code?: number
           updated_at?: string
           voucher_code?: string | null
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          provider: string
+          qr_path: string | null
+          sort: number
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          provider: string
+          qr_path?: string | null
+          sort?: number
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          provider?: string
+          qr_path?: string | null
+          sort?: number
         }
         Relationships: []
       }
@@ -763,6 +859,8 @@ export type Database = {
       }
       products: {
         Row: {
+          admin_hidden: boolean
+          admin_note: string | null
           category_id: string | null
           created_at: string
           description: string
@@ -780,6 +878,8 @@ export type Database = {
           work_estimate: string | null
         }
         Insert: {
+          admin_hidden?: boolean
+          admin_note?: string | null
           category_id?: string | null
           created_at?: string
           description?: string
@@ -797,6 +897,8 @@ export type Database = {
           work_estimate?: string | null
         }
         Update: {
+          admin_hidden?: boolean
+          admin_note?: string | null
           category_id?: string | null
           created_at?: string
           description?: string
@@ -1001,6 +1103,30 @@ export type Database = {
             referencedColumns: ["owner_id"]
           },
         ]
+      }
+      store_bans: {
+        Row: {
+          banned_by: string | null
+          banned_until: string | null
+          created_at: string
+          owner_id: string
+          reason: string | null
+        }
+        Insert: {
+          banned_by?: string | null
+          banned_until?: string | null
+          created_at?: string
+          owner_id: string
+          reason?: string | null
+        }
+        Update: {
+          banned_by?: string | null
+          banned_until?: string | null
+          created_at?: string
+          owner_id?: string
+          reason?: string | null
+        }
+        Relationships: []
       }
       store_follows: {
         Row: {
@@ -1239,11 +1365,75 @@ export type Database = {
     }
     Functions: {
       ad_refresh_queue: { Args: never; Returns: undefined }
+      admin_adjust_wallet: {
+        Args: { p_amount: number; p_note: string; p_user: string }
+        Returns: number
+      }
+      admin_ban_store: {
+        Args: { p_days: number; p_owner: string; p_reason: string }
+        Returns: undefined
+      }
+      admin_ban_user: {
+        Args: { p_days: number; p_reason: string; p_user: string }
+        Returns: undefined
+      }
+      admin_log: {
+        Args: {
+          p_action: string
+          p_note: string
+          p_target: string
+          p_type: string
+        }
+        Returns: undefined
+      }
       admin_review_deposit: {
         Args: { p_approve: boolean; p_id: string; p_note?: string }
         Returns: undefined
       }
+      admin_set_product_hidden: {
+        Args: { p_hidden: boolean; p_id: string; p_note: string }
+        Returns: undefined
+      }
       admin_stats: { Args: never; Returns: Json }
+      admin_stores: {
+        Args: never
+        Returns: {
+          ban_reason: string
+          banned_until: string
+          contact_phone: string
+          created_at: string
+          is_banned: boolean
+          is_open: boolean
+          orders: number
+          owner_email: string
+          owner_id: string
+          products: number
+          revenue: number
+          slug: string
+          store_name: string
+          telegram_username: string
+        }[]
+      }
+      admin_unban_store: { Args: { p_owner: string }; Returns: undefined }
+      admin_unban_user: { Args: { p_user: string }; Returns: undefined }
+      admin_users: {
+        Args: never
+        Returns: {
+          balance: number
+          ban_reason: string
+          banned_until: string
+          created_at: string
+          email: string
+          full_name: string
+          has_store: boolean
+          id: string
+          is_admin: boolean
+          is_banned: boolean
+          last_seen_at: string
+          username: string
+          whatsapp: string
+        }[]
+      }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
       category_product_counts: {
@@ -1272,7 +1462,7 @@ export type Database = {
         Returns: string
       }
       create_deposit: {
-        Args: { p_amount: number; p_proof: string }
+        Args: { p_amount: number; p_method?: string; p_proof: string }
         Returns: string
       }
       delete_message: {
@@ -1287,8 +1477,18 @@ export type Database = {
         Returns: boolean
       }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
+      is_account_banned: { Args: { p_user: string }; Returns: boolean }
       is_conversation_participant: { Args: { p_id: string }; Returns: boolean }
+      is_store_banned: { Args: { p_owner: string }; Returns: boolean }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
+      my_bans: {
+        Args: never
+        Returns: {
+          banned_until: string
+          kind: string
+          reason: string
+        }[]
+      }
       place_order: {
         Args: {
           p_items: Json
@@ -1340,6 +1540,7 @@ export type Database = {
         }[]
       }
       start_conversation: { Args: { p_seller: string }; Returns: string }
+      store_ban_status: { Args: { p_owner: string }; Returns: boolean }
       store_by_slug: {
         Args: { p_slug: string }
         Returns: {
