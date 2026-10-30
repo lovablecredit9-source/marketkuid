@@ -3,7 +3,7 @@ import { useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, QrCode, MessageCircle, Copy, Loader2,
+  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, QrCode, MessageCircle, Copy, Loader2, Shield,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,7 +118,8 @@ function Transaksi() {
             <div className="mt-1.5 flex justify-between text-sm"><span className="text-muted-foreground">{o.buyer_name}</span><span className="font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span></div>
             <div className="mt-2 flex items-center gap-1.5 text-[11px]">
               <span className="mr-auto text-muted-foreground">{fmtDateTime(o.created_at)}</span>
-              <span className="flex items-center gap-1 rounded-full border border-primary/60 px-2 py-1 text-primary"><QrCode className="h-3 w-3" /> QRIS Marketku</span>
+              <span className="flex items-center gap-1 rounded-full border border-primary/60 px-2 py-1 text-primary"><QrCode className="h-3 w-3" /> {o.payment_method === "saldo" ? "Saldo" : "QRIS Marketku"}</span>
+              <EscrowBadge e={escrowOf(o)} />
               <button onClick={(e) => { e.stopPropagation(); void openChat(o); }} className="flex items-center gap-1 rounded-lg border px-2 py-1 font-medium transition active:scale-95"><MessageCircle className="h-3 w-3" /> Chat</button>
             </div>
           </div>
@@ -139,7 +140,18 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
     </div>
   );
 }
-const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
+const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex items-center justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
+
+type Escrow = "ditahan" | "dicairkan" | "none";
+// Dana pesanan dibayar ditahan 5 jam (atau sampai pembeli konfirmasi), lalu dicairkan.
+function escrowOf(o: SellerOrder): Escrow {
+  if (["cancelled", "failed"].includes(o.status) || !o.paid_at) return "none";
+  return new Date(o.paid_at).getTime() + 5 * 3600_000 <= Date.now() ? "dicairkan" : "ditahan";
+}
+function EscrowBadge({ e }: { e: Escrow }) {
+  const c = e === "dicairkan" ? "bg-success/15 text-success" : e === "ditahan" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground";
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${c}`}><Shield className="h-3 w-3" />{e === "dicairkan" ? "Dicairkan" : e === "ditahan" ? "Ditahan" : "none"}</span>;
+}
 
 function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose: () => void }) {
   const { user } = useAuth();
