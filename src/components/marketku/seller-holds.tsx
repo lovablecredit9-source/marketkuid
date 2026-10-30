@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Clock, MessageCircle, Phone, X } from "lucide-react";
+import { Package, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { rpSeller } from "./seller-ui";
 
 export const SELLER_FEE_PERCENT = 3;
@@ -38,7 +39,8 @@ export function useSellerBalance(uid?: string) {
     enabled: !!uid,
     refetchInterval: 60000,
     queryFn: async () => {
-      const { data } = await supabase.from("wallets").select("balance").eq("user_id", uid!).maybeSingle();
+      if (!uid) return 0;
+      const { data } = await supabase.from("wallets").select("balance").eq("user_id", uid).maybeSingle();
       return Number(data?.balance ?? 0);
     },
   });
@@ -65,43 +67,50 @@ export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () 
   const list = holds.data ?? [];
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/70" onClick={onClose}>
-      <div className="seller-panel max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl border bg-card p-4 text-foreground" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-1 flex items-center justify-between">
-          <h3 className="text-base font-semibold">Saldo Tertahan</h3>
-          <button onClick={onClose} aria-label="Tutup"><X className="h-5 w-5" /></button>
+      <div role="dialog" aria-modal="true" aria-labelledby="holds-title" className="seller-panel max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl border bg-card text-foreground" onClick={(e) => e.stopPropagation()}>
+        <div className="border-b px-4 pb-3 pt-4">
+          <div className="flex items-center justify-between gap-2">
+            <h3 id="holds-title" className="text-[18px] font-semibold leading-6">Saldo Tertahan</h3>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup" className="h-7 w-7 shrink-0"><X /></Button>
+          </div>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">Perkiraan waktu dapat berubah jika ada sengketa.</p>
         </div>
-        <p className="mb-3 text-xs text-muted-foreground">Dana ditahan maksimal {HOLD_HOURS} jam setelah pesanan selesai, lalu masuk Saldo Penjualan dipotong admin {SELLER_FEE_PERCENT}%.</p>
+        <div className="p-4">
         {holds.isLoading ? <p className="py-6 text-center text-xs text-muted-foreground">Memuat…</p> : list.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Tidak ada saldo tertahan.</p>
         ) : (
           <div className="space-y-2.5">
             {list.map((h) => (
-              <div key={h.order_id} className="rounded-xl border bg-background/40 p-3">
+              <div key={h.order_id} className="rounded-xl border bg-background/60 p-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{h.buyer_name || "Pembeli"}</p>
-                    <p className="truncate text-[11px] text-muted-foreground">M-{h.order_no} · {h.product_name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words text-[13px] font-semibold leading-5"><Package className="mr-1 inline-block h-3.5 w-3.5 align-middle" />{h.product_name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">M-{h.order_no}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-warning">{rpSeller(Number(h.amount))}</p>
-                    <p className="text-[11px] text-muted-foreground">Bersih {rpSeller(sellerNet(Number(h.amount)))}</p>
+                  <p className="shrink-0 text-right text-[13px] font-semibold leading-5">{rpSeller(Number(h.amount))}</p>
+                </div>
+                <div className="mt-3 grid grid-cols-[minmax(0,1fr)_118px] items-center gap-3">
+                  <div className="min-w-0 text-xs leading-4">
+                    <p className="text-muted-foreground">Pelanggan:</p>
+                    <p className="break-words">{h.buyer_name || "Pembeli"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    {h.buyer_whatsapp && <Button asChild variant="outline" className="h-auto w-full justify-start whitespace-normal px-2.5 py-2 text-xs leading-4 text-primary">
+                      <a href={waLink(h.buyer_whatsapp)} target="_blank" rel="noreferrer">Hubungi via WhatsApp</a>
+                    </Button>}
+                    <Button variant="outline" onClick={() => void chat(h.buyer_id)} className="h-auto w-full justify-start whitespace-normal px-2.5 py-2 text-xs leading-4 text-primary">Chat via web</Button>
                   </div>
                 </div>
-                <p className="mt-2 flex items-center gap-1 text-[11px] text-warning"><Clock className="h-3 w-3" /> {holdLeft(h.release_at, now)}</p>
-                <div className="mt-2.5 flex gap-2">
-                  {h.buyer_whatsapp && (
-                    <a href={waLink(h.buyer_whatsapp)} target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-success/20 py-2 text-xs font-medium text-success">
-                      <Phone className="h-3.5 w-3.5" /> WA {h.buyer_whatsapp}
-                    </a>
-                  )}
-                  <button onClick={() => chat(h.buyer_id)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary/20 py-2 text-xs font-medium text-primary">
-                    <MessageCircle className="h-3.5 w-3.5" /> Chat via web
-                  </button>
+                <div className="mt-3 flex items-center justify-between gap-2 text-[11px] leading-4">
+                  <span className="text-warning">Menunggu</span>
+                  <span className="text-muted-foreground">{holdLeft(h.release_at, now).replace(/ lagi$/, "")}</span>
                 </div>
+                <progress aria-label={`Kemajuan pencairan M-${h.order_no}`} max={HOLD_HOURS * 3600000} value={Math.min(HOLD_HOURS * 3600000, Math.max(0, HOLD_HOURS * 3600000 - (new Date(h.release_at).getTime() - now)))} className="mt-2 block h-2 w-full overflow-hidden rounded-full border-0 bg-transparent [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-primary" />
               </div>
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
