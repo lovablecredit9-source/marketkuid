@@ -9,6 +9,8 @@ import { useSellerStore } from "@/lib/seller";
 import { pageMeta } from "@/lib/meta";
 import { validateAccountProfile } from "@/lib/account";
 import { AppShell } from "@/components/marketku/shell";
+import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
+import { rpSeller } from "@/components/marketku/seller-ui";
 
 export const Route = createFileRoute("/akun_/pengaturan")({
   head: () => pageMeta("Pengaturan Akun — Marketku", "Ubah nama, username, nomor HP, dan password akun Marketku."),
@@ -36,6 +38,8 @@ function PengaturanAkun() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const store = useSellerStore(user?.id);
+  const sellerBal = useSellerBalance(store.data ? user?.id : undefined);
+  const sellerHolds = useSellerHolds(store.data ? user?.id : undefined);
   const profile = useQuery({
     queryKey: ["profile-full", user?.id], enabled: !!user,
     queryFn: async () => (await supabase.from("profiles").select("full_name, username, whatsapp").eq("id", user!.id).maybeSingle()).data,
@@ -80,7 +84,7 @@ function PengaturanAkun() {
         <Link to="/akun" className="flex items-center gap-1.5 text-sm font-semibold text-primary"><ArrowLeft className="h-4 w-4" /> Kembali ke Akun</Link>
         {store.data && (
           <Card label="CREDIT SELLER" title="Saldo fee dan markup" icon={CreditCard}>
-            {[["Credit", "Rp 0"], ["Saldo tersedia", "Rp 0"], ["Saldo tertahan", "Rp 0"]].map(([k, v]) => (
+            {[["Credit", "Rp 0"], ["Saldo tersedia", rpSeller(sellerBal.data ?? 0)], ["Saldo tertahan", rpSeller((sellerHolds.data ?? []).reduce((a, h) => a + Number(h.amount ?? 0), 0))]].map(([k, v]) => (
               <div key={k} className="rounded-lg border px-3 py-2"><p className="text-xs text-muted-foreground">{k}</p><p className="font-mono">{v}</p></div>
             ))}
             <button onClick={() => navigate({ to: "/seller/saldo" })} className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition active:scale-[0.98]">Top up credit</button>

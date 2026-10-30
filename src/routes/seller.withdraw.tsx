@@ -7,6 +7,7 @@ import { useSellerStore } from "@/lib/seller";
 import { pageMeta } from "@/lib/meta";
 import { Chips, SellerCard, SellerEmpty, SellerSheet, rpSeller } from "@/components/marketku/seller-ui";
 import { PageTour } from "@/components/marketku/tour";
+import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/seller/withdraw")({
   head: () => pageMeta("Withdraw — Seller Center Marketku", "Kelola dan pantau penarikan saldo penjualan toko."),
@@ -27,7 +28,10 @@ function Withdraw() {
   const [tab, setTab] = useState<"semua" | "diproses" | "selesai" | "ditolak">("semua");
   const [saldoTab, setSaldoTab] = useState<"semua" | "tersedia" | "ditahan" | "sengketa" | "freeze">("semua");
   const [detail, setDetail] = useState<string | null>(null);
-  const balance = 0;
+  const balance = useSellerBalance(user?.id).data ?? 0;
+  const holdsList = useSellerHolds(user?.id).data ?? [];
+  const held = holdsList.reduce((a, h) => a + Number(h.amount ?? 0), 0);
+  const amounts: Record<"tersedia" | "ditahan" | "sengketa" | "freeze", number> = { tersedia: balance, ditahan: held, sengketa: 0, freeze: 0 };
   const bank = store?.bank_number ? `${store.bank_provider} • ${store.bank_number.slice(-4).padStart(store.bank_number.length, "•")}` : "Belum terdaftar";
 
   const tarik = () => {
@@ -46,7 +50,7 @@ function Withdraw() {
           <button onClick={tarik} className="relative mt-3 rounded-lg bg-background px-4 py-2 text-sm font-semibold text-primary shadow transition active:scale-95">Tarik Dana</button>
         </div>
         <div className="grid grid-cols-3 divide-x bg-accent/60 text-center">
-          <Mini icon={Lock} label="Saldo ditahan" value={rpSeller(0)} sub="Menunggu penyelesaian" />
+          <Mini icon={Lock} label="Saldo ditahan" value={rpSeller(held)} sub="Menunggu penyelesaian" />
           <Mini icon={Repeat} label="Kuota reguler" value="1x" sub="Bebas biaya hari ini" />
           <Mini icon={Landmark} label="Rekening tujuan" value={store?.bank_number ? store.bank_provider ?? "" : "Belum diisi"} sub={bank} />
         </div>
@@ -91,17 +95,17 @@ function Withdraw() {
         </div>
         <div className="mt-4 flex items-center gap-5">
           <div className="grid h-28 w-28 shrink-0 place-items-center rounded-full border-[6px] border-success text-center">
-            <div><p className="text-[11px] text-muted-foreground">Total saldo</p><p className="text-sm font-bold">{rpSeller(0)}</p></div>
+            <div><p className="text-[11px] text-muted-foreground">Total saldo</p><p className="text-sm font-bold">{rpSeller(balance + held)}</p></div>
           </div>
           <div className="space-y-2 text-sm">
-            <p className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-success" /> Tersedia <b className="ml-2">{rpSeller(0)}</b></p>
-            <p className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-primary" /> Ditahan <b className="ml-2">{rpSeller(0)}</b></p>
+            <p className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-success" /> Tersedia <b className="ml-2">{rpSeller(balance)}</b></p>
+            <p className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-primary" /> Ditahan <b className="ml-2">{rpSeller(held)}</b></p>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">
           {([["Saldo tersedia", "tersedia"], ["Saldo ditahan", "ditahan"], ["Saldo sengketa", "sengketa"], ["Saldo freeze", "freeze"]] as const).map(([l, k]) => (
             <button key={k} onClick={() => setDetail(l)} className="rounded-xl border bg-background/40 p-3 text-left transition active:scale-95">
-              <p className="text-xs text-muted-foreground">{l}</p><p className="mt-1 font-bold">{rpSeller(0)}</p>
+              <p className="text-xs text-muted-foreground">{l}</p><p className="mt-1 font-bold">{rpSeller(amounts[k])}</p>
             </button>
           ))}
         </div>
