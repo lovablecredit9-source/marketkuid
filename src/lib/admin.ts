@@ -70,4 +70,5 @@ export const ADMIN_ACTION_LABEL: Record<string, string> = {
   wallet_add: "Tambah saldo", wallet_sub: "Kurangi saldo", hide_product: "Turunkan produk", show_product: "Tampilkan produk",
   approve_deposit: "Setujui deposit", reject_deposit: "Tolak deposit",
   approve_order_payment: "Setujui bayar pesanan", reject_order_payment: "Tolak bayar pesanan",
+  approve_withdrawal: "Kirim penarikan", reject_withdrawal: "Tolak penarikan",
 };
