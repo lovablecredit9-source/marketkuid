@@ -32,6 +32,7 @@ import { Route as TopupRouteImport } from './routes/topup'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
+import { Route as BayarIdRouteImport } from './routes/bayar.$id'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as PesananIdRouteImport } from './routes/pesanan.$id'
 import { Route as ProdukIdRouteImport } from './routes/produk.$id'
@@ -171,6 +172,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AkunPengaturanRoute = AkunPengaturanRouteImport.update({
   id: '/akun_/pengaturan',
   path: '/akun/pengaturan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BayarIdRoute = BayarIdRouteImport.update({
+  id: '/bayar/$id',
+  path: '/bayar/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIdRoute = ChatIdRouteImport.update({
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
@@ -372,6 +379,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
   '/akun/pengaturan': typeof AkunPengaturanRoute
+  '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
@@ -423,6 +431,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/admin_/login': typeof AdminLoginRoute
   '/akun_/pengaturan': typeof AkunPengaturanRoute
+  '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin/login'
     | '/akun/pengaturan'
+    | '/bayar/$id'
     | '/chat/$id'
     | '/pesanan/$id'
     | '/produk/$id'
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin/login'
     | '/akun/pengaturan'
+    | '/bayar/$id'
     | '/chat/$id'
     | '/pesanan/$id'
     | '/produk/$id'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin_/login'
     | '/akun_/pengaturan'
+    | '/bayar/$id'
     | '/chat/$id'
     | '/pesanan/$id'
     | '/produk/$id'
@@ -625,6 +637,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AkunPengaturanRoute: typeof AkunPengaturanRoute
+  BayarIdRoute: typeof BayarIdRoute
   ChatIdRoute: typeof ChatIdRoute
   PesananIdRoute: typeof PesananIdRoute
   ProdukIdRoute: typeof ProdukIdRoute
@@ -794,6 +807,13 @@ declare module '@tanstack/react-router' {
       path: '/akun/pengaturan'
       fullPath: '/akun/pengaturan'
       preLoaderRoute: typeof AkunPengaturanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bayar/$id': {
+      id: '/bayar/$id'
+      path: '/bayar/$id'
+      fullPath: '/bayar/$id'
+      preLoaderRoute: typeof BayarIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/$id': {
@@ -1055,6 +1075,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   AdminLoginRoute: AdminLoginRoute,
   AkunPengaturanRoute: AkunPengaturanRoute,
+  BayarIdRoute: BayarIdRoute,
   ChatIdRoute: ChatIdRoute,
   PesananIdRoute: PesananIdRoute,
   ProdukIdRoute: ProdukIdRoute,

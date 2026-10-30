@@ -71,7 +71,7 @@ function Checkout() {
       if (payErr) toast.error(`Pesanan dibuat, tapi belum terbayar: ${dbError(payErr)}`);
       else { toast.success("Pembayaran berhasil dengan Saldo Marketku"); void qc.invalidateQueries({ queryKey: ["wallet", user.id] }); }
     } else toast.success("Pesanan dibuat, lanjut bayar QRIS");
-    navigate({ to: "/pesanan/$id", params: { id: data }, replace: true });
+    navigate({ to: "/bayar/$id", params: { id: data }, replace: true });
   };
 
   if (ready && !user) return <AppShell nav={false}><div className="p-3"><EmptyState icon={ShoppingCart} title="Masuk untuk checkout" desc="Kamu perlu masuk agar pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
