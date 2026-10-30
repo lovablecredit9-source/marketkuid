@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
@@ -43,6 +43,12 @@ function ProdukDetail() {
   const [menu, setMenu] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  useEffect(() => {
+    const key = `mk-viewed-${id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void supabase.rpc("record_product_view", { p_product: id });
+  }, [id]);
   const similar = useMarketProducts({ category: p?.category_id ?? null, limit: 12 });
   const storeReviews = useReviews(p ? { seller: p.owner_id } : {});
   const media = useStoreMedia(p ? [p.owner_id] : []);
