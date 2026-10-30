@@ -63,14 +63,14 @@ function EmailStep({ onMode }: { onMode: (m: Mode) => void }) {
     return (
       <>
         <AuthTitle title="Masukkan password" desc={email.trim()} />
-        <button type="button" onClick={() => { setStep("email"); setPass(""); }} className="mb-5 flex items-center gap-2 font-semibold text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" /> Ganti email
+        <button type="button" onClick={() => { setStep("email"); setPass(""); }} className="mb-4 flex items-center gap-1.5 text-[13px] font-semibold text-muted-foreground">
+          <ArrowLeft className="h-4 w-4" /> Ganti email
         </button>
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void signIn(); }}>
+        <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void signIn(); }}>
           <Field label="Password" icon={KeyRound} name="password" password placeholder="Password kamu" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="current-password" autoFocus />
           <GradientButton type="submit" disabled={!pass || loading}>{loading ? "Memproses..." : "Masuk"}</GradientButton>
         </form>
-        <button type="button" onClick={() => onMode("lupa")} className="mx-auto mt-4 block font-bold text-primary">Lupa password?</button>
+        <button type="button" onClick={() => onMode("lupa")} className="mx-auto mt-3 block text-[13px] font-bold text-primary">Lupa password?</button>
       </>
     );
   }
@@ -78,18 +78,18 @@ function EmailStep({ onMode }: { onMode: (m: Mode) => void }) {
   return (
     <>
       <AuthTitle title="Masuk" desc="Masukkan email kamu untuk melanjutkan." />
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (isEmail(email)) setStep("pass"); }}>
+      <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (isEmail(email)) setStep("pass"); }}>
         <Field label="Alamat email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
         <GradientButton type="submit" disabled={!isEmail(email)}>Lanjutkan</GradientButton>
       </form>
-      <div className="my-6 flex items-center gap-3 text-xs tracking-[0.2em] text-muted-foreground">
+      <div className="my-5 flex items-center gap-3 text-[10px] tracking-[0.2em] text-muted-foreground">
         <span className="h-px flex-1 bg-border" /> ATAU MASUK DENGAN <span className="h-px flex-1 bg-border" />
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <OutlineButton onClick={() => onMode("telegram")}><Send className="h-5 w-5" /> Masuk dengan Telegram</OutlineButton>
         <OutlineButton onClick={() => onMode("kode")}><Mail className="h-5 w-5" /> Masuk dengan kode email</OutlineButton>
       </div>
-      <button type="button" onClick={() => onMode("lupa")} className="mx-auto mt-4 block font-bold text-primary">Lupa password?</button>
+      <button type="button" onClick={() => onMode("lupa")} className="mx-auto mt-3 block text-[13px] font-bold text-primary">Lupa password?</button>
     </>
   );
 }
@@ -101,8 +101,8 @@ function CodeStep({ kind, onBack }: { kind: "telegram" | "kode"; onBack: () => v
   return (
     <>
       <AuthTitle title="Cek kotak masuk" desc="Kode 6 digit dikirim ke" />
-      <button type="button" onClick={onBack} className="mb-6 flex items-center gap-2 font-semibold text-muted-foreground">
-        <ArrowLeft className="h-5 w-5" /> Kembali
+      <button type="button" onClick={onBack} className="mb-4 flex items-center gap-1.5 text-[13px] font-semibold text-muted-foreground">
+        <ArrowLeft className="h-4 w-4" /> Kembali
       </button>
       <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); notReady(); }}>
         {tg ? (
