@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
-  Wallet, Repeat, Landmark, Clock, CircleCheck, CircleX, Coins, ListChecks, ChevronRight, CalendarClock, Inbox,
+  Wallet, Repeat, Landmark, Clock, CircleCheck, CircleX, Coins, ListChecks, ChevronRight, Inbox,
   ReceiptText, History, Send, X, Search, CalendarDays, Loader2, Hourglass,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
