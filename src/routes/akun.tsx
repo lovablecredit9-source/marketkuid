@@ -137,7 +137,7 @@ function AkunDashboard({ user }: { user: User }) {
     return (
       <AppShell title="Akun Saya" className="mk-acc-serif">
         <SellerAccount storeName={store.data!.store_name} onBuyer={() => switchView("buyer")} onCenter={() => navigate({ to: "/seller" })} onTour={() => setTour(true)} />
-        <div className="px-3 pt-4">{logoutBtn}</div>
+        <div className="px-5 pt-4">{logoutBtn}</div>
         <WelcomeTour id="seller-account" steps={SELLER_WELCOME} open={tour} onOpenChange={setTour} />
       </AppShell>
     );
@@ -148,7 +148,7 @@ function AkunDashboard({ user }: { user: User }) {
 
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
-      <div className="space-y-4 px-3 pt-4">
+      <div className="space-y-4 px-5 pt-4">
         <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
@@ -257,7 +257,7 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
   const [tab, setTab] = useState<(typeof revenueTabs)[number]["key"]>("tersedia");
   const active = revenueTabs.find((t) => t.key === tab)!;
   return (
-    <div className="space-y-4 px-3 pt-4">
+    <div className="space-y-4 px-5 pt-4">
       <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-7 w-7" /></div>
