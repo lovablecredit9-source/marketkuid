@@ -2,13 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Search, Package, ChevronDown, Store, ChevronRight } from "lucide-react";
+import { Search, Package, ChevronDown, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { BUYER_FILTER, fmtDateTime } from "@/lib/market";
+import { BUYER_FILTER, ORDER_LABEL, fmtDateTime } from "@/lib/market";
+import { useImageUrls } from "@/lib/products";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
-import { StatusBadge } from "@/components/marketku/order-badge";
 import { pageMeta } from "@/lib/meta";
 import { LoadingLine } from "@/components/marketku/loading";
 
@@ -26,8 +26,9 @@ function Riwayat() {
   const [q, setQ] = useState("");
   const orders = useQuery({
     queryKey: ["my_orders", user?.id], enabled: !!user,
-    queryFn: async () => (await supabase.from("orders").select("id, order_no, checkout_id, store_name, status, total, created_at, order_items(product_name, variant_name, qty)").eq("buyer_id", user!.id).order("created_at", { ascending: false }).limit(200)).data ?? [],
+    queryFn: async () => (await supabase.from("orders").select("id, order_no, checkout_id, store_name, status, total, created_at, expires_at, order_items(product_name, variant_name, qty, image_path)").eq("buyer_id", user!.id).order("created_at", { ascending: false }).limit(200)).data ?? [],
   });
+  const imgs = useImageUrls((orders.data ?? []).map((o) => o.order_items[0]?.image_path ?? "").filter((p) => p && !p.startsWith("http")));
   const want = BUYER_FILTER[status] ?? [];
   const special = status === "Garansi Aktif" || status === "Dikomplain";
   const ql = q.trim().toLowerCase();
@@ -58,16 +59,35 @@ function Riwayat() {
           <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
         ) : (
           <div className="space-y-3">
-            {list.map((o) => (
-              <Link key={o.id} to="/pesanan/$id" params={{ id: o.id }} className="block rounded-2xl border bg-card p-4 transition active:scale-[0.99]">
-                <div className="flex items-start justify-between gap-2">
-                  <div><p className="flex items-center gap-1.5 text-sm font-bold"><Store className="h-4 w-4 text-primary" />{o.store_name}</p><p className="text-xs text-muted-foreground">M-{o.order_no} · {fmtDateTime(o.created_at)}</p></div>
-                  <StatusBadge status={o.status} />
+            {list.map((o) => {
+              const pend = o.status === "pending";
+              const tone = pend ? "text-warning" : ["paid", "processing", "completed"].includes(o.status) ? "text-success" : ["cancelled", "failed"].includes(o.status) ? "text-destructive" : "text-primary";
+              const head = pend ? "bg-warning/10" : ["cancelled", "failed"].includes(o.status) ? "bg-destructive/10" : "bg-success/10";
+              const img = o.order_items[0]?.image_path;
+              const src = img ? (img.startsWith("http") ? img : imgs.data?.[img]) : undefined;
+              return (
+                <div key={o.id} className="overflow-hidden rounded-2xl border bg-card">
+                  <div className={`border-b px-4 py-3 ${head}`}>
+                    <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">{fmtDateTime(o.created_at)}</span><b className={tone}>{ORDER_LABEL[o.status] ?? o.status}</b></div>
+                    <p className="mt-1 font-mono text-sm tracking-wider text-muted-foreground">#M-{o.order_no}</p>
+                  </div>
+                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center gap-3 border-b px-4 py-3">
+                    <span className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border bg-muted">{src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <Package className="m-auto mt-4 h-5 w-5 text-muted-foreground" />}</span>
+                    <span className="line-clamp-3 font-bold leading-snug">{o.order_items.map((i) => i.product_name).join(", ")}</span>
+                  </Link>
+                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center justify-between gap-2 px-4 py-3">
+                    <span className="text-xs font-semibold tracking-wider text-muted-foreground">TOTAL PEMBAYARAN</span>
+                    <span className="flex items-center gap-3"><b className="text-lg">{rpBuyer(Number(o.total))}</b><span className="flex items-center text-muted-foreground">Detail <ChevronRight className="h-4 w-4" /></span></span>
+                  </Link>
+                  {pend && (
+                    <div className="border-t px-4 pb-3 pt-3 text-center">
+                      <Link to="/bayar/$id" params={{ id: o.checkout_id }} className="block rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition active:scale-[0.98]">Lakukan Pembayaran</Link>
+                      {o.expires_at && <p className="mt-2 text-sm font-medium text-warning">Sebelum {new Date(o.expires_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>}
+                    </div>
+                  )}
                 </div>
-                <p className="mt-2 line-clamp-1 text-sm">{o.order_items.map((i) => `${i.product_name} (${i.variant_name}) ×${i.qty}`).join(", ")}</p>
-                <div className="mt-2 flex items-center justify-between text-sm"><span className="text-muted-foreground">Total</span><span className="flex items-center gap-1 font-bold">{rpBuyer(Number(o.total))}<ChevronRight className="h-4 w-4 text-muted-foreground" /></span></div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
         <Link to="/" className="block text-center font-semibold text-primary">← Kembali ke Beranda</Link>
