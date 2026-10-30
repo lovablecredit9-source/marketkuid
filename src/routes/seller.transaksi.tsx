@@ -33,7 +33,7 @@ const filters = [
   { k: "diproses", label: "Pre-order Diproses", icon: ClipboardCheck },
 ] as const;
 
-const tone = (s: string) => (s === "completed" ? "text-success border-success/40" : s === "pending" ? "text-warning border-warning/40" : ["cancelled", "failed"].includes(s) ? "text-destructive border-destructive/40" : "text-primary border-primary/40");
+const tone = (s: string) => (["completed", "paid"].includes(s) ? "text-success border-success/40" : s === "pending" ? "text-warning border-warning/40" : ["cancelled", "failed"].includes(s) ? "text-destructive border-destructive/40" : "text-primary border-primary/40");
 
 function Transaksi() {
   const { user } = useAuth();
@@ -149,7 +149,7 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
   const [busy, setBusy] = useState(false);
   if (!o) return null;
   const advance = async (status: "processing" | "completed") => {
-    if (status === "completed" && o.order_items.some((i) => i.product_type === "preorder") && delivery.trim().length < 3) { toast.error("Isi data pesanan untuk pembeli"); return; }
+    // Pre-order: data pesanan boleh dikirim via chat, kolom ini opsional.
     setBusy(true);
     const { error } = await supabase.rpc("seller_advance_order", { p_order: o.id, p_status: status, p_delivery: delivery });
     setBusy(false);
@@ -201,7 +201,7 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
       </Section>
       {(o.status === "paid" || o.status === "processing") && (
         <div className="mt-4 space-y-2">
-          <textarea value={delivery} onChange={(e) => setDelivery(e.target.value)} rows={3} placeholder="Data pesanan untuk pembeli (akun, kode, link, dll)" className="w-full rounded-xl border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary" />
+          <textarea value={delivery} onChange={(e) => setDelivery(e.target.value)} rows={3} placeholder="Opsional — data pesanan bisa juga dikirim via chat" className="w-full rounded-xl border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary" />
           <div className="flex gap-2">
             {o.status === "paid" && <button disabled={busy} onClick={() => void advance("processing")} className="flex-1 rounded-xl border py-2.5 text-sm font-semibold">Tandai Diproses</button>}
             <button disabled={busy} onClick={() => void advance("completed")} className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-success py-2.5 text-sm font-bold text-primary-foreground">{busy && <Loader2 className="h-4 w-4 animate-spin" />}Selesaikan</button>
