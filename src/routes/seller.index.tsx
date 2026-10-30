@@ -10,6 +10,8 @@ import { useAuth } from "@/lib/auth";
 import { useMyProducts } from "@/lib/products";
 import { ORDER_LABEL } from "@/lib/market";
 import { sellerStats, useSellerOrders } from "@/lib/seller-orders";
+import { useState } from "react";
+import { HOLD_HOURS, HoldsSheet, SELLER_FEE_PERCENT, holdLeft, useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/seller/")({
   head: () => pageMeta("Dasbor Seller — Marketku", "Ringkasan aktivitas, saldo, dan penjualan toko kamu di Marketku."),
@@ -44,8 +46,14 @@ function Dasbor() {
   const prods = products.data ?? [];
   const active = prods.filter((p) => p.status === "active").length;
   const pending = st.preorderTodo;
+  const holds = useSellerHolds(user?.id);
+  const balance = useSellerBalance(user?.id);
+  const [holdOpen, setHoldOpen] = useState(false);
+  const heldTotal = (holds.data ?? []).reduce((s, h) => s + Number(h.amount), 0);
+  const nextRelease = (holds.data ?? []).map((h) => h.release_at).sort()[0];
   return (
     <>
+      <HoldsSheet open={holdOpen} onClose={() => setHoldOpen(false)} uid={user?.id} />
       <SellerCard className="border-primary/50 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -76,8 +84,10 @@ function Dasbor() {
       </SellerCard>
 
       <SellerCard data-tour="saldo" className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
-        <StatCell icon={Wallet} label="Saldo Penjualan" value={rpSeller(0)} valueClass="text-success" />
-        <StatCell icon={Clock} label="Saldo Tertahan" value={rpSeller(0)} sub="Menunggu konfirmasi pembeli" valueClass="text-warning" />
+        <StatCell icon={Wallet} label="Saldo Penjualan" value={rpSeller(balance.data ?? 0)} sub={`Sudah dipotong admin ${SELLER_FEE_PERCENT}%`} valueClass="text-success" />
+        <button onClick={() => setHoldOpen(true)} className="text-left transition active:scale-[0.98]">
+          <StatCell icon={Clock} label="Saldo Tertahan" value={rpSeller(heldTotal)} sub={nextRelease ? `Cair ${holdLeft(nextRelease)}` : `Ditahan maks ${HOLD_HOURS} jam · ketuk detail`} valueClass="text-warning" />
+        </button>
         <StatCell icon={ShieldCheck} label="Saldo Menunggu Masa Garansi" value={rpSeller(0)} sub="Dana ditahan paling lama 3 hari" valueClass="text-warning" />
         <StatCell icon={Snowflake} label="Saldo Freeze" value={rpSeller(0)} sub="Ditahan sementara · Tidak dapat ditarik" valueClass="text-destructive" />
       </SellerCard>

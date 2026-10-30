@@ -1574,6 +1574,7 @@ export type Database = {
           store_name: string
         }[]
       }
+      release_seller_holds: { Args: never; Returns: undefined }
       seller_advance_order: {
         Args: { p_delivery: string; p_order: string; p_status: string }
         Returns: undefined
@@ -1589,6 +1590,21 @@ export type Database = {
           spent: number
         }[]
       }
+      seller_holds: {
+        Args: never
+        Returns: {
+          amount: number
+          buyer_id: string
+          buyer_name: string
+          buyer_whatsapp: string
+          completed_at: string
+          order_id: string
+          order_no: number
+          product_name: string
+          release_at: string
+        }[]
+      }
+      seller_start_conversation: { Args: { p_buyer: string }; Returns: string }
       set_typing: { Args: { p_id: string }; Returns: undefined }
       sponsored_products: {
         Args: { p_limit?: number; p_query: string }

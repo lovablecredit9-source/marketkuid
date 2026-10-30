@@ -162,6 +162,13 @@
       "when": 1793319545450,
       "tag": "0022_order_payment_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793320308698,
+      "tag": "0023_seller_hold_5h_fee",
+      "breakpoints": true
     }
   ]
 }
