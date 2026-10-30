@@ -176,6 +176,13 @@
       "when": 1793320816583,
       "tag": "0024_seller_hold_from_paid",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793328244014,
+      "tag": "0025_buyer_confirm_order",
+      "breakpoints": true
     }
   ]
 }

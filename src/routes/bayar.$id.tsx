@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
-import { Check, Clock, Copy, Download, ImagePlus, Info, Loader2, Package, Wallet } from "lucide-react";
+import { Check, CircleCheck, Clock, Copy, Download, Home, ImagePlus, Info, Loader2, Package, ShoppingBag, Wallet, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { dbError } from "@/lib/market";
@@ -106,12 +106,17 @@ function Bayar() {
 
   if (ready && !user) return <AppShell><div className="p-3"><EmptyState icon={Package} title="Masuk untuk membayar" desc="Pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
   if (!ready || q.isLoading) return <AppShell><LoadingLine label="Memuat pembayaran..." className="m-3 rounded-2xl border bg-card py-16" /></AppShell>;
-  if (!pending.length) return <AppShell><div className="p-3"><EmptyState icon={Check} title="Tidak ada tagihan" desc="Pesanan ini sudah dibayar atau dibatalkan." action={<PrimaryLink to="/cari">Belanja lagi</PrimaryLink>} /></div></AppShell>;
+  if (!pending.length) {
+    if (!orders.length) return <AppShell><div className="p-3"><EmptyState icon={Package} title="Pesanan tidak ditemukan" desc="Pesanan ini tidak ada di akunmu." action={<PrimaryLink to="/cari">Belanja</PrimaryLink>} /></div></AppShell>;
+    const paid = orders.some((o) => o.paid_at);
+    return <PayResult id={id} paid={paid} orderNo={orders[0]!.order_no} productId={orders[0]!.order_items[0]?.product_id ?? null} />;
+  }
 
   const orderNo = `#M-${pending[0]!.order_no}`;
   const title = items.map((i) => i.product_name).join(", ");
   const qtyAll = items.reduce((a, i) => a + i.qty, 0);
   const expired = cd ? cd.ms === 0 : false;
+  if (expired && !waiting) return <PayResult id={id} paid={false} orderNo={pending[0]!.order_no} productId={items[0]?.product_id ?? null} />;
 
   return (
     <AppShell>
@@ -220,3 +225,55 @@ function Bayar() {
 const DRow = ({ a, b, last }: { a: string; b: string; last?: boolean }) => (
   <div className={`flex justify-between py-3 text-sm ${last ? "" : "border-b"}`}><span className="text-muted-foreground">{a}</span><b>{b}</b></div>
 );
+
+// Layar hasil: berhasil (otomatis pindah ke data akses 3 detik) atau kadaluarsa/dibatalkan.
+function PayResult({ id, paid, orderNo, productId }: { id: string; paid: boolean; orderNo: number; productId: string | null }) {
+  const navigate = useNavigate();
+  const [sec, setSec] = useState(3);
+  useEffect(() => {
+    if (!paid) return;
+    const t = window.setInterval(() => setSec((s) => s - 1), 1000);
+    return () => window.clearInterval(t);
+  }, [paid]);
+  useEffect(() => { if (paid && sec <= 0) navigate({ to: "/pesanan/$id", params: { id }, replace: true }); }, [paid, sec, id, navigate]);
+  const copy = () => { void navigator.clipboard.writeText(`M-${orderNo}`); toast.success("Order ID disalin"); };
+  return (
+    <AppShell>
+      <div className="px-3 pb-6 pt-3">
+        <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+          <div className="border-b px-4 py-3 text-center">
+            {paid ? (
+              <>
+                <p className="flex items-center justify-center gap-2 font-bold"><span className="h-2.5 w-2.5 rounded-full bg-success" /> Pembayaran diterima</p>
+                <p className="text-sm text-muted-foreground">Pembayaran diterima</p>
+              </>
+            ) : <div className="h-2" />}
+            <div className={`mt-2 flex gap-2 ${paid ? "justify-center" : "justify-end"}`}>
+              <button onClick={copy} className="flex items-center gap-1.5 rounded-full border border-warning/50 bg-warning/10 px-3 py-1 text-xs font-semibold text-warning"><Copy className="h-3.5 w-3.5" /> Order</button>
+            </div>
+          </div>
+          <div className={`px-6 pb-8 pt-8 text-center ${paid ? "bg-gradient-to-b from-primary/5 to-transparent" : "bg-gradient-to-b from-destructive/10 to-transparent"}`}>
+            <span className={`mx-auto grid h-24 w-24 place-items-center rounded-3xl text-primary-foreground shadow-lg animate-in zoom-in-50 ${paid ? "bg-gradient-to-br from-success to-primary" : "bg-destructive"}`}>
+              {paid ? <CircleCheck className="h-12 w-12" /> : <X className="h-12 w-12" strokeWidth={3} />}
+            </span>
+            <h1 className="mt-5 text-2xl font-bold leading-tight">{paid ? "Pembayaran Berhasil" : "Pembayaran untuk pesanan ini sudah kadaluarsa"}</h1>
+            <p className="mt-3 text-sm text-muted-foreground">{paid ? "Terima kasih, pembayaran kamu sudah diterima. Data akses produk sudah bisa dibuka sekarang." : "Waktu pembayaran sudah habis dan QR tidak bisa digunakan lagi. Silakan buat pesanan baru untuk melanjutkan pembelian."}</p>
+            {paid ? (
+              <div className="mt-6 space-y-3">
+                <Link to="/pesanan/$id" params={{ id }} className="block rounded-xl bg-primary py-3 font-bold text-primary-foreground">Lihat data akses sekarang</Link>
+                <Link to="/riwayat" className="block rounded-xl border-2 border-primary py-3 font-bold text-primary">Riwayat pesanan</Link>
+                <p className="rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-xs font-semibold text-muted-foreground">Otomatis pindah ke halaman data akses dalam {Math.max(sec, 0)} detik</p>
+              </div>
+            ) : (
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                {productId ? <Link to="/produk/$id" params={{ id: productId }} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-primary-foreground"><ShoppingBag className="h-4 w-4" /> Beli lagi</Link>
+                  : <Link to="/cari" className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-primary-foreground"><ShoppingBag className="h-4 w-4" /> Beli lagi</Link>}
+                <Link to="/" className="flex items-center justify-center gap-2 rounded-xl border py-3 font-bold"><Home className="h-4 w-4" /> Home</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}

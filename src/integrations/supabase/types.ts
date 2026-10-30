@@ -1486,6 +1486,7 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      buyer_confirm_order: { Args: { p_order: string }; Returns: undefined }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
       category_product_counts: {
@@ -1518,6 +1519,10 @@ export type Database = {
         Returns: string
       }
       credit_seller_for_order: { Args: { p_order: string }; Returns: undefined }
+      credit_seller_for_order_now: {
+        Args: { p_order: string }
+        Returns: undefined
+      }
       delete_message: {
         Args: { p_for_all: boolean; p_id: string }
         Returns: undefined
