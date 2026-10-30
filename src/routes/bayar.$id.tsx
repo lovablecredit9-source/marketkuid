@@ -106,7 +106,7 @@ function Bayar() {
 
   if (ready && !user) return <AppShell><div className="p-3"><EmptyState icon={Package} title="Masuk untuk membayar" desc="Pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
   if (!ready || q.isLoading) return <AppShell><LoadingLine label="Memuat pembayaran..." className="m-3 rounded-2xl border bg-card py-16" /></AppShell>;
-  if (!pending.length) return <AppShell><div className="p-3"><EmptyState icon={Check} title="Tidak ada tagihan" desc="Pesanan ini sudah dibayar atau dibatalkan." action={<PrimaryLink to="/riwayat">Lihat pesanan</PrimaryLink>} /></div></AppShell>;
+  if (!pending.length) return <AppShell><div className="p-3"><EmptyState icon={Check} title="Tidak ada tagihan" desc="Pesanan ini sudah dibayar atau dibatalkan." action={<PrimaryLink to="/cari">Belanja lagi</PrimaryLink>} /></div></AppShell>;
 
   const orderNo = `#M-${pending[0]!.order_no}`;
   const title = items.map((i) => i.product_name).join(", ");

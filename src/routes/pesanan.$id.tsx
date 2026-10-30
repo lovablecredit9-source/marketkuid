@@ -82,7 +82,7 @@ function Pesanan() {
     { t: "Pesanan diproses seller", d: "Seller menyiapkan produk pesanan.", at: null, done: st >= 2 },
     { t: "Konfirmasi penerimaan", d: "Periksa produk sebelum mengonfirmasi penerimaan.", at: first.completed_at, done: st >= 3 },
   ];
-  const shown = cancelled ? [steps[0]!, { t: "Pesanan dibatalkan", d: "Pesanan ini tidak dilanjutkan.", at: first.updated_at, done: true }] : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.findLastIndex((x) => x.done)).slice(0, 2);
+  const shown = cancelled ? [steps[0]!, { t: "Pesanan dibatalkan", d: "Pesanan ini tidak dilanjutkan.", at: first.updated_at, done: true }] : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.filter((x) => x.done).length - 1).slice(0, 2);
 
   return (
     <AppShell>
