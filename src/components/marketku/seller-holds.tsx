@@ -49,12 +49,12 @@ const waLink = (n: string) => {
   return `https://wa.me/${d}`;
 };
 
-export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () => void; uid?: string }) {
+export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () => void; uid?: string | undefined }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const holds = useSellerHolds(uid);
   const [now, setNow] = useState(Date.now());
-  useEffect(() => { if (!open) return; const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, [open]);
+  useEffect(() => { if (!open) return undefined; const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t); }, [open]);
   if (!open) return null;
   const chat = async (buyer: string) => {
     const { data, error } = await supabase.rpc("seller_start_conversation", { p_buyer: buyer });
