@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { clearSellerLocks } from "@/lib/chat";
 import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
-import { useIsAdmin, useWallet } from "@/lib/wallet";
+import { useWallet } from "@/lib/wallet";
 
 export const Route = createFileRoute("/akun")({
   head: () => ({
@@ -113,7 +113,6 @@ function AkunDashboard({ user }: { user: User }) {
   });
   const store = useSellerStore(user.id);
   const wallet = useWallet(user.id);
-  const isAdmin = useIsAdmin(user.id);
 
   const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
   const isSeller = !!store.data;
@@ -150,11 +149,6 @@ function AkunDashboard({ user }: { user: User }) {
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
       <div className="space-y-4 px-3 pt-4">
-        {isAdmin.data && (
-          <button onClick={() => navigate({ to: "/admin" })} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-[0.98]">
-            <ShieldCheck className="h-4 w-4" /> Buka Admin Panel
-          </button>
-        )}
         <section className="rounded-2xl border bg-gradient-to-br from-card via-card to-accent/70 p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary mk-acc-heading text-xl font-bold text-primary-foreground shadow-md shadow-primary/30">{name.charAt(0).toUpperCase()}</div>
