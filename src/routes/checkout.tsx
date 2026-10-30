@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2, Store } from "lucide-react";
+import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2, Store, Wallet, Circle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useWallet } from "@/lib/wallet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls } from "@/lib/products";
@@ -13,7 +15,7 @@ import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>): { items?: string } => (typeof s["items"] === "string" && s["items"] ? { items: s["items"] } : {}),
-  head: () => pageMeta("Checkout — Marketku", "Selesaikan pesananmu dengan pembayaran QRIS di Marketku."),
+  head: () => pageMeta("Checkout — Marketku", "Selesaikan pesananmu dengan pembayaran Saldo Marketku atau QRIS."),
   component: Checkout,
 });
 
@@ -27,6 +29,8 @@ function Checkout() {
   const [note, setNote] = useState("");
   const [voucher, setVoucher] = useState("");
   const [busy, setBusy] = useState(false);
+  const [method, setMethod] = useState<"saldo" | "qris">("saldo");
+  const wallet = useWallet(user?.id);
 
   const q = useQuery({
     queryKey: ["checkout_items", items],
@@ -51,6 +55,8 @@ function Checkout() {
   const noteReq = lines.some((l) => l.products?.require_buyer_note);
   const count = lines.reduce((a, l) => a + l.qty, 0);
   const phone = wa || profile.data?.whatsapp || "";
+  const bal = wallet.data ?? 0;
+  const lowSaldo = bal < subtotal;
 
   const pay = async () => {
     if (!user) { navigate({ to: "/login" }); return; }
@@ -61,7 +67,11 @@ function Checkout() {
     setBusy(false);
     if (error || !data) { toast.error(dbError(error)); return; }
     void qc.invalidateQueries({ queryKey: ["cart", user.id] });
-    toast.success("Pesanan dibuat");
+    if (method === "saldo") {
+      const { error: payErr } = await supabase.rpc("pay_order_with_wallet", { p_checkout: data });
+      if (payErr) toast.error(`Pesanan dibuat, tapi belum terbayar: ${dbError(payErr)}`);
+      else { toast.success("Pembayaran berhasil dengan Saldo Marketku"); void qc.invalidateQueries({ queryKey: ["wallet", user.id] }); }
+    } else toast.success("Pesanan dibuat, lanjut bayar QRIS");
     navigate({ to: "/pesanan/$id", params: { id: data }, replace: true });
   };
 
@@ -103,14 +113,19 @@ function Checkout() {
         </section>
         <section className="rounded-2xl border bg-card p-4">
           <h2 className="border-b pb-3 text-lg font-bold">Metode Pembayaran</h2>
-          <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-primary bg-accent p-3">
-            <QrCode className="h-5 w-5 text-primary" /><span className="flex-1 font-semibold">QRIS Marketku</span><CircleCheck className="h-5 w-5 text-primary" />
-          </div>
+          {([["saldo", Wallet, "Saldo Marketku", `Saldo ${rpBuyer(bal)}${lowSaldo ? " • tidak cukup" : ""}`], ["qris", QrCode, "QRIS Marketku", "Scan QRIS / e-wallet, upload bukti"]] as const).map(([k, I, l, d]) => (
+            <button key={k} type="button" onClick={() => setMethod(k)} className={`mt-3 flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition active:scale-[0.99] ${method === k ? "border-primary bg-accent" : "border-border"}`}>
+              <I className="h-5 w-5 text-primary" />
+              <span className="flex-1"><span className="block font-semibold">{l}</span><span className={`block text-xs ${k === "saldo" && lowSaldo ? "text-destructive" : "text-muted-foreground"}`}>{d}</span></span>
+              {method === k ? <CircleCheck className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
+            </button>
+          ))}
+          {method === "saldo" && lowSaldo && <Link to="/topup" className="mt-2 block text-sm font-semibold text-primary">Top up saldo →</Link>}
           <p className="mt-3 flex gap-2 text-sm text-muted-foreground"><ShieldCheck className="h-4 w-4 shrink-0 text-success" /> Data kamu aman dan hanya dipakai untuk pengiriman produk.</p>
         </section>
         <section className="space-y-2 rounded-2xl border bg-card p-4 text-sm">
           <h2 className="border-b pb-3 text-lg font-bold">Rincian Pembayaran</h2>
-          {[["Metode Pembayaran", "QRIS Marketku"], [`Total Pesanan (${count} item)`, rpBuyer(subtotal)], ["Biaya admin", rpBuyer(0)], ["Kode unik QRIS", "Dibuat saat bayar"]].map(([a, b]) => (
+          {[["Metode Pembayaran", method === "saldo" ? "Saldo Marketku" : "QRIS Marketku"], [`Total Pesanan (${count} item)`, rpBuyer(subtotal)], ["Biaya admin", rpBuyer(0)], ["Kode unik QRIS", method === "saldo" ? "Tidak ada" : "Dibuat saat bayar"]].map(([a, b]) => (
             <div key={a} className="flex justify-between"><span className="text-muted-foreground">{a}</span><span>{b}</span></div>
           ))}
           <div className="flex justify-between border-t pt-3 text-lg font-bold"><span>Total</span><span>{rpBuyer(subtotal)}</span></div>
@@ -119,8 +134,8 @@ function Checkout() {
       </div>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md items-center justify-between border-t bg-card p-4">
         <div><p className="text-xs text-muted-foreground">Total dibayar</p><p className="text-xl font-bold">{rpBuyer(subtotal)}</p></div>
-        <button disabled={!lines.length || busy} onClick={() => void pay()} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />} Bayar Sekarang
+        <button disabled={!lines.length || busy || (method === "saldo" && lowSaldo)} onClick={() => void pay()} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />} {method === "saldo" ? "Bayar pakai Saldo" : "Bayar Sekarang"}
         </button>
       </div>
     </AppShell>

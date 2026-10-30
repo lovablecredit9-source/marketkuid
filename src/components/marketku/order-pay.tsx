@@ -64,7 +64,7 @@ export function OrderPayBox({ checkoutId, saldoDue, qrisDue, onPaid, initial = "
       toast.success("Bukti dikirim. Admin akan mengecek pembayaranmu.");
       setFile(null);
       void payments.refetch(); onPaid();
-    } catch (e) { toast.error(dbError(e as never)); } finally { setBusy(false); }
+    } catch (e) { toast.error(dbError(e)); } finally { setBusy(false); }
   };
 
   if (waiting) return (
