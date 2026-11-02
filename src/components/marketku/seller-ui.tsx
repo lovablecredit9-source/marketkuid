@@ -9,6 +9,8 @@ import {
   Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon,
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
+import logoMark from "@/assets/seller-logo-mark.png";
+import logoWord from "@/assets/seller-logo-word.png";
 import { soon } from "@/components/marketku/shell";
 import { startTour } from "@/components/marketku/tour";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,34 +70,13 @@ function useOutside(open: boolean, close: () => void) {
 
 export type HeaderStore = { owner_id: string; store_name: string; is_open: boolean };
 
-export function SellerHeader({ store, email, onMenu, theme, onTheme }: {
-  store: HeaderStore; email: string; onMenu: () => void; theme: SellerTheme; onTheme: (t: SellerTheme) => void;
+export function SellerHeader({ store, email, onMenu, theme, onTheme, menuOpen = false }: {
+  store: HeaderStore; email: string; onMenu: () => void; theme: SellerTheme; onTheme: (t: SellerTheme) => void; menuOpen?: boolean;
 }) {
-  const path = useRouterState({ select: (s) => s.location.pathname.replace(/\/$/, "") || "/seller" });
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState<null | "notif" | "theme" | "profile">(null);
-  const close = () => setOpen(null);
-  const ref = useOutside(open !== null, close);
-  const toggle = (k: NonNullable<typeof open>) => setOpen((o) => (o === k ? null : k));
-
-  const toggleStore = async () => {
-    const { error } = await supabase.from("seller_stores").update({ is_open: !store.is_open }).eq("owner_id", store.owner_id);
-    if (error) { toast.error("Gagal mengubah status toko"); return; }
-    toast.success(store.is_open ? "Toko ditutup" : "Toko dibuka");
-    void qc.invalidateQueries({ queryKey: ["seller_store", store.owner_id] });
-  };
-  // Leaving Seller Center keeps the buyer session; Seller Center asks to log in again next time.
-  const signOut = () => {
-    close(); lockSeller(store.owner_id);
-    toast.success("Keluar dari Seller Center");
-    navigate({ to: "/akun", replace: true });
-  };
-
-  return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+...
+    <header data-seller-header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
       <div ref={ref} className="relative flex items-center gap-1 px-3 py-3">
-        <button aria-label="Menu" onClick={onMenu} className="grid h-9 w-9 place-items-center rounded-lg transition active:scale-90"><Menu className="h-5 w-5" /></button>
+        <button aria-label="Menu" onClick={onMenu} className={`grid h-9 w-9 place-items-center rounded-lg border transition active:scale-90 ${menuOpen ? "border-primary" : "border-transparent"}`}><Menu className="h-5 w-5" /></button>
         <h1 className="ml-1 min-w-0 truncate text-[15px] font-semibold">{titleFor(path)}</h1>
         <div className="ml-auto flex items-center gap-0.5" data-tour="topbar">
           <HeadBtn label="Muat ulang" onClick={() => { void qc.invalidateQueries(); toast("Data dimuat ulang"); }}><RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} /></HeadBtn>
@@ -233,27 +214,36 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
     toast.success("Keluar dari Seller Center");
     navigate({ to: "/akun", replace: true });
   };
+  // The menu opens below the sticky Seller Center header (like panel.marketku.id), so the header stays visible.
+  const [top, setTop] = useState(0);
+  useEffect(() => {
+    if (!open) return;
+    const h = document.querySelector("[data-seller-header]");
+    setTop(h ? Math.max(0, Math.round(h.getBoundingClientRect().bottom)) : 0);
+  }, [open]);
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-background/60 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="seller-panel fixed inset-y-0 left-0 z-50 flex w-[78%] max-w-[300px] flex-col border-r bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
-          <div className="flex items-center justify-between border-b px-4 py-4">
-            <Link to="/" onClick={() => onOpenChange(false)} className="flex items-center gap-3">
+        <Dialog.Overlay style={{ top }} className="seller-panel fixed inset-x-0 bottom-0 z-50 !bg-[var(--drawer-overlay)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content style={{ top }} className="seller-panel fixed bottom-0 left-0 z-50 flex w-[78%] max-w-[280px] flex-col border-r !bg-[var(--sheet-body)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
+          <div className="flex items-center justify-between py-2.5 pl-[23px] pr-4">
+            <Link to="/" onClick={() => onOpenChange(false)} className="flex items-center">
+              <img src={logoMark} alt="" className="h-11 w-auto" />
+              <span className="mx-3 h-8 w-px bg-foreground/25" />
               <span className="flex flex-col">
-                <img src={logo.url} alt="Marketku" className="h-9 w-auto" />
-                <span className="mt-0.5 pl-11 text-[10px] font-medium tracking-[0.2em] text-muted-foreground">Seller Dashboard</span>
+                <img src={logoWord} alt="Marketku" className="h-[22px] w-auto self-start" />
+                <span className="mt-0.5 text-[9px] font-medium tracking-[0.15em] text-foreground/75">Seller Dashboard</span>
               </span>
             </Link>
             <Dialog.Title className="sr-only">Menu Seller Dashboard</Dialog.Title>
             <Dialog.Description className="sr-only">Navigasi Seller Center Marketku</Dialog.Description>
-            <Dialog.Close aria-label="Tutup" className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+            <Dialog.Close aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"><X className="h-[18px] w-[18px]" strokeWidth={1.75} /></Dialog.Close>
           </div>
-          <nav className="flex-1 overflow-y-auto px-2 py-3">
+          <nav className="flex-1 overflow-y-auto px-1.5 pb-2 pt-4">
             {menuGroups.map((g) => (
-              <div key={g.title} className="mb-3">
-                <p className="flex items-center gap-2 px-3 pb-1.5 text-[11px] font-semibold tracking-widest text-muted-foreground">
-                  {g.title}<span className="h-px flex-1 bg-border" />
+              <div key={g.title} className="mb-1.5">
+                <p className="flex items-center gap-2 px-3.5 pb-1.5 pt-1 text-[10.5px] font-medium tracking-[0.08em] text-muted-foreground/80">
+                  {g.title}<span className="h-px flex-1 bg-border/50" />
                 </p>
                 {g.items.map(({ label, icon: I, to, badge, children }) => {
                   const active = isActive(to);
@@ -266,9 +256,9 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
                           else if (to) { onOpenChange(false); navigate({ to }); }
                           else soon(label);
                         }}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[15px] transition active:scale-[0.98] ${active ? "bg-accent text-foreground" : "text-foreground/85"} ${isOpen ? "ring-1 ring-primary" : ""}`}>
-                        {active && <span className="absolute -left-2 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary" />}
-                        <I className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
+                        className={`relative flex h-[35px] w-full items-center gap-3 rounded-lg px-4 text-left text-[14px] transition active:scale-[0.98] ${active ? "bg-[var(--drawer-active)] text-foreground" : "text-foreground/85"} ${isOpen ? "ring-1 ring-primary" : ""}`}>
+                        {active && <span className="absolute -left-0.5 top-1 bottom-1 w-[3px] rounded-full bg-primary" />}
+                        <I className="h-4 w-4 shrink-0" strokeWidth={1.6} />
                         <span className="flex-1">{label}</span>
                         {badge && <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary">{badge}</span>}
                         {children && <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />}
@@ -276,7 +266,7 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
                       {children && isOpen && (
                         <div className="py-1 pl-10">
                           {children.map((c) => (
-                            <button key={c.label} onClick={() => { onOpenChange(false); navigate({ to: "/seller/iklan", search: c.tab ? { tab: c.tab } : {} }); }} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-foreground/80 transition active:bg-accent">{c.label}</button>
+                            <button key={c.label} onClick={() => { onOpenChange(false); navigate({ to: "/seller/iklan", search: c.tab ? { tab: c.tab } : {} }); }} className="block w-full rounded-lg px-3 py-1.5 text-left text-[13px] text-foreground/80 transition active:bg-accent">{c.label}</button>
                           ))}
                         </div>
                       )}
@@ -286,8 +276,8 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
               </div>
             ))}
           </nav>
-          <button onClick={() => void signOut()} className="flex items-center gap-3 border-t px-5 py-4 text-[15px] text-foreground/85 transition active:scale-[0.98]">
-            <LogOut className="h-5 w-5" strokeWidth={1.75} /> Keluar
+          <button onClick={() => void signOut()} className="flex items-center gap-3 border-t px-6 py-3.5 text-[14px] text-foreground/85 transition active:scale-[0.98]">
+            <LogOut className="h-[18px] w-[18px]" strokeWidth={1.6} /> Keluar
           </button>
         </Dialog.Content>
       </Dialog.Portal>
