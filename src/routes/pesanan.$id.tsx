@@ -282,12 +282,12 @@ function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () 
   );
 }
 
-export const REVIEW_EDIT_DAYS = 7;
-export function reviewEditDeadline(createdAt: string) { return new Date(new Date(createdAt).getTime() + REVIEW_EDIT_DAYS * 86400_000); }
+const REVIEW_EDIT_DAYS = 7;
+function reviewEditDeadline(createdAt: string) { return new Date(new Date(createdAt).getTime() + REVIEW_EDIT_DAYS * 86400_000); }
 
 type Review = { id: string; rating: number; comment: string | null; created_at: string; edited_at: string | null };
 
-function ReviewCard({ name, itemId, productId, sellerId, review, onDone }: { name: string; itemId: string; productId: string; sellerId: string; review?: Review; onDone: () => void }) {
+function ReviewCard({ name, itemId, productId, sellerId, review, onDone }: { name: string; itemId: string; productId: string; sellerId: string; review?: Review | undefined; onDone: () => void }) {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [rating, setRating] = useState(review?.rating ?? 0);
