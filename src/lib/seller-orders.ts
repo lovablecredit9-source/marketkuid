@@ -26,11 +26,11 @@ export function sellerStats(orders: O[], now = new Date()) {
   const buyers = new Set(orders.map((o) => o.buyer_id)).size;
   const paidLike = orders.filter((o) => ["paid", "processing", "completed"].includes(o.status));
   const conversion = orders.length ? Math.round((paidLike.length / orders.length) * 100) : 0;
-  const best = new Map<string, { name: string; qty: number; revenue: number }>();
+  const best = new Map<string, { id: string | null; name: string; qty: number; revenue: number }>();
   for (const o of done) for (const i of o.order_items) {
     const k = i.product_id ?? i.product_name;
-    const cur = best.get(k) ?? { name: i.product_name, qty: 0, revenue: 0 };
-    best.set(k, { name: cur.name, qty: cur.qty + i.qty, revenue: cur.revenue + Number(i.line_total) });
+    const cur = best.get(k) ?? { id: i.product_id, name: i.product_name, qty: 0, revenue: 0 };
+    best.set(k, { id: cur.id, name: cur.name, qty: cur.qty + i.qty, revenue: cur.revenue + Number(i.line_total) });
   }
   return {
     revenue, today, buyers, conversion,
