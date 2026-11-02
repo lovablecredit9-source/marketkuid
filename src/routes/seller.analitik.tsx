@@ -136,9 +136,9 @@ function Analitik() {
       <Section icon={TrendingUp} title="Pendapatan & Pesanan">
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={d.series} margin={{ top: 6, right: 0, left: -8, bottom: 0 }}>
+            <LineChart data={d.series} margin={{ top: 6, right: 0, left: 4, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={{ stroke: "var(--ana-grid)" }} tickLine={false} interval="preserveStartEnd" minTickGap={18} />
-              <YAxis yAxisId="r" tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} tickFormatter={rpShort} width={46} />
+              <YAxis yAxisId="r" tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} tickFormatter={rpShort} width={54} />
               <YAxis yAxisId="o" orientation="right" allowDecimals={false} tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={22} />
               <Tooltip content={<Tip money="revenue" />} />
               <Line yAxisId="o" type="monotone" dataKey="orders" name="Pesanan" stroke="var(--ana-green)" strokeWidth={2} dot={false} />
