@@ -3,7 +3,7 @@ import { useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, QrCode, MessageCircle, Copy, Loader2, Shield,
+  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, ChevronRight, ExternalLink, QrCode, MessageCircle, Copy, Loader2, Shield,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -136,13 +136,24 @@ function Transaksi() {
 function Section({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b">
-      <button onClick={() => setOpen(!open)} className={`flex w-full items-center justify-between px-1 py-3 text-xs font-bold tracking-widest ${open ? "text-primary" : "text-muted-foreground"}`}>{title}<ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} /></button>
-      {open && <div className="space-y-2 pb-3">{children}</div>}
+    <div className="py-1">
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 py-5 text-[11px] font-semibold tracking-[0.2em] text-muted-foreground">
+        <span className="shrink-0">{title}</span>
+        <span className="h-px flex-1 bg-border" />
+        <ChevronRight className={`h-4 w-4 shrink-0 transition ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && <div className="space-y-3 pb-3">{children}</div>}
     </div>
   );
 }
-const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex items-center justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
+/** Bordered card whose rows are separated by thin lines (panel style). */
+const Rows = ({ children }: { children: ReactNode }) => <div className="divide-y divide-border overflow-hidden rounded-xl border bg-background/40">{children}</div>;
+const Line = ({ i, a, b }: { i: string; a: string; b: ReactNode }) => (
+  <div className="flex items-center justify-between gap-3 px-4 py-3.5 text-sm">
+    <span className="flex shrink-0 items-center gap-2.5 text-muted-foreground"><span className="text-xs">{i}</span>{a}</span>
+    <span className="min-w-0 break-words text-right font-semibold">{b}</span>
+  </div>
+);
 
 type Escrow = "ditahan" | "dicairkan" | "none";
 // Dana pesanan dibayar ditahan 5 jam (atau sampai pembeli konfirmasi), lalu dicairkan.
@@ -190,65 +201,78 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
   const fee = bad ? 0 : Math.ceil(gross * 0.03);
   const esc = escrowOf(o, heldIds);
   return (
-    <SellerSheet open onOpenChange={(v) => !v && onClose()} title={<span>Ringkasan Pembayaran<span className="block font-mono text-xs font-normal text-muted-foreground">M-{o.order_no}</span></span>}
-      footer={<>
-        <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="flex items-center gap-1.5 rounded-xl border px-4 py-3 text-sm font-semibold"><Copy className="h-4 w-4" /> Salin Order ID</button>
-        <button onClick={onClose} className="flex-1 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
-      </>}>
-      <div className={`mb-3 flex items-center gap-3 rounded-xl border p-3 ${done ? "border-success/40 bg-success/10" : bad ? "border-destructive/40 bg-destructive/10" : "bg-background/40"}`}>
-        <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${done ? "bg-success/80 text-background" : bad ? "bg-destructive/80 text-background" : "bg-primary/20 text-primary"}`}>{bad ? <CircleX className="h-4 w-4" /> : done ? <CircleCheck className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</span>
-        <div className="min-w-0 flex-1">
-          <p className={`text-sm font-bold ${done ? "text-success" : bad ? "text-destructive" : ""}`}>{done ? "TRANSAKSI BERHASIL" : bad ? "DIBATALKAN" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
-          <p className={`text-xs ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-muted-foreground"}`}>{done ? "Dikonfirmasi & selesai" : bad ? "Pesanan dibatalkan" : "Menunggu proses"}</p>
+    <SellerSheet open onOpenChange={(v) => !v && onClose()}
+      title={<span className="text-lg">Ringkasan Pembayaran<span className="mt-1 block font-mono text-xs font-normal tracking-wider text-muted-foreground">M-{o.order_no}</span></span>}
+      actions={o.order_items[0]?.product_id ? (
+        <a href={`/produk/${o.order_items[0].product_id}`} target="_blank" rel="noreferrer" aria-label="Buka produk" className="grid h-10 w-10 place-items-center rounded-xl border text-foreground/80 transition active:scale-90"><ExternalLink className="h-4 w-4" /></a>
+      ) : null}
+      subheader={
+        <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${done ? "border-success/40 bg-success/10" : bad ? "border-destructive/40 bg-destructive/10" : "border-warning/40 bg-warning/10"}`}>
+          <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-4 ${done ? "bg-success text-background ring-success/15" : bad ? "bg-destructive text-background ring-destructive/15" : "bg-warning text-background ring-warning/15"}`}>{bad ? <CircleX className="h-4 w-4" /> : done ? <CircleCheck className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</span>
+          <div className="min-w-0 flex-1">
+            <p className={`text-sm font-bold tracking-wide ${done ? "text-success" : bad ? "text-destructive" : "text-warning"}`}>{done ? "TRANSAKSI BERHASIL" : bad ? "DIBATALKAN" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
+            <p className={`mt-1 text-xs ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{done ? "Dikonfirmasi & selesai" : bad ? "Pesanan dibatalkan" : "Menunggu proses"}</p>
+          </div>
+          <p className={`text-right font-mono text-[11px] leading-6 ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{new Date(o.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })}<br />{new Date(o.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
         </div>
-        <p className={`text-right font-mono text-[11px] leading-5 ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-muted-foreground"}`}>{new Date(o.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })}<br />{new Date(o.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
-      </div>
-      <Section title="IDENTITAS TRANSAKSI" defaultOpen={!bad}>
-        <div className="overflow-hidden rounded-xl border">
-          <div className="flex items-center gap-2 border-b px-3 py-2.5">
-            <b className="text-sm">{o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Instan"}</b>
-            <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary">{o.order_items.reduce((a, i) => a + i.delivered.length, 0)} KREDENSIAL</span>
-            <button onClick={() => { void navigator.clipboard.writeText(o.order_items.flatMap((i) => i.delivered).join("\n")); toast.success("Disalin"); }} className="ml-auto flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold tracking-wider"><Copy className="h-3 w-3" /> SALIN</button>
+      }
+      footer={<>
+        <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="rounded-xl border px-5 py-3 text-sm font-semibold">Salin Order ID</button>
+        <button onClick={onClose} className="flex-1 rounded-xl bg-gradient-to-r from-primary to-primary/70 py-3 text-sm font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
+      </>}>
+      <Section title="IDENTITAS TRANSAKSI">
+        <div className="overflow-hidden rounded-xl border bg-background/40">
+          <div className="flex items-center gap-2 border-b px-4 py-3">
+            <b className="text-sm">{o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Voucher"}</b>
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-bold tracking-wider text-primary">{o.order_items.reduce((a, i) => a + i.delivered.length, 0)} KREDENSIAL</span>
+            <button onClick={() => { void navigator.clipboard.writeText(o.order_items.flatMap((i) => i.delivered).join("\n")); toast.success("Disalin"); }} className="ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[11px] font-bold tracking-wider"><Copy className="h-3 w-3" /> SALIN</button>
           </div>
           <div className="space-y-2 p-3">
             {o.order_items.flatMap((i) => i.delivered).length === 0 && <p className="text-xs text-muted-foreground">{o.order_items[0]?.product_type === "preorder" ? "Pesanan pre-order. Kirim data ke pembeli via chat." : "Belum ada data terkirim."}</p>}
             {o.order_items.flatMap((i) => i.delivered).map((d, n) => (
-              <div key={n} className="rounded-lg border bg-background/40 p-3">
+              <div key={n} className="rounded-lg border bg-card p-3">
                 <div className="flex justify-between text-[10px] font-bold tracking-widest text-muted-foreground">KODE<button aria-label="Salin" onClick={() => { void navigator.clipboard.writeText(d); toast.success("Disalin"); }}><Copy className="h-3 w-3" /></button></div>
-                <p className="mt-1.5 break-all font-mono text-xs">{d}</p>
+                <p className="mt-3 break-all font-mono text-xs leading-5">{d}</p>
               </div>
             ))}
           </div>
         </div>
       </Section>
       <Section title="INFORMASI PELANGGAN">
-        <Line a="Pelanggan" b={o.buyer_name ?? "-"} />
-        <Line a="WhatsApp" b={o.buyer_whatsapp ?? "-"} />
-        {o.order_items.map((i) => <Line key={i.id} a="Produk" b={<span className="uppercase">{i.product_name}</span>} />)}
-        <Line a="Varian" b={o.order_items.map((i) => i.variant_name).join(", ")} />
-        <Line a="Jumlah" b={<span className="rounded-md border px-2 py-0.5 text-xs">{o.order_items.reduce((a, i) => a + i.qty, 0)} item</span>} />
-        <Line a="Catatan pembeli" b={o.buyer_note ?? "-"} />
-        <button onClick={() => void chat()} className="flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-sm font-semibold"><MessageCircle className="h-4 w-4" /> Chat pembeli</button>
+        <Rows>
+          <Line i="👤" a="Pelanggan" b={o.buyer_name ?? "-"} />
+          <Line i="📱" a="WhatsApp" b={o.buyer_whatsapp ? <span className="text-primary">{o.buyer_whatsapp}</span> : "-"} />
+          {o.order_items.map((i) => <Line key={i.id} i="📦" a="Produk" b={<span className="uppercase">{i.product_name}</span>} />)}
+          <Line i="🏷️" a="Varian" b={<span className="uppercase">{o.order_items.map((i) => i.variant_name).join(", ")}</span>} />
+          <Line i="🎟️" a="Tipe Item" b={o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Voucher"} />
+          <Line i="🔢" a="Jumlah" b={<span className="rounded-md border px-2 py-1 text-xs">{o.order_items.reduce((a, i) => a + i.qty, 0)} item</span>} />
+          {o.buyer_note && <Line i="📝" a="Catatan" b={o.buyer_note} />}
+        </Rows>
+        <button onClick={() => void chat()} className="flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold"><MessageCircle className="h-4 w-4" /> Chat pembeli</button>
       </Section>
-      <Section title="PEMBAYARAN" defaultOpen={bad}>
-        <Line a="Metode bayar" b={<span className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary">⚡ {o.payment_method === "saldo" ? "Saldo Marketku" : "QRIS Marketku"}</span>} />
-        <Line a="Jalur dana" b="PG platform, dana lewat escrow" />
-        <Line a="Escrow" b={<EscrowBadge e={esc} />} />
-        <Line a="Subtotal" b={<span className="font-mono">{rpSeller(Number(o.subtotal))}</span>} />
-        {Number(o.discount) > 0 && <Line a={`Voucher ${o.voucher_code ?? ""}`} b={`-${rpSeller(Number(o.discount))}`} />}
-        {!bad && <Line a="Komisi (3%)" b={<span className="font-mono text-warning">{rpSeller(fee)}</span>} />}
-        <Line a="Kode unik" b={<span className="font-mono">+Rp {o.unique_code}</span>} />
-        <div className="flex items-end justify-between rounded-xl border border-primary/30 bg-primary/5 p-3">
-          <div><p className="text-[10px] font-bold tracking-widest text-muted-foreground">TOTAL DIBAYAR</p><p className="mt-1 text-xs text-primary">Status: {bad ? "EXPIRED" : o.paid_at ? "PAID" : "PENDING"} ✓</p></div>
-          <div className="text-right"><p className="text-xl font-bold text-primary">{rpSeller(Number(o.total))}</p><p className="font-mono text-[10px] text-muted-foreground">{o.order_items.reduce((a, i) => a + i.qty, 0)} item · {bad ? "cancelled" : o.paid_at ? "Lunas" : "Belum"}</p></div>
+      <Section title="PEMBAYARAN">
+        <Rows>
+          <Line i="💳" a="Metode Bayar" b={<span className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs text-primary">⚡ {o.payment_method === "saldo" ? "Saldo Marketku" : "QRIS Marketku"}</span>} />
+          <Line i="🏦" a="Jalur Dana" b="PG platform, dana lewat escrow" />
+          <Line i="🔒" a="Escrow" b={<EscrowBadge e={esc} />} />
+          <Line i="📊" a="Subtotal" b={<span className="font-mono text-xs font-normal text-muted-foreground">{rpSeller(Number(o.subtotal))}</span>} />
+          {Number(o.discount) > 0 && <Line i="🎫" a={`Voucher ${o.voucher_code ?? ""}`} b={<span className="font-mono text-xs">-{rpSeller(Number(o.discount))}</span>} />}
+          {!bad && <Line i="💰" a="Komisi (3%)" b={<span className="font-mono text-xs font-normal text-warning">{rpSeller(fee)}</span>} />}
+          <Line i="🔢" a="Kode Unik" b={<span className="font-mono text-xs font-normal text-muted-foreground">+Rp {o.unique_code}</span>} />
+        </Rows>
+        <div className="flex items-end justify-between rounded-xl border border-primary/30 bg-primary/5 px-4 py-4">
+          <div><p className="text-[10px] font-bold tracking-widest text-muted-foreground">TOTAL DIBAYAR</p><p className="mt-2 text-xs text-primary/80">Status: {bad ? "EXPIRED" : o.paid_at ? "PAID" : "PENDING"} ✓</p></div>
+          <div className="text-right"><p className="text-[10px] font-bold text-primary">IDR</p><p className="text-2xl font-bold text-primary">{rpSeller(Number(o.total))}</p><p className="font-mono text-[10px] text-muted-foreground">{o.order_items.reduce((a, i) => a + i.qty, 0)} item · {bad ? "cancelled" : o.paid_at ? "Lunas" : "Belum"}</p></div>
         </div>
-        <div className="flex items-center justify-between rounded-xl border border-success/30 bg-success/5 p-3"><span className="text-sm text-success">Seller Receives</span><b className="font-mono text-lg text-success">{rpSeller(gross - fee)}</b></div>
+        <div className="flex items-center justify-between rounded-xl border border-success/30 bg-success/5 px-4 py-3.5"><span className="text-sm font-medium text-success">Seller Receives</span><b className="font-mono text-xl text-success">{rpSeller(gross - fee)}</b></div>
       </Section>
       <Section title="RIWAYAT WAKTU">
-        <Line a="Dibuat" b={fmtDateTime(o.created_at)} />
-        <Line a="Diperbarui" b={fmtDateTime(o.updated_at)} />
-        {o.paid_at && <Line a="Dibayar" b={fmtDateTime(o.paid_at)} />}
-        {o.completed_at && <Line a="Selesai" b={fmtDateTime(o.completed_at)} />}
+        <Rows>
+          <Line i="📅" a="Dibuat" b={<span className="font-mono text-xs font-normal text-muted-foreground">{fmtDateTime(o.created_at)}</span>} />
+          <Line i="🔄" a="Diperbarui" b={<span className="font-mono text-xs font-normal text-muted-foreground">{fmtDateTime(o.updated_at)}</span>} />
+          {o.paid_at && <Line i="💵" a="Dibayar" b={<span className="font-mono text-xs font-normal text-muted-foreground">{fmtDateTime(o.paid_at)}</span>} />}
+          {o.completed_at && <Line i="✅" a="Selesai" b={<span className="font-mono text-xs font-normal text-muted-foreground">{fmtDateTime(o.completed_at)}</span>} />}
+        </Rows>
       </Section>
       {(o.status === "paid" || o.status === "processing") && (
         <div className="mt-4 space-y-2">
