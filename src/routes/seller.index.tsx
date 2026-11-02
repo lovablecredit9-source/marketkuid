@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Clock, Wallet, Package, ShoppingBag, Megaphone, Bot, Settings, ShieldCheck, Snowflake, DollarSign, Users, Percent,
-  TrendingUp, ArrowUpRight,
+  TrendingUp, ArrowUpRight, CheckCircle2, XCircle, Clock3,
 } from "lucide-react";
 import { ActionRow, SellerCard, SellerEmpty, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 import { PageTour } from "@/components/marketku/tour";
 import { pageMeta } from "@/lib/meta";
 import { useAuth } from "@/lib/auth";
-import { useMyProducts } from "@/lib/products";
+import { useImageUrls, useMyProducts } from "@/lib/products";
 import { ORDER_LABEL } from "@/lib/market";
 import { sellerStats, useSellerOrders } from "@/lib/seller-orders";
 import { useState } from "react";
@@ -51,6 +51,9 @@ function Dasbor() {
   const [holdOpen, setHoldOpen] = useState(false);
   const heldTotal = (holds.data ?? []).reduce((s, h) => s + Number(h.amount), 0);
   const nextRelease = (holds.data ?? []).map((h) => h.release_at).sort()[0];
+  const coverOf = (id: string | null) => prods.find((p) => p.id === id)?.images?.[0] ?? "";
+  const bestImgs = useImageUrls(st.bestSellers.map((b) => coverOf(b.id)).filter(Boolean));
+  const maxQty = Math.max(1, ...st.bestSellers.map((b) => b.qty));
   return (
     <>
       <HoldsSheet open={holdOpen} onClose={() => setHoldOpen(false)} uid={user?.id} />
@@ -108,12 +111,19 @@ function Dasbor() {
         </div>
         {all.length === 0 ? <SellerEmpty icon={ShoppingBag} title="Belum ada transaksi" desc="Transaksi pembeli akan muncul di sini." /> : (
           <div className="divide-y">
-            {all.slice(0, 5).map((o) => (
-              <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left">
-                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
-                <span className="text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className={`text-xs font-medium ${["paid", "completed"].includes(o.status) ? "text-success" : ["cancelled", "failed"].includes(o.status) ? "text-destructive" : o.status === "pending" ? "text-warning" : "text-muted-foreground"}`}>{ORDER_LABEL[o.status]}</span></span>
+            {all.slice(0, 5).map((o) => {
+              const ok = ["paid", "processing", "completed"].includes(o.status);
+              const bad = ["cancelled", "failed", "expired"].includes(o.status);
+              const tone = ok ? "text-success" : bad ? "text-destructive" : o.status === "pending" ? "text-warning" : "text-muted-foreground";
+              const Icon = ok ? CheckCircle2 : bad ? XCircle : Clock3;
+              return (
+              <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left transition active:bg-muted/40">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-background/70"><Icon className={`h-4 w-4 ${tone}`} strokeWidth={1.8} /></span>
+                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name || "Pelanggan"} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
+                <span className="shrink-0 text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className={`mt-0.5 inline-block text-xs font-medium ${tone} ${bad ? "rounded-md bg-destructive/15 px-1.5 py-0.5" : ""}`}>{ORDER_LABEL[o.status]}</span></span>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </SellerCard>
@@ -126,10 +136,16 @@ function Dasbor() {
         {st.bestSellers.length === 0 ? <SellerEmpty icon={Package} title="Belum ada produk terjual" desc="Produk terlaris akan tampil setelah ada penjualan." /> : (
           <div className="divide-y">
             {st.bestSellers.map((b, i) => (
-              <div key={b.name} className="flex items-center gap-3 px-4 py-3">
-                <span className="w-5 text-sm font-medium text-muted-foreground">{i + 1}</span>
-                <span className="min-w-0 flex-1 truncate text-sm font-medium uppercase">{b.name}</span>
-                <span className="text-right"><span className="block text-sm font-semibold">{b.qty} terjual</span><span className="text-xs text-muted-foreground">{rpSeller(b.revenue)}</span></span>
+              <div key={b.id ?? b.name} className="flex items-center gap-3 px-4 py-3">
+                <span className="w-4 shrink-0 text-sm font-medium text-muted-foreground">{i + 1}</span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background/70">
+                  {bestImgs.data?.[coverOf(b.id)] ? <img src={bestImgs.data[coverOf(b.id)]} alt={b.name} className="h-full w-full object-cover" loading="lazy" /> : <Package className="h-4 w-4 text-muted-foreground" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium uppercase">{b.name}</span>
+                  <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-muted"><span className="block h-full rounded-full bg-gradient-to-r from-warning/40 to-warning" style={{ width: `${Math.round((b.qty / maxQty) * 100)}%` }} /></span>
+                </span>
+                <span className="shrink-0 text-right"><span className="block text-sm font-semibold">{b.qty} terjual</span><span className="text-xs text-muted-foreground">{rpSeller(b.revenue)}</span></span>
               </div>
             ))}
           </div>
