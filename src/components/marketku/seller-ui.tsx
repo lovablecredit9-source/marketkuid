@@ -344,17 +344,17 @@ export function SellerSheet({ open, onOpenChange, title, children, footer, class
         <Dialog.Overlay className="fixed inset-0 z-50 bg-background/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content aria-describedby={undefined}
           className={`seller-panel fixed z-50 mx-auto flex max-w-md flex-col ${full ? "inset-0 !bg-[var(--sheet-body)]" : "inset-x-0 bottom-0 max-h-[88vh] rounded-t-2xl border bg-card shadow-2xl"} data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom ${className}`}>
-          <div className={`border-b ${full ? "bg-[var(--sheet-head)] px-[18px] pb-3.5 pt-2.5" : "px-5 py-4"}`}>
+          <div className={`border-b ${full ? "bg-[var(--sheet-head)] px-4 pb-3 pt-2.5" : "px-5 py-4"}`}>
             <div className="flex items-start justify-between gap-3">
               <Dialog.Title className="min-w-0 text-base font-bold">{title}</Dialog.Title>
               <div className="flex shrink-0 items-center gap-2">
                 {actions}
-                <Dialog.Close aria-label="Tutup" className={boxed ? "grid h-10 w-10 place-items-center rounded-xl border text-foreground/80 transition active:scale-90" : "grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"}><X className={boxed ? "h-4 w-4" : "h-5 w-5"} /></Dialog.Close>
+                <Dialog.Close aria-label="Tutup" className={boxed ? "grid h-8 w-8 place-items-center rounded-lg border text-foreground/80 transition active:scale-90" : "grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"}><X className={boxed ? "h-4 w-4" : "h-5 w-5"} /></Dialog.Close>
               </div>
             </div>
             {subheader && <div className="mt-3">{subheader}</div>}
           </div>
-          <div className={`flex-1 overflow-y-auto py-4 ${full ? "px-[18px]" : "px-5"}`}>{children}</div>
+          <div className={`flex-1 overflow-y-auto ${full ? "px-4 py-2" : "px-5"}`}>{children}</div>
           {footer && <div className={`flex items-center justify-between gap-2 border-t ${full ? "px-4 py-2.5" : "px-5 py-4"}`}>{footer}</div>}
         </Dialog.Content>
       </Dialog.Portal>
