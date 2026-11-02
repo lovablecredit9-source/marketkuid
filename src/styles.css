@@ -302,3 +302,8 @@
   -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent);
   mask-image: linear-gradient(to bottom, black 70%, transparent);
 }
+
+/* Seller Center sized like panel.marketku.id (about 12% smaller than default). */
+@utility seller-compact {
+  zoom: 0.88;
+}

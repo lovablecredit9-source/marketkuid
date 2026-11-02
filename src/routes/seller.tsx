@@ -107,7 +107,7 @@ function SellerLayout() {
 
   return (
     <div className="seller-panel min-h-screen">
-      <div className="mx-auto min-h-screen max-w-md">
+      <div className="seller-compact mx-auto min-h-screen max-w-md">
         <SellerHeader store={store.data} email={user.email ?? ""} onMenu={() => setMenu(true)} theme={theme} onTheme={setTheme} />
         <main className="space-y-4 px-3 pb-28 pt-3"><SellerBanBanner /><Outlet /></main>
         <SellerBottomNav onMenu={() => setMenu(true)} menuOpen={menu} />
