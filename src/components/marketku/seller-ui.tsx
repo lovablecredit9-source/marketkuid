@@ -72,7 +72,28 @@ export type HeaderStore = { owner_id: string; store_name: string; is_open: boole
 export function SellerHeader({ store, email, onMenu, theme, onTheme, menuOpen = false }: {
   store: HeaderStore; email: string; onMenu: () => void; theme: SellerTheme; onTheme: (t: SellerTheme) => void; menuOpen?: boolean;
 }) {
-...
+  const path = useRouterState({ select: (s) => s.location.pathname.replace(/\/$/, "") || "/seller" });
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState<null | "notif" | "theme" | "profile">(null);
+  const close = () => setOpen(null);
+  const ref = useOutside(open !== null, close);
+  const toggle = (k: NonNullable<typeof open>) => setOpen((o) => (o === k ? null : k));
+
+  const toggleStore = async () => {
+    const { error } = await supabase.from("seller_stores").update({ is_open: !store.is_open }).eq("owner_id", store.owner_id);
+    if (error) { toast.error("Gagal mengubah status toko"); return; }
+    toast.success(store.is_open ? "Toko ditutup" : "Toko dibuka");
+    void qc.invalidateQueries({ queryKey: ["seller_store", store.owner_id] });
+  };
+  // Leaving Seller Center keeps the buyer session; Seller Center asks to log in again next time.
+  const signOut = () => {
+    close(); lockSeller(store.owner_id);
+    toast.success("Keluar dari Seller Center");
+    navigate({ to: "/akun", replace: true });
+  };
+
+  return (
     <header data-seller-header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
       <div ref={ref} className="relative flex items-center gap-1 px-3 py-3">
         <button aria-label="Menu" onClick={onMenu} className={`grid h-9 w-9 place-items-center rounded-lg border transition active:scale-90 ${menuOpen ? "border-primary" : "border-transparent"}`}><Menu className="h-5 w-5" /></button>
