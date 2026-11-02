@@ -221,22 +221,37 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
         <button onClick={onClose} className="flex-[1.8] rounded-lg bg-gradient-to-r from-primary to-primary/70 py-2.5 text-[13px] font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
       </>}>
       <Section title="IDENTITAS TRANSAKSI">
-        <div className="overflow-hidden rounded-xl border bg-background/40">
-          <div className="flex items-center gap-2 border-b px-4 py-3">
-            <b className="text-sm">{o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Voucher"}</b>
-            <span className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-bold tracking-wider text-primary">{o.order_items.reduce((a, i) => a + i.delivered.length, 0)} KREDENSIAL</span>
-            <button onClick={() => { void navigator.clipboard.writeText(o.order_items.flatMap((i) => i.delivered).join("\n")); toast.success("Disalin"); }} className="ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[11px] font-bold tracking-wider"><Copy className="h-3 w-3" /> SALIN</button>
-          </div>
-          <div className="space-y-2 p-3">
-            {o.order_items.flatMap((i) => i.delivered).length === 0 && <p className="text-xs text-muted-foreground">{o.order_items[0]?.product_type === "preorder" ? "Pesanan pre-order. Kirim data ke pembeli via chat." : "Belum ada data terkirim."}</p>}
-            {o.order_items.flatMap((i) => i.delivered).map((d, n) => (
-              <div key={n} className="rounded-lg border bg-card p-3">
-                <div className="flex justify-between text-[10px] font-bold tracking-widest text-muted-foreground">KODE<button aria-label="Salin" onClick={() => { void navigator.clipboard.writeText(d); toast.success("Disalin"); }}><Copy className="h-3 w-3" /></button></div>
-                <p className="mt-3 break-all font-mono text-xs leading-5">{d}</p>
+        {(() => {
+          const isPre = o.order_items[0]?.product_type === "preorder";
+          const delivered = o.order_items.flatMap((i) => i.delivered);
+          const prod = (o.order_items[0] as { products?: { seller_contact: string | null; work_estimate: string | null } | null })?.products;
+          const fields: { k: string; v: string }[] = isPre
+            ? [
+                { k: "ESTIMASI PRE-ORDER", v: prod?.work_estimate || "-" },
+                { k: "KONTAK SELLER", v: prod?.seller_contact || "-" },
+                { k: "INFO", v: delivered.length ? delivered.join("\n") : "Pesanan pre-order berhasil. Seller akan menghubungi Anda." },
+              ]
+            : delivered.map((d) => ({ k: "KODE", v: d }));
+          const count = isPre ? o.order_items.reduce((a, i) => a + i.qty, 0) : delivered.length;
+          return (
+            <div className="overflow-hidden rounded-xl border bg-[var(--sheet-head)]">
+              <div className="flex items-center gap-2 border-b px-3 py-2.5">
+                <b className="text-[13px]">{isPre ? "Pre-Order" : "Voucher"}</b>
+                <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-1 text-[9px] font-bold tracking-wider text-primary">{count} KREDENSIAL</span>
+                <button onClick={() => { void navigator.clipboard.writeText(fields.map((f) => (isPre ? `${f.k}: ${f.v}` : f.v)).join("\n")); toast.success("Disalin"); }} className="ml-auto flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[10px] font-bold tracking-wider"><Copy className="h-3 w-3" /> SALIN</button>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="space-y-2 p-2.5">
+                {fields.length === 0 && <p className="text-xs text-muted-foreground">Belum ada data terkirim.</p>}
+                {fields.map((f, n) => (
+                  <div key={n} className="rounded-lg border bg-[var(--sheet-body)] px-2.5 py-3">
+                    <div className="flex items-center justify-between text-[9px] font-bold tracking-widest text-muted-foreground">{f.k}<button aria-label="Salin" onClick={() => { void navigator.clipboard.writeText(f.v); toast.success("Disalin"); }}><Copy className="h-3 w-3" /></button></div>
+                    <p className="mt-3 whitespace-pre-wrap break-all font-mono text-[11.5px] leading-5">{f.v}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </Section>
       <Section title="INFORMASI PELANGGAN">
         <Rows>
