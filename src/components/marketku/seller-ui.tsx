@@ -8,7 +8,6 @@ import {
   Megaphone, Bot, Settings, LogOut, ArrowRight, BarChart3, Users, MessageCircle, AlertTriangle,
   Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon,
 } from "lucide-react";
-import logo from "@/assets/logo-marketku.png.asset.json";
 import logoMark from "@/assets/seller-logo-mark.png";
 import logoWord from "@/assets/seller-logo-word.png";
 import { soon } from "@/components/marketku/shell";
