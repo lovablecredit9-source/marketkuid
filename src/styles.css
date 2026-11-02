@@ -311,3 +311,13 @@
 @utility seller-compact {
   zoom: 0.88;
 }
+
+/* Seller analytics chart palette (panel.marketku.id) */
+.seller-panel {
+  --ana-blue: oklch(0.62 0.19 259);
+  --ana-sky: oklch(0.68 0.15 237);
+  --ana-green: oklch(0.7 0.15 162);
+  --ana-violet: oklch(0.62 0.2 293);
+  --ana-amber: oklch(0.8 0.16 85);
+  --ana-grid: color-mix(in oklab, var(--muted-foreground) 25%, transparent);
+}
