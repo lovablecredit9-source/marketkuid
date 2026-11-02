@@ -349,12 +349,12 @@ export function SellerSheet({ open, onOpenChange, title, children, footer, class
               <Dialog.Title className="min-w-0 text-base font-bold">{title}</Dialog.Title>
               <div className="flex shrink-0 items-center gap-2">
                 {actions}
-                <Dialog.Close aria-label="Tutup" className={boxed ? "grid h-8 w-8 place-items-center rounded-lg border text-foreground/80 transition active:scale-90" : "grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"}><X className={boxed ? "h-4 w-4" : "h-5 w-5"} /></Dialog.Close>
+                <Dialog.Close aria-label="Tutup" className={boxed ? "grid h-8 w-8 place-items-center rounded-lg border text-foreground/80 transition active:scale-90" : "grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"}><X className={boxed ? "h-3.5 w-3.5" : "h-5 w-5"} /></Dialog.Close>
               </div>
             </div>
             {subheader && <div className="mt-3">{subheader}</div>}
           </div>
-          <div className={`flex-1 overflow-y-auto ${full ? "px-4 py-2" : "px-5"}`}>{children}</div>
+          <div className={`flex-1 overflow-y-auto ${full ? "px-4 py-2" : "px-5 py-4"}`}>{children}</div>
           {footer && <div className={`flex items-center justify-between gap-2 border-t ${full ? "px-4 py-2.5" : "px-5 py-4"}`}>{footer}</div>}
         </Dialog.Content>
       </Dialog.Portal>
