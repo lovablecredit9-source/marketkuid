@@ -143,33 +143,35 @@ function ProdukDetail() {
               </div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-2 border-t pt-3 text-center text-xs text-muted-foreground">
-            <span className="flex flex-col items-center gap-1"><Zap className="h-4 w-4 text-primary" />{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
-            <span className="flex flex-col items-center gap-1"><ShieldCheck className="h-4 w-4 text-primary" />{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
+          <div className="grid grid-cols-2 gap-2 border-t pt-3 text-center text-sm font-medium text-foreground">
+            <span>{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
+            <span>{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
           </div>
           {p.store && (
-            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-xl border p-3 transition active:scale-[0.98]">
+            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-background/40 px-4 py-3 transition active:scale-[0.98]">
               {avatarUrl
-                ? <img src={avatarUrl} alt={p.store.store_name} className="h-11 w-11 shrink-0 rounded-full border object-cover" />
+                ? <img src={avatarUrl} alt={p.store.store_name} className="h-11 w-11 shrink-0 rounded-full object-cover" />
                 : <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accent text-primary"><Store className="h-5 w-5" /></span>}
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-bold">{p.store.store_name}</span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  {storeRating.count > 0
-                    ? <><Star className="h-3.5 w-3.5 fill-warning text-warning" /><b className="text-foreground">{storeRating.avg.toFixed(1)}</b> · {storeRating.count} reviews</>
-                    : p.store.is_open ? "Toko buka" : "Toko tutup"}
+                <span className="block truncate text-base font-bold">{p.store.store_name}</span>
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Star className="h-4 w-4 fill-warning text-warning" /><b className="text-foreground">{storeRating.count > 0 ? storeRating.avg.toFixed(1) : "0"}</b> · {storeRating.count} reviews
                 </span>
               </span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
           )}
         </section>
 
-        <section className="mt-2 space-y-3 bg-card px-4 py-4">
-          <h2 className="text-lg font-bold">Spesifikasi</h2>
-          {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
-            <div key={a} className="flex justify-between gap-4 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>
-          ))}
+        <section className="mt-2 bg-card px-5 py-6">
+          <h2 className="mb-3 text-xl font-bold">Spesifikasi</h2>
+          <div className="divide-y divide-border">
+            {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
+              <div key={a} className="flex justify-between gap-4 py-3.5 text-[15px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-medium">{b}</span></div>
+            ))}
+          </div>
+          <div className="my-4 h-2 bg-background/60" />
+        </section>
+        <section className="space-y-3 bg-card px-5 pb-4">
           <h2 className="pt-2 text-lg font-bold">Deskripsi</h2>
           <p className={`whitespace-pre-line text-sm leading-relaxed ${more ? "" : "line-clamp-4"}`}>{p.description || "Belum ada deskripsi."}</p>
           {p.description.length > 160 && <button onClick={() => setMore(!more)} className="text-sm font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
