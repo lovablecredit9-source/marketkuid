@@ -3,7 +3,7 @@ import { useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, QrCode, MessageCircle, Copy, Loader2, Shield,
+  ShoppingBag, Clock, ClipboardCheck, CircleCheck, CircleX, DollarSign, BarChart3, SlidersHorizontal, Check, ChevronDown, ChevronRight, ExternalLink, QrCode, MessageCircle, Copy, Loader2, Shield,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
