@@ -119,8 +119,8 @@ function Dasbor() {
               return (
               <button key={o.id} onClick={() => navigate({ to: "/seller/transaksi" })} className="flex w-full items-center gap-3 px-4 py-3 text-left transition active:bg-muted/40">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-background/70"><Icon className={`h-4 w-4 ${tone}`} strokeWidth={1.8} /></span>
-                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="text-xs text-muted-foreground">{o.buyer_name || "Pelanggan"} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
-                <span className="shrink-0 text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className={`mt-0.5 inline-block text-xs font-medium ${tone} ${bad ? "rounded-md bg-destructive/15 px-1.5 py-0.5" : ""}`}>{ORDER_LABEL[o.status]}</span></span>
+                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium uppercase">{o.order_items[0]?.product_name}</span><span className="block truncate text-xs text-muted-foreground">{o.buyer_name || "Pelanggan"} · {new Date(o.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span></span>
+                <span className="shrink-0 text-right"><span className="block text-sm font-semibold">{rpSeller(Number(o.subtotal) - Number(o.discount))}</span><span className={`mt-0.5 inline-block whitespace-nowrap text-xs font-medium ${tone} ${bad ? "rounded-md bg-destructive/15 px-1.5 py-0.5" : ""}`}>{ORDER_LABEL[o.status]}</span></span>
               </button>
               );
             })}
