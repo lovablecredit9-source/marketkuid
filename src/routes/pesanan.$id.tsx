@@ -17,7 +17,6 @@ export const Route = createFileRoute("/pesanan/$id")({
   component: Pesanan,
 });
 
-const TOPICS = ["Kualitas Barang", "Kemasan", "Sesuai Deskripsi", "Pengiriman", "Pelayanan Seller"];
 
 function useCountdown(to: string | null | undefined) {
   const [now, setNow] = useState(() => Date.now());
@@ -39,8 +38,8 @@ function Pesanan() {
       const { data, error } = await supabase.from("orders").select("*, order_items(*)").or(`checkout_id.eq.${id},id.eq.${id}`).eq("buyer_id", user!.id).order("created_at");
       if (error) throw error;
       const itemIds = (data ?? []).flatMap((o) => o.order_items.map((i) => i.id));
-      const reviewed = itemIds.length ? (await supabase.from("product_reviews").select("order_item_id").in("order_item_id", itemIds)).data ?? [] : [];
-      return { orders: data ?? [], reviewed: new Set(reviewed.map((r) => r.order_item_id)) };
+      const reviewed = itemIds.length ? (await supabase.from("product_reviews").select("id, order_item_id, rating, comment, created_at, edited_at").in("order_item_id", itemIds)).data ?? [] : [];
+      return { orders: data ?? [], reviewed: new Map(reviewed.map((r) => [r.order_item_id, r] as const)) };
     },
   });
   const orders = q.data?.orders ?? [];
@@ -82,6 +81,8 @@ function Pesanan() {
     { t: "Pesanan diproses seller", d: "Seller menyiapkan produk pesanan.", at: null, done: st >= 2 },
     { t: "Konfirmasi penerimaan", d: "Periksa produk sebelum mengonfirmasi penerimaan.", at: first.completed_at, done: st >= 3 },
   ];
+  const done = orders.every((o) => o.status === "completed");
+  const jump = (el: string) => { const n = document.getElementById(el); if (n) n.scrollIntoView({ behavior: "smooth", block: "start" }); else toast.info(el === "data-akses" ? "Data akses dikirim seller lewat chat" : ""); };
   const shown = cancelled ? [steps[0]!, { t: "Pesanan dibatalkan", d: "Pesanan ini tidak dilanjutkan.", at: first.updated_at, done: true }] : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.filter((x) => x.done).length - 1).slice(0, 2);
 
   return (
@@ -104,6 +105,22 @@ function Pesanan() {
           </section>
         )}
 
+        {done && (
+          <section className="rounded-2xl border bg-card p-4">
+            <div className="flex gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/15 text-success"><BadgeCheck className="h-6 w-6" /></span>
+              <div>
+                <p className="text-lg font-bold">Pesanan telah selesai</p>
+                <p className="text-sm text-muted-foreground">Produk telah diterima dan transaksi dinyatakan selesai.</p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button onClick={() => jump("ulasan")} className="rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition active:scale-[0.98]">Berikan ulasan</button>
+              <button onClick={() => jump("data-akses")} className="rounded-xl border py-3 text-sm font-semibold transition active:scale-[0.98]">Lihat data akses</button>
+            </div>
+          </section>
+        )}
+
         {orders.filter((o) => o.paid_at && ["paid", "processing", "completed"].includes(o.status)).map((o) => (
           <Received key={`r-${o.id}`} order={o} onDone={() => void refresh()} onReport={() => void chat(o.seller_id)} />
         ))}
@@ -120,12 +137,11 @@ function Pesanan() {
                     <b className="shrink-0">{rpBuyer(Number(i.line_total))}</b>
                   </div>
                   {i.delivered.length > 0 && (
-                    <div className="rounded-xl bg-accent p-3 text-sm">
+                    <div id="data-akses" className="scroll-mt-24 rounded-xl bg-accent p-3 text-sm">
                       <p className="mb-1 font-semibold text-primary">Produk kamu</p>
                       {i.delivered.map((d, n) => <p key={n} className="whitespace-pre-wrap break-all font-mono text-xs">{d}</p>)}
                     </div>
                   )}
-                  {o.status === "completed" && !q.data?.reviewed.has(i.id) && i.product_id && <ReviewForm itemId={i.id} productId={i.product_id} sellerId={o.seller_id} onDone={() => void refresh()} />}
                 </div>
               ))}
             </div>
@@ -159,8 +175,18 @@ function Pesanan() {
           {!cancelled && <button onClick={() => setAllSteps(!allSteps)} className="mt-2 pl-11 text-sm font-bold">{allSteps ? "Sembunyikan aktivitas" : "Lihat seluruh aktivitas"}</button>}
         </section>
 
+        {orders.some((o) => o.status === "completed") && (
+          <div id="ulasan" className="scroll-mt-24 space-y-3">
+            <SecHead icon={Star} t="Ulasan" d="Bagikan pengalaman untuk membantu pembeli lain." />
+            {orders.filter((o) => o.status === "completed").flatMap((o) => o.order_items.filter((i) => i.product_id).map((i) => (
+              <ReviewCard key={i.id} name={i.product_name} itemId={i.id} productId={i.product_id!} sellerId={o.seller_id} review={q.data?.reviewed.get(i.id)} onDone={() => void refresh()} />
+            )))}
+          </div>
+        )}
+
         <SecHead icon={Headphones} t="Bantuan pesanan" d="Semua komunikasi dengan seller dilakukan melalui Marketku." />
         <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center justify-between rounded-2xl border bg-card px-4 py-3.5 text-left font-bold transition active:scale-[0.98]">Hubungi seller <MessageCircle className="h-4 w-4 text-muted-foreground" /></button>
+        {!cancelled && st >= 1 && <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center gap-2 rounded-2xl bg-destructive px-4 py-3.5 text-left font-bold text-destructive-foreground transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan masalah</button>}
         <Link to="/riwayat" className="block text-center font-semibold text-primary">Lihat semua pesanan</Link>
       </div>
     </AppShell>
@@ -256,29 +282,52 @@ function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () 
   );
 }
 
-function ReviewForm({ itemId, productId, sellerId, onDone }: { itemId: string; productId: string; sellerId: string; onDone: () => void }) {
+export const REVIEW_EDIT_DAYS = 7;
+export function reviewEditDeadline(createdAt: string) { return new Date(new Date(createdAt).getTime() + REVIEW_EDIT_DAYS * 86400_000); }
+
+type Review = { id: string; rating: number; comment: string | null; created_at: string; edited_at: string | null };
+
+function ReviewCard({ name, itemId, productId, sellerId, review, onDone }: { name: string; itemId: string; productId: string; sellerId: string; review?: Review; onDone: () => void }) {
   const { user } = useAuth();
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [topic, setTopic] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [rating, setRating] = useState(review?.rating ?? 0);
+  const [comment, setComment] = useState(review?.comment ?? "");
   const [busy, setBusy] = useState(false);
-  const [allSteps, setAllSteps] = useState(false);
+  const deadline = review ? reviewEditDeadline(review.created_at) : null;
+  const canEdit = !!review && !review.edited_at && deadline!.getTime() > Date.now();
   const send = async () => {
     if (!user || rating < 1) { toast.error("Pilih rating dulu"); return; }
     setBusy(true);
-    const { error } = await supabase.from("product_reviews").insert({ order_item_id: itemId, product_id: productId, seller_id: sellerId, buyer_id: user.id, rating, comment: comment.trim() || null, topic });
+    const { error } = review
+      ? await supabase.rpc("edit_review", { p_id: review.id, p_rating: rating, p_comment: comment.trim() })
+      : await supabase.from("product_reviews").insert({ order_item_id: itemId, product_id: productId, seller_id: sellerId, buyer_id: user.id, rating, comment: comment.trim() || null });
     setBusy(false);
     if (error) { toast.error(dbError(error)); return; }
-    toast.success("Terima kasih atas ulasanmu");
+    toast.success(review ? "Ulasan diperbarui" : "Terima kasih atas ulasanmu");
+    setEditing(false);
     onDone();
   };
   return (
-    <div className="space-y-2 rounded-xl border p-3">
-      <p className="text-sm font-semibold">Beri ulasan</p>
-      <div className="flex gap-1">{[1, 2, 3, 4, 5].map((n) => <button key={n} aria-label={`${n} bintang`} onClick={() => setRating(n)}><Star className={`h-6 w-6 ${n <= rating ? "fill-warning text-warning" : "text-muted-foreground/40"}`} /></button>)}</div>
-      <div className="flex flex-wrap gap-1.5">{TOPICS.map((t) => <button key={t} onClick={() => setTopic(topic === t ? null : t)} className={`rounded-full border px-2.5 py-1 text-xs ${topic === t ? "border-primary bg-accent text-primary" : ""}`}>{t}</button>)}</div>
-      <textarea value={comment} onChange={(e) => setComment(e.target.value.slice(0, 1000))} rows={2} placeholder="Ceritakan pengalamanmu (opsional)" className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
-      <button disabled={busy} onClick={() => void send()} className="w-full rounded-lg bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50">Kirim ulasan</button>
-    </div>
+    <section className="space-y-3 rounded-2xl border bg-card p-4">
+      <p className="font-bold uppercase leading-snug">{name}</p>
+      {review && !editing ? (
+        <>
+          <p className="flex items-center gap-2 text-success"><BadgeCheck className="h-5 w-5" /> Ulasan sudah terkirim.</p>
+          <p className="text-sm text-muted-foreground">{review.rating} dari 5 bintang{review.comment ? ` · ${review.comment}` : ""}</p>
+          {canEdit && <button onClick={() => { setRating(review.rating); setComment(review.comment ?? ""); setEditing(true); }} className="rounded-lg border px-4 py-2 text-sm font-semibold transition active:scale-95">Edit ulasan</button>}
+          <p className="text-sm text-muted-foreground">{review.edited_at ? "Ulasan sudah diedit dan tidak dapat diubah lagi." : canEdit ? `Dapat diedit satu kali hingga ${fmtDateTime(deadline!.toISOString())}.` : "Batas waktu edit ulasan sudah lewat."}</p>
+        </>
+      ) : (
+        <>
+          <div className="flex gap-4">{[1, 2, 3, 4, 5].map((n) => <button key={n} aria-label={`${n} bintang`} onClick={() => setRating(n)} className="transition active:scale-90"><Star className={`h-7 w-7 text-warning ${n <= rating ? "fill-warning" : ""}`} /></button>)}</div>
+          <textarea value={comment} onChange={(e) => setComment(e.target.value.slice(0, 1000))} rows={3} placeholder="Ceritakan pengalamanmu (opsional)" className="w-full rounded-xl border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
+          <div className="flex gap-2">
+            <button disabled={busy} onClick={() => void send()} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">{busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{review ? "Simpan ulasan" : "Kirim ulasan"}</button>
+            {editing && <button disabled={busy} onClick={() => setEditing(false)} className="rounded-lg border px-3 py-1.5 text-sm font-semibold">Batal</button>}
+          </div>
+          {editing && <p className="text-xs text-muted-foreground">Ulasan hanya bisa diedit satu kali.</p>}
+        </>
+      )}
+    </section>
   );
 }
