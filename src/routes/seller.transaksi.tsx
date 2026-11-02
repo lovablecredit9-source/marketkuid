@@ -136,13 +136,24 @@ function Transaksi() {
 function Section({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b">
-      <button onClick={() => setOpen(!open)} className={`flex w-full items-center justify-between px-1 py-3 text-xs font-bold tracking-widest ${open ? "text-primary" : "text-muted-foreground"}`}>{title}<ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} /></button>
-      {open && <div className="space-y-2 pb-3">{children}</div>}
+    <div className="py-1">
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 py-5 text-[11px] font-semibold tracking-[0.2em] text-muted-foreground">
+        <span className="shrink-0">{title}</span>
+        <span className="h-px flex-1 bg-border" />
+        <ChevronRight className={`h-4 w-4 shrink-0 transition ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && <div className="space-y-3 pb-3">{children}</div>}
     </div>
   );
 }
-const Line = ({ a, b }: { a: string; b: ReactNode }) => <div className="flex items-center justify-between gap-3 rounded-lg border bg-background/40 px-3 py-2 text-sm"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>;
+/** Bordered card whose rows are separated by thin lines (panel style). */
+const Rows = ({ children }: { children: ReactNode }) => <div className="divide-y divide-border overflow-hidden rounded-xl border bg-background/40">{children}</div>;
+const Line = ({ i, a, b }: { i: string; a: string; b: ReactNode }) => (
+  <div className="flex items-center justify-between gap-3 px-4 py-3.5 text-sm">
+    <span className="flex shrink-0 items-center gap-2.5 text-muted-foreground"><span className="text-xs">{i}</span>{a}</span>
+    <span className="min-w-0 break-words text-right font-semibold">{b}</span>
+  </div>
+);
 
 type Escrow = "ditahan" | "dicairkan" | "none";
 // Dana pesanan dibayar ditahan 5 jam (atau sampai pembeli konfirmasi), lalu dicairkan.

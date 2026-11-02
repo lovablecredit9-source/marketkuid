@@ -328,18 +328,29 @@ export function Chips<T extends string>({ items, value, onChange }: { items: { v
 
 
 /** Bottom sheet used by Seller Center forms (garansi, diskon, kategori, dll). */
-export function SellerSheet({ open, onOpenChange, title, children, footer, className = "" }: {
+export function SellerSheet({ open, onOpenChange, title, children, footer, className = "", actions, subheader }: {
   open: boolean; onOpenChange: (v: boolean) => void; title: ReactNode; children: ReactNode; footer?: ReactNode; className?: string;
+  /** Extra square buttons left of close (panel style). */
+  actions?: ReactNode;
+  /** Content shown under the title inside the header (e.g. status card). */
+  subheader?: ReactNode;
 }) {
+  const boxed = actions !== undefined;
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-background/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content aria-describedby={undefined}
           className={`seller-panel fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88vh] max-w-md flex-col rounded-t-2xl border bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom ${className}`}>
-          <div className="flex items-center justify-between border-b px-5 py-4">
-            <Dialog.Title className="text-base font-bold">{title}</Dialog.Title>
-            <Dialog.Close aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+          <div className="border-b px-5 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <Dialog.Title className="min-w-0 text-base font-bold">{title}</Dialog.Title>
+              <div className="flex shrink-0 items-center gap-2">
+                {actions}
+                <Dialog.Close aria-label="Tutup" className={boxed ? "grid h-10 w-10 place-items-center rounded-xl border text-foreground/80 transition active:scale-90" : "grid h-8 w-8 place-items-center rounded-full text-foreground/80 transition active:scale-90"}><X className={boxed ? "h-4 w-4" : "h-5 w-5"} /></Dialog.Close>
+              </div>
+            </div>
+            {subheader && <div className="mt-3">{subheader}</div>}
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
           {footer && <div className="flex items-center justify-between gap-3 border-t px-5 py-4">{footer}</div>}
