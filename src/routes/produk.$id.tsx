@@ -172,7 +172,7 @@ function ProdukDetail() {
           <div className="my-4 h-2 bg-background/60" />
         </section>
         <section className="space-y-3 bg-card px-5 pb-4">
-          <h2 className="pt-2 text-lg font-bold">Deskripsi</h2>
+          <h2 className="text-xl font-bold">Deskripsi</h2>
           <p className={`whitespace-pre-line text-sm leading-relaxed ${more ? "" : "line-clamp-4"}`}>{p.description || "Belum ada deskripsi."}</p>
           {p.description.length > 160 && <button onClick={() => setMore(!more)} className="text-sm font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
           {p.usage_guide && more && (<><h3 className="pt-1 font-bold">Cara Pakai</h3><p className="whitespace-pre-line text-sm">{p.usage_guide}</p></>)}
