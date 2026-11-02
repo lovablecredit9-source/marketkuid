@@ -6,7 +6,7 @@ export function useSellerOrders(userId: string | undefined) {
     queryKey: ["seller_orders", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("orders").select("*, order_items(*, products(seller_contact, work_estimate))").eq("seller_id", userId!).order("created_at", { ascending: false }).limit(500);
+      const { data, error } = await supabase.from("orders").select("*, order_items(*, products(seller_contact, work_estimate, product_categories(name)))").eq("seller_id", userId!).order("created_at", { ascending: false }).limit(500);
       if (error) throw error;
       return data ?? [];
     },
