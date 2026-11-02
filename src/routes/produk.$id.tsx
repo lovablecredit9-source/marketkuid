@@ -143,9 +143,9 @@ function ProdukDetail() {
               </div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-2 border-t pt-3 text-center text-sm font-medium text-foreground">
-            <span>{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
-            <span>{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
+          <div className="grid grid-cols-2 gap-2 border-t pt-3 text-center text-xs text-muted-foreground">
+            <span className="flex flex-col items-center gap-1"><Zap className="h-4 w-4 text-primary" />{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
+            <span className="flex flex-col items-center gap-1"><ShieldCheck className="h-4 w-4 text-primary" />{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
           </div>
           {p.store && (
             <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-background/40 px-4 py-3 transition active:scale-[0.98]">
