@@ -747,6 +747,7 @@ export type Database = {
           buyer_label: string
           comment: string | null
           created_at: string
+          edited_at: string | null
           helpful_count: number
           id: string
           order_item_id: string
@@ -760,6 +761,7 @@ export type Database = {
           buyer_label?: string
           comment?: string | null
           created_at?: string
+          edited_at?: string | null
           helpful_count?: number
           id?: string
           order_item_id: string
@@ -773,6 +775,7 @@ export type Database = {
           buyer_label?: string
           comment?: string | null
           created_at?: string
+          edited_at?: string | null
           helpful_count?: number
           id?: string
           order_item_id?: string
@@ -1593,6 +1596,10 @@ export type Database = {
       }
       delete_message: {
         Args: { p_for_all: boolean; p_id: string }
+        Returns: undefined
+      }
+      edit_review: {
+        Args: { p_comment: string; p_id: string; p_rating: number }
         Returns: undefined
       }
       fulfill_paid_order: {
