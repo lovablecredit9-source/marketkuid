@@ -328,12 +328,14 @@ export function Chips<T extends string>({ items, value, onChange }: { items: { v
 
 
 /** Bottom sheet used by Seller Center forms (garansi, diskon, kategori, dll). */
-export function SellerSheet({ open, onOpenChange, title, children, footer, className = "", actions, subheader }: {
+export function SellerSheet({ open, onOpenChange, title, children, footer, className = "", actions, subheader, full = false }: {
   open: boolean; onOpenChange: (v: boolean) => void; title: ReactNode; children: ReactNode; footer?: ReactNode; className?: string;
   /** Extra square buttons left of close (panel style). */
   actions?: ReactNode;
   /** Content shown under the title inside the header (e.g. status card). */
   subheader?: ReactNode;
+  /** Full-screen panel page instead of a bottom sheet. */
+  full?: boolean;
 }) {
   const boxed = actions !== undefined;
   return (
@@ -341,8 +343,8 @@ export function SellerSheet({ open, onOpenChange, title, children, footer, class
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-background/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content aria-describedby={undefined}
-          className={`seller-panel fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88vh] max-w-md flex-col rounded-t-2xl border bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom ${className}`}>
-          <div className="border-b px-5 py-4">
+          className={`seller-panel fixed z-50 mx-auto flex max-w-md flex-col ${full ? "inset-0 bg-background" : "inset-x-0 bottom-0 max-h-[88vh] rounded-t-2xl border bg-card shadow-2xl"} data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom ${className}`}>
+          <div className={`border-b px-5 py-4 ${full ? "bg-[color-mix(in_oklch,var(--background),black_15%)]" : ""}`}>
             <div className="flex items-start justify-between gap-3">
               <Dialog.Title className="min-w-0 text-base font-bold">{title}</Dialog.Title>
               <div className="flex shrink-0 items-center gap-2">

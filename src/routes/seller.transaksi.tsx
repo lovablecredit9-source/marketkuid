@@ -137,7 +137,7 @@ function Section({ title, children, defaultOpen = false }: { title: string; chil
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="py-1">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 py-5 text-[11px] font-semibold tracking-[0.2em] text-muted-foreground">
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 py-5 text-[10px] font-semibold tracking-[0.15em] text-muted-foreground">
         <span className="shrink-0">{title}</span>
         <span className="h-px flex-1 bg-border" />
         <ChevronRight className={`h-4 w-4 shrink-0 transition ${open ? "rotate-90" : ""}`} />
@@ -201,24 +201,24 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
   const fee = bad ? 0 : Math.ceil(gross * 0.03);
   const esc = escrowOf(o, heldIds);
   return (
-    <SellerSheet open onOpenChange={(v) => !v && onClose()}
-      title={<span className="text-lg">Ringkasan Pembayaran<span className="mt-1 block font-mono text-xs font-normal tracking-wider text-muted-foreground">M-{o.order_no}</span></span>}
+    <SellerSheet full open onOpenChange={(v) => !v && onClose()}
+      title={<span className="text-[15px]">Ringkasan Pembayaran<span className="mt-1 block font-mono text-xs font-normal tracking-wider text-muted-foreground">M-{o.order_no}</span></span>}
       actions={o.order_items[0]?.product_id ? (
-        <a href={`/produk/${o.order_items[0].product_id}`} target="_blank" rel="noreferrer" aria-label="Buka produk" className="grid h-10 w-10 place-items-center rounded-xl border text-foreground/80 transition active:scale-90"><ExternalLink className="h-4 w-4" /></a>
+        <a href={`/produk/${o.order_items[0].product_id}`} target="_blank" rel="noreferrer" aria-label="Buka produk" className="grid h-9 w-9 place-items-center rounded-xl border text-foreground/80 transition active:scale-90"><ExternalLink className="h-4 w-4" /></a>
       ) : null}
       subheader={
         <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${done ? "border-success/40 bg-success/10" : bad ? "border-destructive/40 bg-destructive/10" : "border-warning/40 bg-warning/10"}`}>
           <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-4 ${done ? "bg-success text-background ring-success/15" : bad ? "bg-destructive text-background ring-destructive/15" : "bg-warning text-background ring-warning/15"}`}>{bad ? <CircleX className="h-4 w-4" /> : done ? <CircleCheck className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</span>
           <div className="min-w-0 flex-1">
-            <p className={`text-sm font-bold tracking-wide ${done ? "text-success" : bad ? "text-destructive" : "text-warning"}`}>{done ? "TRANSAKSI BERHASIL" : bad ? "DIBATALKAN" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
-            <p className={`mt-1 text-xs ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{done ? "Dikonfirmasi & selesai" : bad ? "Pesanan dibatalkan" : "Menunggu proses"}</p>
+            <p className={`text-[13px] font-bold tracking-wide ${done ? "text-success" : bad ? "text-destructive" : "text-warning"}`}>{done ? "TRANSAKSI BERHASIL" : bad ? "DIBATALKAN" : ORDER_LABEL[o.status]?.toUpperCase()}</p>
+            <p className={`mt-1 text-[11px] ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{done ? "Dikonfirmasi & selesai" : bad ? "Pesanan dibatalkan" : "Menunggu proses"}</p>
           </div>
-          <p className={`text-right font-mono text-[11px] leading-6 ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{new Date(o.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })}<br />{new Date(o.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
+          <p className={`text-right font-mono text-[10px] leading-6 ${done ? "text-success/70" : bad ? "text-destructive/70" : "text-warning/70"}`}>{new Date(o.updated_at).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })}<br />{new Date(o.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
         </div>
       }
       footer={<>
-        <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="rounded-xl border px-5 py-3 text-sm font-semibold">Salin Order ID</button>
-        <button onClick={onClose} className="flex-1 rounded-xl bg-gradient-to-r from-primary to-primary/70 py-3 text-sm font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
+        <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="rounded-xl border px-5 py-3 text-[13px] font-semibold text-muted-foreground">Salin Order ID</button>
+        <button onClick={onClose} className="flex-1 rounded-xl bg-gradient-to-r from-primary to-primary/70 py-3 text-[13px] font-bold text-primary-foreground"><Check className="mr-1 inline h-4 w-4" />Tutup</button>
       </>}>
       <Section title="IDENTITAS TRANSAKSI">
         <div className="overflow-hidden rounded-xl border bg-background/40">
