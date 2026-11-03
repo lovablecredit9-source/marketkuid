@@ -198,7 +198,7 @@ const SecHead = ({ icon: I, t, d }: { icon: typeof Clock; t: string; d: string }
 );
 const Row = ({ a, b }: { a: string; b: React.ReactNode }) => <div className="flex justify-between gap-3"><span className="text-muted-foreground">{a}</span><b className="text-right">{b}</b></div>;
 
-type OrderRow = { id: string; order_no: number; created_at: string; paid_at: string | null; status: string; order_items: { id: string; product_name: string; variant_name: string; delivered: string[] }[] };
+type OrderRow = { id: string; order_no: number; created_at: string; paid_at: string | null; buyer_confirmed_at: string | null; status: string; order_items: { id: string; product_name: string; variant_name: string; delivered: string[] }[] };
 
 function saveFile(name: string, text: string, type: string) {
   const a = document.createElement("a");
@@ -214,7 +214,7 @@ function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () 
   const [confirmed, setConfirmed] = useState(false);
   useEffect(() => { const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
   const left = Math.max(0, new Date(o.paid_at!).getTime() + 5 * 3600_000 - now);
-  const open = left > 0 && !confirmed;
+  const open = left > 0 && !confirmed && !o.buyer_confirmed_at;
   const hh = (n: number) => String(n).padStart(2, "0");
   const timer = `${hh(Math.floor(left / 3600000))}:${hh(Math.floor((left % 3600000) / 60000))}:${hh(Math.floor((left % 60000) / 1000))}`;
   const codes = o.order_items.flatMap((i) => i.delivered.map((d) => ({ p: i.product_name, v: i.variant_name, d })));
