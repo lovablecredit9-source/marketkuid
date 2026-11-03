@@ -1660,6 +1660,7 @@ export type Database = {
         Args: { p_auto?: boolean; p_same_day?: boolean }
         Returns: string
       }
+      review_public_label: { Args: { p_username: string }; Returns: string }
       seller_advance_order: {
         Args: { p_delivery: string; p_order: string; p_status: string }
         Returns: undefined
