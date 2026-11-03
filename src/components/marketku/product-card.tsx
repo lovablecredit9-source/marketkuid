@@ -9,6 +9,16 @@ import type { CardProduct } from "@/lib/market";
 
 export const rpBuyer = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
+function PriceLine({ p, className }: { p: CardProduct; className: string }) {
+  const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
+  return (
+    <p className={`flex flex-wrap items-center gap-x-1.5 ${className}`}>
+      <span className="text-primary">{rpBuyer(p.minPrice)}</span>
+      {off > 0 && <><span className="text-[11px] font-normal text-muted-foreground line-through">{rpBuyer(p.basePrice)}</span><span className="rounded bg-destructive/10 px-1 text-[10px] font-bold text-destructive">-{off}%</span></>}
+    </p>
+  );
+}
+
 export function useWishlistIds() {
   const { user } = useAuth();
   return useQuery({
@@ -56,7 +66,7 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
       <div className="px-2.5 pb-2.5 pt-2">
         {p.category && <p className="truncate text-[11px] font-medium uppercase text-primary">{p.category}</p>}
         <p className="mt-1 line-clamp-2 min-h-[2.5em] text-[12px] font-medium uppercase leading-snug">{p.name}</p>
-        <p className="mt-1.5 text-[13px] font-semibold text-primary">{rpBuyer(p.minPrice)}</p>
+        <PriceLine p={p} className="mt-1.5 text-[13px] font-semibold" />
         <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground"><ShoppingBag className="h-3 w-3" />{p.sold_count} terjual</p>
       </div>
     </Link>
@@ -76,7 +86,7 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
       <div className="p-3">
         {p.category && <span className="inline-block rounded-md border px-2 py-0.5 text-[11px] text-muted-foreground">{p.category}</span>}
         <Link to="/produk/$id" params={{ id: p.id }} className={`mt-1.5 block font-semibold leading-snug ${compact ? "line-clamp-2 text-sm" : "line-clamp-2"}`}>{p.name}</Link>
-        <p className="mt-1.5 font-bold text-primary">{rpBuyer(p.minPrice)}</p>
+        <PriceLine p={p} className="mt-1.5 font-bold" />
         <div className="mt-1 flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-0.5"><Star className="h-3.5 w-3.5 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}</span>
