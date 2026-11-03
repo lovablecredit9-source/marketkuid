@@ -114,28 +114,28 @@ function ProdukDetail() {
           </div>
         )}
 
-        <section className="space-y-3 bg-card px-4 py-4">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-2xl font-bold text-primary">{rpBuyer(price)}</p>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <section className="space-y-2.5 bg-card px-3.5 pb-3 pt-3.5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-bold leading-none text-primary"><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></p>
+            <div className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
               <span>{p.sold_count} terjual</span>
-              <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="transition active:scale-90"><Heart className={`h-5 w-5 ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
+              <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="transition active:scale-90"><Heart className={`h-[18px] w-[18px] ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
             </div>
           </div>
-          <h1 className="text-lg font-bold leading-snug">{p.name}</h1>
-          <p className="flex items-center gap-1 text-sm"><Star className="h-4 w-4 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
+          <h1 className="text-[14.5px] font-bold leading-snug">{p.name}</h1>
+          <p className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] shadow-sm"><Star className="h-3.5 w-3.5 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
 
           {p.variants.length > 0 && (
             <div>
-              <div className="mb-2 flex justify-between text-sm"><span className="font-semibold">Pilih varian:</span><span className="font-semibold text-primary">{v?.name}</span></div>
+              <div className="mb-1.5 flex justify-between text-[12px]"><span className="font-semibold">Pilih varian:</span><span className="font-semibold text-primary">{v?.name}</span></div>
               <div className="grid grid-cols-2 gap-2">
                 {p.variants.map((x) => {
                   const empty = !pre && x.stock <= 0;
                   const on = v?.id === x.id;
                   return (
                     <button key={x.id} disabled={empty} onClick={() => { setVid(x.id); setQty(1); }}
-                      className={`relative rounded-lg border px-2 py-2 text-xs font-semibold transition active:scale-95 ${on ? "border-primary bg-accent text-primary ring-1 ring-primary" : ""} ${empty ? "border-destructive/30 bg-destructive/5 text-muted-foreground" : ""}`}>
-                      {empty && <span className="absolute -top-2 right-2 rounded bg-card px-1 text-[10px] text-destructive">Habis</span>}
+                      className={`relative rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition active:scale-95 ${on ? "border-primary bg-accent text-primary ring-1 ring-primary" : ""} ${empty ? "border-destructive/30 bg-destructive/5 text-muted-foreground" : ""}`}>
+                      {empty && <span className="absolute -top-2 right-2 rounded bg-card px-1 text-[9px] text-destructive">Habis</span>}
                       {x.name}
                     </button>
                   );
@@ -143,70 +143,71 @@ function ProdukDetail() {
               </div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-2 border-t pt-3 text-center text-xs text-muted-foreground">
-            <span className="flex flex-col items-center gap-1"><Zap className="h-4 w-4 text-primary" />{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
-            <span className="flex flex-col items-center gap-1"><ShieldCheck className="h-4 w-4 text-primary" />{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
+          <div className="grid grid-cols-2 gap-2 border-b pb-2.5 pt-1.5 text-center text-[10.5px] text-muted-foreground">
+            <span className="flex flex-col items-center gap-1"><Zap className="h-3.5 w-3.5 text-primary" />{pre ? "Pre-order manual" : "Pengiriman Instan"}</span>
+            <span className="flex flex-col items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-primary" />{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
           </div>
           {p.store && (
-            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-background/40 px-4 py-3 transition active:scale-[0.98]">
+            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-card px-3 py-2.5 shadow-sm transition active:scale-[0.98]">
               {avatarUrl
-                ? <img src={avatarUrl} alt={p.store.store_name} className="h-11 w-11 shrink-0 rounded-full object-cover" />
-                : <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accent text-primary"><Store className="h-5 w-5" /></span>}
+                ? <img src={avatarUrl} alt={p.store.store_name} className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                : <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-primary"><Store className="h-5 w-5" /></span>}
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-base font-bold">{p.store.store_name}</span>
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="h-4 w-4 fill-warning text-warning" /><b className="text-foreground">{storeRating.count > 0 ? storeRating.avg.toFixed(1) : "0"}</b> · {storeRating.count} reviews
+                <span className="block truncate text-[13.5px] font-bold">{p.store.store_name}</span>
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Star className="h-3 w-3 fill-warning text-warning" /><b className="text-foreground">{storeRating.count > 0 ? storeRating.avg.toFixed(1) : "0"}</b> · {storeRating.count} reviews
                 </span>
               </span>
             </Link>
           )}
         </section>
 
-        <section className="mt-2 bg-card px-5 py-6">
-          <h2 className="mb-3 text-xl font-bold">Spesifikasi</h2>
+        <section className="mt-2.5 rounded-2xl border bg-card px-4 pb-3 pt-5 shadow-sm">
+          <h2 className="mb-2 text-[17px] font-bold">Spesifikasi</h2>
           <div className="divide-y divide-border">
             {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
-              <div key={a} className="flex justify-between gap-4 py-3.5 text-[15px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-medium">{b}</span></div>
+              <div key={a} className="flex justify-between gap-4 py-[11px] text-[12.5px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>
             ))}
           </div>
-          <div className="my-4 h-2 bg-background/60" />
-        </section>
-        <section className="space-y-3 bg-card px-5 pb-4">
-          <h2 className="text-xl font-bold">Deskripsi</h2>
-          <p className={`whitespace-pre-line text-sm leading-relaxed ${more ? "" : "line-clamp-4"}`}>{p.description || "Belum ada deskripsi."}</p>
-          {p.description.length > 160 && <button onClick={() => setMore(!more)} className="text-sm font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
-          {p.usage_guide && more && (<><h3 className="pt-1 font-bold">Cara Pakai</h3><p className="whitespace-pre-line text-sm">{p.usage_guide}</p></>)}
-          <p className="flex items-center gap-2 border-t pt-3 text-sm"><ShieldCheck className="h-4 w-4 text-primary" /> Trade Guard — Belanja aman bergaransi</p>
+          <div className="-mx-4 my-4 h-1.5 bg-background" />
+          <h2 className="mb-2 text-[17px] font-bold">Deskripsi</h2>
+          <div className="relative">
+            <p className={`whitespace-pre-line text-[12.5px] leading-relaxed ${more ? "" : "line-clamp-[10]"}`}>{p.description || "Belum ada deskripsi."}</p>
+            {!more && p.description.length > 160 && <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-card to-transparent" />}
+          </div>
+          {p.description.length > 160 && <button onClick={() => setMore(!more)} className="mt-2 text-[11px] font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
+          {p.usage_guide && more && (<><h3 className="pt-2 text-[13px] font-bold">Cara Pakai</h3><p className="whitespace-pre-line text-[12.5px]">{p.usage_guide}</p></>)}
+          <p className="mt-3 flex items-center gap-2 border-t pt-3 text-[11.5px]"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> <span className="flex-1">Trade Guard — Belanja aman bergaransi</span><ChevronRight className="h-4 w-4 text-primary" /></p>
         </section>
 
-        <section className="mt-2 space-y-3 bg-card px-4 py-4">
+        <section className="mt-2.5 space-y-2.5 rounded-2xl border bg-card px-3 py-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <h2 className="font-bold">Ulasan Pembeli</h2>
-            <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-primary">{rating.count} ulasan</span>
-            {rating.count > 0 && <Link to="/ulasan/$id" params={{ id: p.id }} className="ml-auto text-sm font-semibold text-primary">Lihat semua →</Link>}
+            <h2 className="text-[13.5px] font-semibold">Ulasan Pembeli</h2>
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-primary">{rating.count} ulasan</span>
+            {rating.count > 0 && <Link to="/ulasan/$id" params={{ id: p.id }} className="ml-auto text-[12px] font-semibold text-primary">Lihat semua →</Link>}
           </div>
           {rating.count === 0 ? (
-            <div className="flex gap-3 rounded-xl border border-dashed border-primary/40 bg-accent/40 p-4">
-              <MessageSquareQuote className="h-6 w-6 shrink-0 text-primary" />
-              <div><p className="font-semibold">Belum ada ulasan</p><p className="text-sm text-muted-foreground">Jadilah pembeli pertama yang memberi rating setelah transaksi selesai.</p></div>
+            <div className="flex gap-2.5 rounded-xl border border-dashed border-primary/40 bg-accent/40 p-3">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-primary/40 bg-card text-primary"><MessageSquareQuote className="h-3.5 w-3.5" /></span>
+              <div><p className="text-[12px] font-semibold">Belum ada ulasan</p><p className="text-[11px] leading-snug text-muted-foreground">Jadilah pembeli pertama yang memberi rating setelah transaksi selesai.</p></div>
             </div>
           ) : (
             <>
               <div className="rounded-xl border p-3">
-                <p className="text-center text-2xl font-bold">{rating.avg}</p>
-                <p className="text-center text-xs text-muted-foreground">dari {rating.count} ulasan</p>
+                <p className="text-center text-xl font-bold">{rating.avg}</p>
+                <p className="text-center text-[11px] text-muted-foreground">dari {rating.count} ulasan</p>
                 {ratingBars(reviews.data ?? []).map((b) => (
-                  <div key={b.star} className="flex items-center gap-2 text-xs"><Star className="h-3 w-3 fill-warning text-warning" />{b.star}
+                  <div key={b.star} className="flex items-center gap-2 text-[11px]"><Star className="h-3 w-3 fill-warning text-warning" />{b.star}
                     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-primary" style={{ width: `${(b.n / rating.count) * 100}%` }} /></span>{b.n}</div>
                 ))}
               </div>
               {(reviews.data ?? []).slice(0, 5).map((r) => (
-                <div key={r.id} className="flex gap-3 border-b pb-3 last:border-0">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{r.buyer_label.charAt(0).toUpperCase()}</span>
+                <div key={r.id} className="flex gap-2.5 border-b pb-3 last:border-0">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">{r.buyer_label.charAt(0).toUpperCase()}</span>
                   <div className="flex-1">
-                    <div className="flex justify-between text-sm"><b>{r.buyer_label}</b><span className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</span></div>
+                    <div className="flex justify-between text-[12.5px]"><b>{r.buyer_label}</b><span className="text-[10.5px] text-muted-foreground">{fmtDate(r.created_at)}</span></div>
                     <Stars n={r.rating} />
-                    <p className={`text-sm ${r.comment ? "" : "italic text-muted-foreground"}`}>{r.comment || "Tidak ada komentar."}</p>
+                    <p className={`text-[12.5px] ${r.comment ? "" : "italic text-muted-foreground"}`}>{r.comment || "Tidak ada komentar."}</p>
                   </div>
                 </div>
               ))}
@@ -215,17 +216,20 @@ function ProdukDetail() {
         </section>
 
         {(similar.data ?? []).filter((x) => x.id !== p.id).length > 0 && (
-          <section className="mt-2 bg-card px-4 py-4">
-            <h2 className="mb-3 font-bold">Produk Serupa</h2>
+          <section className="mt-2.5 px-3 py-4">
+            <h2 className="mb-3 text-[12px] font-bold">Produk Serupa</h2>
             <Similar items={(similar.data ?? []).filter((x) => x.id !== p.id)} />
           </section>
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card p-3">
-        <button aria-label="Chat seller" onClick={() => void chat()} className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-primary text-primary transition active:scale-90"><MessageCircle className="h-5 w-5" /></button>
-        <button disabled={!canBuy} onClick={() => (user ? setSheet(true) : needLogin())} className="h-12 flex-1 rounded-full border-2 border-primary font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
-        <button disabled={!canBuy} onClick={() => void addCart()} className="flex h-12 flex-1 flex-col items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40">
+      {showTop && (
+        <button aria-label="Kembali ke atas" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="fixed bottom-[78px] right-[max(12px,calc(50%-224px+12px))] z-40 grid h-10 w-10 place-items-center rounded-full border bg-card text-primary shadow-md transition active:scale-90"><ArrowUp className="h-4 w-4" /></button>
+      )}
+      <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-2.5 py-3">
+        <button aria-label="Chat seller" onClick={() => void chat()} className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full border-[1.5px] border-primary text-primary transition active:scale-90"><MessageCircle className="h-[18px] w-[18px]" /></button>
+        <button disabled={!canBuy} onClick={() => (user ? setSheet(true) : needLogin())} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
+        <button disabled={!canBuy} onClick={() => void addCart()} className="flex h-[46px] flex-1 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-[12.5px] font-bold leading-none text-primary-foreground transition active:scale-95 disabled:opacity-40">
           {added ? <><Check className="h-4 w-4" />Ditambahkan</> : <><ShoppingCart className="h-4 w-4" />Keranjang</>}
         </button>
       </div>
