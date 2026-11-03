@@ -101,7 +101,7 @@ function SellerInbox() {
               const inner = (
                 <>
                   {select && <span className={`mt-2.5 grid h-4 w-4 shrink-0 place-items-center rounded border-2 ${on ? "border-primary bg-primary" : ""}`} />}
-                  <ChatAvatar name={c.name} />
+                  <ChatAvatar name={c.name} size="h-10 w-10" />
                   <span className="min-w-0 flex-1">
                     <span className="flex justify-between gap-2"><b className={`truncate text-[13.5px] ${c.unread > 0 ? "text-primary" : ""}`}>{c.name}</b><span className="shrink-0 text-[11px] text-muted-foreground">{timeLabel(c.last_at)}</span></span>
                     <span className="mt-0.5 flex items-start gap-2"><span className="line-clamp-2 flex-1 text-[12.5px] text-muted-foreground">{c.preview}</span>{c.unread > 0 && <span className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{c.unread}</span>}</span>

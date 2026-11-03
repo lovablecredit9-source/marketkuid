@@ -40,6 +40,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerAnalitikRouteImport } from './routes/seller.analitik'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
+import { Route as SellerChatRouteImport } from './routes/seller.chat'
 import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
 import { Route as SellerIklanRouteImport } from './routes/seller.iklan'
 import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
@@ -214,6 +215,11 @@ const SellerBroadcastRoute = SellerBroadcastRouteImport.update({
   path: '/broadcast',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerChatRoute = SellerChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerGaransiRoute = SellerGaransiRouteImport.update({
   id: '/garansi',
   path: '/garansi',
@@ -336,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/chat': typeof SellerChatRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -386,6 +393,7 @@ export interface FileRoutesByTo {
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/chat': typeof SellerChatRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -438,6 +446,7 @@ export interface FileRoutesById {
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
+  '/seller/chat': typeof SellerChatRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -491,6 +500,7 @@ export interface FileRouteTypes {
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
+    | '/seller/chat'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
+    | '/seller/chat'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -592,6 +603,7 @@ export interface FileRouteTypes {
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
+    | '/seller/chat'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -865,6 +877,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerBroadcastRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/chat': {
+      id: '/seller/chat'
+      path: '/chat'
+      fullPath: '/seller/chat'
+      preLoaderRoute: typeof SellerChatRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/garansi': {
       id: '/seller/garansi'
       path: '/garansi'
@@ -1010,6 +1029,7 @@ interface SellerRouteChildren {
   SellerAnalitikRoute: typeof SellerAnalitikRoute
   SellerBotRoute: typeof SellerBotRoute
   SellerBroadcastRoute: typeof SellerBroadcastRoute
+  SellerChatRoute: typeof SellerChatRoute
   SellerGaransiRoute: typeof SellerGaransiRoute
   SellerIklanRoute: typeof SellerIklanRoute
   SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
@@ -1031,6 +1051,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerAnalitikRoute: SellerAnalitikRoute,
   SellerBotRoute: SellerBotRoute,
   SellerBroadcastRoute: SellerBroadcastRoute,
+  SellerChatRoute: SellerChatRoute,
   SellerGaransiRoute: SellerGaransiRoute,
   SellerIklanRoute: SellerIklanRoute,
   SellerPanduanRoute: SellerPanduanRouteWithChildren,
