@@ -181,11 +181,12 @@ function Pesanan() {
           <ol>
             {shown.map((s, i) => (
               <li key={s.t} className="relative flex gap-3 pb-3 last:pb-0">
-                {i < shown.length - 1 && <span className="absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px bg-border" />}
-                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.done ? <Check className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}</span>
+                {i < shown.length - 1 && <span className={`absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px ${cancelled ? "bg-success/60" : "bg-border"}`} />}
+                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${s.fail ? "border-destructive/40 bg-destructive/10 text-destructive" : s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.fail ? <XCircle className="h-3.5 w-3.5" /> : s.done ? <Check className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}</span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex justify-between gap-2"><b className="text-xs">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya"}</span></div>
+                  <div className="flex justify-between gap-2"><b className="text-xs">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.label ?? (s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya")}</span></div>
                   <p className="text-xs text-muted-foreground">{s.d}</p>
+                  {s.label && s.at && <p className="mt-0.5 text-xs text-muted-foreground">{fmtDateTime(s.at)}</p>}
                 </div>
               </li>
             ))}
