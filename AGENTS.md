@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Review labels are assigned by `set_review_label` using `review_public_label` from username only — public reviews never reveal private profile fields.
 - Store-page sizing is scoped by `.store-profile`, and `AppShell.showSupport` controls the support strip per page — preserves shared buyer features and other pages' headers.
 - Auth session state comes from `AuthProvider`/`useAuth` in `src/lib/auth.tsx`, the app's only `onAuthStateChange` subscriber — avoids duplicate listeners and stale UI.
 - Profile rows are created by the `handle_new_user` trigger from signup metadata; seller stores live in `seller_stores` keyed by owner — keeps buyer and seller data separate and RLS owner-scoped.

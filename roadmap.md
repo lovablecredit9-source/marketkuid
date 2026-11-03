@@ -1,7 +1,7 @@
 # Marketku roadmap (from Screenshots1.zip)
 
 ## Store profile reference
-- [ ] Compact store profile, rating, products and reviews; remove store-only support strip; show public reviewer names; verify mobile layout.
+- [x] Compact store profile, rating, products and reviews; remove store-only support strip; show public reviewer names; verify mobile layout.
 
 ## Seller Center
 - [x] Menu links for all panel pages (Withdraw, Kontrol Pembayaran, Rekber, Garansi, Bot, Voucher, Broadcast, Panduan, Pengaturan)

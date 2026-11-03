@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
-// Exercise the actual SQL helper in the app's embedded test database.
+// Exercise the migration's SQL expression in SQLite with PostgreSQL-compatible btrim.
 describe("public review username", () => {
   it("keeps usernames unmasked and uses no private name fallback", () => {
     const sql = readFileSync("drizzle/migrations/0029_public_review_username.sql", "utf8");
