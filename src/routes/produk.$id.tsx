@@ -44,6 +44,7 @@ function ProdukDetail() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const [guard, setGuard] = useState(false);
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     onScroll();
@@ -184,40 +185,50 @@ function ProdukDetail() {
           </div>
           {p.description.length > 160 && <button onClick={() => setMore(!more)} className="mt-2 text-[11px] font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
           {p.usage_guide && more && (<><h3 className="pt-2 text-[13px] font-bold">Cara Pakai</h3><p className="whitespace-pre-line text-[12.5px]">{p.usage_guide}</p></>)}
-          <p className="mt-3 flex items-center gap-2 border-t pt-3 text-[11.5px]"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> <span className="flex-1">Trade Guard — Belanja aman bergaransi</span><ChevronRight className="h-4 w-4 text-primary" /></p>
+          <button type="button" onClick={() => setGuard(true)} className="mt-3 flex w-full items-center gap-2 border-t pt-3 text-left text-[11.5px] transition active:opacity-70"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> <span className="flex-1">Trade Guard — Belanja aman bergaransi</span><ChevronRight className="h-4 w-4 text-primary" /></button>
         </section>
 
-        <section className="mt-2.5 space-y-2.5 rounded-2xl border bg-card px-3 py-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <h2 className="text-[13.5px] font-semibold">Ulasan Pembeli</h2>
-            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-primary">{rating.count} ulasan</span>
-            {rating.count > 0 && <Link to="/ulasan/$id" params={{ id: p.id }} className="ml-auto text-[12px] font-semibold text-primary">Lihat semua →</Link>}
+        <section className="mt-2.5 rounded-2xl border bg-card px-3 py-4 shadow-sm">
+          <div className="flex items-center gap-2 border-b pb-3">
+            <h2 className="text-[14px] font-bold">Ulasan Pembeli</h2>
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[10.5px] font-semibold text-primary">{rating.count} ulasan</span>
+            {rating.count > 0 && <Link to="/ulasan/$id" params={{ id: p.id }} className="ml-auto inline-flex items-center gap-0.5 text-[11.5px] font-semibold text-primary">Lihat semua <ChevronRight className="h-3.5 w-3.5" /></Link>}
           </div>
           {rating.count === 0 ? (
-            <div className="flex gap-2.5 rounded-xl border border-dashed border-primary/40 bg-accent/40 p-3">
+            <div className="mt-3 flex gap-2.5 rounded-xl border border-dashed border-primary/40 bg-accent/40 p-3">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-primary/40 bg-card text-primary"><MessageSquareQuote className="h-3.5 w-3.5" /></span>
               <div><p className="text-[12px] font-semibold">Belum ada ulasan</p><p className="text-[11px] leading-snug text-muted-foreground">Jadilah pembeli pertama yang memberi rating setelah transaksi selesai.</p></div>
             </div>
           ) : (
             <>
-              <div className="rounded-xl border p-3">
-                <p className="text-center text-xl font-bold">{rating.avg}</p>
-                <p className="text-center text-[11px] text-muted-foreground">dari {rating.count} ulasan</p>
-                {ratingBars(reviews.data ?? []).map((b) => (
-                  <div key={b.star} className="flex items-center gap-2 text-[11px]"><Star className="h-3 w-3 fill-warning text-warning" />{b.star}
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-primary" style={{ width: `${(b.n / rating.count) * 100}%` }} /></span>{b.n}</div>
+              <div className="mt-3 rounded-2xl border bg-accent/40 p-3.5">
+                <div className="rounded-xl border bg-card py-3 text-center">
+                  <p className="text-[24px] font-bold leading-none">{rating.avg.toFixed(1)}</p>
+                  <div className="mt-2 flex justify-center"><Stars n={Math.round(rating.avg)} size="h-3.5 w-3.5" /></div>
+                  <p className="mt-1 text-[11.5px] text-muted-foreground">dari {rating.count} ulasan</p>
+                </div>
+                <div className="mt-2.5 space-y-2">
+                  {ratingBars(reviews.data ?? []).map((b) => (
+                    <div key={b.star} className="flex items-center gap-2.5 text-[11px] font-semibold">
+                      <span className="flex w-7 items-center gap-0.5 text-primary"><Star className="h-3 w-3 fill-primary text-primary" />{b.star}</span>
+                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-primary/15"><span className="block h-full rounded-full bg-gradient-to-r from-primary to-primary/70" style={{ width: `${(b.n / rating.count) * 100}%` }} /></span>
+                      <span className="w-4 text-right text-muted-foreground">{b.n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-1">
+                {(reviews.data ?? []).slice(0, 5).map((r) => (
+                  <div key={r.id} className="flex gap-3 border-b py-3.5 last:border-0">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-[13px] font-bold text-primary-foreground shadow-md">{r.buyer_label.charAt(0).toUpperCase()}</span>
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2"><b className="truncate text-[12.5px]">{r.buyer_label}</b><span className="shrink-0 text-[11px] text-muted-foreground">{fmtDate(r.created_at)}</span></div>
+                      <Stars n={r.rating} />
+                      <p className="text-[12.5px]">{r.comment || "Tidak ada komentar."}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
-              {(reviews.data ?? []).slice(0, 5).map((r) => (
-                <div key={r.id} className="flex gap-2.5 border-b pb-3 last:border-0">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">{r.buyer_label.charAt(0).toUpperCase()}</span>
-                  <div className="flex-1">
-                    <div className="flex justify-between text-[12.5px]"><b>{r.buyer_label}</b><span className="text-[10.5px] text-muted-foreground">{fmtDate(r.created_at)}</span></div>
-                    <Stars n={r.rating} />
-                    <p className={`text-[12.5px] ${r.comment ? "" : "italic text-muted-foreground"}`}>{r.comment || "Tidak ada komentar."}</p>
-                  </div>
-                </div>
-              ))}
             </>
           )}
         </section>
