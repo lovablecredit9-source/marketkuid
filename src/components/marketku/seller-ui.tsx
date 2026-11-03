@@ -187,7 +187,7 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
 type SellerPath =
   | "/seller" | "/seller/produk" | "/seller/saldo" | "/seller/transaksi" | "/seller/withdraw" | "/seller/pembayaran"
   | "/seller/rekber" | "/seller/garansi" | "/seller/bot" | "/seller/voucher" | "/seller/broadcast" | "/seller/panduan"
-  | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/pesan" | "/dispute";
+  | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/seller/chat" | "/dispute";
 type AdTab = "campaign" | "buat" | "performa" | "saldo" | undefined;
 type MenuItem = { label: string; icon: typeof Package; to?: SellerPath; badge?: string; children?: { label: string; tab: AdTab }[] };
 const menuGroups: { title: string; items: MenuItem[] }[] = [
@@ -196,7 +196,7 @@ const menuGroups: { title: string; items: MenuItem[] }[] = [
     { label: "Produk Saya", icon: Package, to: "/seller/produk" },
     { label: "Transaksi", icon: ShoppingBag, to: "/seller/transaksi" },
     { label: "Pelanggan", icon: Users, to: "/seller/pelanggan" },
-    { label: "Inbox Chat", icon: MessageCircle, to: "/pesan" },
+    { label: "Inbox Chat", icon: MessageCircle, to: "/seller/chat" },
     { label: "Dispute Pesanan", icon: AlertTriangle, to: "/dispute" },
   ] },
   { title: "KEUANGAN", items: [
