@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { MessageCircle, Package, ShoppingBag, Star, Store } from "lucide-react";
+import { MessageSquare, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { MessageSquare, useQuery } from "@tanstack/react-query";
+import { MessageSquare, toast } from "sonner";
+import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
