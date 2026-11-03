@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag,
+  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -43,6 +43,13 @@ function ProdukDetail() {
   const [menu, setMenu] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   useEffect(() => {
     const key = `mk-viewed-${id}`;
     if (sessionStorage.getItem(key)) return;
@@ -107,7 +114,7 @@ function ProdukDetail() {
         {gallery.length > 1 && (
           <div className="flex gap-2 overflow-x-auto bg-card px-4 pt-3">
             {gallery.map((g, i) => (
-              <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition active:scale-95 ${i === img ? "border-primary" : "border-border opacity-70"}`}>
+              <button key={g + i} aria-label={`Foto ${i + 1}`} onClick={() => setImg(i)} className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 transition active:scale-95 ${i === img ? "border-primary" : "border-border opacity-70"}`}>
                 <ProductImage url={urls.data?.[g]} alt={`${p.name} ${i + 1}`} className="h-full w-full" />
               </button>
             ))}
@@ -303,18 +310,25 @@ function ProdukDetail() {
 function Similar({ items }: { items: { id: string; name: string; images: string[]; minPrice: number; rating: { avg: number; count: number }; sold_count: number }[] }) {
   const urls = useImageUrls(items.map((p) => p.images[0] ?? "").filter(Boolean));
   return (
-    <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-      {items.map((p) => (
-        <Link key={p.id} to="/produk/$id" params={{ id: p.id }} className="w-40 shrink-0 overflow-hidden rounded-xl border">
-          <ProductImage url={p.images[0] ? urls.data?.[p.images[0]] : undefined} alt={p.name} className="aspect-square" />
-          <div className="p-2">
-            <p className="line-clamp-2 text-sm font-semibold">{p.name}</p>
-            <p className="mt-1 font-bold text-primary">{rpBuyer(p.minPrice)}</p>
-            <p className="text-xs text-warning">★ {p.rating.avg || 0} · {p.rating.count} ulasan</p>
-            <p className="text-xs text-muted-foreground">{p.sold_count} terjual</p>
-          </div>
-        </Link>
-      ))}
+    <div className="-mx-3 flex gap-2.5 overflow-x-auto px-3 pb-2">
+      {items.map((p) => {
+        const tag = p.sold_count >= 100 ? "Seller sering dilihat" : p.rating.count > 0 && p.rating.avg >= 4.5 ? "Rating kuat" : null;
+        return (
+          <Link key={p.id} to="/produk/$id" params={{ id: p.id }} className="w-[136px] shrink-0 overflow-hidden rounded-xl border bg-card shadow-sm transition active:scale-[0.98]">
+            <div className="p-2 pb-0"><ProductImage url={p.images[0] ? urls.data?.[p.images[0]] : undefined} alt={p.name} className="aspect-square rounded-md" /></div>
+            <div className="space-y-1 p-2">
+              <p className="line-clamp-2 min-h-[2.5em] text-[11px] font-semibold leading-tight">{p.name}</p>
+              <p className="text-[14px] font-bold text-primary">{rpBuyer(p.minPrice)}</p>
+              <p className="flex items-center gap-1 text-[9.5px] text-warning"><Star className="h-2.5 w-2.5 fill-warning" />{p.rating.count > 0 ? p.rating.avg.toFixed(1) : "0"} · {p.rating.count} ulasan</p>
+              <p className="text-[9.5px] text-muted-foreground">{p.sold_count} terjual</p>
+              <div className="flex flex-col items-start gap-1 pt-0.5">
+                <span className="rounded-full border px-1.5 py-0.5 text-[8.5px] text-muted-foreground">Kategori serupa</span>
+                {tag && <span className="rounded-full border px-1.5 py-0.5 text-[8.5px] text-muted-foreground">{tag}</span>}
+              </div>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
