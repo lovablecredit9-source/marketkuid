@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
-import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
+import { PriceLine, ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { useCategories, useImageUrls } from "@/lib/products";
 import { BRAND_GROUPS, HOME_BANNERS } from "@/lib/home-assets";
