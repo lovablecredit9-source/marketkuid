@@ -574,6 +574,7 @@ export type Database = {
       orders: {
         Row: {
           admin_fee: number
+          buyer_confirmed_at: string | null
           buyer_id: string
           buyer_name: string | null
           buyer_note: string | null
@@ -598,6 +599,7 @@ export type Database = {
         }
         Insert: {
           admin_fee?: number
+          buyer_confirmed_at?: string | null
           buyer_id: string
           buyer_name?: string | null
           buyer_note?: string | null
@@ -622,6 +624,7 @@ export type Database = {
         }
         Update: {
           admin_fee?: number
+          buyer_confirmed_at?: string | null
           buyer_id?: string
           buyer_name?: string | null
           buyer_note?: string | null
