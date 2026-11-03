@@ -238,7 +238,7 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
           Semua <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-4 gap-3 px-2 pt-3">
+      <div className="grid grid-cols-4 gap-x-4 gap-y-5 px-3 pb-2 pt-4">
         {group.brands.map((b) => (
           <Link key={b.name} to="/cari" search={{ q: b.name }} className="flex flex-col items-center gap-1.5 transition active:scale-95">
             <img src={b.img} alt={b.name} className="aspect-square w-full max-w-16 rounded-xl object-cover" />
