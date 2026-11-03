@@ -225,6 +225,9 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Last tapped menu item gets the blue bar + blue icon (like panel.marketku.id), even for items without a page.
+  const [tapped, setTapped] = useState<string | null>(null);
+  useEffect(() => { if (!open) setTapped(null); }, [open]);
   const path = useRouterState({ select: (s) => s.location.pathname.replace(/\/$/, "") || "/seller" });
   const isActive = (to?: string) => !!to && (to === "/seller" ? path === "/seller" : path.startsWith(to));
   const signOut = async () => {
@@ -268,17 +271,19 @@ export function SellerMenuSheet({ open, onOpenChange }: { open: boolean; onOpenC
                 {g.items.map(({ label, icon: I, to, badge, children }) => {
                   const active = isActive(to);
                   const isOpen = expanded === label;
+                  const marked = active || tapped === label;
                   return (
                     <div key={label}>
                       <button
                         onClick={() => {
+                          setTapped(label);
                           if (children) setExpanded(isOpen ? null : label);
                           else if (to) { onOpenChange(false); navigate({ to }); }
                           else soon(label);
                         }}
                         className={`relative flex h-[35px] w-full items-center gap-3 rounded-lg px-4 text-left text-[14px] transition active:scale-[0.98] ${active ? "bg-[var(--drawer-active)] text-foreground" : "text-foreground/85"} ${isOpen ? "ring-1 ring-primary" : ""}`}>
-                        {active && <span className="absolute -left-0.5 top-1 bottom-1 w-[3px] rounded-full bg-primary" />}
-                        <I className="h-4 w-4 shrink-0" strokeWidth={1.6} />
+                        {marked && <span className="absolute -left-0.5 top-1 bottom-1 w-[3px] rounded-full bg-primary" />}
+                        <I className={`h-4 w-4 shrink-0 ${marked ? "text-primary" : ""}`} strokeWidth={1.6} />
                         <span className="flex-1">{label}</span>
                         {badge && <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary">{badge}</span>}
                         {children && <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />}
