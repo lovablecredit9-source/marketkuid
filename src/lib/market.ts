@@ -76,7 +76,7 @@ export function parseItems(s: string | undefined) {
 type RawProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string; product_type: string;
   product_categories: { name: string } | null;
-  product_variants: { id: string; price: number }[];
+  product_variants: { id: string; price: number; discount?: unknown }[];
 };
 
 async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
