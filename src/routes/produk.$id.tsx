@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp, Clock,
+  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp, Clock, Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -310,8 +310,8 @@ function ProdukDetail() {
             <div className="space-y-2.5 overflow-y-auto px-4 pb-6 pt-3.5">
               <p className="text-[12px] leading-relaxed text-muted-foreground">Sinyal keamanan utama ditaruh di depan supaya kamu cepat paham jalur bayar, garansi, dan bantuan.</p>
               {[
-                { icon: ShieldCheck, t: "Trade Guard aktif", d: "Dana masuk lewat jalur pembayaran resmi dan status pesanan tetap bisa kamu pantau dari riwayat." },
-                { icon: ShieldCheck, t: w ? "Proteksi seller tersedia" : "Tanpa garansi seller", d: w ? "Detail proteksi bisa berbeda per produk atau durasi. Cek riwayat dan data akses sesudah pesanan dibuat untuk status akhirnya." : "Produk ini tidak mencantumkan garansi. Cek deskripsi dan tanyakan ke seller sebelum membeli." },
+                { icon: Shield, t: "Trade Guard aktif", d: "Dana masuk lewat jalur pembayaran resmi dan status pesanan tetap bisa kamu pantau dari riwayat." },
+                { icon: Shield, t: w ? "Proteksi seller tersedia" : "Tanpa garansi seller", d: w ? "Detail proteksi bisa berbeda per produk atau durasi. Cek riwayat dan data akses sesudah pesanan dibuat untuk status akhirnya." : "Produk ini tidak mencantumkan garansi. Cek deskripsi dan tanyakan ke seller sebelum membeli." },
                 pre
                   ? { icon: Clock, t: "Pesanan diproses seller", d: "Kalau seller perlu proses manual, riwayat pembelian membantumu melihat progres order dan akses produk." }
                   : { icon: Zap, t: "Pengiriman instan", d: "Produk dikirim otomatis setelah pembayaran terkonfirmasi dan bisa kamu lihat di riwayat pembelian." },
