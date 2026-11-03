@@ -83,10 +83,12 @@ function Pesanan() {
   ];
   const done = orders.every((o) => o.status === "completed");
   const jump = (el: string) => { const n = document.getElementById(el); if (n) n.scrollIntoView({ behavior: "smooth", block: "start" }); else toast.info(el === "data-akses" ? "Data akses dikirim seller lewat chat" : ""); };
-  const shown = cancelled ? [steps[0]!, { t: "Pesanan dibatalkan", d: "Pesanan ini tidak dilanjutkan.", at: first.updated_at, done: true }] : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.filter((x) => x.done).length - 1).slice(0, 2);
+  const shown: { t: string; d: string; at: string | null; done: boolean; fail?: boolean; label?: string }[] = cancelled
+    ? [{ t: "Pesanan dibuat", d: "Pesanan berhasil tercatat di Marketku.", at: first.created_at, done: true, label: "Selesai" }, { t: "Pembayaran tidak diselesaikan", d: "Batas pembayaran berakhir atau pesanan dibatalkan.", at: null, done: false, fail: true, label: "Dibatalkan" }]
+    : allSteps ? steps : steps.filter((s, i) => !s.done || i === steps.filter((x) => x.done).length - 1).slice(0, 2);
 
   return (
-    <AppShell>
+    <AppShell showSupport={!cancelled}>
       <div className="space-y-3 px-3 pb-6 pt-3">
         {pending.length > 0 && (
           <section className="rounded-xl border bg-card p-3">
@@ -106,13 +108,17 @@ function Pesanan() {
         )}
 
         {cancelled && (
-          <section className="rounded-xl border border-l-4 border-l-destructive bg-card p-3">
+          <section className="rounded-xl border bg-card p-3">
             <div className="flex gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-destructive/15 text-destructive"><XCircle className="h-5 w-5" /></span>
-              <div>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted text-foreground"><ReceiptText className="h-4 w-4" /></span>
+              <div className="min-w-0">
                 <p className="text-sm font-bold">Pesanan telah dibatalkan</p>
-                <p className="text-xs text-muted-foreground">Anda tidak perlu melakukan apapun. Pesanan ini tidak dilanjutkan dan tidak ada dana yang ditagihkan.</p>
+                <p className="text-xs leading-relaxed text-muted-foreground">Pesanan ini tidak dilanjutkan. Instruksi pembayaran lama tidak boleh digunakan kembali.</p>
               </div>
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <p className="flex-1 text-center text-xs leading-relaxed text-muted-foreground">Anda tidak perlu melakukan apa pun saat ini.</p>
+              <Link to="/bantuan" className="flex-1 rounded-lg border bg-card py-2 text-center text-xs font-semibold transition active:scale-[0.98]">Pusat bantuan</Link>
             </div>
           </section>
         )}
@@ -175,11 +181,12 @@ function Pesanan() {
           <ol>
             {shown.map((s, i) => (
               <li key={s.t} className="relative flex gap-3 pb-3 last:pb-0">
-                {i < shown.length - 1 && <span className="absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px bg-border" />}
-                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.done ? <Check className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}</span>
+                {i < shown.length - 1 && <span className={`absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px ${cancelled ? "bg-success/60" : "bg-border"}`} />}
+                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${s.fail ? "border-destructive/40 bg-destructive/10 text-destructive" : s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.fail ? <XCircle className="h-3.5 w-3.5" /> : s.done ? <Check className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}</span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex justify-between gap-2"><b className="text-xs">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya"}</span></div>
+                  <div className="flex justify-between gap-2"><b className="text-xs">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.label ?? (s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya")}</span></div>
                   <p className="text-xs text-muted-foreground">{s.d}</p>
+                  {s.label && s.at && <p className="mt-0.5 text-xs text-muted-foreground">{fmtDateTime(s.at)}</p>}
                 </div>
               </li>
             ))}
