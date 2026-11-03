@@ -38,16 +38,16 @@ function Riwayat() {
 
   return (
     <AppShell>
-      <div className="space-y-4 px-3 pt-3">
-        <div className="rounded-2xl bg-accent/50 p-4">
-          <h1 className="mb-3 text-lg font-bold">Daftar Riwayat Pesanan</h1>
-          <div className="overflow-hidden rounded-xl border bg-card">
-            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-4 py-3 font-semibold">
+      <div className="space-y-3 px-3 pt-3">
+        <div className="rounded-xl bg-accent/50 p-3">
+          <h1 className="mb-2 text-base font-bold">Daftar Riwayat Pesanan</h1>
+          <div className="overflow-hidden rounded-lg border bg-card">
+            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-3 py-2 text-sm font-semibold">
               {status} <ChevronDown className="h-4 w-4" />
             </button>
-            <label className="flex items-center gap-2 px-4 py-3">
+            <label className="flex items-center gap-2 px-3 py-2">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent outline-none" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent text-sm outline-none" />
             </label>
           </div>
         </div>
@@ -66,23 +66,23 @@ function Riwayat() {
               const img = o.order_items[0]?.image_path;
               const src = img ? (img.startsWith("http") ? img : imgs.data?.[img]) : undefined;
               return (
-                <div key={o.id} className="overflow-hidden rounded-2xl border bg-card">
-                  <div className={`border-b px-4 py-3 ${head}`}>
-                    <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">{fmtDateTime(o.created_at)}</span><b className={tone}>{ORDER_LABEL[o.status] ?? o.status}</b></div>
-                    <p className="mt-1 font-mono text-sm tracking-wider text-muted-foreground">#M-{o.order_no}</p>
+                <div key={o.id} className="overflow-hidden rounded-xl border bg-card">
+                  <div className={`border-b px-3 py-2 ${head}`}>
+                    <div className="flex items-center justify-between gap-2 text-xs"><span className="text-muted-foreground">{fmtDateTime(o.created_at)}</span><b className={tone}>{ORDER_LABEL[o.status] ?? o.status}</b></div>
+                    <p className="mt-0.5 font-mono text-xs tracking-wider text-muted-foreground">#M-{o.order_no}</p>
                   </div>
-                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center gap-3 border-b px-4 py-3">
-                    <span className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border bg-muted">{src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <Package className="m-auto mt-4 h-5 w-5 text-muted-foreground" />}</span>
-                    <span className="line-clamp-3 font-bold leading-snug">{o.order_items.map((i) => i.product_name).join(", ")}</span>
+                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center gap-2.5 border-b px-3 py-2">
+                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted">{src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <Package className="m-auto mt-2.5 h-4 w-4 text-muted-foreground" />}</span>
+                    <span className="line-clamp-2 text-sm font-semibold leading-snug">{o.order_items.map((i) => i.product_name).join(", ")}</span>
                   </Link>
-                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center justify-between gap-2 px-4 py-3">
-                    <span className="text-xs font-semibold tracking-wider text-muted-foreground">TOTAL PEMBAYARAN</span>
-                    <span className="flex items-center gap-3"><b className="text-lg">{rpBuyer(Number(o.total))}</b><span className="flex items-center text-muted-foreground">Detail <ChevronRight className="h-4 w-4" /></span></span>
+                  <Link to="/pesanan/$id" params={{ id: o.id }} className="flex items-center justify-between gap-2 px-3 py-2">
+                    <span className="text-[10px] font-semibold tracking-wider text-muted-foreground">TOTAL PEMBAYARAN</span>
+                    <span className="flex items-center gap-2"><b className="text-sm">{rpBuyer(Number(o.total))}</b><span className="flex items-center text-xs text-muted-foreground">Detail <ChevronRight className="h-3.5 w-3.5" /></span></span>
                   </Link>
                   {pend && (
-                    <div className="border-t px-4 pb-3 pt-3 text-center">
-                      <Link to="/bayar/$id" params={{ id: o.checkout_id }} className="block rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition active:scale-[0.98]">Lakukan Pembayaran</Link>
-                      {o.expires_at && <p className="mt-2 text-sm font-medium text-warning">Sebelum {new Date(o.expires_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>}
+                    <div className="border-t px-3 py-2 text-center">
+                      <Link to="/bayar/$id" params={{ id: o.checkout_id }} className="block rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition active:scale-[0.98]">Lakukan Pembayaran</Link>
+                      {o.expires_at && <p className="mt-1.5 text-xs font-medium text-warning">Sebelum {new Date(o.expires_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>}
                     </div>
                   )}
                 </div>
