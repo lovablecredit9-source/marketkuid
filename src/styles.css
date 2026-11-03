@@ -321,3 +321,8 @@
   --ana-amber: oklch(0.8 0.16 85);
   --ana-grid: color-mix(in oklab, var(--muted-foreground) 25%, transparent);
 }
+
+@keyframes check-draw { 0% { stroke-dashoffset: 24; } 35%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes check-ping { 0% { transform: scale(1); opacity: .5; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
+.check-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: check-draw 2.2s ease-in-out infinite; }
+.check-ping { animation: check-ping 2.2s ease-out infinite; }
