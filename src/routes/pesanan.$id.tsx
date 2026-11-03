@@ -87,36 +87,48 @@ function Pesanan() {
 
   return (
     <AppShell>
-      <div className="space-y-5 px-3 pb-6 pt-3">
+      <div className="space-y-3 px-3 pb-6 pt-3">
         {pending.length > 0 && (
-          <section className="rounded-2xl border bg-card p-4">
+          <section className="rounded-xl border bg-card p-3">
             <div className="flex gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-warning/20 text-warning"><Clock className="h-6 w-6" /></span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-warning/20 text-warning"><Clock className="h-5 w-5" /></span>
               <div>
-                <p className="text-lg font-bold">Selesaikan pembayaran</p>
-                <p className="text-sm text-muted-foreground">Pesanan diproses setelah pembayaran berhasil dikonfirmasi.</p>
+                <p className="text-sm font-bold">Selesaikan pembayaran</p>
+                <p className="text-xs text-muted-foreground">Pesanan diproses setelah pembayaran berhasil dikonfirmasi.</p>
                 {cd && <p className={`mt-1 text-xs font-semibold ${cd.ms ? "text-warning" : "text-destructive"}`}>{cd.ms ? `Bayar dalam ${cd.text}` : "Waktu bayar habis"}</p>}
               </div>
             </div>
-            <Link to="/bayar/$id" params={{ id: pending[0]!.checkout_id }} className="mt-4 block w-full rounded-xl bg-primary py-3 text-center font-semibold text-primary-foreground transition active:scale-[0.98]">Bayar sekarang</Link>
+            <Link to="/bayar/$id" params={{ id: pending[0]!.checkout_id }} className="mt-3 block w-full rounded-lg bg-primary py-2 text-sm text-center font-semibold text-primary-foreground transition active:scale-[0.98]">Bayar sekarang</Link>
             <button disabled={busy} onClick={() => void cancel()} className="mt-2 flex w-full items-center justify-center gap-2 py-1.5 text-xs font-semibold text-destructive">
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />} Batalkan pesanan
             </button>
           </section>
         )}
 
-        {done && (
-          <section className="rounded-2xl border bg-card p-4">
+        {cancelled && (
+          <section className="rounded-xl border border-l-4 border-l-destructive bg-card p-3">
             <div className="flex gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/15 text-success"><BadgeCheck className="h-6 w-6" /></span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-destructive/15 text-destructive"><XCircle className="h-5 w-5" /></span>
               <div>
-                <p className="text-lg font-bold">Pesanan telah selesai</p>
-                <p className="text-sm text-muted-foreground">Produk telah diterima dan transaksi dinyatakan selesai.</p>
+                <p className="text-sm font-bold">Pesanan telah dibatalkan</p>
+                <p className="text-xs text-muted-foreground">Anda tidak perlu melakukan apapun. Pesanan ini tidak dilanjutkan dan tidak ada dana yang ditagihkan.</p>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button onClick={() => jump("ulasan")} className="rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition active:scale-[0.98]">Berikan ulasan</button>
-              <button onClick={() => jump("data-akses")} className="rounded-xl border py-3 text-sm font-semibold transition active:scale-[0.98]">Lihat data akses</button>
+          </section>
+        )}
+
+        {done && (
+          <section className="rounded-xl border bg-card p-3">
+            <div className="flex gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-success/15 text-success"><BadgeCheck className="h-5 w-5" /></span>
+              <div>
+                <p className="text-sm font-bold">Pesanan telah selesai</p>
+                <p className="text-xs text-muted-foreground">Produk telah diterima dan transaksi dinyatakan selesai.</p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={() => jump("ulasan")} className="rounded-xl bg-primary py-2 text-xs font-semibold text-primary-foreground transition active:scale-[0.98]">Berikan ulasan</button>
+              <button onClick={() => jump("data-akses")} className="rounded-xl border py-2 text-xs font-semibold transition active:scale-[0.98]">Lihat data akses</button>
             </div>
           </section>
         )}
@@ -127,14 +139,14 @@ function Pesanan() {
 
         <SecHead icon={ReceiptText} t="Detail transaksi" d="Produk dan rincian pembayaran pesanan." />
         {orders.map((o) => (
-          <section key={o.id} className="overflow-hidden rounded-2xl border bg-card">
-            <div className="space-y-3 p-4">
+          <section key={o.id} className="overflow-hidden rounded-xl border bg-card">
+            <div className="space-y-2 p-3">
               <p className="flex items-center gap-1.5 text-sm font-bold">{o.store_name}<BadgeCheck className="h-4 w-4 text-primary" /></p>
               {o.order_items.map((i) => (
                 <div key={i.id} className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0"><Link to="/produk/$id" params={{ id: i.product_id ?? "" }} className="font-bold leading-snug">{i.product_name}</Link><p className="text-sm text-muted-foreground">{i.variant_name}{i.qty > 1 ? ` · ${i.qty}x` : ""}</p></div>
-                    <b className="shrink-0">{rpBuyer(Number(i.line_total))}</b>
+                    <div className="min-w-0"><Link to="/produk/$id" params={{ id: i.product_id ?? "" }} className="text-sm font-bold leading-snug">{i.product_name}</Link><p className="text-xs text-muted-foreground">{i.variant_name}{i.qty > 1 ? ` · ${i.qty}x` : ""}</p></div>
+                    <b className="shrink-0 text-sm">{rpBuyer(Number(i.line_total))}</b>
                   </div>
                   {i.delivered.length > 0 && (
                     <div id="data-akses" className="scroll-mt-24 rounded-xl bg-accent p-3 text-sm">
@@ -145,34 +157,34 @@ function Pesanan() {
                 </div>
               ))}
             </div>
-            <div className="space-y-3 bg-muted/40 p-4 text-sm">
+            <div className="space-y-2 bg-muted/40 p-3 text-xs">
               <Row a="Status pembayaran" b={o.paid_at ? <span className="text-success">lunas</span> : ["cancelled", "failed"].includes(o.status) ? <span className="text-destructive">dibatalkan</span> : "pending"} />
               <Row a="Metode pembayaran" b={(o.payment_method ?? "QRIS").toUpperCase()} />
               {Number(o.discount) > 0 && <Row a={`Voucher ${o.voucher_code ?? ""}`} b={`-${rpBuyer(Number(o.discount))}`} />}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Order ID</span>
-                <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="flex items-center overflow-hidden rounded-lg border font-mono text-sm"><span className="px-3 py-1.5">#M-{o.order_no}</span><span className="border-l px-2.5 py-1.5"><Copy className="h-3.5 w-3.5" /></span></button>
+                <button onClick={() => { void navigator.clipboard.writeText(`M-${o.order_no}`); toast.success("Order ID disalin"); }} className="flex items-center overflow-hidden rounded-lg border font-mono text-sm"><span className="px-2 py-1">#M-{o.order_no}</span><span className="border-l px-2 py-1"><Copy className="h-3.5 w-3.5" /></span></button>
               </div>
-              <div className="flex justify-between border-t pt-3 text-base"><span className="text-muted-foreground">Total pembayaran</span><b>{rpBuyer(Number(o.total))}</b></div>
+              <div className="flex justify-between border-t pt-2 text-sm"><span className="text-muted-foreground">Total pembayaran</span><b>{rpBuyer(Number(o.total))}</b></div>
             </div>
           </section>
         ))}
 
         <SecHead icon={Clock} t="Aktivitas pesanan" d="Perjalanan pesanan berdasarkan status transaksi." />
-        <section className="rounded-2xl border bg-card p-4">
+        <section className="rounded-xl border bg-card p-3">
           <ol>
             {shown.map((s, i) => (
-              <li key={s.t} className="relative flex gap-3 pb-5 last:pb-1">
-                {i < shown.length - 1 && <span className="absolute left-[15px] top-8 h-[calc(100%-2rem)] w-px bg-border" />}
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border ${s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.done ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</span>
+              <li key={s.t} className="relative flex gap-3 pb-3 last:pb-0">
+                {i < shown.length - 1 && <span className="absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px bg-border" />}
+                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${s.done ? "border-success/50 bg-success/15 text-success" : "text-muted-foreground"}`}>{s.done ? <Check className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}</span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex justify-between gap-2"><b className="text-sm">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya"}</span></div>
-                  <p className="text-sm text-muted-foreground">{s.d}</p>
+                  <div className="flex justify-between gap-2"><b className="text-xs">{s.t}</b><span className="shrink-0 text-xs text-muted-foreground">{s.done ? (s.at ? fmtDateTime(s.at) : "Selesai") : "Berikutnya"}</span></div>
+                  <p className="text-xs text-muted-foreground">{s.d}</p>
                 </div>
               </li>
             ))}
           </ol>
-          {!cancelled && <button onClick={() => setAllSteps(!allSteps)} className="mt-2 pl-11 text-sm font-bold">{allSteps ? "Sembunyikan aktivitas" : "Lihat seluruh aktivitas"}</button>}
+          {!cancelled && <button onClick={() => setAllSteps(!allSteps)} className="mt-1 pl-10 text-xs font-bold">{allSteps ? "Sembunyikan aktivitas" : "Lihat seluruh aktivitas"}</button>}
         </section>
 
         {orders.some((o) => o.status === "completed") && (
@@ -185,16 +197,16 @@ function Pesanan() {
         )}
 
         <SecHead icon={Headphones} t="Bantuan pesanan" d="Semua komunikasi dengan seller dilakukan melalui Marketku." />
-        <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center justify-between rounded-2xl border bg-card px-4 py-3.5 text-left font-bold transition active:scale-[0.98]">Hubungi seller <MessageCircle className="h-4 w-4 text-muted-foreground" /></button>
-        {!cancelled && st >= 1 && <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center gap-2 rounded-2xl bg-destructive px-4 py-3.5 text-left font-bold text-destructive-foreground transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan masalah</button>}
-        <Link to="/riwayat" className="block text-center font-semibold text-primary">Lihat semua pesanan</Link>
+        <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center justify-between rounded-xl border bg-card px-3 py-2.5 text-left text-sm font-bold transition active:scale-[0.98]">Hubungi seller <MessageCircle className="h-4 w-4 text-muted-foreground" /></button>
+        {!cancelled && st >= 1 && <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center gap-2 rounded-xl bg-destructive px-3 py-2.5 text-left text-sm font-bold text-destructive-foreground transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan masalah</button>}
+        <Link to="/riwayat" className="block text-center text-sm font-semibold text-primary">Lihat semua pesanan</Link>
       </div>
     </AppShell>
   );
 }
 
 const SecHead = ({ icon: I, t, d }: { icon: typeof Clock; t: string; d: string }) => (
-  <div className="flex gap-3 px-1"><I className="mt-0.5 h-6 w-6 shrink-0" /><div><h2 className="text-lg font-bold">{t}</h2><p className="text-sm text-muted-foreground">{d}</p></div></div>
+  <div className="flex gap-2 px-1 pt-1"><I className="mt-0.5 h-4 w-4 shrink-0" /><div><h2 className="text-sm font-bold">{t}</h2><p className="text-xs text-muted-foreground">{d}</p></div></div>
 );
 const Row = ({ a, b }: { a: string; b: React.ReactNode }) => <div className="flex justify-between gap-3"><span className="text-muted-foreground">{a}</span><b className="text-right">{b}</b></div>;
 
