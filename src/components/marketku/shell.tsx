@@ -55,7 +55,7 @@ export function NotifDrop({ onClose, className = "" }: { onClose: () => void; cl
   );
 }
 
-export function Header({ title }: { title?: string | undefined }) {
+export function Header({ title, showSupport = true }: { title?: string | undefined; showSupport?: boolean }) {
   const navigate = useNavigate();
   const [notif, setNotif] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -76,7 +76,7 @@ export function Header({ title }: { title?: string | undefined }) {
     );
   }
   return (
-    <><div aria-hidden className="h-[94px]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto h-[94px] max-w-md border-b bg-card">
+    <><div aria-hidden className={showSupport ? "h-[94px]" : "h-[54px]"} /><header className={`fixed inset-x-0 top-0 z-30 mx-auto ${showSupport ? "h-[94px]" : "h-[54px]"} max-w-md border-b bg-card`}>
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
@@ -89,7 +89,7 @@ export function Header({ title }: { title?: string | undefined }) {
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
-      <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>
+      {showSupport && <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>}
       <SideMenu open={menu} onOpenChange={setMenu} />
     </header></>
   );
@@ -214,12 +214,12 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({ children, title, nav = true, header = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; className?: string }) {
+export function AppShell({ children, title, nav = true, header = true, showSupport = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; showSupport?: boolean; className?: string }) {
   useStoredDark();
   const ban = useAccountBan();
   return (
     <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
-      {header && <Header title={title} />}
+      {header && <Header title={title} showSupport={showSupport} />}
       <main className={nav ? "pb-28" : "pb-8"}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
     </div>

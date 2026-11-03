@@ -326,3 +326,14 @@
 @keyframes check-ping { 0% { transform: scale(1); opacity: .5; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
 .check-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: check-draw 2.2s ease-in-out infinite; }
 .check-ping { animation: check-ping 2.2s ease-out infinite; }
+
+/* Store-only compact cards; shared wishlist and cart actions remain available. */
+.store-profile article > div { padding: 8px; }
+.store-profile article > div > span { border: 0; padding: 0; color: var(--primary); font-size: 10px; font-weight: 600; }
+.store-profile article a.font-semibold { font-size: 11px; min-height: 30px; margin-top: 4px; }
+.store-profile article p.font-bold { font-size: 13px; margin-top: 4px; }
+.store-profile article > div > div { flex-wrap: wrap; gap: 5px; }
+.store-profile article > div > div > span { font-size: 10px; }
+.store-profile article button { height: 24px; width: 27px; }
+.store-profile article button svg { width: 13px; height: 13px; }
+.store-profile article p.text-muted-foreground { font-size: 9px; }
