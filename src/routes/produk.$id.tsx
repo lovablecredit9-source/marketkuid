@@ -299,6 +299,39 @@ function ProdukDetail() {
         </Dialog.Portal>
       </Dialog.Root>
 
+      <Dialog.Root open={guard} onOpenChange={setGuard}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+          <Dialog.Content aria-describedby={undefined} className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[85vh] max-w-md flex-col rounded-t-3xl bg-card shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom">
+            <div className="flex items-center justify-between border-b px-4 py-3.5">
+              <Dialog.Title className="text-[16px] font-bold">Trade Guard &amp; proteksi buyer</Dialog.Title>
+              <Dialog.Close aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+            </div>
+            <div className="space-y-2.5 overflow-y-auto px-4 pb-6 pt-3.5">
+              <p className="text-[12px] leading-relaxed text-muted-foreground">Sinyal keamanan utama ditaruh di depan supaya kamu cepat paham jalur bayar, garansi, dan bantuan.</p>
+              {[
+                { icon: ShieldCheck, t: "Trade Guard aktif", d: "Dana masuk lewat jalur pembayaran resmi dan status pesanan tetap bisa kamu pantau dari riwayat." },
+                { icon: ShieldCheck, t: w ? "Proteksi seller tersedia" : "Tanpa garansi seller", d: w ? "Detail proteksi bisa berbeda per produk atau durasi. Cek riwayat dan data akses sesudah pesanan dibuat untuk status akhirnya." : "Produk ini tidak mencantumkan garansi. Cek deskripsi dan tanyakan ke seller sebelum membeli." },
+                pre
+                  ? { icon: Clock, t: "Pesanan diproses seller", d: "Kalau seller perlu proses manual, riwayat pembelian membantumu melihat progres order dan akses produk." }
+                  : { icon: Zap, t: "Pengiriman instan", d: "Produk dikirim otomatis setelah pembayaran terkonfirmasi dan bisa kamu lihat di riwayat pembelian." },
+                { icon: Star, t: "Review pembeli terverifikasi", d: rating.count > 0 ? `${rating.count} pembeli sudah memberi ulasan dengan rata-rata ${rating.avg.toFixed(1)}.` : "Belum ada ulasan. Ulasan hanya bisa diberikan pembeli setelah transaksi selesai." },
+              ].map((x) => (
+                <div key={x.t} className="flex gap-3 rounded-2xl border bg-background/50 p-3">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent text-primary"><x.icon className="h-4 w-4" /></span>
+                  <div className="min-w-0"><p className="text-[12.5px] font-semibold">{x.t}</p><p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">{x.d}</p></div>
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1.5">
+                <Link to="/bantuan" onClick={() => setGuard(false)} className="rounded-xl bg-primary px-4 py-2.5 text-[12.5px] font-semibold text-primary-foreground transition active:scale-95">Buka Pusat Bantuan</Link>
+                <a href={supportWaUrl(`Halo Marketku, saya butuh bantuan soal produk "${p.name}".`)} target="_blank" rel="noreferrer" className="rounded-xl border px-4 py-2.5 text-[12.5px] font-semibold transition active:scale-95">Support</a>
+              </div>
+              <p className="text-[11.5px] leading-relaxed text-muted-foreground">Kalau order tidak sesuai, siapkan order ID, screenshot, dan kronologi singkat agar support bisa review lebih cepat.</p>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
       <Dialog.Root open={menu} onOpenChange={setMenu}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
