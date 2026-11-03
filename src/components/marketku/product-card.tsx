@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, ShoppingCart, Star, Package } from "lucide-react";
+import { Heart, ShoppingCart, Star, Package, ShoppingBag } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,10 +43,24 @@ export function ProductImage({ path, url, alt, className = "" }: { path?: string
 }
 
 /** Large card used on beranda, pencarian, and store pages (matches the screenshot list layout). */
-export function ProductCard({ p, url, wished, onWish, compact = false }: { p: CardProduct; url?: string | undefined; wished: boolean; onWish: () => void; compact?: boolean }) {
+export function ProductCard({ p, url, wished, onWish, compact = false, simple = false }: { p: CardProduct; url?: string | undefined; wished: boolean; onWish: () => void; compact?: boolean; simple?: boolean }) {
   const navigate = useNavigate();
   const closed = !p.storeOpen;
   const out = p.product_type !== "preorder" && p.stock <= 0;
+  if (simple) return (
+    <Link to="/produk/$id" params={{ id: p.id }} className="block overflow-hidden rounded-2xl border bg-card shadow-sm">
+      <div className="relative">
+        <ProductImage url={url} alt={p.name} className="aspect-square" />
+        {(closed || out) && <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-foreground/80 px-2 py-0.5 text-[10px] font-bold tracking-wider text-background">{closed ? "TOKO TUTUP" : "STOK HABIS"}</span>}
+      </div>
+      <div className="px-2.5 pb-2.5 pt-2">
+        {p.category && <p className="truncate text-[11px] font-medium uppercase text-primary">{p.category}</p>}
+        <p className="mt-1 line-clamp-2 min-h-[2.5em] text-[12px] font-medium uppercase leading-snug">{p.name}</p>
+        <p className="mt-1.5 text-[13px] font-semibold text-primary">{rpBuyer(p.minPrice)}</p>
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground"><ShoppingBag className="h-3 w-3" />{p.sold_count} terjual</p>
+      </div>
+    </Link>
+  );
   return (
     <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
       <Link to="/produk/$id" params={{ id: p.id }} className="block">
@@ -84,15 +98,15 @@ export function ProductCard({ p, url, wished, onWish, compact = false }: { p: Ca
 }
 
 /** Product grid/list with signed image URLs and wishlist state resolved once. */
-export function ProductList({ items, compact = false }: { items: CardProduct[]; compact?: boolean }) {
+export function ProductList({ items, compact = false, simple = false }: { items: CardProduct[]; compact?: boolean; simple?: boolean }) {
   const urls = useImageUrls(items.map((p) => p.images[0] ?? "").filter(Boolean));
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   return (
-    <div className={compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
+    <div className={compact || simple ? "grid grid-cols-2 gap-3" : "space-y-3"}>
       {items.map((p) => {
         const on = wish.data?.has(p.id) ?? false;
-        return <ProductCard key={p.id} p={p} compact={compact} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;
+        return <ProductCard key={p.id} p={p} compact={compact} simple={simple} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;
       })}
     </div>
   );

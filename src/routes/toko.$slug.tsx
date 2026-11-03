@@ -67,6 +67,7 @@ function Toko() {
             : (
               <div className="relative h-[120px] overflow-hidden bg-gradient-to-b from-accent to-card">
                 <svg aria-hidden className="absolute inset-0 h-full w-full text-primary/20" preserveAspectRatio="none" viewBox="0 0 400 140"><path d="M0 10 L70 60 L0 120 M400 10 L330 60 L400 120" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+                <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-[11px] font-medium text-muted-foreground">Ukuran banner rekomendasi 1600 × 400 px</p>
               </div>
             )}
           <div className="-mt-10 px-6 pb-6">
@@ -81,7 +82,7 @@ function Toko() {
             {banned.data && <p className="mt-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
             {s.description && <p className="mt-2 text-sm">{s.description}</p>}
             <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
-              {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, `${(r.count ? r.avg : 0).toFixed(1)} ★`, "Rating"]].map(([I, n, l]) => {
+              {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, r.count ? `${r.avg.toFixed(1)} ★` : "-", "Rating"]].map(([I, n, l]) => {
                 const Icon = I as typeof Package;
                 return <div key={l as string} className="flex min-w-[80px] shrink-0 items-center gap-2 rounded-xl border px-2.5 py-1.5"><Icon className={`h-4 w-4 ${l === "Rating" ? "text-warning" : "text-muted-foreground"}`} /><span className="leading-tight"><b className="block text-xs">{n as number | string}</b><span className="text-[10px] text-muted-foreground">{l as string}</span></span></div>;
               })}
@@ -104,7 +105,7 @@ function Toko() {
 
         <section>
           <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">Tampilkan semua produk</h2><span className="shrink-0 text-[11px] text-muted-foreground">Produk ({list.length})</span></div>
-          {list.length ? <ProductList items={list} compact /> : <EmptyState icon={Package} title="Belum ada produk" desc="Toko ini belum punya produk aktif." />}
+          {list.length ? <ProductList items={list} simple /> : <EmptyState icon={Package} title="Belum ada produk" desc="Toko ini belum punya produk aktif." />}
         </section>
 
         <section>
