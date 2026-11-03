@@ -291,7 +291,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
       <Link to="/produk/$id" params={{ id: p.id }} className="block px-2.5 pb-2.5">
         {p.category && <span className="inline-block rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{p.category}</span>}
         <p className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-tight">{p.name}</p>
-        <p className="mt-1.5 font-bold text-primary">{rpBuyer(p.minPrice)}</p>
+        <PriceLine p={p} className="mt-1.5 font-bold" />
         <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Star className="h-3 w-3 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}
           <span className="h-3 w-px bg-border" />{p.sold_count > 0 ? `${p.sold_count}+ sold` : "New"}

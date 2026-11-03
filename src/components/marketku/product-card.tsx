@@ -9,7 +9,7 @@ import type { CardProduct } from "@/lib/market";
 
 export const rpBuyer = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
-function PriceLine({ p, className }: { p: CardProduct; className: string }) {
+export function PriceLine({ p, className }: { p: CardProduct; className: string }) {
   const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
   return (
     <p className={`flex flex-wrap items-center gap-x-1.5 ${className}`}>
