@@ -36,7 +36,7 @@ export function ratingBars(rows: { rating: number }[]) {
 
 export type CardProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string;
-  product_type: string; category: string | null; minPrice: number; maxPrice: number; stock: number;
+  product_type: string; category: string | null; minPrice: number; basePrice: number; maxPrice: number; stock: number;
   storeName: string; storeOpen: boolean; rating: Rating; likes: number;
 };
 
@@ -76,7 +76,7 @@ export function parseItems(s: string | undefined) {
 type RawProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string; product_type: string;
   product_categories: { name: string } | null;
-  product_variants: { id: string; price: number }[];
+  product_variants: { id: string; price: number; discount?: unknown }[];
 };
 
 async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
@@ -93,12 +93,13 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   const sm = new Map((stores.data ?? []).map((s) => [s.owner_id, s]));
   const st = new Map((stock.data ?? []).map((s) => [s.variant_id, s.available]));
   return rows.map((r) => {
-    const prices = r.product_variants.map((v) => Number(v.price));
+    const base = r.product_variants.map((v) => Number(v.price));
+    const prices = r.product_variants.map((v) => unitPrice(Number(v.price), 1, v.discount as Discount));
     const s = sm.get(r.owner_id);
     return {
       id: r.id, name: r.name, owner_id: r.owner_id, images: r.images ?? [], sold_count: r.sold_count, created_at: r.created_at,
       product_type: r.product_type, category: r.product_categories?.name ?? null,
-      minPrice: prices.length ? Math.min(...prices) : 0, maxPrice: prices.length ? Math.max(...prices) : 0,
+      minPrice: prices.length ? Math.min(...prices) : 0, basePrice: base.length ? Math.min(...base) : 0, maxPrice: prices.length ? Math.max(...prices) : 0,
       stock: r.product_variants.reduce((a, v) => a + (st.get(v.id) ?? 0), 0),
       storeName: s?.store_name ?? "Toko", storeOpen: s?.is_open ?? false,
       rating: ratingOf((reviews.data ?? []).filter((x) => x.product_id === r.id)),
@@ -107,7 +108,7 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   });
 }
 
-const CARD_SELECT = "id, name, owner_id, images, sold_count, created_at, product_type, product_categories(name), product_variants(id, price)";
+const CARD_SELECT = "id, name, owner_id, images, sold_count, created_at, product_type, product_categories(name), product_variants(id, price, discount)";
 
 export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number } = {}) {
   const { q = "", category = null, owner, limit = 60 } = opts;

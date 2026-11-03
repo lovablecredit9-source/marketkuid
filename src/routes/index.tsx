@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
-import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
+import { PriceLine, ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { useCategories, useImageUrls } from "@/lib/products";
 import { BRAND_GROUPS, HOME_BANNERS } from "@/lib/home-assets";
@@ -238,7 +238,7 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
           Semua <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-4 gap-3 px-2 pt-3">
+      <div className="grid grid-cols-4 gap-x-4 gap-y-5 px-3 pb-2 pt-4">
         {group.brands.map((b) => (
           <Link key={b.name} to="/cari" search={{ q: b.name }} className="flex flex-col items-center gap-1.5 transition active:scale-95">
             <img src={b.img} alt={b.name} className="aspect-square w-full max-w-16 rounded-xl object-cover" />
@@ -291,7 +291,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
       <Link to="/produk/$id" params={{ id: p.id }} className="block px-2.5 pb-2.5">
         {p.category && <span className="inline-block rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{p.category}</span>}
         <p className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-tight">{p.name}</p>
-        <p className="mt-1.5 font-bold text-primary">{rpBuyer(p.minPrice)}</p>
+        <PriceLine p={p} className="mt-1.5 font-bold" />
         <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Star className="h-3 w-3 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}
           <span className="h-3 w-px bg-border" />{p.sold_count > 0 ? `${p.sold_count}+ sold` : "New"}
