@@ -9,7 +9,7 @@ describe("public review username", () => {
     const helper = sql.match(/AS \$\$ SELECT (.*?) \$\$/s)?.[1];
     if (!helper) throw new Error("Missing review label helper");
     const query = `select ${helper.replaceAll("p_username", "'adimuy'")} as label; select ${helper.replaceAll("p_username", "NULL")} as label;`;
-    const result = execFileSync("python3", ["-c", "import duckdb,sys; c=duckdb.connect(); print(c.execute(sys.argv[1].split(';')[0]).fetchone()[0]); print(c.execute(sys.argv[1].split(';')[1]).fetchone()[0])", query], { encoding: "utf8" }).trim().split("\n");
+    const result = execFileSync("python3", ["-c", "import sqlite3,sys; c=sqlite3.connect(':memory:'); c.create_function('btrim',1,lambda v: v.strip() if v is not None else None); print(c.execute(sys.argv[1].split(';')[0]).fetchone()[0]); print(c.execute(sys.argv[1].split(';')[1]).fetchone()[0])", query], { encoding: "utf8" }).trim().split("\n");
     expect(result).toEqual(["adimuy", "Pembeli"]);
   });
 });
