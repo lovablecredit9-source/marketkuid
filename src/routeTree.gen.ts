@@ -56,6 +56,7 @@ import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
 import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
+import { Route as SellerChatIdRouteImport } from './routes/seller.chat_.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
 import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/telegram.$botId'
@@ -295,6 +296,11 @@ const UlasanIdRoute = UlasanIdRouteImport.update({
   path: '/ulasan/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerChatIdRoute = SellerChatIdRouteImport.update({
+  id: '/chat_/$id',
+  path: '/chat/$id',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerPanduanSlugRoute = SellerPanduanSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -359,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
@@ -410,6 +417,7 @@ export interface FileRoutesByTo {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller': typeof SellerIndexRoute
+  '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
@@ -463,6 +471,7 @@ export interface FileRoutesById {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
+  '/seller/chat_/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
@@ -517,6 +526,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller/'
+    | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
     | '/api/public/telegram/$botId'
@@ -568,6 +578,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller'
+    | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
     | '/api/public/telegram/$botId'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller/'
+    | '/seller/chat_/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
     | '/api/public/telegram/$botId'
@@ -989,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UlasanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/chat_/$id': {
+      id: '/seller/chat_/$id'
+      path: '/chat/$id'
+      fullPath: '/seller/chat/$id'
+      preLoaderRoute: typeof SellerChatIdRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/panduan/$slug': {
       id: '/seller/panduan/$slug'
       path: '/$slug'
@@ -1044,6 +1063,7 @@ interface SellerRouteChildren {
   SellerVoucherRoute: typeof SellerVoucherRoute
   SellerWithdrawRoute: typeof SellerWithdrawRoute
   SellerIndexRoute: typeof SellerIndexRoute
+  SellerChatIdRoute: typeof SellerChatIdRoute
   SellerProdukBaruRoute: typeof SellerProdukBaruRoute
 }
 
@@ -1066,6 +1086,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerVoucherRoute: SellerVoucherRoute,
   SellerWithdrawRoute: SellerWithdrawRoute,
   SellerIndexRoute: SellerIndexRoute,
+  SellerChatIdRoute: SellerChatIdRoute,
   SellerProdukBaruRoute: SellerProdukBaruRoute,
 }
 
