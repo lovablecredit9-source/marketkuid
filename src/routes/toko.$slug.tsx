@@ -81,10 +81,10 @@ function Toko() {
             <p className="mt-1 text-[11px] text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
             {banned.data && <p className="mt-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
             {s.description && <p className="mt-2 text-sm">{s.description}</p>}
-            <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
-              {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, r.count ? `${r.avg.toFixed(1)} ★` : "-", "Rating"]].map(([I, n, l]) => {
+            <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, r.count ? `${r.avg.toFixed(1)} ★` : "-", "Rating"], [MessageSquare, r.count, "Ulasan"]].map(([I, n, l]) => {
                 const Icon = I as typeof Package;
-                return <div key={l as string} className="flex min-w-[80px] shrink-0 items-center gap-2 rounded-xl border px-2.5 py-1.5"><Icon className={`h-4 w-4 ${l === "Rating" ? "text-warning" : "text-muted-foreground"}`} /><span className="leading-tight"><b className="block text-xs">{n as number | string}</b><span className="text-[10px] text-muted-foreground">{l as string}</span></span></div>;
+                return <div key={l as string} className="flex shrink-0 items-center gap-2 rounded-xl border px-2.5 py-1.5"><Icon className={`h-4 w-4 shrink-0 ${l === "Rating" ? "text-warning" : "text-muted-foreground"}`} /><span className="leading-[1.15]"><b className="block text-xs">{n as number | string}</b><span className="block text-[10.5px] text-muted-foreground">{l as string}</span></span></div>;
               })}
             </div>
           </div>
@@ -93,12 +93,12 @@ function Toko() {
         <section className="rounded-2xl border bg-card p-4 shadow-sm">
           <p className="text-center text-[30px] font-bold leading-tight">{r.avg.toFixed(1)}</p>
           <p className="text-center text-xs text-muted-foreground">/5.0</p>
-          <div className="mt-3 flex justify-center"><Stars n={Math.round(r.avg)} size="h-3 w-3" /></div>
+          <p className="mt-2 text-center text-[12px] leading-none tracking-[0.08em] text-warning">{"★★★★★".slice(0, Math.round(r.avg)) || "-"}<span className="text-muted">{"★★★★★".slice(Math.round(r.avg))}</span></p>
           <p className="mt-2 text-center text-[11px] text-muted-foreground">{r.count} ulasan</p>
           <div className="mt-5 space-y-2 border-t pt-5">
             {ratingBars(reviews.data ?? []).map((b) => (
-              <div key={b.star} className="flex items-center gap-1 text-[11px]"><span className="flex items-center">{b.star}<Star className="h-3 w-3 fill-warning text-warning" /></span>
-                <span className="mx-3 h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-warning" style={{ width: r.count ? `${(b.n / r.count) * 100}%` : 0 }} /></span><span className="w-3 text-right text-muted-foreground">{b.n}</span></div>
+              <div key={b.star} className="flex items-center gap-1 text-[11px]"><span className="flex w-6 items-center gap-0.5 font-semibold">{b.star}<span className="text-[10px] text-warning">★</span></span>
+                <span className="mx-2 h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-warning" style={{ width: r.count ? `${(b.n / r.count) * 100}%` : 0 }} /></span><span className="w-3 text-right text-muted-foreground">{b.n}</span></div>
             ))}
           </div>
         </section>
