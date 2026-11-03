@@ -9,6 +9,7 @@ import { ProductList, Stars } from "@/components/marketku/product-card";
 import { ratingBars, ratingOf, useMarketProducts, useReviews, dbError, fmtDate } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/toko/$slug")({
   head: () => pageMeta("Toko Seller — Marketku", "Lihat produk, rating, dan ulasan pembeli dari toko seller di Marketku."),
@@ -28,7 +29,7 @@ function Toko() {
   const s = store.data;
   const banned = useQuery({
     queryKey: ["store_banned", s?.owner_id], enabled: !!s?.owner_id,
-    queryFn: async () => !!(await supabase.rpc("store_ban_status", { p_owner: s!.owner_id })).data,
+    queryFn: async () => s?.owner_id ? !!(await supabase.rpc("store_ban_status", { p_owner: s.owner_id })).data : false,
   });
   const products = useMarketProducts({ owner: s?.owner_id ?? "__none__", limit: 100 });
   const reviews = useReviews({ seller: s?.owner_id ?? "" });
@@ -40,8 +41,8 @@ function Toko() {
   const reviewImgs = useImageUrls([...new Set((reviews.data ?? []).map((x) => x.products?.images?.[0] ?? "").filter(Boolean))]);
 
 
-  if (store.isLoading) return <AppShell><div className="m-3 h-72 animate-pulse rounded-2xl border bg-card" /></AppShell>;
-  if (!s) return <AppShell><div className="p-3"><EmptyState icon={Store} title="Toko tidak ditemukan" desc="Link toko ini tidak tersedia." /></div></AppShell>;
+  if (store.isLoading) return <AppShell showSupport={false}><div className="mx-8 mt-4 h-72 animate-pulse rounded-2xl border bg-card" /></AppShell>;
+  if (!s) return <AppShell showSupport={false}><div className="p-3"><EmptyState icon={Store} title="Toko tidak ditemukan" desc="Link toko ini tidak tersedia." /></div></AppShell>;
 
   const list = s.owner_id ? products.data ?? [] : [];
   const sold = list.reduce((a, p) => a + p.sold_count, 0);
@@ -58,73 +59,72 @@ function Toko() {
   };
 
   return (
-    <AppShell>
-      <div className="space-y-4 px-3 pt-3">
+    <AppShell showSupport={false} className="store-profile">
+      <div className="space-y-5 px-8 pt-4">
         <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
           {bannerUrl
-            ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="h-36 w-full object-cover" />
+            ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="h-[120px] w-full object-cover" />
             : (
-              <div className="relative h-36 overflow-hidden bg-gradient-to-b from-accent to-card">
+              <div className="relative h-[120px] overflow-hidden bg-gradient-to-b from-accent to-card">
                 <svg aria-hidden className="absolute inset-0 h-full w-full text-primary/20" preserveAspectRatio="none" viewBox="0 0 400 140"><path d="M0 10 L70 60 L0 120 M400 10 L330 60 L400 120" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
-                <p className="absolute inset-x-0 top-10 px-6 text-center text-[11px] text-muted-foreground">Ukuran banner rekomendasi 1600 × 400 px</p>
               </div>
             )}
-          <div className="-mt-10 px-5 pb-4">
+          <div className="-mt-10 px-6 pb-6">
             {avatarUrl
-              ? <img src={avatarUrl} alt={`Foto ${s.store_name}`} className="relative h-20 w-20 rounded-full border-4 border-card bg-card object-cover shadow" />
-              : <span className="relative grid h-20 w-20 place-items-center rounded-full border-4 border-card bg-accent text-2xl font-bold text-primary shadow">{initials(s.store_name)}</span>}
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold">{s.store_name}</h1>
-              <button onClick={() => void chat()} className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground transition active:scale-95"><MessageCircle className="h-3.5 w-3.5" /> Kirim Pesan</button>
+              ? <img src={avatarUrl} alt={`Foto ${s.store_name}`} className="relative h-[90px] w-[90px] rounded-full border-4 border-card bg-card object-cover shadow" />
+              : <span className="relative grid h-[90px] w-[90px] place-items-center rounded-full border-4 border-card bg-accent text-2xl font-bold text-primary shadow">{initials(s.store_name)}</span>}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <h1 className="min-w-0 break-words text-[22px] font-bold leading-tight">{s.store_name}</h1>
+              <Button size="sm" onClick={() => void chat()} className="h-7 gap-1 rounded-full px-2.5 text-[10px]"><MessageCircle /> Kirim Pesan</Button>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
             {banned.data && <p className="mt-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
             {s.description && <p className="mt-2 text-sm">{s.description}</p>}
             <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
               {[[Package, list.length, "Produk"], [ShoppingBag, sold, "Terjual"], [Star, `${(r.count ? r.avg : 0).toFixed(1)} ★`, "Rating"]].map(([I, n, l]) => {
                 const Icon = I as typeof Package;
-                return <div key={l as string} className="flex min-w-[96px] shrink-0 items-center gap-2 rounded-xl border px-3 py-2"><Icon className={`h-4 w-4 ${l === "Rating" ? "text-warning" : "text-muted-foreground"}`} /><span className="leading-tight"><b className="block text-sm">{n as number | string}</b><span className="text-xs text-muted-foreground">{l as string}</span></span></div>;
+                return <div key={l as string} className="flex min-w-[80px] shrink-0 items-center gap-2 rounded-xl border px-2.5 py-1.5"><Icon className={`h-4 w-4 ${l === "Rating" ? "text-warning" : "text-muted-foreground"}`} /><span className="leading-tight"><b className="block text-xs">{n as number | string}</b><span className="text-[10px] text-muted-foreground">{l as string}</span></span></div>;
               })}
             </div>
           </div>
         </section>
 
-        <section className="rounded-2xl border bg-card p-4">
-          <p className="text-center text-4xl font-bold">{r.avg || 0}</p>
+        <section className="rounded-2xl border bg-card p-4 shadow-sm">
+          <p className="text-center text-[30px] font-bold leading-tight">{r.avg.toFixed(1)}</p>
           <p className="text-center text-xs text-muted-foreground">/5.0</p>
-          <div className="mt-1 flex justify-center"><Stars n={Math.round(r.avg)} size="h-4 w-4" /></div>
-          <p className="text-center text-sm text-muted-foreground">{r.count} ulasan</p>
-          <div className="mt-3 space-y-1">
+          <div className="mt-3 flex justify-center"><Stars n={Math.round(r.avg)} size="h-3 w-3" /></div>
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">{r.count} ulasan</p>
+          <div className="mt-5 space-y-2 border-t pt-5">
             {ratingBars(reviews.data ?? []).map((b) => (
-              <div key={b.star} className="flex items-center gap-2 text-xs">{b.star}<Star className="h-3 w-3 fill-warning text-warning" />
-                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-warning" style={{ width: r.count ? `${(b.n / r.count) * 100}%` : 0 }} /></span>{b.n}</div>
+              <div key={b.star} className="flex items-center gap-1 text-[11px]"><span className="flex items-center">{b.star}<Star className="h-3 w-3 fill-warning text-warning" /></span>
+                <span className="mx-3 h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-warning" style={{ width: r.count ? `${(b.n / r.count) * 100}%` : 0 }} /></span><span className="w-3 text-right text-muted-foreground">{b.n}</span></div>
             ))}
           </div>
         </section>
 
         <section>
-          <div className="mb-2 flex justify-between"><h2 className="font-bold">Tampilkan semua produk</h2><span className="text-sm text-muted-foreground">Produk ({list.length})</span></div>
+          <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">Tampilkan semua produk</h2><span className="shrink-0 text-[11px] text-muted-foreground">Produk ({list.length})</span></div>
           {list.length ? <ProductList items={list} compact /> : <EmptyState icon={Package} title="Belum ada produk" desc="Toko ini belum punya produk aktif." />}
         </section>
 
         <section>
-          <h2 className="mb-2 font-bold">Ulasan pembeli</h2>
+          <h2 className="mb-3 text-sm font-bold">Ulasan pembeli</h2>
           {(reviews.data ?? []).length === 0 ? <p className="rounded-2xl border bg-card p-4 text-center text-sm text-muted-foreground">Belum ada ulasan untuk toko ini.</p> : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(reviews.data ?? []).slice(0, 20).map((x) => {
                 const img = x.products?.images?.[0];
                 return (
-                  <div key={x.id} className="rounded-2xl border bg-card p-4">
-                    <div className="flex items-start gap-3">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-primary">{initials(x.buyer_label || "?")}</span>
-                      <div className="min-w-0 flex-1"><b className="block truncate text-sm">{x.buyer_label}</b><Stars n={x.rating} /></div>
-                      <span className="shrink-0 text-xs text-muted-foreground">{fmtDate(x.created_at)}</span>
+                  <div key={x.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+                    <div className="flex items-center gap-2.5">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-[11px] font-bold text-primary">{initials(x.buyer_label || "?")}</span>
+                      <div className="min-w-0 flex-1"><b className="block break-words text-xs">{x.buyer_label}</b><div className="mt-1"><Stars n={x.rating} size="h-3 w-3" /></div></div>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">{fmtDate(x.created_at)}</span>
                     </div>
-                    {x.comment && <p className="mt-3 text-sm">{x.comment}</p>}
+                    {x.comment && <p className="mt-3 text-xs">{x.comment}</p>}
                     {x.products?.name && (
                       <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/60 px-2 py-1.5">
                         {img && reviewImgs.data?.[img] ? <img src={reviewImgs.data[img]} alt="" className="h-6 w-6 shrink-0 rounded object-cover" /> : <Package className="h-4 w-4 shrink-0 text-muted-foreground" />}
-                        <span className="truncate text-xs">{x.products.name}</span>
+                        <span className="min-w-0 break-words text-[10px]">{x.products.name}</span>
                       </div>
                     )}
                   </div>
