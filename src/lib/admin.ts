@@ -71,4 +71,5 @@ export const ADMIN_ACTION_LABEL: Record<string, string> = {
   approve_deposit: "Setujui deposit", reject_deposit: "Tolak deposit",
   approve_order_payment: "Setujui bayar pesanan", reject_order_payment: "Tolak bayar pesanan",
   approve_withdrawal: "Kirim penarikan", reject_withdrawal: "Tolak penarikan",
+  rekber_release: "Cairkan rekber", rekber_refund: "Kembalikan rekber",
 };
