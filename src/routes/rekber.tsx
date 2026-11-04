@@ -12,7 +12,7 @@ import { RekberCard, RekberDetail } from "@/components/marketku/rekber-detail";
 import { BEARER_LABEL, errText, fmtRekberDate, rekberStats, rekberView, useMyRekber, type FeeBearer } from "@/lib/rekber";
 
 export const Route = createFileRoute("/rekber")({
-  validateSearch: (s: Record<string, unknown>): { t?: string } => (typeof s.t === "string" && /^[a-f0-9]{32}$/.test(s.t) ? { t: s.t } : {}),
+  validateSearch: (s: Record<string, unknown>): { t?: string } => { const t = s["t"]; return typeof t === "string" && /^[a-f0-9]{32}$/.test(t) ? { t } : {}; },
   head: () => pageMeta("Rekber Marketku — Rekening Bersama", "Titipkan dana ke Marketku sampai pembeli dan penjual selesai bertransaksi."),
   component: Rekber,
 });

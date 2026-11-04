@@ -12,7 +12,7 @@ export function RekberStatusPill({ d }: { d: RekberDeal }) {
   return <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cls}`}>{l}</span>;
 }
 
-export function RekberCard({ d, uid, onOpen }: { d: RekberDeal; uid?: string; onOpen: () => void }) {
+export function RekberCard({ d, uid, onOpen }: { d: RekberDeal; uid?: string | undefined; onOpen: () => void }) {
   const role = d.seller_id === uid ? "Penjual" : "Pembeli";
   return (
     <div className="rounded-2xl border bg-card p-4">
@@ -32,7 +32,7 @@ export function RekberCard({ d, uid, onOpen }: { d: RekberDeal; uid?: string; on
 }
 
 /** Detail body shared by Seller Center and buyer pages; actions are decided by the viewer's role. */
-export function RekberDetail({ d, uid, onDone }: { d: RekberDeal; uid?: string; onDone?: () => void }) {
+export function RekberDetail({ d, uid, onDone }: { d: RekberDeal; uid?: string | undefined; onDone?: () => void }) {
   const qc = useQueryClient();
   const v = rekberView(d);
   const isSeller = d.seller_id === uid;
