@@ -225,6 +225,13 @@
       "when": 1793794422453,
       "tag": "0031_public_store_vouchers",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793824044729,
+      "tag": "0032_rekber_deals",
+      "breakpoints": true
     }
   ]
 }

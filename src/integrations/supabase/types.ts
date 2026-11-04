@@ -1022,6 +1022,78 @@ export type Database = {
         }
         Relationships: []
       }
+      rekber_deals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          buyer_id: string | null
+          buyer_pays: number
+          code: string
+          completed_at: string | null
+          created_at: string
+          deposit_deadline: string
+          details: string | null
+          dispute_by: string | null
+          dispute_reason: string | null
+          fee: number
+          fee_bearer: string
+          funded_at: string | null
+          id: string
+          seller_id: string
+          seller_receives: number
+          share_token: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          buyer_id?: string | null
+          buyer_pays: number
+          code?: string
+          completed_at?: string | null
+          created_at?: string
+          deposit_deadline?: string
+          details?: string | null
+          dispute_by?: string | null
+          dispute_reason?: string | null
+          fee: number
+          fee_bearer: string
+          funded_at?: string | null
+          id?: string
+          seller_id: string
+          seller_receives: number
+          share_token?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          buyer_id?: string | null
+          buyer_pays?: number
+          code?: string
+          completed_at?: string | null
+          created_at?: string
+          deposit_deadline?: string
+          details?: string | null
+          dispute_by?: string | null
+          dispute_reason?: string | null
+          fee?: number
+          fee_bearer?: string
+          funded_at?: string | null
+          id?: string
+          seller_id?: string
+          seller_receives?: number
+          share_token?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seller_stores: {
         Row: {
           auto_withdraw: boolean
@@ -1503,6 +1575,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_resolve_rekber: {
+        Args: { p_id: string; p_note: string; p_release: boolean }
+        Returns: undefined
+      }
       admin_review_deposit: {
         Args: { p_approve: boolean; p_id: string; p_note?: string }
         Returns: undefined
@@ -1563,6 +1639,7 @@ export type Database = {
       buyer_confirm_order: { Args: { p_order: string }; Returns: undefined }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
+      cancel_rekber: { Args: { p_id: string }; Returns: undefined }
       category_product_counts: {
         Args: never
         Returns: {
@@ -1578,6 +1655,7 @@ export type Database = {
         }[]
       }
       claim_ad_voucher: { Args: { p_code: string }; Returns: number }
+      confirm_rekber: { Args: { p_id: string }; Returns: undefined }
       conversation_partner_seen: { Args: { p_id: string }; Returns: string }
       create_ad_campaign: {
         Args: {
@@ -1592,6 +1670,43 @@ export type Database = {
         Args: { p_amount: number; p_method?: string; p_proof: string }
         Returns: string
       }
+      create_rekber: {
+        Args: {
+          p_amount: number
+          p_details: string
+          p_fee_bearer: string
+          p_title: string
+        }
+        Returns: {
+          admin_note: string | null
+          amount: number
+          buyer_id: string | null
+          buyer_pays: number
+          code: string
+          completed_at: string | null
+          created_at: string
+          deposit_deadline: string
+          details: string | null
+          dispute_by: string | null
+          dispute_reason: string | null
+          fee: number
+          fee_bearer: string
+          funded_at: string | null
+          id: string
+          seller_id: string
+          seller_receives: number
+          share_token: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rekber_deals"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       credit_seller_for_order: { Args: { p_order: string }; Returns: undefined }
       credit_seller_for_order_now: {
         Args: { p_order: string }
@@ -1599,6 +1714,10 @@ export type Database = {
       }
       delete_message: {
         Args: { p_for_all: boolean; p_id: string }
+        Returns: undefined
+      }
+      dispute_rekber: {
+        Args: { p_id: string; p_reason: string }
         Returns: undefined
       }
       edit_review: {
@@ -1630,6 +1749,7 @@ export type Database = {
         }[]
       }
       pay_order_with_wallet: { Args: { p_checkout: string }; Returns: number }
+      pay_rekber: { Args: { p_token: string }; Returns: number }
       place_order: {
         Args: {
           p_items: Json
@@ -1670,6 +1790,27 @@ export type Database = {
         }[]
       }
       record_product_view: { Args: { p_product: string }; Returns: undefined }
+      rekber_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          amount: number
+          buyer_pays: number
+          code: string
+          created_at: string
+          deposit_deadline: string
+          details: string
+          fee: number
+          fee_bearer: string
+          id: string
+          is_buyer: boolean
+          is_seller: boolean
+          status: string
+          store_name: string
+          store_slug: string
+          taken: boolean
+          title: string
+        }[]
+      }
       release_seller_holds: { Args: never; Returns: undefined }
       request_withdrawal: {
         Args: { p_auto?: boolean; p_same_day?: boolean }
