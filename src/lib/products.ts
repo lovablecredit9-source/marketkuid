@@ -14,6 +14,31 @@ export const PRODUCT_TYPES = [
 ] as const;
 export type ProductType = (typeof PRODUCT_TYPES)[number]["value"];
 
+export const CODE_SUBTYPES = [
+  { value: "lisensi", label: "Kode Lisensi" },
+  { value: "voucher", label: "Voucher / Kupon" },
+  { value: "serial", label: "Serial Number" },
+] as const;
+export type CodeSubtype = (typeof CODE_SUBTYPES)[number]["value"];
+export type StockMode = "normal" | "unlimited" | "reusable";
+
+/** Stock heading, hint and example per product type — mirrors marketku.id. */
+export function stockFormat(type: string, customFields: string[] = []): { title: string; hint: string; example: string } {
+  switch (type) {
+    case "link": return { title: "Stok — Link", hint: "1 link per baris", example: "https://example.com/akses123" };
+    case "code": return { title: "Stok — Code", hint: "1 kode per baris", example: "ABCD-1234-EFGH" };
+    case "email_2fa": return { title: "Stok — Email:Pass:2FA", hint: "Format: email:password:2fa (1 akun per baris)", example: "email@contoh.com:password123:2fa_secret" };
+    case "email_pin": return { title: "Stok — Email:Pass:Profile:Pin", hint: "Format: email:password:profile:pin (1 akun per baris)", example: "email@contoh.com:password123:ProfileName:1234" };
+    case "file": return { title: "Stok — File / Script", hint: "1 link file per baris (1 file = 1 stok)", example: "https://drive.google.com/file/..." };
+    case "otp": return { title: "Stok — OTP Service", hint: "1 nomor / layanan per baris", example: "WhatsApp Indonesia" };
+    case "custom": {
+      const f = customFields.filter((x) => x.trim());
+      return { title: "Stok — Custom Field", hint: "1 stok per baris, pisahkan tiap field dengan |", example: f.length ? f.map((x) => x.trim()).join("|") : "value1|value2|value3" };
+    }
+    default: return { title: "Stok", hint: "1 stok per baris", example: "isi stok" };
+  }
+}
+
 export type WarrantyMode = "hari" | "login" | "backfree";
 export type Warranty = { mode: WarrantyMode; days: number | null; max_claims: number };
 export type Discount = { min_order: number; kind: "reguler" | "bulk"; percent: number; max_per_user: number };
@@ -61,10 +86,10 @@ export function validateInfo(info: InfoDraft): string[] {
   return errs;
 }
 
-export function validateDetail(contact: string, estimate: string): string[] {
+export function validateDetail(contact: string, estimate: string, needEstimate = true): string[] {
   const errs: string[] = [];
   if (contact.trim().length < 3) errs.push("Kontak seller wajib diisi");
-  if (estimate.trim().length < 2) errs.push("Estimasi durasi pengerjaan wajib diisi");
+  if (needEstimate && estimate.trim().length < 2) errs.push("Estimasi durasi wajib diisi");
   return errs;
 }
 
