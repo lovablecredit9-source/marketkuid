@@ -50,6 +50,8 @@ function Index() {
 
   const liked = useMemo(() => [...list].sort((a, b) => b.likes - a.likes || b.sold_count - a.sold_count || b.rating.avg - a.rating.avg), [list]);
   const best = useMemo(() => list.filter((p) => p.sold_count > 0).sort((a, b) => b.sold_count - a.sold_count).slice(0, 10), [list]);
+  const trending = useMemo(() => list.filter((p) => p.sold_count > 0 || p.rating.count > 0).sort((a, b) => (b.rating.count * 2 + b.sold_count + b.likes) - (a.rating.count * 2 + a.sold_count + a.likes)).slice(0, 10), [list]);
+  const discounted = useMemo(() => list.filter((p) => p.basePrice > p.minPrice).sort((a, b) => (1 - b.minPrice / b.basePrice) - (1 - a.minPrice / a.basePrice)).slice(0, 10), [list]);
   const fresh = useMemo(() => [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10), [list]);
 
   return (
@@ -79,6 +81,12 @@ function Index() {
           <>
             <SponsoredSection />
 
+            {trending.length > 0 && (
+              <Section icon={TrendingUp} tone="bg-destructive text-primary-foreground" kicker="Explore Marketku" title="Trending Now" to="/cari">
+                <Rail>{trending.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
+              </Section>
+            )}
+
             <LikedSection items={liked} urlOf={urlOf} />
 
             <Section icon={TrendingUp} tone="bg-warning text-foreground" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
@@ -88,6 +96,12 @@ function Index() {
                 <p className="px-3 pb-4 text-sm text-muted-foreground">Belum ada produk yang terjual. Produk terlaris muncul setelah ada transaksi.</p>
               )}
             </Section>
+
+            {discounted.length > 0 && (
+              <Section icon={BadgePercent} tone="bg-destructive text-primary-foreground" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/cari">
+                <Rail>{discounted.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
+              </Section>
+            )}
 
             <Section icon={Clock} tone="bg-success text-primary-foreground" kicker="Baru ditambahkan" title="Produk Baru" to="/cari">
               <Rail>{fresh.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
