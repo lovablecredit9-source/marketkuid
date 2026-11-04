@@ -11,7 +11,7 @@ import {
   validateVariants, warrantyLabel, useCategories, useImageUrls, uploadProductImage, categoryPath,
   type ProductType, type VariantDraft, type Warranty, type Discount, type Bonus,
 } from "@/lib/products";
-import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, GaransiSheet, KategoriSheet, fieldCls } from "@/components/marketku/product-form";
+import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, FloatTextarea, GaransiSheet, KategoriSheet, fieldCls } from "@/components/marketku/product-form";
 import { soon } from "@/components/marketku/shell";
 import { SellerLoading } from "@/components/marketku/loading";
 

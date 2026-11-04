@@ -337,3 +337,16 @@
 .store-profile article button { height: 24px; width: 27px; }
 .store-profile article button svg { width: 13px; height: 13px; }
 .store-profile article p.text-muted-foreground { font-size: 9px; }
+
+/* Floating wave label (marketku.id seller form) */
+.mk-float { position: relative; width: 100%; }
+.mk-float .mk-input { display: block; width: 100%; border: 1px solid var(--border); border-radius: 0.5rem; background: color-mix(in oklab, var(--muted) 40%, transparent); padding: 0.8rem 1rem; font-size: 0.875rem; outline: none; transition: border-color .2s, box-shadow .2s; }
+.mk-float.mk-area .mk-input { min-height: 5.5rem; }
+.mk-float.is-focused .mk-input { border-color: var(--primary); }
+.mk-float .mk-label { position: absolute; left: 0.75rem; top: 1.4rem; transform: translateY(-50%); display: flex; padding: 0 0.25rem; pointer-events: none; font-size: 0.8rem; color: var(--muted-foreground); border-radius: 4px; transition: top .2s, font-size .2s, background .2s; z-index: 2; }
+.mk-float .mk-char { display: inline-block; transition: all .2s ease; transition-delay: calc(var(--i) * .05s); }
+.mk-float.is-floated .mk-label { top: 0; font-size: 0.68rem; background: var(--card); }
+.mk-float.is-floated .mk-char { font-size: 0.68rem; }
+.mk-float.is-focused .mk-char { color: var(--primary); }
+@keyframes mk-wobble { 0%{transform:translate(0)} 25%{transform:translate(-4px) rotateX(6deg)} 50%{transform:translate(4px) rotateX(-6deg)} 75%{transform:translate(-3px) rotateX(4deg)} 100%{transform:translate(0)} }
+.mk-float .mk-input.mk-missing { border-color: rgb(255 213 0) !important; box-shadow: 0 0 0 2px rgb(255 213 0 / .3); animation: mk-wobble .6s ease; }
