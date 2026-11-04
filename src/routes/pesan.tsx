@@ -66,7 +66,7 @@ function Pesan() {
     const p = media.data?.[c.seller_id]?.avatar_path;
     return p ? avatarUrls.data?.[p] : undefined;
   };
-  const btn = (on: boolean) => `grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${on ? "border-primary text-primary ring-2 ring-primary/20" : ""}`;
+  const btn = (on: boolean) => `grid h-9 w-9 place-items-center rounded-full border bg-background/40 transition active:scale-90 ${on ? "border-primary text-primary ring-2 ring-primary/20" : ""}`;
   const remove = async () => {
     const { error } = await supabase.rpc("hide_conversations", { p_ids: picked });
     if (error) { toast.error("Gagal menghapus chat"); return; }
@@ -83,11 +83,11 @@ function Pesan() {
   const RoleIcon = role === "seller" ? Store : User;
 
   return (
-    <AppShell>
-      <div className="px-3 pt-3">
-        <div className="min-h-[70vh] rounded-2xl border bg-card">
-          <div className="flex items-center gap-2 border-b p-4">
-            <h1 className="text-2xl font-bold">Chat</h1>
+    <AppShell showSupport={false}>
+      <div className="px-4 pt-2">
+        <div className="min-h-[70vh] overflow-hidden rounded-xl border bg-card">
+          <div className="flex items-center gap-2 px-4 pb-4 pt-6">
+            <h1 className="text-[22px] font-bold tracking-tight">Chat</h1>
             <span key={unread} className="mk-badge-pop grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">{unread}</span>
             <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-primary">{role === "seller" ? "Seller" : "Pembeli"}</span>
             <div className="ml-auto flex gap-1.5">
@@ -118,28 +118,28 @@ function Pesan() {
               <input autoFocus={search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari seller atau produk..." className="w-full bg-transparent text-sm outline-none" />
             </label>
           )}
-          <div className="flex gap-2 p-4 pb-2">
+          <div className="flex gap-2 border-b px-4 pb-3 pt-1">
             {(["semua", "belum"] as const).map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${tab === t ? "border-primary/30 bg-accent text-primary" : "bg-card"}`}>
+              <button key={t} onClick={() => setTab(t)} className={`rounded-full border px-3 py-1.5 text-[13px] font-semibold ${tab === t ? "border-primary/40 bg-accent text-primary" : "bg-card"}`}>
                 {t === "semua" ? "Semua" : "Belum dibaca"}
               </button>
             ))}
           </div>
           {loadingInbox ? <LoadingLine label="Memuat inbox..." className="border-t px-6 py-16" /> : <>
-          <div className="space-y-2 px-3 pb-3">
+          <div className="space-y-0.5 px-1.5 py-1.5">
             {list.map((c) => {
               const on = picked.includes(c.id);
               const inner = (
                 <>
                   {select && <span className={`grid h-5 w-5 shrink-0 place-items-center rounded border-2 ${on ? "border-primary bg-primary" : ""}`} />}
-                  <ChatAvatar name={c.name} url={avatarOf(c)} />
+                  <ChatAvatar name={c.name} url={avatarOf(c)} size="h-11 w-11" />
                   <span className="min-w-0 flex-1">
-                    <span className="flex justify-between gap-2"><b className={`truncate text-[15px] ${c.unread > 0 ? "text-primary" : ""}`}>{c.name}</b><span className="shrink-0 text-xs text-muted-foreground">{timeLabel(c.last_at)}</span></span>
-                    <span className="mt-0.5 flex items-start gap-2"><span className="line-clamp-2 flex-1 text-sm text-muted-foreground">{c.preview}</span>{c.unread > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{c.unread}</span>}</span>
+                    <span className="flex justify-between gap-2"><b className={`truncate text-[15px] font-semibold ${c.unread > 0 ? "text-primary" : ""}`}>{c.name}</b><span className="shrink-0 text-xs text-muted-foreground">{timeLabel(c.last_at)}</span></span>
+                    <span className="mt-0.5 flex items-start gap-2"><span className="line-clamp-2 flex-1 text-[13px] leading-snug text-muted-foreground">{c.preview}</span>{c.unread > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{c.unread}</span>}</span>
                   </span>
                 </>
               );
-              const cls = `mk-pop-in flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99] ${c.unread > 0 ? "border-primary/20 bg-accent/60" : "border-transparent"}`;
+              const cls = `mk-pop-in flex w-full items-start gap-3 rounded-2xl border px-3 py-3.5 text-left transition active:scale-[0.99] ${c.unread > 0 ? "border-primary/40 bg-accent/60" : "border-transparent"}`;
               return select
                 ? <button key={c.id} onClick={() => setPicked(on ? picked.filter((x) => x !== c.id) : [...picked, c.id])} className={cls}>{inner}</button>
                 : <Link key={c.id} to="/chat/$id" params={{ id: c.id }} className={cls}>{inner}</Link>;
