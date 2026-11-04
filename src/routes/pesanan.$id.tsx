@@ -64,6 +64,9 @@ function Pesanan() {
   const chat = async (seller: string) => {
     const { data, error } = await supabase.rpc("start_conversation", { p_seller: seller });
     if (error || !data) { toast.error(dbError(error)); return; }
+    // Same as marketku.id: opening chat from an order sends a first message naming the order.
+    const no = orders.find((x) => x.seller_id === seller)?.order_no;
+    if (no && user) await supabase.from("messages").insert({ conversation_id: data, sender_id: user.id, body: `Halo, saya ingin menanyakan pesanan M-${no}.` });
     navigate({ to: "/chat/$id", params: { id: data } });
   };
 
