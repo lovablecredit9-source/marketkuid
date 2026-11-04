@@ -187,7 +187,7 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
 type SellerPath =
   | "/seller" | "/seller/produk" | "/seller/saldo" | "/seller/transaksi" | "/seller/withdraw" | "/seller/pembayaran"
   | "/seller/rekber" | "/seller/garansi" | "/seller/bot" | "/seller/voucher" | "/seller/broadcast" | "/seller/panduan"
-  | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/seller/chat" | "/dispute";
+  | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/seller/chat" | "/seller/dispute" | "/seller/pendapatan" | "/dispute";
 type AdTab = "campaign" | "buat" | "performa" | "saldo" | undefined;
 type MenuItem = { label: string; icon: typeof Package; to?: SellerPath; badge?: string; children?: { label: string; tab: AdTab }[] };
 const menuGroups: { title: string; items: MenuItem[] }[] = [
@@ -197,10 +197,10 @@ const menuGroups: { title: string; items: MenuItem[] }[] = [
     { label: "Transaksi", icon: ShoppingBag, to: "/seller/transaksi" },
     { label: "Pelanggan", icon: Users, to: "/seller/pelanggan" },
     { label: "Inbox Chat", icon: MessageCircle, to: "/seller/chat" },
-    { label: "Dispute Pesanan", icon: AlertTriangle, to: "/dispute" },
+    { label: "Dispute Pesanan", icon: AlertTriangle, to: "/seller/dispute" },
   ] },
   { title: "KEUANGAN", items: [
-    { label: "Pendapatan Saya", icon: Coins, to: "/seller/withdraw" },
+    { label: "Pendapatan Saya", icon: Coins, to: "/seller/pendapatan" },
     { label: "Withdraw", icon: Wallet, to: "/seller/withdraw" },
     { label: "Credits", icon: Coins, to: "/seller/saldo" },
     { label: "Kontrol Pembayaran", icon: CreditCard, to: "/seller/pembayaran" },
