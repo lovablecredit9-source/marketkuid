@@ -1646,6 +1646,18 @@ export type Database = {
           product_id: string
         }[]
       }
+      public_store_vouchers: {
+        Args: { p_owner: string }
+        Returns: {
+          code: string
+          kind: string
+          max_discount: number
+          min_spend: number
+          name: string
+          value: number
+          value_type: string
+        }[]
+      }
       public_stores: {
         Args: { p_ids: string[] }
         Returns: {
