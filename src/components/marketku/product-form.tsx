@@ -1,4 +1,5 @@
-import { useState, type ReactNode, type InputHTMLAttributes } from "react";
+import { useState, type ReactNode, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import type React from "react";
 import { AlertTriangle, Check, Folder, Search, Trash2, ShieldCheck, Percent, Gift, ChevronRight, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { SellerSheet } from "@/components/marketku/seller-ui";
@@ -8,16 +9,37 @@ import { categoryIcon } from "@/lib/category-icons";
 export const fieldCls =
   "w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary";
 
-/** Input with a small label sitting on the top border once it has a value. */
-export function FloatInput({ label, value, className = "", alwaysFloat, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; value: string; alwaysFloat?: boolean }) {
+function WaveLabel({ text }: { text: string }) {
+  return (
+    <label className="mk-label" aria-hidden="true">
+      {Array.from(text).map((c, i) => <span key={i} className="mk-char" style={{ ["--i" as string]: i } as React.CSSProperties}>{c === " " ? "\u00a0" : c}</span>)}
+    </label>
+  );
+}
+
+/** Floating label like marketku.id: letters glide up one by one and turn blue on focus; `missing` = yellow wobble. */
+export function FloatInput({ label, value, className = "", alwaysFloat, missing, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; value: string; alwaysFloat?: boolean; missing?: boolean }) {
   const [focused, setFocused] = useState(false);
   const floated = alwaysFloat || focused || value !== "";
   return (
-    <div className={`relative ${className}`}>
-      <input {...rest} value={value}
+    <div className={`mk-float ${floated ? "is-floated" : ""} ${focused ? "is-focused" : ""} ${className}`}>
+      <input {...rest} value={value} placeholder=" " aria-label={rest["aria-label"] ?? label}
         onFocus={(e) => { setFocused(true); rest.onFocus?.(e); }}
-        onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }} placeholder={floated ? rest.placeholder : label} className={`${fieldCls} ${floated ? "text-base" : ""} ${focused ? "border-primary" : ""}`} />
-      {floated && <span className="pointer-events-none absolute -top-2 left-3 bg-card px-1 text-[11px] font-medium leading-none text-primary">{label}</span>}
+        onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }} className={`mk-input ${missing && !value ? "mk-missing" : ""}`} />
+      <WaveLabel text={label} />
+    </div>
+  );
+}
+
+export function FloatTextarea({ label, value, className = "", missing, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; value: string; missing?: boolean }) {
+  const [focused, setFocused] = useState(false);
+  const floated = focused || value !== "";
+  return (
+    <div className={`mk-float mk-area ${floated ? "is-floated" : ""} ${focused ? "is-focused" : ""} ${className}`}>
+      <textarea {...rest} value={value} placeholder=" " aria-label={label}
+        onFocus={(e) => { setFocused(true); rest.onFocus?.(e); }}
+        onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }} className={`mk-input resize-none ${missing && !value ? "mk-missing" : ""}`} />
+      <WaveLabel text={label} />
     </div>
   );
 }
