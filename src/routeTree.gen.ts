@@ -41,11 +41,13 @@ import { Route as SellerAnalitikRouteImport } from './routes/seller.analitik'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
 import { Route as SellerChatRouteImport } from './routes/seller.chat'
+import { Route as SellerDisputeRouteImport } from './routes/seller.dispute'
 import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
 import { Route as SellerIklanRouteImport } from './routes/seller.iklan'
 import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
 import { Route as SellerPelangganRouteImport } from './routes/seller.pelanggan'
 import { Route as SellerPembayaranRouteImport } from './routes/seller.pembayaran'
+import { Route as SellerPendapatanRouteImport } from './routes/seller.pendapatan'
 import { Route as SellerPengaturanRouteImport } from './routes/seller.pengaturan'
 import { Route as SellerProdukRouteImport } from './routes/seller.produk'
 import { Route as SellerProgramRouteImport } from './routes/seller.program'
@@ -221,6 +223,11 @@ const SellerChatRoute = SellerChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerDisputeRoute = SellerDisputeRouteImport.update({
+  id: '/dispute',
+  path: '/dispute',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerGaransiRoute = SellerGaransiRouteImport.update({
   id: '/garansi',
   path: '/garansi',
@@ -244,6 +251,11 @@ const SellerPelangganRoute = SellerPelangganRouteImport.update({
 const SellerPembayaranRoute = SellerPembayaranRouteImport.update({
   id: '/pembayaran',
   path: '/pembayaran',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPendapatanRoute = SellerPendapatanRouteImport.update({
+  id: '/pendapatan',
+  path: '/pendapatan',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerPengaturanRoute = SellerPengaturanRouteImport.update({
@@ -349,11 +361,13 @@ export interface FileRoutesByFullPath {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
+  '/seller/dispute': typeof SellerDisputeRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pendapatan': typeof SellerPendapatanRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/program': typeof SellerProgramRoute
@@ -401,11 +415,13 @@ export interface FileRoutesByTo {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
+  '/seller/dispute': typeof SellerDisputeRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pendapatan': typeof SellerPendapatanRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/program': typeof SellerProgramRoute
@@ -455,11 +471,13 @@ export interface FileRoutesById {
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
+  '/seller/dispute': typeof SellerDisputeRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
   '/seller/pelanggan': typeof SellerPelangganRoute
   '/seller/pembayaran': typeof SellerPembayaranRoute
+  '/seller/pendapatan': typeof SellerPendapatanRoute
   '/seller/pengaturan': typeof SellerPengaturanRoute
   '/seller/produk': typeof SellerProdukRoute
   '/seller/program': typeof SellerProgramRoute
@@ -510,11 +528,13 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/chat'
+    | '/seller/dispute'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
+    | '/seller/pendapatan'
     | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/program'
@@ -562,11 +582,13 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/chat'
+    | '/seller/dispute'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
+    | '/seller/pendapatan'
     | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/program'
@@ -615,11 +637,13 @@ export interface FileRouteTypes {
     | '/seller/bot'
     | '/seller/broadcast'
     | '/seller/chat'
+    | '/seller/dispute'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
     | '/seller/pelanggan'
     | '/seller/pembayaran'
+    | '/seller/pendapatan'
     | '/seller/pengaturan'
     | '/seller/produk'
     | '/seller/program'
@@ -896,6 +920,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerChatRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/dispute': {
+      id: '/seller/dispute'
+      path: '/dispute'
+      fullPath: '/seller/dispute'
+      preLoaderRoute: typeof SellerDisputeRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/garansi': {
       id: '/seller/garansi'
       path: '/garansi'
@@ -929,6 +960,13 @@ declare module '@tanstack/react-router' {
       path: '/pembayaran'
       fullPath: '/seller/pembayaran'
       preLoaderRoute: typeof SellerPembayaranRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/pendapatan': {
+      id: '/seller/pendapatan'
+      path: '/pendapatan'
+      fullPath: '/seller/pendapatan'
+      preLoaderRoute: typeof SellerPendapatanRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/pengaturan': {
@@ -1049,11 +1087,13 @@ interface SellerRouteChildren {
   SellerBotRoute: typeof SellerBotRoute
   SellerBroadcastRoute: typeof SellerBroadcastRoute
   SellerChatRoute: typeof SellerChatRoute
+  SellerDisputeRoute: typeof SellerDisputeRoute
   SellerGaransiRoute: typeof SellerGaransiRoute
   SellerIklanRoute: typeof SellerIklanRoute
   SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
   SellerPelangganRoute: typeof SellerPelangganRoute
   SellerPembayaranRoute: typeof SellerPembayaranRoute
+  SellerPendapatanRoute: typeof SellerPendapatanRoute
   SellerPengaturanRoute: typeof SellerPengaturanRoute
   SellerProdukRoute: typeof SellerProdukRoute
   SellerProgramRoute: typeof SellerProgramRoute
@@ -1072,11 +1112,13 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerBotRoute: SellerBotRoute,
   SellerBroadcastRoute: SellerBroadcastRoute,
   SellerChatRoute: SellerChatRoute,
+  SellerDisputeRoute: SellerDisputeRoute,
   SellerGaransiRoute: SellerGaransiRoute,
   SellerIklanRoute: SellerIklanRoute,
   SellerPanduanRoute: SellerPanduanRouteWithChildren,
   SellerPelangganRoute: SellerPelangganRoute,
   SellerPembayaranRoute: SellerPembayaranRoute,
+  SellerPendapatanRoute: SellerPendapatanRoute,
   SellerPengaturanRoute: SellerPengaturanRoute,
   SellerProdukRoute: SellerProdukRoute,
   SellerProgramRoute: SellerProgramRoute,
