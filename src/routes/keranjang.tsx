@@ -32,12 +32,12 @@ function Keranjang() {
   const recItems = (rec.data ?? []).filter((p) => !rows.some((r) => r.product_id === p.id)).slice(0, 4);
 
   if (ready && !user) {
-    return <AppShell><div className="space-y-4 px-3 pt-4"><h1 className="text-lg font-bold">Keranjang</h1>
+    return <AppShell showSupport={false}><div className="space-y-4 px-3 pt-4"><h1 className="text-lg font-bold">Keranjang</h1>
       <EmptyState icon={ShoppingCart} title="Masuk untuk melihat keranjang" desc="Keranjang tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
   }
 
   return (
-    <AppShell>
+    <AppShell showSupport={false}>
       <div className="space-y-4 px-3 pt-4 pb-24">
         <h1 className="text-lg font-bold">Keranjang</h1>
         {rows.length === 0 && !cart.isLoading ? (
