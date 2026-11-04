@@ -42,7 +42,7 @@ function Rekber() {
         {ready && !user ? (
           <div className="rounded-2xl border bg-card px-6 py-10 text-center">
             <p className="font-bold">Masuk untuk melihat rekber</p>
-            <Link to="/masuk" className="mt-3 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Masuk</Link>
+            <Link to="/login" className="mt-3 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Masuk</Link>
           </div>
         ) : (
           <>
@@ -99,7 +99,7 @@ function JoinCard({ token }: { token: string }) {
     <div className="rounded-2xl border border-primary/40 bg-card p-4 text-sm">
       <p className="font-bold">Kamu diundang ke rekber</p>
       <p className="mt-1 text-muted-foreground">Masuk dulu untuk melihat dan membayar rekber ini.</p>
-      <Link to="/masuk" className="mt-3 inline-block rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground">Masuk</Link>
+      <Link to="/login" className="mt-3 inline-block rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground">Masuk</Link>
     </div>
   );
   if (q.isPending) return <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
