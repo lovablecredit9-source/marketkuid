@@ -811,6 +811,7 @@ export type Database = {
           id: string
           owner_id: string
           product_id: string
+          reuse_at: string | null
           status: string
           variant_id: string
         }
@@ -820,6 +821,7 @@ export type Database = {
           id?: string
           owner_id: string
           product_id: string
+          reuse_at?: string | null
           status?: string
           variant_id: string
         }
@@ -829,6 +831,7 @@ export type Database = {
           id?: string
           owner_id?: string
           product_id?: string
+          reuse_at?: string | null
           status?: string
           variant_id?: string
         }
@@ -916,7 +919,9 @@ export type Database = {
           admin_hidden: boolean
           admin_note: string | null
           category_id: string | null
+          code_subtype: string | null
           created_at: string
+          custom_fields: string[]
           description: string
           id: string
           images: string[]
@@ -927,6 +932,7 @@ export type Database = {
           seller_contact: string | null
           sold_count: number
           status: string
+          stock_mode: string
           updated_at: string
           usage_guide: string
           view_count: number
@@ -936,7 +942,9 @@ export type Database = {
           admin_hidden?: boolean
           admin_note?: string | null
           category_id?: string | null
+          code_subtype?: string | null
           created_at?: string
+          custom_fields?: string[]
           description?: string
           id?: string
           images?: string[]
@@ -947,6 +955,7 @@ export type Database = {
           seller_contact?: string | null
           sold_count?: number
           status?: string
+          stock_mode?: string
           updated_at?: string
           usage_guide?: string
           view_count?: number
@@ -956,7 +965,9 @@ export type Database = {
           admin_hidden?: boolean
           admin_note?: string | null
           category_id?: string | null
+          code_subtype?: string | null
           created_at?: string
+          custom_fields?: string[]
           description?: string
           id?: string
           images?: string[]
@@ -967,6 +978,7 @@ export type Database = {
           seller_contact?: string | null
           sold_count?: number
           status?: string
+          stock_mode?: string
           updated_at?: string
           usage_guide?: string
           view_count?: number
@@ -1856,6 +1868,7 @@ export type Database = {
         }[]
       }
       start_conversation: { Args: { p_seller: string }; Returns: string }
+      stock_available: { Args: { p_variant: string }; Returns: number }
       store_ban_status: { Args: { p_owner: string }; Returns: boolean }
       store_by_slug: {
         Args: { p_slug: string }

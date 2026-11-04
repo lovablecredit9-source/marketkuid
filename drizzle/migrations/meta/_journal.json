@@ -232,6 +232,13 @@
       "when": 1793824044729,
       "tag": "0032_rekber_deals",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793826585080,
+      "tag": "0033_stock_modes_code_subtype",
+      "breakpoints": true
     }
   ]
 }
