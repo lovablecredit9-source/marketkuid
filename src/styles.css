@@ -350,3 +350,6 @@
 .mk-float.is-focused .mk-char { color: var(--primary); }
 @keyframes mk-wobble { 0%{transform:translate(0)} 25%{transform:translate(-4px) rotateX(6deg)} 50%{transform:translate(4px) rotateX(-6deg)} 75%{transform:translate(-3px) rotateX(4deg)} 100%{transform:translate(0)} }
 .mk-float .mk-input.mk-missing { border-color: rgb(255 213 0) !important; box-shadow: 0 0 0 2px rgb(255 213 0 / .3); animation: mk-wobble .6s ease; }
+@keyframes mk-pop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.mk-pop { animation: mk-pop-in .25s ease; }
+.mk-missing-plain { border-color: rgb(255 213 0) !important; box-shadow: 0 0 0 2px rgb(255 213 0 / .3); animation: mk-wobble .6s ease; }
