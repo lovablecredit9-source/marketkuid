@@ -27,6 +27,7 @@ const TABS = [
   { key: "deposit", label: "Deposit", icon: Wallet },
   { key: "bayar", label: "Bayar Order", icon: QrCode },
   { key: "withdraw", label: "Withdraw", icon: Landmark },
+  { key: "rekber", label: "Rekber", icon: ShieldCheck },
   { key: "pembayaran", label: "Metode", icon: CreditCard },
   { key: "pengguna", label: "Pengguna", icon: Users },
   { key: "toko", label: "Toko", icon: Store },
@@ -105,6 +106,7 @@ function Admin() {
           {tab === "deposit" && <Deposits />}
           {tab === "bayar" && <OrderPaymentsTab />}
           {tab === "withdraw" && <WithdrawalsTab />}
+          {tab === "rekber" && <RekberTab />}
           {tab === "pembayaran" && <PaymentMethods />}
           {tab === "pengguna" && <UsersTab />}
           {tab === "toko" && <StoresTab />}
@@ -926,6 +928,82 @@ function LogsTab() {
             </li>
           ))}
         </ol>
+      )}
+    </>
+  );
+}
+
+/* ---------- Rekber (escrow) ---------- */
+
+function RekberTab() {
+  const qc = useQueryClient();
+  const [filter, setFilter] = useState<"aktif" | "sengketa" | "all">("aktif");
+  const [pick, setPick] = useState<{ id: string; release: boolean } | null>(null);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const list = useQuery({
+    queryKey: ["admin_rekber", filter],
+    queryFn: async () => {
+      let q = supabase.from("rekber_deals").select("*").order("created_at", { ascending: false }).limit(200);
+      if (filter === "aktif") q = q.in("status", ["ditahan", "sengketa"]);
+      if (filter === "sengketa") q = q.eq("status", "sengketa");
+      const { data, error } = await q;
+      if (error) throw error;
+      return data;
+    },
+  });
+  const resolve = async () => {
+    if (!pick) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("admin_resolve_rekber", { p_id: pick.id, p_release: pick.release, p_note: note });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(pick.release ? "Dana dicairkan ke penjual" : "Dana dikembalikan ke pembeli");
+    setPick(null); setNote("");
+    qc.invalidateQueries({ queryKey: ["admin_rekber"] });
+  };
+  const label: Record<string, [string, "muted" | "ok" | "bad" | "warn"]> = {
+    menunggu_deposit: ["Perlu deposit", "warn"], ditahan: ["Ditahan", "ok"], sengketa: ["Sengketa", "bad"],
+    selesai: ["Selesai", "ok"], dikembalikan: ["Dikembalikan", "muted"], dibatalkan: ["Dibatalkan", "muted"],
+  };
+  const rows = list.data ?? [];
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-hidden"><Chips value={filter} onChange={setFilter} items={[["aktif", "Dana ditahan"], ["sengketa", "Sengketa"], ["all", "Semua"]]} /></div>
+        <Refresh q={list} />
+      </div>
+      <p className="text-xs text-muted-foreground">Rekber yang sedang ditahan atau disengketakan. Cairkan ke penjual bila transaksi beres, atau kembalikan ke Saldo Marketku pembeli.</p>
+      {list.isPending ? <Loading label="Memuat rekber..." /> : rows.length === 0 ? <Empty text="Tidak ada rekber di sini." /> : rows.map((d) => {
+        const [l, tone] = label[d.status] ?? ["-", "muted"];
+        return (
+          <div key={d.id} className="rounded-2xl border bg-card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0"><p className="truncate text-sm font-semibold">{d.title}</p><p className="text-xs text-muted-foreground">{d.code} • {fmtDate(d.created_at)}</p></div>
+              <Pill tone={tone}>{l}</Pill>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="rounded-xl bg-muted/50 p-2"><p className="text-muted-foreground">Dibayar</p><p className="font-semibold">{rupiah(Number(d.buyer_pays))}</p></div>
+              <div className="rounded-xl bg-muted/50 p-2"><p className="text-muted-foreground">Biaya</p><p className="font-semibold">{rupiah(Number(d.fee))}</p></div>
+              <div className="rounded-xl bg-primary/10 p-2"><p className="text-muted-foreground">Ke penjual</p><p className="font-bold text-primary">{rupiah(Number(d.seller_receives))}</p></div>
+            </div>
+            {d.details && <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">{d.details}</p>}
+            {d.dispute_reason && <p className="mt-2 rounded-xl bg-destructive/10 p-2 text-xs"><b className="text-destructive">Sengketa ({d.dispute_by === d.seller_id ? "penjual" : "pembeli"}):</b> {d.dispute_reason}</p>}
+            {d.admin_note && <p className="mt-1.5 text-xs text-muted-foreground">Catatan: {d.admin_note}</p>}
+            {(d.status === "ditahan" || d.status === "sengketa") && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button onClick={() => setPick({ id: d.id, release: false })} className="flex items-center justify-center gap-1 rounded-xl border border-destructive/40 py-2 text-sm font-semibold text-destructive"><X className="h-4 w-4" /> Kembalikan</button>
+                <button onClick={() => setPick({ id: d.id, release: true })} className="flex items-center justify-center gap-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground"><Check className="h-4 w-4" /> Cairkan</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {pick && (
+        <Sheet title={pick.release ? "Cairkan ke penjual" : "Kembalikan ke pembeli"} onClose={() => setPick(null)}>
+          <label className="block text-xs font-semibold text-muted-foreground">Catatan (dilihat kedua pihak)<textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. bukti serah terima lengkap" className={inputCls} /></label>
+          <button disabled={busy} onClick={() => void resolve()} className={`mt-4 w-full rounded-xl py-2.5 text-sm font-bold disabled:opacity-60 ${pick.release ? "bg-primary text-primary-foreground" : "bg-destructive text-white"}`}>{busy ? "Memproses..." : pick.release ? "Cairkan Dana" : "Kembalikan Dana"}</button>
+        </Sheet>
       )}
     </>
   );
