@@ -124,7 +124,12 @@ function ProdukDetail() {
 
         <section className="space-y-2.5 bg-card px-3.5 pb-3 pt-3.5">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-bold leading-none text-primary"><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></p>
+            <p className="flex flex-wrap items-baseline gap-x-1.5 font-bold leading-none text-primary"><span><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></span>
+              {v && Number(v.price) * qty > price && (<>
+                <span className="text-[12px] font-normal text-muted-foreground line-through">{rpBuyer(Number(v.price) * qty)}</span>
+                <span className="rounded bg-destructive/10 px-1 py-0.5 text-[10.5px] text-destructive">{Math.round((1 - price / (Number(v.price) * qty)) * 100)}%</span>
+              </>)}
+            </p>
             <div className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
               <span>{p.sold_count} terjual</span>
               <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="transition active:scale-90"><Heart className={`h-[18px] w-[18px] ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
@@ -145,6 +150,10 @@ function ProdukDetail() {
                       className={`relative rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition active:scale-95 ${on ? "border-primary bg-accent text-primary ring-1 ring-primary" : ""} ${empty ? "border-destructive/30 bg-destructive/5 text-muted-foreground" : ""}`}>
                       {empty && <span className="absolute -top-2 right-2 rounded bg-card px-1 text-[9px] text-destructive">Habis</span>}
                       {x.name}
+                      {(() => {
+                        const base = Number(x.price); const net = unitPrice(base, 1, x.discount as Discount);
+                        return base > net ? <span className="mt-0.5 block text-[9.5px] font-medium text-success">Hemat {rpBuyer(base - net)} · {Math.round((1 - net / base) * 100)}%</span> : null;
+                      })()}
                     </button>
                   );
                 })}
