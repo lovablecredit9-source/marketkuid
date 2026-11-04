@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
@@ -58,6 +59,16 @@ function ProdukDetail() {
     supabase.rpc("record_product_view", { p_product: id }).then(() => {}, () => {});
   }, [id]);
   const similar = useMarketProducts({ category: p?.category_id ?? null, limit: 12 });
+  const ranked = useMarketProducts({ category: p?.category_id ?? null, limit: 200 });
+  const vouchers = useQuery({
+    queryKey: ["store_vouchers", p?.owner_id],
+    enabled: !!p?.owner_id,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("public_store_vouchers", { p_owner: p!.owner_id });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
   const storeReviews = useReviews(p ? { seller: p.owner_id } : {});
   const media = useStoreMedia(p ? [p.owner_id] : []);
   const avatarPath = p ? media.data?.[p.owner_id]?.avatar_path ?? null : null;
@@ -97,6 +108,13 @@ function ProdukDetail() {
     try { if (navigator.share) await navigator.share({ title: p.name, url }); else { await navigator.clipboard.writeText(url); toast.success("Link produk disalin"); } } catch { /* dibatalkan */ }
   };
   const w = v?.warranty as Warranty | null;
+  // Peringkat terlaris di kategori yang sama — hanya tampil kalau produk sudah pernah terjual.
+  const rank = p.sold_count > 0 && ranked.data
+    ? [...ranked.data].sort((a, b) => b.sold_count - a.sold_count).findIndex((x) => x.id === p.id) + 1
+    : 0;
+  const copyVoucher = async (code: string) => {
+    try { await navigator.clipboard.writeText(code); toast.success(`Kode ${code} disalin`); } catch { toast(code); }
+  };
 
   return (
     <AppShell nav={false} header={false}>
@@ -136,7 +154,30 @@ function ProdukDetail() {
             </div>
           </div>
           <h1 className="text-[14.5px] font-bold leading-snug">{p.name}</h1>
-          <p className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] shadow-sm"><Star className="h-3.5 w-3.5 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] shadow-sm"><Star className="h-3.5 w-3.5 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
+            {rank > 0 && rank <= 10 && p.product_categories?.name && (
+              <span className="text-[11.5px] font-semibold text-warning">🏅 No. {rank} terlaris di {p.product_categories.name}</span>
+            )}
+          </div>
+
+          {(vouchers.data?.length ?? 0) > 0 && (
+            <div>
+              <p className="mb-1.5 text-[12px] font-semibold">Voucher Toko</p>
+              <div className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none]">
+                {vouchers.data!.map((vc) => (
+                  <button key={vc.code} type="button" onClick={() => void copyVoucher(vc.code)} aria-label={`Salin kode voucher ${vc.code}`}
+                    className="flex shrink-0 items-stretch overflow-hidden rounded-lg border border-primary/40 bg-accent text-left transition active:scale-95">
+                    <span className="flex flex-col justify-center px-2.5 py-1.5">
+                      <span className="text-[12px] font-bold text-primary">{vc.value_type === "percent" ? `Diskon ${Number(vc.value)}%` : `Potongan ${rpBuyer(Number(vc.value))}`}</span>
+                      <span className="text-[10px] text-muted-foreground">{Number(vc.min_spend) > 0 ? `Min. belanja ${rpBuyer(Number(vc.min_spend))}` : "Tanpa minimum belanja"}</span>
+                    </span>
+                    <span className="flex items-center border-l border-dashed border-primary/40 px-2 text-[10.5px] font-bold tracking-wide text-primary">{vc.code}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {p.variants.length > 0 && (
             <div>
