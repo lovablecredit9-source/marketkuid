@@ -36,7 +36,7 @@ function Checkout() {
     enabled: wanted.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase.from("product_variants")
-        .select("id, name, price, discount, image_url, warranty, products(id, name, images, owner_id, require_buyer_note)")
+        .select("id, name, price, discount, image_url, warranty, products(id, name, images, owner_id, require_buyer_note, product_type)")
         .in("id", wanted.map((w) => w.variant_id));
       if (error) throw error;
       const owners = [...new Set((data ?? []).map((d) => d.products?.owner_id).filter(Boolean) as string[])];
@@ -57,11 +57,12 @@ function Checkout() {
   const bal = wallet.data ?? 0;
   const lowSaldo = bal < subtotal;
   const noWarranty = lines.some((l) => !l.warranty);
+  const hasPre = lines.some((l) => l.products?.product_type === "preorder");
   const [ask, setAsk] = useState(false);
 
   const start = () => {
     if (!user) { navigate({ to: "/login" }); return; }
-    if (noWarranty) setAsk(true); else void pay();
+    if (noWarranty || hasPre) setAsk(true); else void pay();
   };
 
   const pay = async () => {
@@ -150,7 +151,8 @@ function Checkout() {
           <div role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} className="mx-auto w-full max-w-md rounded-t-3xl bg-card p-5 pb-7 shadow-2xl animate-in slide-in-from-bottom">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-warning text-primary-foreground"><TriangleAlert className="h-6 w-6" /></span>
             <p className="mt-4 text-lg font-bold">Konfirmasi sebelum membayar</p>
-            <p className="mt-1.5 text-sm text-muted-foreground">⚠️ Produk ini tidak memiliki garansi. Pastikan Anda sudah membaca dan memahami deskripsi produk sebelum membayar.</p>
+            {hasPre && <p className="mt-1.5 text-sm text-muted-foreground">🕐 Produk ini merupakan Pre-Order dan diproses secara manual oleh seller. Pastikan Anda sudah membaca dan memahami deskripsi produk sebelum membayar.</p>}
+            {noWarranty && <p className="mt-1.5 text-sm text-muted-foreground">⚠️ Produk ini tidak memiliki garansi. Pastikan Anda sudah membaca dan memahami deskripsi produk sebelum membayar.</p>}
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button onClick={() => setAsk(false)} className="rounded-xl border py-3 text-sm font-bold">Batal</button>
               <button onClick={() => void pay()} className="rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground">Lanjutkan</button>
