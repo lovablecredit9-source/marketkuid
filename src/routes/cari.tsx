@@ -50,13 +50,13 @@ function Cari() {
         </form>
         <div>
           <p className="flex items-center gap-1 text-xs font-bold tracking-wider text-primary"><Sparkles className="h-3 w-3" /> JELAJAHI MARKETKU</p>
-          <h1 className="text-xl font-bold">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
-          <p className="text-sm text-muted-foreground">{list.length} produk ditemukan</p>
+          <h1 className="mt-0.5 text-[19px] font-bold">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{list.length} produk ditemukan</p>
         </div>
-        <button onClick={() => setShow(!show)} className="flex w-full items-center gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm font-semibold transition active:scale-[0.98]">
+        <button onClick={() => setShow(!show)} className="flex w-full items-center gap-2 rounded-full border-0 bg-card px-4 py-2.5 text-[13px] font-medium shadow-sm transition active:scale-[0.98]">
           <SlidersHorizontal className="h-4 w-4" /> {show ? "Sembunyikan filter" : "Filter"}
         </button>
-        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Urutkan" className="w-full rounded-xl border bg-card px-3 py-2.5 text-sm font-semibold">
+        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Urutkan" className="w-full rounded-full border-0 bg-card px-4 py-2.5 text-[15px] font-bold shadow-sm">
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
 

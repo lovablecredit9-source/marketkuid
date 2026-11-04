@@ -72,10 +72,13 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
     </Link>
   );
   return (
-    <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <Link to="/produk/$id" params={{ id: p.id }} className="block">
-        <div className="relative">
+    <article className="overflow-hidden rounded-[20px] border bg-card shadow-sm">
+      <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5 pb-0">
+        <div className="relative overflow-hidden rounded-[14px]">
           <ProductImage url={url} alt={p.name} className={compact ? "aspect-square" : "aspect-[16/10]"} />
+          <button type="button" aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWish(); }} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/90 shadow-sm transition active:scale-90">
+            <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} />
+          </button>
           {(closed || out) && (
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-foreground/80 px-3 py-1 text-xs font-bold tracking-wider text-background">
               {closed ? "TOKO TUTUP" : "STOK HABIS"}
@@ -84,19 +87,16 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
         </div>
       </Link>
       <div className="p-3">
-        {p.category && <span className="inline-block rounded-md border px-2 py-0.5 text-[11px] text-muted-foreground">{p.category}</span>}
-        <Link to="/produk/$id" params={{ id: p.id }} className={`mt-1.5 block font-semibold leading-snug ${compact ? "line-clamp-2 text-sm" : "line-clamp-2"}`}>{p.name}</Link>
-        <PriceLine p={p} className="mt-1.5 font-bold" />
+        {p.category && <span className="inline-block rounded-full border bg-muted/60 px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">{p.category}</span>}
+        <Link to="/produk/$id" params={{ id: p.id }} className={`mt-2 block font-semibold uppercase leading-snug ${compact ? "line-clamp-2 text-[12px]" : "line-clamp-2 text-[13px]"}`}>{p.name}</Link>
+        <PriceLine p={p} className="mt-2 text-[15px] font-bold" />
         <div className="mt-1 flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-0.5"><Star className="h-3.5 w-3.5 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}</span>
             {p.sold_count > 0 ? `${p.sold_count}+ terjual` : "Belum terjual"}
           </span>
           <div className="flex gap-1.5">
-            <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={onWish} className="grid h-8 w-8 place-items-center rounded-lg border transition active:scale-90">
-              <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} />
-            </button>
-            <button aria-label="Lihat dan beli" onClick={() => navigate({ to: "/produk/$id", params: { id: p.id } })} className="grid h-8 w-10 place-items-center rounded-lg border border-primary/30 bg-accent text-primary transition active:scale-90">
+            <button aria-label="Lihat dan beli" onClick={() => navigate({ to: "/produk/$id", params: { id: p.id } })} className="grid h-8 w-8 place-items-center rounded-lg border bg-card text-muted-foreground transition active:scale-90">
               <ShoppingCart className="h-4 w-4" />
             </button>
           </div>

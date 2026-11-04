@@ -144,8 +144,8 @@ function ProdukDetail() {
           <div className="flex items-center justify-between gap-3">
             <p className="flex flex-wrap items-baseline gap-x-1.5 font-bold leading-none text-primary"><span><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></span>
               {v && Number(v.price) * qty > price && (<>
-                <span className="text-[12px] font-normal text-muted-foreground line-through">{rpBuyer(Number(v.price) * qty)}</span>
-                <span className="rounded bg-destructive/10 px-1 py-0.5 text-[10.5px] text-destructive">{Math.round((1 - price / (Number(v.price) * qty)) * 100)}%</span>
+                <span className="text-[13px] font-normal text-muted-foreground line-through">{rpBuyer(Number(v.price) * qty)}</span>
+                <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[11.5px] text-destructive">{Math.round((1 - price / (Number(v.price) * qty)) * 100)}%</span>
               </>)}
             </p>
             <div className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
@@ -221,16 +221,16 @@ function ProdukDetail() {
         </section>
 
         <section className="mt-2.5 rounded-2xl border bg-card px-4 pb-3 pt-5 shadow-sm">
-          <h2 className="mb-2 text-[17px] font-bold">Spesifikasi</h2>
+          <h2 className="mb-2 text-[18px] font-bold">Spesifikasi</h2>
           <div className="divide-y divide-border">
             {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
-              <div key={a} className="flex justify-between gap-4 py-[11px] text-[12.5px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>
+              <div key={a} className="flex justify-between gap-4 py-3 text-[13.5px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>
             ))}
           </div>
           <div className="-mx-4 my-4 h-1.5 bg-background" />
-          <h2 className="mb-2 text-[17px] font-bold">Deskripsi</h2>
+          <h2 className="mb-2 text-[18px] font-bold">Deskripsi</h2>
           <div className="relative">
-            <p className={`whitespace-pre-line text-[12.5px] leading-relaxed ${more ? "" : "line-clamp-[10]"}`}>{p.description || "Belum ada deskripsi."}</p>
+            <p className={`whitespace-pre-line text-[13.5px] leading-relaxed ${more ? "" : "line-clamp-[10]"}`}>{p.description || "Belum ada deskripsi."}</p>
             {!more && p.description.length > 160 && <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-card to-transparent" />}
           </div>
           {p.description.length > 160 && <button onClick={() => setMore(!more)} className="mt-2 text-[11px] font-semibold text-primary">{more ? "Sembunyikan" : "Selengkapnya"}</button>}
