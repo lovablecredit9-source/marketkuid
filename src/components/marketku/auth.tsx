@@ -12,7 +12,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         <div className="absolute -left-40 top-1/3 h-[34rem] w-[34rem] rounded-full border border-primary/15" />
         <div className="absolute -right-48 top-1/4 h-[38rem] w-[38rem] rounded-full border border-primary-glow/25" />
       </div>
-      <main className="relative flex min-h-screen flex-col justify-center px-4 pb-28 pt-8">{children}</main>
+      <main className="relative flex min-h-screen flex-col justify-center px-2 pb-28 pt-8">{children}</main>
       <BottomNav />
     </div>
   );
@@ -52,14 +52,14 @@ export function Field({ label, icon: Icon, hint, status, message, password, id, 
   const inputId = id ?? rest.name;
   return (
     <div className="space-y-1.5">
-      {label && <label htmlFor={inputId} className="block text-xs font-semibold">{label}</label>}
-      <div className="flex items-center gap-2.5 rounded-lg border border-input bg-card px-3 py-2 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+      {label && <label htmlFor={inputId} className="block text-[11px] font-bold">{label}</label>}
+      <div className="flex items-center gap-2.5 rounded-lg border border-input bg-card px-3 py-2.5 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
         <Icon className="h-4 w-4 shrink-0 text-primary" />
         <input
           id={inputId}
           {...rest}
           type={password ? (show ? "text" : "password") : rest.type}
-          className="min-w-0 flex-1 bg-transparent text-[15px] leading-5 outline-none placeholder:text-muted-foreground"
+          className="min-w-0 flex-1 bg-transparent text-base leading-5 outline-none placeholder:text-muted-foreground"
         />
         {password && (
           <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Sembunyikan password" : "Lihat password"} className="text-muted-foreground">
@@ -79,7 +79,7 @@ export function GradientButton({ children, disabled, onClick, type = "button" }:
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-glow py-2.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:opacity-55 disabled:shadow-none"
+      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary/80 via-primary/70 to-primary-glow py-3 text-[13px] font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:opacity-55 disabled:shadow-none"
     >
       {children}
     </button>
@@ -88,7 +88,7 @@ export function GradientButton({ children, disabled, onClick, type = "button" }:
 
 export function OutlineButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="flex w-full items-center justify-center gap-2 rounded-xl border bg-card py-2.5 text-[13px] font-semibold [&_svg]:h-4 [&_svg]:w-4 transition active:scale-[0.98]">
+    <button type="button" onClick={onClick} className="flex w-full items-center justify-center gap-2 rounded-xl border bg-card py-3 text-[13px] font-semibold [&_svg]:h-4 [&_svg]:w-4 transition active:scale-[0.98]">
       {children}
     </button>
   );
