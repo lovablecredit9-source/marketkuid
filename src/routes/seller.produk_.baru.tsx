@@ -214,9 +214,9 @@ function ProductWizard() {
             <Head title="Info Produk" desc="Informasi dasar produk yang akan dilihat pembeli." />
             <ErrorBox title="Harap lengkapi field berikut" items={errors} />
             <div><FieldLabel required>Nama produk</FieldLabel>
-              <input value={name} maxLength={120} onChange={(e) => setName(e.target.value)} placeholder="Contoh: ChatGPT Plus 1 Bulan" className={fieldCls} /></div>
+              <FloatInput label="Contoh: ChatGPT Plus 1 Bulan" value={name} maxLength={120} missing={errors.length > 0} onChange={(e) => setName(e.target.value)} /></div>
             <div><FieldLabel>Deskripsi</FieldLabel>
-              <textarea value={desc} maxLength={2000} onChange={(e) => setDesc(e.target.value)} rows={3} placeholder="Jelaskan produk secara singkat..." className={`${fieldCls} resize-none`} /></div>
+              <FloatTextarea label="Jelaskan produk secara singkat..." value={desc} maxLength={2000} rows={3} onChange={(e) => setDesc(e.target.value)} /></div>
             <div><FieldLabel required>Jenis produk</FieldLabel>
               <select value={type} disabled={!!edit} onChange={(e) => { setType(e.target.value as ProductType); setErrors([]); }}
                 className={`${fieldCls} appearance-none bg-[length:16px] text-base`}>
@@ -293,7 +293,7 @@ function ProductWizard() {
               <FloatInput label="@username_telegram atau 08123456789" alwaysFloat value={contact} maxLength={60} onChange={(e) => setContact(e.target.value)} className="[&>input]:border-primary" />
               <p className="mt-2 text-xs text-muted-foreground">Pembeli akan diarahkan ke kontak ini setelah bayar.</p></div>
             <div><FieldLabel required>Estimasi durasi pengerjaan</FieldLabel>
-              <FloatInput label="Contoh: 1-3 hari kerja" value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)} /></div>
+              <FloatInput label="Contoh: 1-3 hari kerja" missing={errors.length > 0} value={estimate} maxLength={60} onChange={(e) => setEstimate(e.target.value)} /></div>
           </>
         )}
 
