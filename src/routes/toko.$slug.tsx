@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, Store } from "lucide-react";
+import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, Store, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
@@ -15,6 +15,25 @@ export const Route = createFileRoute("/toko/$slug")({
   head: () => pageMeta("Toko Seller — Marketku", "Lihat produk, rating, dan ulasan pembeli dari toko seller di Marketku."),
   component: Toko,
 });
+
+function ProfileUnavailable() {
+  return (
+    <AppShell showSupport={false}>
+      <div className="px-8 pt-4 pb-10">
+        <div className="flex flex-col items-center rounded-2xl border bg-card px-6 py-16 text-center shadow-[var(--shadow-card)]">
+          <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10">
+            <User className="h-8 w-8 fill-primary text-primary" strokeWidth={1.5} />
+          </div>
+          <h1 className="mt-4 text-xl font-bold text-foreground">Profil belum tersedia</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Profil tidak ditemukan</p>
+          <Link to="/" className="mt-5 flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-md transition active:scale-[.98]">
+            Kembali ke Marketku
+          </Link>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
 
 const initials = (n: string) => n.split(/\s+/).map((w) => w.charAt(0)).join("").slice(0, 2).toUpperCase();
 
@@ -42,7 +61,9 @@ function Toko() {
 
 
   if (store.isLoading) return <AppShell showSupport={false}><div className="mx-8 mt-4 h-72 animate-pulse rounded-2xl border bg-card" /></AppShell>;
-  if (!s) return <AppShell showSupport={false}><div className="p-3"><EmptyState icon={Store} title="Toko tidak ditemukan" desc="Link toko ini tidak tersedia." /></div></AppShell>;
+  if (!s) return <ProfileUnavailable />;
+  // Like marketku.id: a closed store's public profile is not shown to visitors (owner still sees it).
+  if (!s.is_open && user?.id !== s.owner_id) return <ProfileUnavailable />;
 
   const list = s.owner_id ? products.data ?? [] : [];
   const sold = list.reduce((a, p) => a + p.sold_count, 0);
