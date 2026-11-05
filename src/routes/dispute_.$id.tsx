@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import type React from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, ShieldCheck, Store, User } from "lucide-react";
 import { toast } from "sonner";
