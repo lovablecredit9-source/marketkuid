@@ -53,7 +53,7 @@ export const broadcastPreview = createServerFn({ method: "POST" })
   });
 
 async function ownChat(admin: any, userId: string, botId: string) {
-  const { data: prof } = await admin.from("profiles").select("telegram_username").eq("id", userId).maybeSingle();
+  const { data: prof } = await admin.from("seller_stores").select("telegram_username").eq("owner_id", userId).maybeSingle();
   const uname = String(prof?.telegram_username ?? "").replace(/^@/, "").trim();
   if (!uname) return null;
   const { data } = await admin.from("telegram_bot_users").select("tg_user_id, username").eq("bot_id", botId).ilike("username", uname).maybeSingle();
