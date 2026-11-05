@@ -12,6 +12,7 @@ import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from 
 import { categoryPath, childCategories, descendantIds, useCategories, useImageUrls, type CategoryRow } from "@/lib/products";
 import { BRAND_GROUPS, HOME_BANNERS, HOME_GAMES, PARTNERS } from "@/lib/home-assets";
 import { categoryIcon } from "@/lib/category-icons";
+import { HomeNotice } from "@/components/marketku/home-notice";
 
 type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -61,6 +62,7 @@ function Index() {
   return (
     <AppShell className="relative isolate" homeSearch>
       <div aria-hidden className="mk-grid-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px]" />
+      <HomeNotice />
 
       <div className="space-y-5 px-3 pt-3">
         <Banner />
