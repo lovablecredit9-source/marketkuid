@@ -50,18 +50,18 @@ export function WarrantyClaimBlock({ itemId }: { itemId: string }) {
   const canClaim = w.active && !pending && left > 0;
 
   const submit = async () => {
-    if (reason.trim().length < 5) return toast.error("Jelaskan masalah minimal 5 karakter");
+    if (reason.trim().length < 5) { toast.error("Jelaskan masalah minimal 5 karakter"); return; }
     setBusy(true);
     let proof: string | null = null;
     if (file) {
       const path = `${itemId}/${crypto.randomUUID()}.${file.name.split(".").pop() || "jpg"}`;
       const up = await supabase.storage.from("warranty-evidence").upload(path, file, { contentType: file.type });
-      if (up.error) { setBusy(false); return toast.error("Gagal unggah bukti"); }
+      if (up.error) { setBusy(false); toast.error("Gagal unggah bukti"); return; }
       proof = path;
     }
     const { error } = await supabase.rpc("open_warranty_claim", { p_item: itemId, p_reason: reason.trim(), ...(proof ? { p_proof: proof } : {}) });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Klaim garansi dikirim. Menunggu persetujuan seller.");
     setOpen(false); setReason(""); setFile(null);
     void qc.invalidateQueries({ queryKey: ["warranty_info", itemId] });

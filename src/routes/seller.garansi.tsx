@@ -53,7 +53,7 @@ function Garansi() {
     setBusy(id);
     const { error } = await supabase.rpc("seller_review_warranty_claim", { p_claim: id, p_approve: approve, ...(n ? { p_note: n } : {}) });
     setBusy(null);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(approve ? "Klaim disetujui, pengganti terkirim ke pembeli" : "Klaim ditolak");
     setRejectFor(null); setNote("");
     void qc.invalidateQueries({ queryKey: ["seller_warranty_claims"] });

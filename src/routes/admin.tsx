@@ -927,7 +927,7 @@ function CategoryRequestsTab() {
     setBusy(id);
     const { error } = await supabase.rpc("admin_review_category_request", { _id: id, _approve: approve });
     setBusy(null);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(approve ? "Kategori disetujui dan ditambahkan" : "Pengajuan ditolak");
     qc.invalidateQueries({ queryKey: ["admin_category_requests"] });
     qc.invalidateQueries({ queryKey: ["product_categories"] });
