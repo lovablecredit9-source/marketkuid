@@ -16,6 +16,7 @@ import { useCart } from "@/lib/market";
 import { supportWaUrl } from "@/lib/support";
 import { useUnreadChats } from "@/lib/chat";
 import { BanScreen, useAccountBan } from "@/components/marketku/ban-gate";
+import { SearchSuggest } from "@/components/marketku/search-suggest";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
@@ -74,6 +75,7 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   const [notif, setNotif] = useState(false);
   const [menu, setMenu] = useState(false);
   const [q, setQ] = useState("");
+  const [suggest, setSuggest] = useState(false);
   const cart = useCart();
   const cartCount = cart.data?.length ?? 0;
   const folded = useScrolledPast(40, homeSearch);
@@ -112,9 +114,16 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
           <form aria-hidden={!showBar} className="overflow-hidden px-3" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: q.trim() ? { q: q.trim() } : {} }); }}>
             <label className="mb-2 flex h-9 items-center gap-2.5 rounded-xl border bg-card px-3 shadow-sm">
               <Search className="h-[18px] w-[18px] text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} tabIndex={showBar ? 0 : -1} placeholder="Cari produk digital..." className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground" />
+              <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)} tabIndex={showBar ? 0 : -1} placeholder="Cari produk digital..." className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground" />
             </label>
           </form>
+        </div>
+      )}
+      {homeSearch && showBar && suggest && q.trim() && (
+        <div className="relative px-3">
+          <SearchSuggest q={q} className="absolute inset-x-3 top-0"
+            onPick={() => { setSuggest(false); setQ(""); }}
+            onAll={() => { setSuggest(false); navigate({ to: "/cari", search: { q: q.trim() } }); }} />
         </div>
       )}
       {showSupport && <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>}

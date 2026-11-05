@@ -260,6 +260,13 @@
       "when": 1793863258459,
       "tag": "0036_order_disputes",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793872780097,
+      "tag": "0037_search_stores",
+      "breakpoints": true
     }
   ]
 }
