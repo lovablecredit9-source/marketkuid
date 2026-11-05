@@ -30,6 +30,11 @@ const tour = [
   { title: "Bot Telegram", desc: "Hubungkan dan kelola bot Telegram untuk jualan otomatis.", target: "qa-bot" },
   { title: "Voucher", desc: "Buat voucher diskon untuk menarik pembeli.", target: "bottomnav" },
   { title: "Withdraw", desc: "Tarik saldo hasil penjualan ke rekening kamu.", target: "qa-withdraw" },
+  { title: "Aksi cepat", desc: "Tugas harian seperti withdraw, kelola produk, dan lihat pesanan.", target: "quick" },
+  { title: "Saldo", desc: "Pantau saldo penjualan, saldo tertahan, dan credits.", target: "saldo" },
+  { title: "Ringkasan performa", desc: "Pendapatan, transaksi, dan produk aktif tokomu.", target: "perf" },
+  { title: "Transaksi terbaru", desc: "Pesanan terbaru yang masuk ke toko.", target: "recent" },
+  { title: "Produk terlaris", desc: "Produk dengan penjualan terbanyak.", target: "best" },
   { title: "Notifikasi", desc: "Pesanan baru muncul di lonceng ini.", target: "h-notif" },
   { title: "Menu profil", desc: "Buka atau tutup toko dan akses profil di sini.", target: "h-profile" },
   { title: "Panduan", desc: "Buka pusat panduan lengkap kapan saja di menu ini.", target: "h-panduan" },
@@ -220,7 +225,7 @@ function StoreSetup({ userId, hasProduct }: { userId: string | undefined; hasPro
           return (
             <li key={s.key} className="min-w-0">
               <button type="button" disabled={s.done} onClick={() => go(s.key)}
-                className="flex min-h-[60px] w-full items-center gap-3 rounded-md border bg-background/40 p-2.5 text-left transition active:scale-[0.98] disabled:opacity-70">
+                className="seller-tap flex min-h-[60px] w-full items-center gap-3 rounded-md border bg-background/40 p-2.5 text-left disabled:cursor-default disabled:opacity-70">
                 {s.done ? <CircleCheck className="h-[18px] w-[18px] shrink-0 text-success" /> : <Circle className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}
                 <I className="h-[15px] w-[15px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
                 <span className="min-w-0 flex-1">
