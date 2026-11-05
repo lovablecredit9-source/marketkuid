@@ -244,6 +244,13 @@
   color-scheme: light;
 }
 .seller-panel { color-scheme: dark; }
+/* "inverse" buttons (white in dark mode) become brand blue instead of navy in light mode */
+.seller-light .seller-panel button.bg-foreground,
+.seller-light .seller-panel a.bg-foreground {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.seller-light .seller-panel span.border.bg-foreground { background-color: var(--card); }
 
 /* Admin Panel: its own graphite + emerald theme, separate from buyer and seller UI */
 .admin-panel {
