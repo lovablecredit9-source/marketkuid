@@ -170,14 +170,14 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
           <Link key={to} to={to} data-tour={`nav-${label.toLowerCase()}`} activeOptions={{ exact: to === "/seller" }}
             className="group relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-foreground/80 transition-all duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary">
             <span className="absolute -top-2 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 group-data-[status=active]:w-3" />
-            <Icon className="h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" strokeWidth={1.75} />
-            <span className="hidden group-data-[status=active]:inline">{label}</span>
+            <Icon className="seller-nav-icon h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1" strokeWidth={1.75} />
+            <span className="seller-nav-label hidden group-data-[status=active]:inline">{label}</span>
           </Link>
         ))}
         <button aria-label="Menu" onClick={onMenu}
           className={`group relative flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300 active:scale-95 ${menuOpen ? "bg-accent text-primary" : "text-foreground/80"}`}>
-          <Menu className="h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1" strokeWidth={1.75} />
-          {menuOpen && <span>Menu</span>}
+          <Menu className={`h-[18px] w-[18px] transition-transform duration-300 group-active:-translate-y-1 ${menuOpen ? "seller-nav-bounce" : ""}`} strokeWidth={1.75} />
+          {menuOpen && <span className="seller-nav-label">Menu</span>}
         </button>
       </div>
     </nav>

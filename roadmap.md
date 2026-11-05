@@ -62,3 +62,6 @@
 - [ ] Uji klaim garansi sungguhan di marketku.id (butuh QRIS dibayar user + akun pembeli baru)
 - [ ] Bot Telegram & broadcast di marketku.id (user hubungkan token sendiri)
 - [ ] Upload 9 jenis produk uji di marketku.id + tampilan pembeli
+- [x] Animasi ikon & tulisan navigasi bawah Seller Center saat pindah halaman
+- [ ] Bot Telegram & broadcast di marketku.id (menunggu user menghubungkan token sendiri)
+- [ ] Upload 9 jenis produk & tes klaim garansi nyata di marketku.id (menunggu kode login & pembayaran QRIS Rp100 dari user)

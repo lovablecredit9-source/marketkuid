@@ -466,3 +466,9 @@
 @keyframes mk-notice-pop { from { opacity: 0; transform: translateY(16px) scale(.96) } to { opacity: 1; transform: none } }
 .mk-notice-backdrop { animation: mk-notice-fade .2s ease-out both; }
 .mk-notice-card { animation: mk-notice-pop .28s cubic-bezier(.2,.9,.3,1.2) both; }
+
+/* Seller bottom nav: active icon bounces and its label slides in when switching pages */
+@keyframes mk-nav-label { from { opacity: 0; transform: translateX(-6px); max-width: 0; } to { opacity: 1; transform: none; max-width: 120px; } }
+[data-status="active"] > .seller-nav-icon, .seller-nav-bounce { animation: mk-icon-bounce .55s cubic-bezier(.34,1.56,.64,1); }
+[data-status="active"] > .seller-nav-label, button > .seller-nav-label { display: inline-block; overflow: hidden; white-space: nowrap; animation: mk-nav-label .32s ease-out both; }
+@media (prefers-reduced-motion: reduce) { [data-status="active"] > .seller-nav-icon, .seller-nav-bounce, .seller-nav-label { animation: none; } }
