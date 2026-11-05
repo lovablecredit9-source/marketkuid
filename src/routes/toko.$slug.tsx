@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, Store, User } from "lucide-react";
+import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
@@ -20,7 +20,7 @@ function ProfileUnavailable() {
   return (
     <AppShell showSupport={false}>
       <div className="px-8 pt-4 pb-10">
-        <div className="flex flex-col items-center rounded-2xl border bg-card px-6 py-16 text-center shadow-[var(--shadow-card)]">
+        <div className="flex flex-col items-center rounded-2xl border bg-card px-6 py-16 text-center shadow-sm">
           <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10">
             <User className="h-8 w-8 fill-primary text-primary" strokeWidth={1.5} />
           </div>
