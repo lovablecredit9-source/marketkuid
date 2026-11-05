@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { ArrowLeft, MoreVertical, MessageCircle, SendHorizontal, FileText, Bell, BellOff, Plus, Check, X, Paperclip, Smile, Loader2, Copy, Trash2, Ban } from "lucide-react";
-import { ChatAvatar, EMOJIS, MsgTicks, TypingDots, lastSeenLabel, stampLabel } from "@/components/marketku/chat-avatar";
+import { ChatAvatar, EMOJIS, MsgTicks, TypingPill, lastSeenLabel, stampLabel } from "@/components/marketku/chat-avatar";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,7 +128,8 @@ function ChatRoom() {
   const productIds = [...list.map((m) => m.product_id ?? "").filter(Boolean), ...(attached ? [attached] : [])];
   const products = useChatProducts(productIds);
   const productImgs = useImageUrls(Object.values(products.data ?? {}).map((p) => p.image ?? "").filter(Boolean));
-  const status = typing ? "sedang mengetik..." : lastSeenLabel(partnerState.data?.seen_at);
+  // Typing shows as a pill in the thread (like marketku.id); the header keeps the Online / last-seen status.
+  const status = typing ? "Online" : lastSeenLabel(partnerState.data?.seen_at);
   const pending = attached ? products.data?.[attached] : undefined;
 
   // Opening the chat (and each new incoming message) marks it read → blue ticks for the sender.
@@ -234,8 +235,8 @@ function ChatRoom() {
           {c ? (
             <div className="min-w-0 flex-1">
               <p className="truncate text-base font-bold leading-tight">{partner}</p>
-              <p className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${typing ? "font-medium text-success" : "text-muted-foreground"}`}>
-                {!typing && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />}
+              <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${status === "Online" ? "bg-success" : "bg-muted-foreground/60"}`} />
                 <span key={status} className="truncate animate-in fade-in-0">{partnerState.isPending ? "Offline" : status}</span>
               </p>
             </div>
@@ -291,11 +292,7 @@ function ChatRoom() {
             </div>
           );
         })}
-        {typing && (
-          <div className="mk-pop-in flex justify-start">
-            <div className="rounded-2xl rounded-bl-sm border bg-card px-4 py-3 shadow-sm"><TypingDots /></div>
-          </div>
-        )}
+        {typing && <TypingPill name={partner} />}
         </>}
         <div ref={end} />
       </div>

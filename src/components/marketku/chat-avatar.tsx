@@ -46,6 +46,20 @@ export function MsgTicks({ state, className = "" }: { state: TickState; classNam
 }
 
 /** Bouncing three dots shown while the partner types. */
+/** marketku.id-style typing pill: three bouncing dots and "<name> sedang mengetik…". */
+export function TypingPill({ name }: { name: string }) {
+  return (
+    <div className="mk-pop-in flex justify-start" role="status" aria-live="polite">
+      <div className="inline-flex max-w-[85%] items-center gap-2 rounded-full border bg-card py-1.5 pl-1.5 pr-3 shadow-sm">
+        <span className="inline-flex items-center gap-[3px]" aria-hidden>
+          {[0, 1, 2].map((i) => <span key={i} className="mk-typing-bounce h-[7px] w-[7px] rounded-full bg-primary/40" style={{ animationDelay: `${i * 0.16 - 0.32}s` }} />)}
+        </span>
+        <span className="truncate text-[12px] text-muted-foreground">{name} sedang mengetik…</span>
+      </div>
+    </div>
+  );
+}
+
 export function TypingDots() {
   return (
     <span className="inline-flex items-center gap-1" aria-label="Sedang mengetik">
