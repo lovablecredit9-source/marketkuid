@@ -339,6 +339,8 @@
   --ana-grid: color-mix(in oklab, var(--muted-foreground) 25%, transparent);
 }
 
+:root { --tour-overlay: oklch(0.12 0.02 265 / 0.58); }
+
 /* Seller Center tap/press feedback like panel.marketku.id: tapped buttons keep a blue ring,
    card rows tint blue on press, stat cells get a square blue outline. */
 .seller-panel :is(button, a, [role="button"], summary) { -webkit-tap-highlight-color: transparent; }
