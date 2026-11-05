@@ -323,22 +323,43 @@ function SponsoredSection() {
 /** Brand shortcuts (AI, App Premium) — each brand opens the search for that name. */
 function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
   const cats = useCategories();
-  const cat = cats.data?.find((c) => c.name === group.category);
+  const navigate = useNavigate();
+  const all = cats.data ?? [];
+  const cat = all.find((c) => c.name === group.category);
+  // Owner-supplied brands first, then any other sub-category of this group that has an icon.
+  const brands = useMemo(() => {
+    const base = group.brands.map((b) => ({ name: b.name, img: b.img as string }));
+    if (!cat) return base;
+    const extra = childCategories(all, cat.id)
+      .filter((c) => !base.some((b) => b.name === c.name))
+      .map((c) => ({ name: c.name, img: categoryIcon(c.name) }))
+      .filter((b): b is { name: string; img: string } => !!b.img);
+    return [...base, ...extra];
+  }, [all, cat, group.brands]);
+  const open = (name: string) => {
+    const c = all.find((x) => x.name === name && (!cat || descendantIds(all, cat.id).includes(x.id)));
+    if (c) navigate({ to: "/", search: catSearch(all, c), resetScroll: false });
+    else navigate({ to: "/cari", search: { q: name } });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   return (
-    <section>
-      <div className="flex items-center gap-2.5 border-b-2 border-border pb-2">
-        <img src={group.icon} alt="" className="h-8 w-8 rounded-lg object-cover" />
-        <h2 className="flex-1 text-xl font-bold">{group.title}</h2>
-        <Link to="/cari" search={cat ? { kategori: cat.id } : {}} className="flex items-center gap-1 rounded-lg border-2 border-primary/70 px-3 py-1 text-sm font-semibold text-primary transition active:scale-95">
-          Semua <ArrowRight className="h-4 w-4" />
-        </Link>
+    <section className="min-w-0">
+      <div className="mb-2.5 flex min-h-[30px] items-center justify-between gap-3 px-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="grid h-[30px] w-[30px] place-items-center"><img src={group.icon} alt="" className="h-7 w-7 rounded-[7px] object-cover" /></span>
+          <h2 className="truncate text-lg font-extrabold leading-none tracking-[-0.025em]">{group.title}</h2>
+        </div>
+        <button type="button" onClick={() => cat ? open(cat.name) : navigate({ to: "/cari" })}
+          className="inline-flex min-h-7 min-w-[58px] items-center justify-center gap-1 rounded-[7px] border border-primary/55 bg-card px-[7px] text-[10px] font-bold text-primary transition active:scale-95">
+          Semua <ArrowRight className="h-[13px] w-[13px]" />
+        </button>
       </div>
-      <div className="grid grid-cols-4 gap-x-4 gap-y-5 px-3 pb-2 pt-4">
-        {group.brands.map((b) => (
-          <Link key={b.name} to="/cari" search={{ q: b.name }} className="flex flex-col items-center gap-1.5 transition active:scale-95">
-            <img src={b.img} alt={b.name} className="aspect-square w-full max-w-16 rounded-xl object-cover" />
-            <span className="truncate text-xs text-muted-foreground">{b.name}</span>
-          </Link>
+      <div className="grid auto-cols-[72px] grid-flow-col gap-2.5 overflow-x-auto overscroll-x-contain rounded-b border-t border-primary/20 bg-primary/[0.06] px-2.5 py-3 [scrollbar-width:none]">
+        {brands.map((b) => (
+          <button type="button" key={b.name} aria-label={`Lihat kategori ${b.name}`} onClick={() => open(b.name)} className="flex min-w-0 flex-col items-center gap-1.5 transition active:scale-95">
+            <img src={b.img} alt="" loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+            <span className="w-full truncate text-center text-[10px] text-muted-foreground">{b.name}</span>
+          </button>
         ))}
       </div>
     </section>
