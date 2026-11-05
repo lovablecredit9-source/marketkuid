@@ -140,6 +140,19 @@ function Pesanan() {
           </section>
         )}
 
+        {orders.some((o) => o.status === "refunded") && (
+          <section className="rounded-xl border bg-card p-3">
+            <div className="flex gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Undo2 className="h-5 w-5" /></span>
+              <div>
+                <p className="text-sm font-bold">Dana sudah dikembalikan</p>
+                <p className="text-xs text-muted-foreground">Refund dari laporan pesanan ini sudah masuk ke Saldo Marketku kamu.</p>
+              </div>
+            </div>
+            <Link to="/saldo" className="mt-3 block rounded-xl border py-2 text-center text-xs font-semibold">Lihat Saldo Marketku</Link>
+          </section>
+        )}
+
         {done && (
           <section className="rounded-xl border bg-card p-3">
             <div className="flex gap-3">
