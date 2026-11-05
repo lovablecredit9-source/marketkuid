@@ -1,12 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type ChangeEvent } from "react";
-import { KeyRound, Mail, MailCheck, MessageCircle, User } from "lucide-react";
-import { toast } from "sonner";
-import { AuthCard, AuthFooter, AuthLayout, AuthTitle, Field, GradientButton, isEmail } from "@/components/marketku/auth";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { CircleCheck, KeyRound, Mail, MailCheck, MessageCircle, User } from "lucide-react";
+import { AuthAlert, AuthCard, AuthFooter, AuthLayout, AuthTitle, Field, GradientButton, OutlineButton, StrengthBar } from "@/components/marketku/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrorText } from "@/lib/auth";
+import { isEmailFormat, normalizeUsername, passwordStrength, PASSWORD_MIN, usernameError } from "@/lib/register-rules";
+
+type RegSearch = { email?: string; dari?: "login" };
 
 export const Route = createFileRoute("/register")({
+  validateSearch: (s: Record<string, unknown>): RegSearch => ({
+    ...(typeof s["email"] === "string" && s["email"] ? { email: s["email"] } : {}),
+    ...(s["dari"] === "login" ? { dari: "login" as const } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Buat Akun — Marketku" },
@@ -20,60 +26,97 @@ export const Route = createFileRoute("/register")({
   component: Register,
 });
 
-const strength = (p: string) => {
-  let s = 0;
-  if (p.length >= 8) s++;
-  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
-  if (/\d/.test(p)) s++;
-  if (/[^A-Za-z0-9]/.test(p)) s++;
-  return s;
-};
+type Avail = { email: string; username: string; emailTaken: boolean; usernameTaken: boolean } | null;
+
+/** Live "already used?" check for email + username (debounced), like the original form. */
+function useAvailability(email: string, username: string) {
+  const [res, setRes] = useState<Avail>(null);
+  useEffect(() => {
+    const e = isEmailFormat(email) ? email.trim().toLowerCase() : "";
+    const u = usernameError(username) ? "" : username;
+    if (!e && !u) return;
+    const t = window.setTimeout(async () => {
+      const { data } = await supabase.rpc("registration_availability", { p_email: e, p_username: u });
+      const row = data?.[0];
+      if (row) setRes({ email: e, username: u, emailTaken: row.email_taken, usernameTaken: row.username_taken });
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [email, username]);
+  return res;
+}
 
 function Register() {
-  const [f, setF] = useState({ name: "", email: "", username: "", wa: "", pass: "", confirm: "" });
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const search = Route.useSearch();
+  const [f, setF] = useState({ name: "", email: search.email ?? "", username: "", wa: "", pass: "", confirm: "" });
   const [loading, setLoading] = useState(false);
-  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<"in" | "confirm" | null>(null);
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
-  const blur = (k: string) => () => setTouched({ ...touched, [k]: true });
 
-  const uname = f.username.trim();
-  const unameErr = !uname ? "Username wajib diisi." : !/^[a-z0-9_]{3,20}$/i.test(uname) ? "Username 3–20 karakter: huruf, angka, atau _." : "";
-  const emailErr = !f.email ? "Email wajib diisi." : !isEmail(f.email) ? "Format email belum benar." : "";
-  const passErr = f.pass && f.pass.length < 8 ? "Password minimal 8 karakter." : "";
+  const email = f.email.trim().toLowerCase();
+  const uname = f.username;
+  const avail = useAvailability(f.email, uname);
+  const emailChecked = avail && avail.email === email;
+  const unameChecked = avail && avail.username === uname;
+
+  const emailFmtErr = f.email && !isEmailFormat(f.email) ? "Format email belum valid." : "";
+  const emailMsg = emailFmtErr || (emailChecked ? (avail.emailTaken ? "Email sudah terdaftar. Pakai login atau email lain." : "Email siap dipakai untuk registrasi.") : "");
+  const emailBad = !!emailFmtErr || !!(emailChecked && avail.emailTaken);
+  const unameFmtErr = usernameError(uname);
+  const unameMsg = unameFmtErr || (unameChecked ? (avail.usernameTaken ? "Username sudah dipakai akun lain." : `Username ${uname} siap dipakai untuk login.`) : "");
+  const unameBad = !!unameFmtErr || !!(unameChecked && avail.usernameTaken);
   const confirmErr = f.confirm && f.confirm !== f.pass ? "Password konfirmasi belum sama." : "";
-  const s = strength(f.pass);
-  const valid = f.name.trim() && !emailErr && !unameErr && f.pass.length >= 8 && f.confirm === f.pass;
+
+  // Like marketku.id the button unlocks once everything is filled and matches; the 8-character
+  // minimum is enforced by the browser's own "please lengthen this text" bubble on submit.
+  const valid = !!f.name.trim() && !!emailChecked && !emailBad && !!unameChecked && !unameBad && !!f.pass && f.confirm === f.pass;
 
   const submit = async () => {
     if (!valid || loading) return;
     setLoading(true);
-    const email = f.email.trim().toLowerCase();
-    const { data, error } = await supabase.auth.signUp({
+    setError(null);
+    const { data, error: err } = await supabase.auth.signUp({
       email,
       password: f.pass,
       options: {
-        emailRedirectTo: window.location.origin + "/akun",
-        data: { full_name: f.name.trim(), username: uname.toLowerCase(), whatsapp: f.wa || null },
+        emailRedirectTo: window.location.origin,
+        data: { full_name: f.name.trim(), username: uname, whatsapp: f.wa || null },
       },
     });
     setLoading(false);
-    if (error) { toast.error(authErrorText(error.message)); return; }
-    if (data.user && data.user.identities?.length === 0) { toast.error("Email ini sudah terdaftar. Silakan masuk."); return; }
-    setSentTo(email);
+    if (err) { setError(authErrorText(err.message)); return; }
+    if (data.user && data.user.identities?.length === 0) { setError("Email sudah terdaftar. Pakai login atau email lain."); return; }
+    setDone(data.session ? "in" : "confirm");
   };
 
-  if (sentTo) {
+  if (done === "in") {
+    return (
+      <AuthLayout>
+        <AuthCard>
+          <div className="mk-pop-in rounded-2xl border border-success/30 bg-success/5 p-5">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"><CircleCheck className="h-5 w-5" /></span>
+            <h1 className="mt-3 text-[22px] font-normal leading-tight">Akun customer berhasil dibuat</h1>
+            <p className="mt-3 text-[13px] leading-relaxed text-foreground/80">Akun pembeli kamu sudah siap. Kamu bisa langsung menjelajah produk dan membuat pesanan di Marketku.</p>
+            <div className="mt-5 space-y-2.5">
+              <Link to="/" className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary-glow py-3 text-[13.5px] font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98]">Masuk ke Marketku</Link>
+              <Link to="/bantuan" className="flex w-full items-center justify-center rounded-xl border bg-card py-3 text-[13px] font-bold transition active:scale-[0.98]">Pusat Bantuan</Link>
+            </div>
+          </div>
+        </AuthCard>
+      </AuthLayout>
+    );
+  }
+
+  if (done === "confirm") {
     return (
       <AuthLayout>
         <AuthCard>
           <div className="flex flex-col items-center text-center">
             <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent text-primary"><MailCheck className="h-8 w-8" /></span>
             <h1 className="mt-5 text-2xl font-bold">Cek email kamu</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Link konfirmasi sudah dikirim ke <b className="text-foreground">{sentTo}</b>. Klik link itu untuk mengaktifkan akun, lalu masuk.</p>
-            <p className="mt-2 text-xs text-muted-foreground">Tidak ada di kotak masuk? Cek folder spam.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Link konfirmasi sudah dikirim ke <b className="text-foreground">{email}</b>. Klik link itu untuk mengaktifkan akun, lalu masuk.</p>
           </div>
-          <div className="mt-6"><Link to="/login" className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-primary-glow py-3.5 font-bold text-primary-foreground shadow-lg shadow-primary/20">Ke halaman Masuk</Link></div>
+          <div className="mt-6"><OutlineButton onClick={() => { window.location.href = "/login"; }}>Ke halaman Masuk</OutlineButton></div>
         </AuthCard>
       </AuthLayout>
     );
@@ -83,25 +126,27 @@ function Register() {
     <AuthLayout>
       <AuthCard>
         <AuthTitle title="Buat akun" />
+        {search.dari === "login" && !error && <AuthAlert>Email belum terdaftar, melanjut pendaftaran untuk login.</AuthAlert>}
+        {error && <AuthAlert>{error}</AuthAlert>}
         <form className="space-y-3.5" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-          <Field label="Nama Lengkap" icon={User} name="name" placeholder="Nama lengkap kamu" value={f.name} onChange={set("name")} autoComplete="name" />
-          <Field label="Email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={f.email} onChange={set("email")} onBlur={blur("email")} autoComplete="email"
-            status={emailErr ? "error" : "ok"} message={f.email && !emailErr ? "Email siap dipakai untuk registrasi." : touched["email"] ? emailErr : undefined} />
-          <Field label="Username" icon={User} name="username" placeholder="username_login" value={f.username} onChange={set("username")} onBlur={blur("username")} autoComplete="username"
-            status={unameErr ? "error" : "ok"} message={!unameErr ? `Username ${uname} siap dipakai untuk login.` : touched["username"] || f.username ? unameErr : undefined} />
-          <Field label="Nomor WhatsApp (opsional)" icon={MessageCircle} name="wa" type="tel" inputMode="numeric" placeholder="08xxxxxxxxxx" value={f.wa} onChange={(e) => setF({ ...f, wa: e.target.value.replace(/\D/g, "") })}
+          <Field label="Nama Lengkap" icon={User} name="name" placeholder="Nama lengkap kamu" value={f.name} onChange={set("name")} autoComplete="name" required />
+          <Field label="Email" icon={Mail} name="email" type="email" placeholder="nama@email.com" value={f.email} onChange={set("email")} autoComplete="email" required
+            status={emailBad ? "error" : "ok"} message={emailMsg || undefined} />
+          <Field label="Username" icon={User} name="username" placeholder="username_login" value={f.username} autoComplete="username" required minLength={3} maxLength={30}
+            onChange={(e) => setF({ ...f, username: normalizeUsername(e.target.value) })}
+            status={unameBad ? "error" : "ok"} message={unameMsg || undefined} />
+          <Field label="Nomor WhatsApp (opsional)" icon={MessageCircle} name="wa" type="tel" inputMode="numeric" placeholder="08xxxxxxxxxx" value={f.wa} onChange={(e) => setF({ ...f, wa: e.target.value.replace(/\D/g, "").slice(0, 20) })}
             hint="Buat notif pesanan, refund, dan dispute via WhatsApp. Bisa dilewati & ditambahkan nanti." />
           <div className="space-y-1.5">
-            <Field label="Password" icon={KeyRound} name="pass" password placeholder="Min. 8 karakter" value={f.pass} onChange={set("pass")} autoComplete="new-password" status="error" message={passErr || undefined} />
-            <div className="h-1 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${(s / 4) * 100}%` }} />
-            </div>
+            <Field label="Password" icon={KeyRound} name="pass" password placeholder="Min. 8 karakter" value={f.pass} onChange={set("pass")} autoComplete="new-password" required minLength={PASSWORD_MIN} />
+            <StrengthBar level={passwordStrength(f.pass)} />
           </div>
-          <Field label="Konfirmasi Password" icon={KeyRound} name="confirm" password placeholder="Ulangi password" value={f.confirm} onChange={set("confirm")} autoComplete="new-password" status="error" message={confirmErr || undefined} />
+          <Field label="Konfirmasi Password" icon={KeyRound} name="confirm" password placeholder="Ulangi password" value={f.confirm} onChange={set("confirm")} autoComplete="new-password" required minLength={PASSWORD_MIN}
+            status="error" message={confirmErr || undefined} />
           <GradientButton type="submit" disabled={!valid || loading}>{loading ? "Mendaftarkan..." : "Daftarkan akun"}</GradientButton>
-          <p className="text-center text-xs leading-relaxed text-muted-foreground">
-            Dengan mendaftar, kamu menyetujui <button type="button" onClick={() => toast("Syarat & Ketentuan segera hadir")} className="text-primary">Syarat & Ketentuan</button> dan{" "}
-            <button type="button" onClick={() => toast("Kebijakan Privasi segera hadir")} className="text-primary">Kebijakan Privasi</button>.
+          <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+            Dengan mendaftar, kamu menyetujui <Link to="/syarat" className="text-primary underline">Syarat & Ketentuan</Link> dan{" "}
+            <Link to="/privasi" className="text-primary underline">Kebijakan Privasi</Link>.
           </p>
         </form>
         <AuthFooter>

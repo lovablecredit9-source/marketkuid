@@ -144,7 +144,7 @@ function AkunDashboard({ user }: { user: User }) {
   }
 
   const joined = new Date(profile.data?.created_at ?? user.created_at)
-    .toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }).toUpperCase();
+    .toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }).toUpperCase();
 
   return (
     <AppShell title="Akun Saya" className="mk-acc-serif">
@@ -178,7 +178,7 @@ function AkunDashboard({ user }: { user: User }) {
             <button aria-label="Muat ulang" onClick={() => wallet.refetch()} className="grid h-7 w-7 place-items-center rounded-md border bg-card"><RefreshCw className={`h-3.5 w-3.5 ${wallet.isFetching ? "animate-spin" : ""}`} /></button>
           </div>
           <p className="mt-2 mk-acc-mono text-xl">Rp {(wallet.data ?? 0).toLocaleString("id-ID")}</p>
-          <button onClick={() => navigate({ to: "/topup" })} className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">Lihat riwayat deposit <ArrowUpRight className="h-3 w-3" /></button>
+          <button onClick={() => navigate({ to: "/topup" })} className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-muted-foreground">Lihat riwayat & tarik dana <ArrowUpRight className="h-3 w-3" /></button>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <button onClick={() => soon("Tarik Saldo")} className="rounded-xl bg-primary/50 py-2 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20">Tarik Saldo</button>
             <button onClick={() => navigate({ to: "/topup" })} className="rounded-xl border bg-card py-2 text-xs font-semibold">Top Up</button>

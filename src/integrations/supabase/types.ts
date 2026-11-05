@@ -1857,6 +1857,13 @@ export type Database = {
         }[]
       }
       record_product_view: { Args: { p_product: string }; Returns: undefined }
+      registration_availability: {
+        Args: { p_email: string; p_username: string }
+        Returns: {
+          email_taken: boolean
+          username_taken: boolean
+        }[]
+      }
       rekber_by_token: {
         Args: { p_token: string }
         Returns: {
