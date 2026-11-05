@@ -11,7 +11,7 @@ type Msg = { id: string; sender_id: string | null; sender_role: string; body: st
 const ROLE: Record<string, { name: string; cls: string; badge: string }> = {
   buyer: { name: "Pembeli", cls: "border-border bg-muted/40", badge: "bg-primary/10 text-primary" },
   seller: { name: "Seller", cls: "border-primary/30 bg-primary/10", badge: "bg-success/15 text-success" },
-  admin: { name: "Admin Marketku", cls: "border-violet-300/40 bg-violet-500/10", badge: "bg-violet-500/15 text-violet-600" },
+  admin: { name: "Admin Marketku", cls: "border-primary/40 bg-accent", badge: "bg-primary/15 text-primary" },
   system: { name: "Marketku", cls: "border-dashed border-warning/40 bg-warning/10 text-center", badge: "bg-warning/20 text-warning" },
 };
 const stamp = (s: string) => {
