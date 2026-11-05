@@ -83,6 +83,9 @@ function ProdukDetail() {
   const closed = !p.store?.is_open;
   const own = user?.id === p.owner_id;
   const canBuy = !!v && stock > 0 && !closed && p.status === "active" && !own;
+  // Like marketku.id: a closed store (or a sold-out product) can still be viewed and chatted about, but not ordered.
+  const soldOut = !pre && p.variants.every((x) => x.stock <= 0);
+  const blocked = closed ? "Toko sedang tutup" : soldOut ? "Stok habis" : null;
   const rating = ratingOf(reviews.data ?? []);
   const wished = wish.data?.has(p.id) ?? false;
   const gallery = [...new Set([...p.images, ...p.variants.map((x) => x.image_url ?? "")].filter(Boolean))];
@@ -128,7 +131,7 @@ function ProdukDetail() {
             <button aria-label="Bagikan" onClick={() => void share()} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><Share2 className="h-5 w-5" /></button>
             <button aria-label="Menu lainnya" onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><MoreVertical className="h-5 w-5" /></button>
           </div>
-          {closed && <span className="absolute inset-x-0 bottom-0 bg-foreground/70 py-1.5 text-center text-xs font-bold text-background">Toko sedang tutup</span>}
+          {blocked && <span className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-background/30 bg-foreground/75 px-4 py-1.5 text-[12.5px] font-bold text-background shadow backdrop-blur">{blocked}</span>}
         </div>
         {gallery.length > 1 && (
           <div className="flex gap-2 overflow-x-auto bg-card px-4 pt-3">
@@ -223,7 +226,7 @@ function ProdukDetail() {
         <section className="mt-2.5 rounded-2xl border bg-card px-4 pb-3 pt-5 shadow-sm">
           <h2 className="mb-2 text-[18px] font-bold">Spesifikasi</h2>
           <div className="divide-y divide-border">
-            {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
+            {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : soldOut ? "Stok habis" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
               <div key={a} className="flex justify-between gap-4 py-3 text-[13.5px]"><span className="text-muted-foreground">{a}</span><span className="text-right font-semibold">{b}</span></div>
             ))}
           </div>
@@ -294,6 +297,19 @@ function ProdukDetail() {
       {showTop && (
         <button aria-label="Kembali ke atas" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="fixed bottom-[78px] right-[max(12px,calc(50%-224px+12px))] z-40 grid h-10 w-10 place-items-center rounded-full border bg-card text-primary shadow-md transition active:scale-90"><ArrowUp className="h-4 w-4" /></button>
       )}
+      {blocked && !own ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-3 py-2.5">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-bold text-primary">{blocked}</p>
+            <p className="truncate text-[11px] text-muted-foreground">Produk bisa dilihat, belum bisa order</p>
+          </div>
+          <div className="flex shrink-0 overflow-hidden rounded-md border">
+            <button aria-label="Chat seller" onClick={() => void chat()} className="flex h-11 items-center gap-1.5 border-r px-3 text-[12.5px] font-semibold transition active:bg-muted"><MessageCircle className="h-4 w-4" /> Chat</button>
+            <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="grid h-11 w-11 place-items-center border-r transition active:bg-muted"><Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
+            <button aria-label="Bagikan" onClick={() => void share()} className="grid h-11 w-11 place-items-center transition active:bg-muted"><Share2 className="h-4 w-4" /></button>
+          </div>
+        </div>
+      ) : (
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-2.5 py-3">
         <button aria-label="Chat seller" onClick={() => void chat()} className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full border-[1.5px] border-primary text-primary transition active:scale-90"><MessageCircle className="h-[18px] w-[18px]" /></button>
         <button disabled={!canBuy} onClick={() => (user ? setSheet(true) : needLogin())} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
@@ -301,6 +317,7 @@ function ProdukDetail() {
           {added ? <><Check className="h-4 w-4" />Ditambahkan</> : <><ShoppingCart className="h-4 w-4" />Keranjang</>}
         </button>
       </div>
+      )}
       {own && <p className="fixed inset-x-0 bottom-[76px] z-40 mx-auto max-w-md bg-accent py-1 text-center text-xs font-semibold text-primary">Ini produk toko kamu</p>}
 
       <Dialog.Root open={sheet} onOpenChange={setSheet}>
