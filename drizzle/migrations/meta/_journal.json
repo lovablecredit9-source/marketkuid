@@ -246,6 +246,13 @@
       "when": 1793837937766,
       "tag": "0034_seller_credits_topup",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793858678702,
+      "tag": "0035_registration_availability",
+      "breakpoints": true
     }
   ]
 }
