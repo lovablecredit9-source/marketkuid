@@ -55,12 +55,29 @@ export function NotifDrop({ onClose, className = "" }: { onClose: () => void; cl
   );
 }
 
-export function Header({ title, showSupport = true }: { title?: string | undefined; showSupport?: boolean }) {
+/** True once the page has scrolled past `y` px (used to fold the home search bar into an icon). */
+function useScrolledPast(y: number, enabled: boolean) {
+  const [past, setPast] = useState(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const on = () => setPast(window.scrollY > y);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, [y, enabled]);
+  return past;
+}
+
+export function Header({ title, showSupport = true, homeSearch = false }: { title?: string | undefined; showSupport?: boolean; homeSearch?: boolean }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [notif, setNotif] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [q, setQ] = useState("");
   const cart = useCart();
   const cartCount = cart.data?.length ?? 0;
+  const folded = useScrolledPast(40, homeSearch);
+  const showBar = homeSearch && !folded;
   if (title) {
     return (
       <><div aria-hidden className="h-[76px]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto h-[76px] max-w-md bg-background px-3 pb-2 pt-3 shadow-[0_6px_10px_-6px_hsl(0_0%_0%/0.25)]">
@@ -75,13 +92,14 @@ export function Header({ title, showSupport = true }: { title?: string | undefin
       </header></>
     );
   }
+  const spacer = (showSupport ? 94 : 54) + (homeSearch ? 44 : 0);
   return (
-    <><div aria-hidden className={showSupport ? "h-[94px]" : "h-[54px]"} /><header className={`fixed inset-x-0 top-0 z-30 mx-auto ${showSupport ? "h-[94px]" : "h-[54px]"} max-w-md border-b bg-card`}>
+    <><div aria-hidden style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
-          <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>
-          <IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn>
+          {user && <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>}
+          {!showBar && <span className="mk-fade-in"><IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn></span>}
           <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}>
             <span className="relative"><ShoppingCart className="h-5 w-5" />{cartCount > 0 && <span className="absolute -right-2.5 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
           </IconBtn>
@@ -89,6 +107,16 @@ export function Header({ title, showSupport = true }: { title?: string | undefin
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
+      {homeSearch && (
+        <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${showBar ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+          <form aria-hidden={!showBar} className="overflow-hidden px-3" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: q.trim() ? { q: q.trim() } : {} }); }}>
+            <label className="mb-2 flex h-9 items-center gap-2.5 rounded-xl border bg-card px-3 shadow-sm">
+              <Search className="h-[18px] w-[18px] text-muted-foreground" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} tabIndex={showBar ? 0 : -1} placeholder="Cari produk digital..." className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground" />
+            </label>
+          </form>
+        </div>
+      )}
       {showSupport && <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>}
       <SideMenu open={menu} onOpenChange={setMenu} />
     </header></>
