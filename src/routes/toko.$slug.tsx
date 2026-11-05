@@ -79,6 +79,7 @@ function Toko() {
               <Button size="sm" onClick={() => void chat()} className="h-7 gap-1 rounded-full px-2.5 text-[10px]"><MessageCircle /> Kirim Pesan</Button>
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
+            {!s.is_open && !banned.data && <p className="mt-2 rounded-xl border bg-muted px-3 py-2 text-xs font-semibold text-foreground/80">Toko sedang tutup — produk bisa dilihat, belum bisa order. Kamu tetap bisa kirim pesan ke seller.</p>}
             {banned.data && <p className="mt-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
             {s.description && <p className="mt-2 text-sm">{s.description}</p>}
             <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
