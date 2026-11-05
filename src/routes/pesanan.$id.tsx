@@ -11,6 +11,9 @@ import { dbError, fmtDateTime } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
+import { canReportOrder, isDisputeActive } from "@/lib/disputes";
+import { ReportSheet } from "@/components/marketku/report-sheet";
+import { ShieldAlert } from "lucide-react";
 
 export const Route = createFileRoute("/pesanan/$id")({
   head: () => pageMeta("Detail Pesanan — Marketku", "Status pembayaran, produk, dan pengiriman pesananmu di Marketku."),
@@ -39,7 +42,9 @@ function Pesanan() {
       if (error) throw error;
       const itemIds = (data ?? []).flatMap((o) => o.order_items.map((i) => i.id));
       const reviewed = itemIds.length ? (await supabase.from("product_reviews").select("id, order_item_id, rating, comment, created_at, edited_at").in("order_item_id", itemIds)).data ?? [] : [];
-      return { orders: data ?? [], reviewed: new Map(reviewed.map((r) => [r.order_item_id, r] as const)) };
+      const orderIds = (data ?? []).map((o) => o.id);
+      const disputes = orderIds.length ? (await supabase.from("order_disputes").select("id, order_id, status").in("order_id", orderIds).order("created_at", { ascending: false })).data ?? [] : [];
+      return { orders: data ?? [], reviewed: new Map(reviewed.map((r) => [r.order_item_id, r] as const)), disputes };
     },
   });
   const orders = q.data?.orders ?? [];
@@ -49,6 +54,15 @@ function Pesanan() {
   const cd = useCountdown(pending[0]?.expires_at);
   const [busy, setBusy] = useState(false);
   const [allSteps, setAllSteps] = useState(false);
+  const [reportFor, setReportFor] = useState<{ id: string; no: number } | null>(null);
+  const disputes = q.data?.disputes ?? [];
+  const activeDispute = (orderId: string) => disputes.find((x) => x.order_id === orderId && isDisputeActive(x.status));
+  const report = (o: { id: string; order_no: number; status: string; paid_at: string | null; buyer_confirmed_at: string | null }) => {
+    const act = activeDispute(o.id);
+    if (act) { navigate({ to: "/dispute/$id", params: { id: act.id } }); return; }
+    if (!canReportOrder(o)) { toast.info("Pesanan sudah dikonfirmasi selesai. Hubungi seller jika masih ada kendala."); return; }
+    setReportFor({ id: o.id, no: o.order_no });
+  };
   const refresh = () => qc.invalidateQueries({ queryKey: ["order_view", id, user?.id] });
 
   const cancel = async () => {
@@ -143,7 +157,14 @@ function Pesanan() {
         )}
 
         {orders.filter((o) => o.paid_at && ["paid", "processing", "completed"].includes(o.status)).map((o) => (
-          <Received key={`r-${o.id}`} order={o} onDone={() => void refresh()} onReport={() => void chat(o.seller_id)} />
+          <Received key={`r-${o.id}`} order={o} disputed={!!activeDispute(o.id)} onDone={() => void refresh()} onReport={() => report(o)} />
+        ))}
+        {disputes.filter((x) => isDisputeActive(x.status)).map((x) => (
+          <Link key={x.id} to="/dispute/$id" params={{ id: x.id }} className="flex items-center gap-3 rounded-xl border border-warning/50 bg-warning/10 p-3">
+            <ShieldAlert className="h-5 w-5 shrink-0 text-warning" />
+            <div className="min-w-0 flex-1"><p className="text-sm font-bold">Laporan sedang diproses</p><p className="text-xs text-muted-foreground">Dana pesanan diamankan. Buka Dispute Room untuk berdiskusi dengan seller &amp; admin.</p></div>
+            <span className="text-xs font-bold text-primary">Buka</span>
+          </Link>
         ))}
 
         <SecHead icon={ReceiptText} t="Detail transaksi" d="Produk dan rincian pembayaran pesanan." />
@@ -208,9 +229,10 @@ function Pesanan() {
 
         <SecHead icon={Headphones} t="Bantuan pesanan" d="Semua komunikasi dengan seller dilakukan melalui Marketku." />
         <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center justify-between rounded-xl border bg-card px-3 py-2.5 text-left text-sm font-bold transition active:scale-[0.98]">Hubungi seller <MessageCircle className="h-4 w-4 text-muted-foreground" /></button>
-        {!cancelled && st >= 1 && <button onClick={() => void chat(first.seller_id)} className="flex w-full items-center gap-2 rounded-xl bg-destructive px-3 py-2.5 text-left text-sm font-bold text-destructive-foreground transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan masalah</button>}
+        {!cancelled && st >= 1 && <button onClick={() => report(orders.find((o) => o.paid_at) ?? first)} className="flex w-full items-center gap-2 rounded-xl bg-destructive px-3 py-2.5 text-left text-sm font-bold text-destructive-foreground transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan masalah</button>}
         <Link to="/riwayat" className="block text-center text-sm font-semibold text-primary">Lihat semua pesanan</Link>
       </div>
+      {reportFor && <ReportSheet orderId={reportFor.id} orderNo={reportFor.no} onClose={() => setReportFor(null)} />}
     </AppShell>
   );
 }
@@ -229,7 +251,7 @@ function saveFile(name: string, text: string, type: string) {
 }
 
 // Kartu "Pesanan diterima": pembeli konfirmasi → dana diteruskan ke seller; otomatis selesai 5 jam setelah dibayar.
-function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () => void; onReport: () => void }) {
+function Received({ order: o, onDone, onReport, disputed = false }: { order: OrderRow; onDone: () => void; onReport: () => void; disputed?: boolean }) {
   const [now, setNow] = useState(() => Date.now());
   const [ask, setAsk] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -264,7 +286,7 @@ function Received({ order: o, onDone, onReport }: { order: OrderRow; onDone: () 
           ) : (
             <p className="flex items-center justify-center gap-2 rounded-xl bg-success/15 py-3 text-sm font-bold text-success"><Check className="h-4 w-4" /> Pesanan selesai</p>
           )}
-          <button onClick={onReport} className="flex w-full items-center justify-center gap-2 rounded-xl border border-warning/60 py-3 text-sm font-semibold text-warning transition active:scale-[0.98]"><Flag className="h-4 w-4" /> Laporkan</button>
+          <button onClick={onReport} className="flex w-full items-center justify-center gap-2 rounded-xl border border-warning/60 py-3 text-sm font-semibold text-warning transition active:scale-[0.98]"><Flag className="h-4 w-4" /> {disputed ? "Lihat laporan" : "Laporkan"}</button>
         </div>
       </section>
       {open && (
