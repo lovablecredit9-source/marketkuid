@@ -28,7 +28,7 @@ function DisputeRoom() {
   if (ready && !user) return <AppShell><div className="p-3"><EmptyState icon={ShieldCheck} title="Masuk untuk melihat dispute" desc="Ruang dispute hanya untuk pihak terkait." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
   if (!ready || q.isLoading) return <AppShell><div className="m-3 h-96 animate-pulse rounded-2xl border bg-card" /></AppShell>;
   const d = q.data?.dispute;
-  if (!d) return <AppShell><div className="p-3"><EmptyState icon={ShieldCheck} title="Dispute tidak ditemukan" desc="Laporan ini tidak ada atau bukan milikmu." action={<PrimaryLink to="/dispute">Lihat laporan</PrimaryLink>} /></div></AppShell>;
+  if (!d) return <AppShell><div className="p-3"><EmptyState icon={ShieldCheck} title="Dispute tidak ditemukan" desc="Laporan ini tidak ada atau bukan milikmu." action={<PrimaryLink to="/">Kembali ke Beranda</PrimaryLink>} /></div></AppShell>;
 
   const st = DISPUTE_STATUS[d.status as DisputeStatus] ?? DISPUTE_STATUS.ditutup;
   const isBuyer = user?.id === d.buyer_id;

@@ -53,7 +53,7 @@ export function DisputeThread({ disputeId, status, messages, uid, compact = fals
     <div className="flex min-h-0 flex-1 flex-col">
       <div className={`flex-1 space-y-3 overflow-y-auto ${compact ? "max-h-[45vh] p-1" : "px-1 pb-3"}`}>
         {messages.map((m) => {
-          const r = ROLE[m.sender_role] ?? ROLE.buyer!;
+          const r = ROLE[m.sender_role] ?? ROLE["buyer"]!;
           const mine = m.sender_id === uid && m.sender_role !== "system";
           return (
             <div key={m.id} className={`max-w-[88%] rounded-2xl border p-3 text-sm ${r.cls} ${m.sender_role === "system" ? "mx-auto" : mine ? "ml-auto" : ""}`}>
