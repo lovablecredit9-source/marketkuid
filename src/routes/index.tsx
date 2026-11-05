@@ -26,7 +26,14 @@ const CAT_ICON: Record<string, LucideIcon> = {
 };
 const GAMES = ["Roblox", "Free Fire", "Mobile Legends", "PUBG"] as const;
 
+type HomeSearch = { kategori?: string; subkategori?: string };
+
 export const Route = createFileRoute("/")({
+  // Like marketku.id, picking a category filters right on the home page: /?kategori=AI+Tools&subkategori=9router
+  validateSearch: (s: Record<string, unknown>): HomeSearch => ({
+    ...(typeof s["kategori"] === "string" && s["kategori"] ? { kategori: s["kategori"] } : {}),
+    ...(typeof s["subkategori"] === "string" && s["subkategori"] ? { subkategori: s["subkategori"] } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Marketku — Belanja Produk Digital" },
@@ -41,8 +48,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [q, setQ] = useState("");
-  const navigate = useNavigate();
   const products = useMarketProducts({ limit: 60 });
   const list = useMemo(() => products.data ?? [], [products.data]);
   const urls = useImageUrls([...new Set(list.map((p) => p.images[0] ?? "").filter(Boolean))]);
@@ -55,23 +60,19 @@ function Index() {
   const fresh = useMemo(() => [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10), [list]);
 
   return (
-    <AppShell className="relative isolate">
+    <AppShell className="relative isolate" homeSearch>
       <div aria-hidden className="mk-grid-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px]" />
-      <form className="sticky top-[94px] z-20 bg-background/90 px-3 pb-2 pt-3 backdrop-blur" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: { q } }); }}>
-        <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
-        </label>
-      </form>
 
       <div className="space-y-5 px-3 pt-3">
         <Banner />
 
         {list.length > 0 && <Ticker items={list.slice(0, 12)} urlOf={urlOf} />}
 
-        <CategoryStrip />
+        <HomeCategories />
 
-        {BRAND_GROUPS.map((g) => <BrandGroup key={g.title} group={g} />)}
+        <div className="!mt-[18px] space-y-[18px]">
+          {BRAND_GROUPS.map((g) => <BrandGroup key={g.title} group={g} />)}
+        </div>
 
         {products.isLoading ? (
           <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <div key={i} className="h-56 animate-pulse rounded-2xl border bg-card" />)}</div>
