@@ -11,6 +11,25 @@ export function beatPresence(uid: string | undefined) {
   supabase.rpc("touch_presence", { p_seller: inSellerCenter(uid) }).then(() => {}, () => {});
 }
 
+/**
+ * "Ingat saya" on the password step. Unchecked = the session lasts only while the browser is open:
+ * a later fresh visit (new tab session) signs the user out.
+ */
+const SESSION_ONLY = "mk-session-only";
+const ALIVE = "mk-session-alive";
+export function setRememberMe(remember: boolean) {
+  if (remember) window.localStorage.removeItem(SESSION_ONLY);
+  else window.localStorage.setItem(SESSION_ONLY, "1");
+  window.sessionStorage.setItem(ALIVE, "1");
+}
+function dropSessionIfNotRemembered() {
+  if (window.localStorage.getItem(SESSION_ONLY) === "1" && !window.sessionStorage.getItem(ALIVE)) {
+    window.localStorage.removeItem(SESSION_ONLY);
+    void supabase.auth.signOut();
+  }
+  window.sessionStorage.setItem(ALIVE, "1");
+}
+
 type AuthState = { user: User | null; session: Session | null; ready: boolean };
 
 const AuthContext = createContext<AuthState>({ user: null, session: null, ready: false });
@@ -21,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, session: null, ready: false });
 
   useEffect(() => {
+    dropSessionIfNotRemembered();
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setState({ user: session?.user ?? null, session, ready: true });
       if (event === "SIGNED_IN" || event === "USER_UPDATED") queryClient.invalidateQueries();
