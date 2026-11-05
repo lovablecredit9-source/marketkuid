@@ -339,6 +339,33 @@
   --ana-grid: color-mix(in oklab, var(--muted-foreground) 25%, transparent);
 }
 
+:root { --tour-overlay: oklch(0.12 0.02 265 / 0.58); }
+
+/* Seller Center tap/press feedback like panel.marketku.id: tapped buttons keep a blue ring,
+   card rows tint blue on press, stat cells get a square blue outline. */
+.seller-panel :is(button, a, [role="button"], summary) { -webkit-tap-highlight-color: transparent; }
+.seller-panel :is(button, a, [role="button"], summary):focus-visible,
+.seller-panel button:focus:not(:disabled) {
+  outline: 2px solid var(--primary);
+  outline-offset: 0;
+}
+.seller-panel .seller-tap { transition: background-color .15s, border-color .15s, box-shadow .15s; }
+.seller-panel .seller-tap:active:not(:disabled),
+.seller-panel .seller-tap:focus:not(:disabled) {
+  border-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+@media (hover: hover) {
+  .seller-panel .seller-tap:hover:not(:disabled) {
+    border-color: color-mix(in oklab, var(--primary) 40%, transparent);
+    background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+  }
+  .seller-panel .seller-stat:hover { background-color: var(--muted); }
+}
+.seller-panel .seller-stat { transition: background-color .15s; }
+.seller-panel .seller-stat:active { background-color: var(--muted); }
+.seller-panel .seller-stat:focus { outline: 2px solid var(--primary); outline-offset: -2px; }
+
 @keyframes check-draw { 0% { stroke-dashoffset: 24; } 35%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
 @keyframes check-ping { 0% { transform: scale(1); opacity: .5; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
 .check-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: check-draw 2.2s ease-in-out infinite; }

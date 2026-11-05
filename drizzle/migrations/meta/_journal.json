@@ -267,6 +267,13 @@
       "when": 1793872780097,
       "tag": "0037_search_stores",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793898978799,
+      "tag": "0038_warranty_holds",
+      "breakpoints": true
     }
   ]
 }
