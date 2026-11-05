@@ -396,6 +396,44 @@ export type Database = {
         }
         Relationships: []
       }
+      dispute_messages: {
+        Row: {
+          attachment_path: string | null
+          body: string
+          created_at: string
+          dispute_id: string
+          id: string
+          sender_id: string | null
+          sender_role: string
+        }
+        Insert: {
+          attachment_path?: string | null
+          body?: string
+          created_at?: string
+          dispute_id: string
+          id?: string
+          sender_id?: string | null
+          sender_role: string
+        }
+        Update: {
+          attachment_path?: string | null
+          body?: string
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          sender_id?: string | null
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "order_disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_path: string | null
@@ -449,6 +487,62 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_disputes: {
+        Row: {
+          buyer_id: string
+          code: string
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          reasons: string[]
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          code?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          reasons?: string[]
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          code?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          reasons?: string[]
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -1616,6 +1710,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _dispute_refund: {
+        Args: { p_by: string; p_id: string; p_note: string }
+        Returns: undefined
+      }
       ad_refresh_queue: { Args: never; Returns: undefined }
       admin_adjust_wallet: {
         Args: { p_amount: number; p_note: string; p_user: string }
@@ -1636,6 +1734,10 @@ export type Database = {
           p_target: string
           p_type: string
         }
+        Returns: undefined
+      }
+      admin_resolve_dispute: {
+        Args: { p_id: string; p_note: string; p_refund: boolean }
         Returns: undefined
       }
       admin_resolve_rekber: {
@@ -1699,6 +1801,7 @@ export type Database = {
         }[]
       }
       auto_withdraw_tick: { Args: never; Returns: string }
+      buyer_close_dispute: { Args: { p_id: string }; Returns: undefined }
       buyer_confirm_order: { Args: { p_order: string }; Returns: undefined }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
@@ -1805,6 +1908,7 @@ export type Database = {
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
       is_account_banned: { Args: { p_user: string }; Returns: boolean }
       is_conversation_participant: { Args: { p_id: string }; Returns: boolean }
+      is_dispute_participant: { Args: { p_id: string }; Returns: boolean }
       is_store_banned: { Args: { p_owner: string }; Returns: boolean }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
       my_bans: {
@@ -1814,6 +1918,10 @@ export type Database = {
           kind: string
           reason: string
         }[]
+      }
+      open_dispute: {
+        Args: { p_note: string; p_order: string; p_reasons: string[] }
+        Returns: string
       }
       pay_order_with_wallet: { Args: { p_checkout: string }; Returns: number }
       pay_rekber: { Args: { p_token: string }; Returns: number }
@@ -1920,7 +2028,15 @@ export type Database = {
           release_at: string
         }[]
       }
+      seller_respond_dispute: {
+        Args: { p_action: string; p_id: string }
+        Returns: undefined
+      }
       seller_start_conversation: { Args: { p_buyer: string }; Returns: string }
+      send_dispute_message: {
+        Args: { p_attachment: string; p_body: string; p_id: string }
+        Returns: undefined
+      }
       set_typing: { Args: { p_id: string }; Returns: undefined }
       sponsored_products: {
         Args: { p_limit?: number; p_query: string }

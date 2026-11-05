@@ -12,6 +12,8 @@ import { useAuth } from "@/lib/auth";
 import { clearSellerLocks } from "@/lib/chat";
 import { pageMeta } from "@/lib/meta";
 import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
+import { DISPUTE_STATUS, isDisputeActive, useDispute, useDisputes, type DisputeStatus } from "@/lib/disputes";
+import { DisputeThread } from "@/components/marketku/dispute-thread";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
@@ -28,6 +30,7 @@ const TABS = [
   { key: "bayar", label: "Bayar Order", icon: QrCode },
   { key: "withdraw", label: "Withdraw", icon: Landmark },
   { key: "rekber", label: "Rekber", icon: ShieldCheck },
+  { key: "dispute", label: "Dispute", icon: AlertTriangle },
   { key: "pembayaran", label: "Metode", icon: CreditCard },
   { key: "pengguna", label: "Pengguna", icon: Users },
   { key: "toko", label: "Toko", icon: Store },
@@ -107,6 +110,7 @@ function Admin() {
           {tab === "bayar" && <OrderPaymentsTab />}
           {tab === "withdraw" && <WithdrawalsTab />}
           {tab === "rekber" && <RekberTab />}
+          {tab === "dispute" && <DisputesTab />}
           {tab === "pembayaran" && <PaymentMethods />}
           {tab === "pengguna" && <UsersTab />}
           {tab === "toko" && <StoresTab />}
@@ -1003,6 +1007,72 @@ function RekberTab() {
         <Sheet title={pick.release ? "Cairkan ke penjual" : "Kembalikan ke pembeli"} onClose={() => setPick(null)}>
           <label className="block text-xs font-semibold text-muted-foreground">Catatan (dilihat kedua pihak)<textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. bukti serah terima lengkap" className={inputCls} /></label>
           <button disabled={busy} onClick={() => void resolve()} className={`mt-4 w-full rounded-xl py-2.5 text-sm font-bold disabled:opacity-60 ${pick.release ? "bg-primary text-primary-foreground" : "bg-destructive text-white"}`}>{busy ? "Memproses..." : pick.release ? "Cairkan Dana" : "Kembalikan Dana"}</button>
+        </Sheet>
+      )}
+    </>
+  );
+}
+
+function DisputesTab() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const [filter, setFilter] = useState<"aktif" | "ditinjau" | "all">("aktif");
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const list = useDisputes("admin", user?.id);
+  const one = useDispute(openId ?? undefined);
+  const rows = (list.data ?? []).filter((d) => filter === "all" ? true : filter === "ditinjau" ? d.status === "ditinjau" : isDisputeActive(d.status));
+  const tone = (t: string) => (t === "ok" ? "ok" : t === "bad" ? "bad" : t === "warn" || t === "info" ? "warn" : "muted") as "muted" | "ok" | "bad" | "warn";
+  const resolve = async (refund: boolean) => {
+    if (!openId) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("admin_resolve_dispute", { p_id: openId, p_refund: refund, p_note: note });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(refund ? "Dana dikembalikan ke pembeli" : "Dana dilepas ke seller");
+    setNote("");
+    qc.invalidateQueries({ queryKey: ["disputes"] });
+    qc.invalidateQueries({ queryKey: ["dispute", openId] });
+  };
+  const d = one.data?.dispute;
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-hidden"><Chips value={filter} onChange={setFilter} items={[["aktif", "Aktif"], ["ditinjau", "Diteruskan seller"], ["all", "Semua"]]} /></div>
+        <Refresh q={list} />
+      </div>
+      <p className="text-xs text-muted-foreground">Laporan pembeli atas pesanan. Dana pesanan ditahan selama dispute aktif. Refund mengembalikan dana ke Saldo Marketku pembeli; lepas dana meneruskannya ke seller.</p>
+      {list.isPending ? <Loading label="Memuat dispute..." /> : rows.length === 0 ? <Empty text="Tidak ada dispute di sini." /> : rows.map((r) => {
+        const st = DISPUTE_STATUS[r.status as DisputeStatus] ?? DISPUTE_STATUS.ditutup;
+        return (
+          <button key={r.id} onClick={() => setOpenId(r.id)} className="w-full rounded-2xl border bg-card p-3 text-left">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0"><p className="truncate text-sm font-semibold">{r.orders?.order_items.map((i) => i.product_name).join(", ")}</p><p className="text-xs text-muted-foreground">M-{r.orders?.order_no} • {r.code} • {fmtDate(r.created_at)}</p></div>
+              <Pill tone={tone(st.tone)}>{st.label}</Pill>
+            </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">{r.orders?.buyer_name ?? "Pembeli"} → {r.orders?.store_name ?? "Seller"} • {rupiah(Number(r.orders?.total ?? 0))}</p>
+            <p className="mt-1 line-clamp-2 text-xs">{r.reasons.join(", ")}</p>
+          </button>
+        );
+      })}
+      {openId && (
+        <Sheet title={d ? `Dispute M-${d.orders?.order_no}` : "Dispute"} onClose={() => setOpenId(null)}>
+          {!d ? <Loading label="Memuat..." /> : (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">{d.reasons.join(", ")}{d.note ? ` · ${d.note}` : ""}</p>
+              <div className="rounded-xl border p-2"><DisputeThread disputeId={d.id} status={d.status} messages={one.data?.messages ?? []} uid={user?.id} compact /></div>
+              {isDisputeActive(d.status) && (
+                <>
+                  <label className="block text-xs font-semibold text-muted-foreground">Catatan keputusan<textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="cth. bukti pembeli valid" className={inputCls} /></label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button disabled={busy} onClick={() => void resolve(true)} className="flex items-center justify-center gap-1 rounded-xl border border-destructive/40 py-2.5 text-sm font-semibold text-destructive"><X className="h-4 w-4" /> Refund pembeli</button>
+                    <button disabled={busy} onClick={() => void resolve(false)} className="flex items-center justify-center gap-1 rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground"><Check className="h-4 w-4" /> Lepas ke seller</button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </Sheet>
       )}
     </>

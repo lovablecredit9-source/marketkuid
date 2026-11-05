@@ -34,6 +34,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as AkunPengaturanRouteImport } from './routes/akun_.pengaturan'
 import { Route as BayarIdRouteImport } from './routes/bayar.$id'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as DisputeIdRouteImport } from './routes/dispute_.$id'
 import { Route as PesananIdRouteImport } from './routes/pesanan.$id'
 import { Route as ProdukIdRouteImport } from './routes/produk.$id'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
@@ -186,6 +187,11 @@ const BayarIdRoute = BayarIdRouteImport.update({
 const ChatIdRoute = ChatIdRouteImport.update({
   id: '/chat/$id',
   path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisputeIdRoute = DisputeIdRouteImport.update({
+  id: '/dispute_/$id',
+  path: '/dispute/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PesananIdRoute = PesananIdRouteImport.update({
@@ -355,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
+  '/dispute/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/analitik': typeof SellerAnalitikRoute
@@ -409,6 +416,7 @@ export interface FileRoutesByTo {
   '/akun/pengaturan': typeof AkunPengaturanRoute
   '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
+  '/dispute/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/analitik': typeof SellerAnalitikRoute
@@ -465,6 +473,7 @@ export interface FileRoutesById {
   '/akun_/pengaturan': typeof AkunPengaturanRoute
   '/bayar/$id': typeof BayarIdRoute
   '/chat/$id': typeof ChatIdRoute
+  '/dispute_/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
   '/seller/analitik': typeof SellerAnalitikRoute
@@ -522,6 +531,7 @@ export interface FileRouteTypes {
     | '/akun/pengaturan'
     | '/bayar/$id'
     | '/chat/$id'
+    | '/dispute/$id'
     | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/analitik'
@@ -576,6 +586,7 @@ export interface FileRouteTypes {
     | '/akun/pengaturan'
     | '/bayar/$id'
     | '/chat/$id'
+    | '/dispute/$id'
     | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/analitik'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/akun_/pengaturan'
     | '/bayar/$id'
     | '/chat/$id'
+    | '/dispute_/$id'
     | '/pesanan/$id'
     | '/produk/$id'
     | '/seller/analitik'
@@ -687,6 +699,7 @@ export interface RootRouteChildren {
   AkunPengaturanRoute: typeof AkunPengaturanRoute
   BayarIdRoute: typeof BayarIdRoute
   ChatIdRoute: typeof ChatIdRoute
+  DisputeIdRoute: typeof DisputeIdRoute
   PesananIdRoute: typeof PesananIdRoute
   ProdukIdRoute: typeof ProdukIdRoute
   TokoSlugRoute: typeof TokoSlugRoute
@@ -869,6 +882,13 @@ declare module '@tanstack/react-router' {
       path: '/chat/$id'
       fullPath: '/chat/$id'
       preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dispute_/$id': {
+      id: '/dispute_/$id'
+      path: '/dispute/$id'
+      fullPath: '/dispute/$id'
+      preLoaderRoute: typeof DisputeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pesanan/$id': {
@@ -1161,6 +1181,7 @@ const rootRouteChildren: RootRouteChildren = {
   AkunPengaturanRoute: AkunPengaturanRoute,
   BayarIdRoute: BayarIdRoute,
   ChatIdRoute: ChatIdRoute,
+  DisputeIdRoute: DisputeIdRoute,
   PesananIdRoute: PesananIdRoute,
   ProdukIdRoute: ProdukIdRoute,
   TokoSlugRoute: TokoSlugRoute,
