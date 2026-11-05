@@ -149,7 +149,7 @@ function Pesanan() {
                 <p className="text-xs text-muted-foreground">Refund dari laporan pesanan ini sudah masuk ke Saldo Marketku kamu.</p>
               </div>
             </div>
-            <Link to="/saldo" className="mt-3 block rounded-xl border py-2 text-center text-xs font-semibold">Lihat Saldo Marketku</Link>
+            <Link to="/topup" className="mt-3 block rounded-xl border py-2 text-center text-xs font-semibold">Lihat Saldo Marketku</Link>
           </section>
         )}
 
