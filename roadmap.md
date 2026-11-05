@@ -52,3 +52,8 @@
 - [ ] Pengajuan PG pribadi di Kontrol Pembayaran (masih "segera hadir")
 
 - [x] Laporan/dispute pesanan: pembeli lapor, Dispute Room, seller refund/tolak/selesai, admin putuskan
+
+## Seller Center tap & garansi (Nov 5)
+- [x] Efek tekan/garis biru tombol Seller Center, kotak saldo bisa diklik, panduan 15 langkah gaya marketku.id
+- [x] Saldo Tertahan Non-Garansi vs Saldo Menunggu Masa Garansi (maks 3 hari)
+- [ ] Bandingkan hasil dana garansi dengan tes bayar nyata di marketku.id (menunggu pembayaran QRIS dari user)
