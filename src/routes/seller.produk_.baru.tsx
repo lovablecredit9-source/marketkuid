@@ -260,7 +260,7 @@ function ProductWizard() {
                 <span className={catName ? "" : "text-foreground/80"}>{catName ?? "Pilih kategori produk"}</span>
                 <span className="text-sm font-semibold text-primary">{catName ? "Ganti" : "Pilih"}</span>
               </button>
-              <button type="button" onClick={() => soon("Ajukan kategori baru")} className="mt-3 flex items-center gap-1.5 px-4 text-sm font-semibold text-primary"><Plus className="h-4 w-4" /> Ajukan kategori baru</button>
+              <button type="button" onClick={() => setCatReqOpen(true)} className="mt-3 flex items-center gap-1.5 px-4 text-sm font-semibold text-primary"><Plus className="h-4 w-4" /> Ajukan kategori baru</button>
             </div>
             {showGuide ? (
               <div><div className="mb-2 flex items-center justify-between"><p className="text-sm font-semibold">Panduan penggunaan</p>
