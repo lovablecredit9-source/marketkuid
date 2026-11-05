@@ -1589,6 +1589,56 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_broadcasts: {
+        Row: {
+          bot_id: string
+          created_at: string
+          failed: number
+          finished_at: string | null
+          id: string
+          image_path: string | null
+          message: string
+          owner_id: string
+          recipients: number
+          sent: number
+          status: string
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          image_path?: string | null
+          message: string
+          owner_id: string
+          recipients?: number
+          sent?: number
+          status?: string
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          image_path?: string | null
+          message?: string
+          owner_id?: string
+          recipients?: number
+          sent?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_broadcasts_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
