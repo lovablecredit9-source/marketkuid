@@ -52,7 +52,7 @@ export function Field({ label, icon: Icon, hint, status, message, password, id, 
   const inputId = id ?? rest.name;
   return (
     <div className="space-y-1.5">
-      {label && <label htmlFor={inputId} className="block text-[11px] font-bold">{label}</label>}
+      {label && <label htmlFor={inputId} className="block text-[11.5px] font-semibold text-foreground/80">{label}</label>}
       <div className="flex items-center gap-2.5 rounded-lg border border-input bg-card px-3 py-2.5 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
         <Icon className="h-4 w-4 shrink-0 text-primary" />
         <input
@@ -67,8 +67,8 @@ export function Field({ label, icon: Icon, hint, status, message, password, id, 
           </button>
         )}
       </div>
-      {message && <p className={`text-xs ${status === "error" ? "text-destructive" : "text-success"}`}>{message}</p>}
-      {hint && <p className="text-xs leading-relaxed text-foreground/80">{hint}</p>}
+      {message && <p className={`text-[11px] ${status === "error" ? "text-destructive" : "text-success"}`}>{message}</p>}
+      {hint && <p className="text-[11px] leading-relaxed text-foreground">{hint}</p>}
     </div>
   );
 }
@@ -91,6 +91,21 @@ export function OutlineButton({ children, onClick }: { children: ReactNode; onCl
     <button type="button" onClick={onClick} className="flex w-full items-center justify-center gap-2 rounded-xl border bg-card py-3 text-[13px] font-semibold [&_svg]:h-4 [&_svg]:w-4 transition active:scale-[0.98]">
       {children}
     </button>
+  );
+}
+
+/** Red notice box used for failed sign-in / redirected sign-up, like marketku.id. */
+export function AuthAlert({ children }: { children: ReactNode }) {
+  return <div role="alert" className="mk-fade-in mb-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-[12.5px] leading-snug text-destructive">{children}</div>;
+}
+
+/** Password strength bar: 4 steps — red, blue, blue, green. */
+export function StrengthBar({ level }: { level: number }) {
+  const tone = level <= 1 ? "bg-destructive" : level >= 4 ? "bg-success" : "bg-primary";
+  return (
+    <div className="h-[5px] overflow-hidden rounded-full bg-muted" aria-hidden>
+      <div className={`h-full rounded-full transition-all duration-300 ${tone}`} style={{ width: `${level * 25}%` }} />
+    </div>
   );
 }
 
