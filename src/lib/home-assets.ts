@@ -74,7 +74,7 @@ export const BRAND_GROUPS = [
   {
     title: "App Premium",
     icon: secAppPremium.url,
-    category: "Aplikasi",
+    category: "App Premium",
     brands: [
       { name: "Capcut", img: appCapcut.url },
       { name: "Canva", img: appCanva.url },

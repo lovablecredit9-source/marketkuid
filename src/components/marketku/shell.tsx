@@ -55,12 +55,29 @@ export function NotifDrop({ onClose, className = "" }: { onClose: () => void; cl
   );
 }
 
-export function Header({ title, showSupport = true }: { title?: string | undefined; showSupport?: boolean }) {
+/** True once the page has scrolled past `y` px (used to fold the home search bar into an icon). */
+function useScrolledPast(y: number, enabled: boolean) {
+  const [past, setPast] = useState(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const on = () => setPast(window.scrollY > y);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, [y, enabled]);
+  return past;
+}
+
+export function Header({ title, showSupport = true, homeSearch = false }: { title?: string | undefined; showSupport?: boolean; homeSearch?: boolean }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [notif, setNotif] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [q, setQ] = useState("");
   const cart = useCart();
   const cartCount = cart.data?.length ?? 0;
+  const folded = useScrolledPast(40, homeSearch);
+  const showBar = homeSearch && !folded;
   if (title) {
     return (
       <><div aria-hidden className="h-[76px]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto h-[76px] max-w-md bg-background px-3 pb-2 pt-3 shadow-[0_6px_10px_-6px_hsl(0_0%_0%/0.25)]">
@@ -75,13 +92,14 @@ export function Header({ title, showSupport = true }: { title?: string | undefin
       </header></>
     );
   }
+  const spacer = (showSupport ? 94 : 54) + (homeSearch ? 44 : 0);
   return (
-    <><div aria-hidden className={showSupport ? "h-[94px]" : "h-[54px]"} /><header className={`fixed inset-x-0 top-0 z-30 mx-auto ${showSupport ? "h-[94px]" : "h-[54px]"} max-w-md border-b bg-card`}>
+    <><div aria-hidden style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
-          <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>
-          <IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn>
+          {user && <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>}
+          {!showBar && <span className="mk-fade-in"><IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn></span>}
           <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}>
             <span className="relative"><ShoppingCart className="h-5 w-5" />{cartCount > 0 && <span className="absolute -right-2.5 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
           </IconBtn>
@@ -89,6 +107,16 @@ export function Header({ title, showSupport = true }: { title?: string | undefin
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
+      {homeSearch && (
+        <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${showBar ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+          <form aria-hidden={!showBar} className="overflow-hidden px-3" onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: q.trim() ? { q: q.trim() } : {} }); }}>
+            <label className="mb-2 flex h-9 items-center gap-2.5 rounded-xl border bg-card px-3 shadow-sm">
+              <Search className="h-[18px] w-[18px] text-muted-foreground" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} tabIndex={showBar ? 0 : -1} placeholder="Cari produk digital..." className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground" />
+            </label>
+          </form>
+        </div>
+      )}
       {showSupport && <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="block border-t py-2 text-center text-sm font-semibold transition active:bg-accent">Bantuan</a>}
       <SideMenu open={menu} onOpenChange={setMenu} />
     </header></>
@@ -176,7 +204,13 @@ function IconBtn({ children, label, onClick }: { children: ReactNode; label: str
   );
 }
 
-const tabs = [
+// Same tabs and order as marketku.id: signed-out visitors get 3 tabs, signed-in users also get Pesan.
+const GUEST_TABS = [
+  { to: "/", label: "Home", icon: Home },
+  { to: "/riwayat", label: "Pesanan", icon: Package },
+  { to: "/akun", label: "Akun", icon: User },
+] as const;
+const USER_TABS = [
   { to: "/", label: "Home", icon: Home },
   { to: "/riwayat", label: "Pesanan", icon: Package },
   { to: "/pesan", label: "Pesan", icon: MessageCircle },
@@ -186,27 +220,27 @@ const tabs = [
 export function BottomNav() {
   const { user } = useAuth();
   const unread = useUnreadChats(user?.id).data?.total ?? 0;
+  const tabs = user ? USER_TABS : GUEST_TABS;
   return (
-    // Plain sans labels like the original marketku.id nav.
-    <nav className="mk-acc-heading fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
-      <div className="grid grid-cols-4 rounded-2xl border bg-card p-1 shadow-lg">
+    <nav aria-label="Navigasi utama" className="mk-acc-heading fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
+      <div className="mk-nav-pill grid w-full max-w-[400px] grid-flow-col auto-cols-fr gap-0.5 rounded-[17px] border p-1">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: to === "/" }}
-            className="group relative flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10.5px] font-semibold text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
+            activeOptions={{ exact: to === "/", includeSearch: false }}
+            className="group relative flex min-h-12 flex-col items-center justify-center gap-[3px] overflow-hidden rounded-[13px] px-[3px] pb-1 pt-[5px] text-foreground transition-[color,background-color,transform] duration-200 active:translate-y-px data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
           >
-            <span className="absolute -top-1 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-out group-data-[status=active]:w-1/2" />
-            <span className="relative">
-              <Icon strokeWidth={2.4} className="h-[19px] w-[19px] transition-transform duration-300 ease-out group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
+            <span className="absolute left-1/2 top-0 h-0.5 w-0 -translate-x-1/2 rounded-b-[1px] bg-primary transition-[width] duration-300 ease-out group-data-[status=active]:w-[38%]" />
+            <span className="relative inline-flex">
+              <Icon strokeWidth={2.1} className="mk-nav-icon h-[19px] w-[19px]" />
               {to === "/pesan" && unread > 0 && (
-                <span key={unread} aria-label={`${unread} pesan belum dibaca`} className="mk-badge-pop mk-acc-heading absolute -right-3 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
-                  {unread > 99 ? "99+" : unread}
+                <span key={unread} aria-label={`${unread} pesan belum dibaca`} className="mk-badge-pop absolute -right-[9px] -top-[5px] h-3.5 min-w-3.5 rounded-full border-[1.5px] border-card bg-destructive px-[3px] text-center text-[8px] font-bold leading-[11px] text-destructive-foreground">
+                  {Math.min(99, unread)}
                 </span>
               )}
             </span>
-            {label}
+            <span className="max-w-full truncate text-[9.5px] font-semibold leading-[1.15] tracking-[0.01em]">{label}</span>
           </Link>
         ))}
       </div>
@@ -214,12 +248,12 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({ children, title, nav = true, header = true, showSupport = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; showSupport?: boolean; className?: string }) {
+export function AppShell({ children, title, nav = true, header = true, showSupport = true, homeSearch = false, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; showSupport?: boolean; homeSearch?: boolean; className?: string }) {
   useStoredDark();
   const ban = useAccountBan();
   return (
     <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
-      {header && <Header title={title} showSupport={showSupport} />}
+      {header && <Header title={title} showSupport={showSupport} homeSearch={homeSearch} />}
       <main className={nav ? "pb-28" : "pb-8"}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
     </div>
