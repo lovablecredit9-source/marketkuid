@@ -37,9 +37,12 @@ export function BootScreen() {
     <div
       role="status"
       aria-label="Memuat Marketku"
-      className={`fixed inset-0 z-[100] grid place-items-center bg-background transition-opacity duration-300 ${leaving ? "pointer-events-none opacity-0" : "opacity-100"}`}
+      className={`fixed inset-0 z-[100] bg-background transition-opacity duration-300 ${leaving ? "pointer-events-none opacity-0" : "opacity-100"}`}
     >
-      <p className="mk-boot-text text-base font-bold text-muted-foreground">Memuat Marketku...</p>
+      {/* Centered in the top 56% of the screen, like marketku.id's route loader. */}
+      <div className="grid min-h-[56vh] place-items-center">
+        <p className="mk-boot-text">Memuat Marketku...</p>
+      </div>
     </div>
   );
 }
