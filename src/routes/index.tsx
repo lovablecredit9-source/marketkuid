@@ -111,6 +111,19 @@ function Index() {
           </>
         )}
 
+        <div className="-mx-3 border-y bg-card pb-4 pt-3.5" aria-label="Sponsor Marketku">
+          <p className="mb-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Mitra Marketku</p>
+          <div className="mk-partners" role="marquee">
+            <div className="mk-partners__track">
+              {PARTNERS.map((m) => (
+                <a key={m.name} href={m.href} target="_blank" rel="noopener noreferrer" title={m.name} aria-label={m.name} className="mk-partners__item">
+                  <img src={m.img} alt={m.name} loading="lazy" className="h-8 w-auto max-w-[160px] object-contain" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <section className="space-y-1 rounded-2xl border bg-card p-2">
           {[
             { icon: Zap, t: "Kirim Instan", d: "Otomatis setelah bayar" },
@@ -126,20 +139,7 @@ function Index() {
         </section>
       </div>
 
-      <div className="mt-6 border-b bg-card pb-4 pt-3.5" aria-label="Sponsor Marketku">
-        <p className="mb-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Mitra Marketku</p>
-        <div className="mk-partners" role="marquee">
-          <div className="mk-partners__track">
-            {PARTNERS.map((m) => (
-              <a key={m.name} href={m.href} target="_blank" rel="noopener noreferrer" title={m.name} aria-label={m.name} className="mk-partners__item">
-                <img src={m.img} alt={m.name} loading="lazy" className="h-8 w-auto max-w-[160px] object-contain" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <footer className="bg-primary px-5 pb-8 pt-8 text-primary-foreground">
+      <footer className="mt-6 bg-primary px-5 pb-8 pt-8 text-primary-foreground">
         <img src={logo.url} alt="Marketku" className="h-9 w-auto brightness-0 invert" />
         <p className="mt-4 text-sm leading-relaxed opacity-90">Marketplace untuk beli dan jual produk digital dengan mudah dan cepat.</p>
         <div className="mt-4 flex gap-2">
