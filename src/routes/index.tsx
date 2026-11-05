@@ -196,29 +196,109 @@ function Ticker({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct
   );
 }
 
-function CategoryStrip() {
-  const cats = useCategories();
-  if (!cats.data?.length) return null;
+/** Top-level order of the home shortcut bar on marketku.id; categories not listed follow by their sort. */
+const STRIP_ORDER = ["Tools", "Lainnya", "AI Tools", "PPOB", "Aplikasi", "Cloud", "Software", "Social Media", "Game Online", "Design & Kreatif", "Streaming"];
+
+/** Home URL for a category: root name in `kategori`, the deeper pick (if any) in `subkategori`. */
+function catSearch(cats: CategoryRow[], c: CategoryRow): HomeSearch {
+  const path = categoryPath(cats, c.id);
+  const root = path[0] ?? c;
+  return root.id === c.id ? { kategori: c.name } : { kategori: root.name, subkategori: c.name };
+}
+
+function CatIcon({ name, size = "h-[34px] w-[34px]" }: { name: string; size?: string }) {
+  const img = categoryIcon(name);
+  const I = CAT_ICON[name] ?? LayoutGrid;
+  return img ? (
+    <span className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-muted ${size}`}><img src={img} alt="" className="h-full w-full object-cover" /></span>
+  ) : (
+    <span className={`grid shrink-0 place-items-center rounded-full bg-primary/10 text-primary ${size}`}><I className="h-4 w-4" /></span>
+  );
+}
+
+/** One pill in a shortcut bar; a thin divider sits between pills and hides next to the active one. */
+function StripItem({ active, onClick, children, label }: { active?: boolean; onClick?: () => void; children: ReactNode; label: string }) {
   return (
-    <div className="-mx-3 flex overflow-x-auto px-3 py-1 [scrollbar-width:none]" data-tour="kategori">
-      {cats.data.slice(0, 14).map((c) => {
-        const I = CAT_ICON[c.name] ?? LayoutGrid;
-        const img = categoryIcon(c.name);
+    <button type="button" onClick={onClick} aria-pressed={active}
+      className={`mk-strip-item relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full py-1.5 pl-1.5 pr-3 transition-colors active:scale-95 ${active ? "is-active bg-primary/12 bg-primary/10" : ""}`}>
+      {children}
+      <span className={`text-[12.5px] leading-tight ${active ? "font-bold text-primary" : "font-semibold text-foreground/80"}`}>{label}</span>
+    </button>
+  );
+}
+
+function Strip({ children, tour }: { children: ReactNode; tour?: string }) {
+  return <div className="-mx-3 flex items-center gap-2 overflow-x-auto scroll-smooth px-4 py-2 [scrollbar-width:none]" data-tour={tour}>{children}</div>;
+}
+
+/** Category shortcut bar + sub-category bars + the picked category's products, all on the home page. */
+function HomeCategories() {
+  const cats = useCategories();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  const all = cats.data ?? [];
+  const roots = useMemo(() => {
+    const top = all.filter((c) => !c.parent_id);
+    const rank = (n: string) => { const i = STRIP_ORDER.indexOf(n); return i < 0 ? 99 : i; };
+    return [...top].sort((a, b) => rank(a.name) - rank(b.name) || a.sort - b.sort);
+  }, [all]);
+  const root = roots.find((c) => c.name === search.kategori);
+  const leaf = (search.subkategori && root ? all.find((c) => c.name === search.subkategori && descendantIds(all, root.id).includes(c.id)) : undefined) ?? root;
+  const path = leaf ? categoryPath(all, leaf.id) : [];
+  const products = useMarketProducts({ category: leaf?.id ?? null, limit: 30 });
+  const enabled = !!leaf;
+  const items = enabled ? (products.data ?? []) : [];
+  const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
+  if (!all.length) return null;
+
+  const go = (s: HomeSearch) => navigate({ to: "/", search: s, replace: true, resetScroll: false });
+  // Bars: the top level, then one bar per picked level that has children.
+  const levels = path.filter((c) => childCategories(all, c.id).length > 0);
+
+  return (
+    <div className="!mt-4 space-y-1">
+      <Strip tour="kategori">
+        {roots.map((c) => (
+          <StripItem key={c.id} label={c.name} active={root?.id === c.id} onClick={() => go(root?.id === c.id ? {} : { kategori: c.name })}>
+            <CatIcon name={c.name} />
+          </StripItem>
+        ))}
+        <Link to="/kategori" className="mk-strip-item relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full py-1.5 pl-1.5 pr-3 transition-colors active:scale-95">
+          <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-primary/10 text-primary"><LayoutGrid className="h-4 w-4" /></span>
+          <span className="text-[12.5px] font-semibold leading-tight text-foreground/80">Lihat semua</span>
+        </Link>
+      </Strip>
+
+      {levels.map((lv, i) => {
+        const next = path[path.indexOf(lv) + 1];
         return (
-          <Link key={c.id} to="/cari" search={{ kategori: c.id }} className="flex shrink-0 items-center gap-2.5 border-r px-4 text-sm font-medium transition last:border-r-0 active:scale-95">
-            {img ? (
-              <img src={img} alt="" className="h-8 w-8 rounded-full object-cover" />
-            ) : (
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><I className="h-4 w-4" /></span>
-            )}
-            {c.name}
-          </Link>
+          <Strip key={lv.id}>
+            <StripItem label="Semua Produk" onClick={() => go(catSearch(all, lv))}><CatIcon name={lv.name} /></StripItem>
+            {childCategories(all, lv.id).map((c) => (
+              <StripItem key={c.id} label={c.name} active={next?.id === c.id && i === levels.length - 1 ? true : next?.id === c.id}
+                onClick={() => go(next?.id === c.id ? catSearch(all, lv) : catSearch(all, c))}>
+                <CatIcon name={c.name} />
+              </StripItem>
+            ))}
+          </Strip>
         );
       })}
-      <Link to="/kategori" className="flex shrink-0 items-center gap-2.5 px-4 text-sm font-medium transition active:scale-95">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-primary"><LayoutGrid className="h-4 w-4" /></span>
-        Lihat semua
-      </Link>
+
+      {leaf && (
+        <section className="mk-fade-in pt-3" aria-label={`Produk ${leaf.name}`}>
+          <div className="mb-2 flex items-center gap-3">
+            <CatIcon name={leaf.name} size="h-9 w-9" />
+            <h2 className="text-lg font-extrabold tracking-tight">{leaf.name}</h2>
+          </div>
+          {products.isLoading ? (
+            <div className="flex gap-3">{[0, 1].map((n) => <div key={n} className="h-60 w-40 shrink-0 animate-pulse rounded-xl border bg-card" />)}</div>
+          ) : items.length ? (
+            <div className="-mx-3"><Rail>{items.map((p) => <MiniCard key={p.id} p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />)}</Rail></div>
+          ) : (
+            <p className="rounded-xl border bg-card px-4 py-6 text-center text-sm text-muted-foreground">Belum ada produk di kategori {leaf.name}.</p>
+          )}
+        </section>
+      )}
     </div>
   );
 }
