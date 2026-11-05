@@ -1999,6 +1999,18 @@ export type Database = {
         Returns: string
       }
       review_public_label: { Args: { p_username: string }; Returns: string }
+      search_stores: {
+        Args: { p_limit?: number; p_q: string }
+        Returns: {
+          is_open: boolean
+          owner_id: string
+          product_count: number
+          rating_avg: number
+          review_count: number
+          slug: string
+          store_name: string
+        }[]
+      }
       seller_advance_order: {
         Args: { p_delivery: string; p_order: string; p_status: string }
         Returns: undefined
