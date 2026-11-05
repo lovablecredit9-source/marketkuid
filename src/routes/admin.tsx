@@ -36,6 +36,7 @@ const TABS = [
   { key: "toko", label: "Toko", icon: Store },
   { key: "produk", label: "Produk", icon: Package },
   { key: "pesanan", label: "Pesanan", icon: Receipt },
+  { key: "kategori", label: "Kategori", icon: Plus },
   { key: "log", label: "Log", icon: History },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
@@ -116,6 +117,7 @@ function Admin() {
           {tab === "toko" && <StoresTab />}
           {tab === "produk" && <ProductsTab />}
           {tab === "pesanan" && <OrdersTab />}
+          {tab === "kategori" && <CategoryRequestsTab />}
           {tab === "log" && <LogsTab />}
         </main>
       </div>
@@ -913,6 +915,49 @@ function OrdersTab() {
 }
 
 /* ---------- Log ---------- */
+
+function CategoryRequestsTab() {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+  const list = useQuery({
+    queryKey: ["admin_category_requests"],
+    queryFn: async () => { const { data, error } = await supabase.from("category_requests").select("*").order("created_at", { ascending: false }).limit(200); if (error) throw error; return data ?? []; },
+  });
+  const review = async (id: string, approve: boolean) => {
+    setBusy(id);
+    const { error } = await supabase.rpc("admin_review_category_request", { _id: id, _approve: approve });
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(approve ? "Kategori disetujui dan ditambahkan" : "Pengajuan ditolak");
+    qc.invalidateQueries({ queryKey: ["admin_category_requests"] });
+    qc.invalidateQueries({ queryKey: ["product_categories"] });
+  };
+  const label = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak" } as Record<string, string>;
+  return (
+    <>
+      <div className="flex items-center justify-between"><h1 className="text-base font-bold">Pengajuan Kategori</h1><Refresh q={list} /></div>
+      {list.isPending ? <Loading label="Memuat pengajuan..." /> : (list.data ?? []).length === 0 ? <Empty text="Belum ada pengajuan kategori." /> : (
+        <div className="space-y-2">
+          {list.data!.map((r) => (
+            <div key={r.id} className="rounded-2xl border bg-card p-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold">{r.name}</p>
+                <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold">{label[r.status] ?? r.status}</span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("id-ID")}</p>
+              {r.status === "pending" && (
+                <div className="mt-2 flex gap-2">
+                  <button disabled={busy === r.id} onClick={() => review(r.id, true)} className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"><Check className="h-3.5 w-3.5" /> Setujui</button>
+                  <button disabled={busy === r.id} onClick={() => review(r.id, false)} className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-semibold"><X className="h-3.5 w-3.5" /> Tolak</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
 
 function LogsTab() {
   const list = useQuery({
