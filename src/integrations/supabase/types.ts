@@ -1655,6 +1655,72 @@ export type Database = {
         }
         Relationships: []
       }
+      warranty_claims: {
+        Row: {
+          buyer_id: string
+          code: string
+          created_at: string
+          id: string
+          order_id: string
+          order_item_id: string
+          product_name: string
+          proof_path: string | null
+          reason: string
+          replacement: string[]
+          reviewed_at: string | null
+          seller_id: string
+          seller_note: string | null
+          status: string
+        }
+        Insert: {
+          buyer_id: string
+          code?: string
+          created_at?: string
+          id?: string
+          order_id: string
+          order_item_id: string
+          product_name: string
+          proof_path?: string | null
+          reason: string
+          replacement?: string[]
+          reviewed_at?: string | null
+          seller_id: string
+          seller_note?: string | null
+          status?: string
+        }
+        Update: {
+          buyer_id?: string
+          code?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          order_item_id?: string
+          product_name?: string
+          proof_path?: string | null
+          reason?: string
+          replacement?: string[]
+          reviewed_at?: string | null
+          seller_id?: string
+          seller_note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warranty_claims_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "warranty_claims_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -1944,9 +2010,20 @@ export type Database = {
       }
       hide_conversations: { Args: { p_ids: string[] }; Returns: undefined }
       is_account_banned: { Args: { p_user: string }; Returns: boolean }
+      is_claim_item_buyer: { Args: { p_item: string }; Returns: boolean }
+      is_claim_item_participant: { Args: { p_item: string }; Returns: boolean }
       is_conversation_participant: { Args: { p_id: string }; Returns: boolean }
       is_dispute_participant: { Args: { p_id: string }; Returns: boolean }
       is_store_banned: { Args: { p_owner: string }; Returns: boolean }
+      item_warranty_info: {
+        Args: { p_item: string }
+        Returns: {
+          active: boolean
+          ends_at: string
+          max_claims: number
+          used: number
+        }[]
+      }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
       my_bans: {
         Args: never
@@ -1958,6 +2035,10 @@ export type Database = {
       }
       open_dispute: {
         Args: { p_note: string; p_order: string; p_reasons: string[] }
+        Returns: string
+      }
+      open_warranty_claim: {
+        Args: { p_item: string; p_proof?: string; p_reason: string }
         Returns: string
       }
       order_release_at: { Args: { p_order: string }; Returns: string }
@@ -2083,6 +2164,10 @@ export type Database = {
       }
       seller_respond_dispute: {
         Args: { p_action: string; p_id: string }
+        Returns: undefined
+      }
+      seller_review_warranty_claim: {
+        Args: { p_approve: boolean; p_claim: string; p_note?: string }
         Returns: undefined
       }
       seller_start_conversation: { Args: { p_buyer: string }; Returns: string }
