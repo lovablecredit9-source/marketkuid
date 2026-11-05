@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
@@ -10,7 +10,7 @@ import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { PriceLine, ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { categoryPath, childCategories, descendantIds, useCategories, useImageUrls, type CategoryRow } from "@/lib/products";
-import { BRAND_GROUPS, HOME_BANNERS } from "@/lib/home-assets";
+import { BRAND_GROUPS, HOME_BANNERS, HOME_GAMES, PARTNERS } from "@/lib/home-assets";
 import { categoryIcon } from "@/lib/category-icons";
 
 type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
@@ -24,7 +24,6 @@ const CAT_ICON: Record<string, LucideIcon> = {
   "AI Tools": Bot, Aplikasi: AppWindow, Cloud, "Design & Kreatif": Palette, "Game Online": Gamepad2, Lainnya: MoreHorizontal,
   PPOB: Smartphone, "Social Media": Users, Software: Cpu, Streaming: Tv, Tools: Wrench,
 };
-const GAMES = ["Roblox", "Free Fire", "Mobile Legends", "PUBG"] as const;
 
 type HomeSearch = { kategori?: string; subkategori?: string };
 
@@ -83,14 +82,14 @@ function Index() {
             <SponsoredSection />
 
             {trending.length > 0 && (
-              <Section icon={TrendingUp} tone="bg-destructive text-primary-foreground" kicker="Explore Marketku" title="Trending Now" to="/cari">
+              <Section icon={TrendingUp} tone="pink" kicker="Explore Marketku" title="Trending Now" to="/cari">
                 <Rail>{trending.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
 
             <LikedSection items={liked} urlOf={urlOf} />
 
-            <Section icon={TrendingUp} tone="bg-warning text-foreground" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
+            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
               {best.length ? (
                 <Rail>{best.map((p, i) => <MiniCard key={p.id} p={p} url={urlOf(p)} rank={i + 1} />)}</Rail>
               ) : (
@@ -99,18 +98,31 @@ function Index() {
             </Section>
 
             {discounted.length > 0 && (
-              <Section icon={BadgePercent} tone="bg-destructive text-primary-foreground" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/cari">
+              <Section icon={BadgePercent} tone="pink" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/cari">
                 <Rail>{discounted.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
 
-            <Section icon={Clock} tone="bg-success text-primary-foreground" kicker="Baru ditambahkan" title="Produk Baru" to="/cari">
+            <Section icon={Clock} tone="green" kicker="Baru ditambahkan" title="Produk Baru" to="/cari">
               <Rail>{fresh.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
             </Section>
 
             <GameSection items={list} urlOf={urlOf} />
           </>
         )}
+
+        <div className="-mx-3 border-y bg-card pb-4 pt-3.5" aria-label="Sponsor Marketku">
+          <p className="mb-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Mitra Marketku</p>
+          <div className="mk-partners" role="marquee">
+            <div className="mk-partners__track">
+              {PARTNERS.map((m) => (
+                <a key={m.name} href={m.href} target="_blank" rel="noopener noreferrer" title={m.name} aria-label={m.name} className="mk-partners__item">
+                  <img src={m.img} alt={m.name} loading="lazy" className="h-8 w-auto max-w-[160px] object-contain" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
 
         <section className="space-y-1 rounded-2xl border bg-card p-2">
           {[
@@ -153,28 +165,38 @@ function Index() {
   );
 }
 
-/** Auto-sliding promo banners supplied by the owner. */
+/** Promo banners: swipe by hand (scroll-snap) or let them auto-advance every 4s; dots follow the visible slide. */
 function Banner() {
   const items = HOME_BANNERS;
   const [i, setI] = useState(0);
+  const track = useRef<HTMLDivElement>(null);
+  const touching = useRef(false);
+  const goTo = (n: number) => { const el = track.current; if (el) el.scrollTo({ left: n * el.clientWidth, behavior: "smooth" }); };
   useEffect(() => {
     if (items.length < 2) return;
-    const t = window.setInterval(() => setI((v) => (v + 1) % items.length), 4000);
+    const t = window.setInterval(() => {
+      const el = track.current;
+      if (!el || touching.current) return;
+      const cur = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+      el.scrollTo({ left: ((cur + 1) % items.length) * el.clientWidth, behavior: "smooth" });
+    }, 4000);
     return () => window.clearInterval(t);
   }, [items.length]);
   return (
-    <div className="relative overflow-hidden rounded-2xl shadow-sm" data-tour="banner">
-      <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${i * 100}%)` }}>
+    <div className="relative" data-tour="banner">
+      <div ref={track} className="mk-banner-track rounded-2xl shadow-sm"
+        onScroll={(e) => { const el = e.currentTarget; setI(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); }}
+        onTouchStart={() => { touching.current = true; }} onTouchEnd={() => { window.setTimeout(() => { touching.current = false; }, 2500); }}>
         {items.map((b) => (
-          <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : {}} className="block w-full shrink-0" aria-label={b.alt}>
-            <img src={b.src} alt={b.alt} className="aspect-[4/1] w-full object-cover" />
+          <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : {}} draggable={false} className="block overflow-hidden rounded-2xl" aria-label={b.alt}>
+            <img src={b.src} alt={b.alt} draggable={false} className="aspect-[4/1] w-full object-cover" />
           </Link>
         ))}
       </div>
       {items.length > 1 && (
-        <div className="absolute bottom-2 right-3 flex gap-1.5 rounded-full bg-foreground/40 px-1.5 py-1">
+        <div className="absolute bottom-2 right-3 flex gap-1.5 rounded-full bg-foreground/40 px-1.5 py-1" aria-label="Pilih banner promo">
           {items.map((b, n) => (
-            <button key={b.src} aria-label={`Banner ${n + 1}`} onClick={() => setI(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-5 bg-card" : "w-1.5 bg-card/60"}`} />
+            <button key={b.src} aria-label={`Tampilkan banner ${n + 1}`} aria-current={n === i} onClick={() => goTo(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-5 bg-card" : "w-1.5 bg-card/60"}`} />
           ))}
         </div>
       )}
@@ -210,9 +232,9 @@ function CatIcon({ name, size = "h-[34px] w-[34px]" }: { name: string; size?: st
   const img = categoryIcon(name);
   const I = CAT_ICON[name] ?? LayoutGrid;
   return img ? (
-    <span className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-muted ${size}`}><img src={img} alt="" className="h-full w-full object-cover" /></span>
+    <span className={`mk-float-icon grid shrink-0 place-items-center overflow-hidden rounded-full bg-muted ${size}`}><img src={img} alt="" className="h-full w-full object-cover" /></span>
   ) : (
-    <span className={`grid shrink-0 place-items-center rounded-full bg-primary/10 text-primary ${size}`}><I className="h-4 w-4" /></span>
+    <span className={`mk-float-icon grid shrink-0 place-items-center rounded-full bg-primary/10 text-primary ${size}`}><I className="h-4 w-4" /></span>
   );
 }
 
@@ -310,7 +332,7 @@ function SponsoredSection() {
   const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
   if (!items.length) return null;
   return (
-    <Section icon={Megaphone} tone="bg-primary text-primary-foreground" kicker="Iklan" title="Produk Bersponsor" to="/cari">
+    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Produk Bersponsor" to="/cari">
       <Rail>{items.map((p) => (
         <div key={p.campaignId} onClickCapture={() => trackAdClick(p.campaignId)}>
           <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
@@ -368,16 +390,17 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
   );
 }
 
-function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: string; kicker: string; title: string; to?: "/cari"; children: ReactNode }) {
+type RailTone = "blue" | "gold" | "pink" | "green" | "violet";
+function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari"; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="flex items-center gap-3 border-b px-3 py-2.5">
-        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${tone}`}><I className="h-5 w-5" /></span>
+    <section className={`mk-rail ${tone === "blue" ? "" : `mk-rail--${tone}`} overflow-hidden rounded-2xl border bg-card shadow-sm`}>
+      <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
+        <span className="mk-rail__icon mk-float-icon grid h-[30px] w-[30px] shrink-0 place-items-center rounded-[9px]"><I className="h-4 w-4" /></span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{kicker}</p>
-          <h2 className="truncate font-bold">{title}</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-muted-foreground">{kicker}</p>
+          <h2 className="truncate text-[14px] font-extrabold leading-tight">{title}</h2>
         </div>
-        {to && <Link to={to} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary">Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        {to && <Link to={to} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95">Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>}
       </div>
       <div className="pt-3">{children}</div>
     </section>
@@ -393,13 +416,13 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   const on = wish.data?.has(p.id) ?? false;
-  const out = !p.storeOpen ? "Toko Tutup" : p.product_type !== "preorder" && p.stock <= 0 ? "Stok Habis" : null;
+  const out = !p.storeOpen ? "Toko Tutup" : p.product_type !== "preorder" && p.stock <= 0 ? "Kosong" : null;
   return (
-    <article className={`relative overflow-hidden rounded-xl border bg-card ${grid ? "" : "w-40 shrink-0"}`}>
+    <article className={`relative overflow-hidden rounded-xl border bg-card ${grid ? "" : "w-40 shrink-0"} ${out ? "mk-card-off" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5">
         <div className="relative overflow-hidden rounded-lg">
           <ProductImage url={url} alt={p.name} className="aspect-square" />
-          {out && <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full bg-foreground/75 px-2.5 py-0.5 text-[10px] font-semibold text-background">{out}</span>}
+          {out && <span className="absolute bottom-2 right-2 z-[2] rounded-full bg-foreground/75 px-2 py-1 text-[10px] font-bold leading-none text-background">{out}</span>}
           {rank && <span className="absolute left-1.5 top-1.5 rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-foreground">#{rank}</span>}
         </div>
       </Link>
@@ -412,7 +435,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
         <PriceLine p={p} className="mt-1.5 font-bold" />
         <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Star className="h-3 w-3 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}
-          <span className="h-3 w-px bg-border" />{p.sold_count > 0 ? `${p.sold_count}+ sold` : "New"}
+          <span className="h-3 w-px bg-border" />{p.sold_count > 0 ? `${p.sold_count}+ terjual` : "Baru"}
         </p>
       </Link>
     </article>
@@ -422,7 +445,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
 function LikedSection({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
   const [n, setN] = useState(6);
   return (
-    <Section icon={Sparkles} tone="bg-primary text-primary-foreground" kicker="Explore Marketku" title="Produk Disukai" to="/cari">
+    <Section icon={Sparkles} tone="blue" kicker="Explore Marketku" title="Produk Disukai" to="/cari">
       <div className="grid grid-cols-2 gap-3 px-3 pb-3">
         {items.slice(0, n).map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} grid />)}
       </div>
@@ -437,15 +460,26 @@ function LikedSection({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardP
   );
 }
 
+const squash = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, "");
+
 function GameSection({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
-  const [game, setGame] = useState<(typeof GAMES)[number]>("Roblox");
-  const shown = items.filter((p) => p.name.toLowerCase().includes(game.toLowerCase()));
+  const [game, setGame] = useState<string>(HOME_GAMES[0].name);
+  const cats = useCategories();
+  const all = cats.data ?? [];
+  // Products in the game's category (and its sub-categories), like marketku.id; falls back to the product name.
+  const shown = useMemo(() => {
+    const roots = all.filter((c) => squash(c.name) === squash(game));
+    const names = new Set(roots.flatMap((r) => descendantIds(all, r.id)).map((id) => all.find((c) => c.id === id)?.name).filter(Boolean));
+    return items.filter((p) => (p.category && names.has(p.category)) || squash(p.name).includes(squash(game)));
+  }, [all, game, items]);
   return (
-    <Section icon={Gamepad2} tone="bg-chart-3 text-primary-foreground" kicker="Cari game favorit mu disini" title="Jelajahi Game">
-      <div className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none]">
-        {GAMES.map((g) => (
-          <button key={g} onClick={() => setGame(g)} aria-pressed={g === game}
-            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition active:scale-95 ${g === game ? "border-primary bg-accent text-primary" : ""}`}>{g}</button>
+    <Section icon={Gamepad2} tone="violet" kicker="Cari game favorit mu disini" title="Jelajahi Game">
+      <div className="-mt-3 mb-3 flex flex-wrap gap-2 border-b px-3.5 pb-3 pt-2.5" role="tablist" aria-label="Jelajahi Game">
+        {HOME_GAMES.map((g) => (
+          <button key={g.name} role="tab" aria-selected={g.name === game} onClick={() => setGame(g.name)}
+            className={`mk-game-tab inline-flex min-h-[34px] shrink-0 items-center gap-[7px] rounded-full border bg-card px-3 text-[12.5px] font-bold text-foreground/80 transition active:scale-95 ${g.name === game ? "is-active" : ""}`}>
+            <img src={g.icon} alt="" className="h-[18px] w-[18px] rounded-[5px] object-cover" />{g.name}
+          </button>
         ))}
       </div>
       {shown.length ? (

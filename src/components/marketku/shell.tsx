@@ -80,16 +80,16 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   const showBar = homeSearch && !folded;
   if (title) {
     return (
-      <><div aria-hidden className="h-[76px]" /><header className="fixed inset-x-0 top-0 z-30 mx-auto h-[76px] max-w-md bg-background px-3 pb-2 pt-3 shadow-[0_6px_10px_-6px_hsl(0_0%_0%/0.25)]">
+      <header className="relative z-30 mx-auto max-w-md px-3 pb-2 pt-3">
         <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
           <span className="mk-acc-heading border-l pl-3 text-sm font-semibold">{title}</span>
-          <button onClick={() => setNotif(!notif)} aria-label="Notifikasi" className={`ml-auto grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${notif ? "border-primary text-primary" : ""}`}>
+          <button onClick={() => setNotif(!notif)} aria-label="Notifikasi" aria-expanded={notif} className={`mk-clay-icon ml-auto grid h-9 w-9 place-items-center rounded-full border transition active:scale-90 ${notif ? "is-open border-primary" : ""}`}>
             <Bell className="h-4 w-4" />
           </button>
           {notif && <NotifDrop onClose={() => setNotif(false)} className="right-0 top-full" />}
         </div>
-      </header></>
+      </header>
     );
   }
   const spacer = (showSupport ? 94 : 54) + (homeSearch ? 44 : 0);
@@ -98,12 +98,12 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
-          {user && <IconBtn label="Notifikasi" onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>}
+          {user && <IconBtn label="Notifikasi" open={notif} onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>}
           {!showBar && <span className="mk-fade-in"><IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn></span>}
           <IconBtn label="Keranjang" onClick={() => navigate({ to: "/keranjang" })}>
-            <span className="relative"><ShoppingCart className="h-5 w-5" />{cartCount > 0 && <span className="absolute -right-2.5 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
+            <span className="relative"><ShoppingCart className="h-6 w-6" />{cartCount > 0 && <span key={cartCount} className="mk-badge-pop absolute -right-2.5 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-black leading-none text-destructive-foreground">{cartCount > 99 ? "99+" : cartCount}</span>}</span>
           </IconBtn>
-          <IconBtn label="Menu" onClick={() => setMenu(true)}><Menu className="h-5 w-5" /></IconBtn>
+          <IconBtn label="Menu" open={menu} onClick={() => setMenu(true)}><Menu className="h-5 w-5" /></IconBtn>
         </div>
         {notif && <NotifDrop onClose={() => setNotif(false)} className="right-3 top-full" />}
       </div>
@@ -149,56 +149,70 @@ export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: 
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <Dialog.Content aria-describedby={undefined} className="fixed inset-y-0 right-0 z-50 flex w-[80%] max-w-[320px] flex-col bg-card shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right">
-          <div className="flex items-center justify-between px-4 pt-4">
-            <img src={logo.url} alt="Marketku" className="h-9 w-auto" />
+        <Dialog.Content aria-describedby={undefined} className="fixed inset-y-0 right-0 z-50 flex w-[70%] max-w-[300px] flex-col bg-card shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right">
+          <div className="flex items-center justify-between px-3.5 pt-3.5">
+            <img src={logo.url} alt="Marketku" className="h-8 w-auto" />
             <Dialog.Title className="sr-only">Menu Marketku</Dialog.Title>
-            <Dialog.Close aria-label="Tutup menu" className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
+            <Dialog.Close aria-label="Tutup menu" className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition active:scale-90"><X className="h-[18px] w-[18px]" /></Dialog.Close>
           </div>
-          {name && <p className="flex items-center gap-2 border-b px-4 pb-3 pt-2 text-sm font-bold uppercase"><User className="h-4 w-4" /> {name}</p>}
-          <nav className="flex-1 overflow-y-auto px-3 py-2">
+          <div className="space-y-2 px-3.5 pt-3">
+            {user ? (
+              <>
+                {name && <p className="flex items-center gap-2 pb-1 text-[13px] font-bold uppercase"><User className="h-4 w-4" /> {name}</p>}
+                <button onClick={() => go(() => navigate({ to: "/akun" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border bg-accent/60 py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><User className="h-4 w-4" /> Profil & Saldo</button>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => go(() => navigate({ to: "/login" }))} className="rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]">Masuk</button>
+                <button onClick={() => go(() => navigate({ to: "/register" }))} className="rounded-lg bg-primary py-2 text-[12.5px] font-bold text-primary-foreground transition active:scale-[0.98]">Daftar</button>
+              </div>
+            )}
+            <div className="border-t pt-2">
+              {store.data ? (
+                <button onClick={() => go(() => navigate({ to: "/seller" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Seller Center</button>
+              ) : (
+                <button onClick={() => go(() => navigate({ to: user ? "/akun" : "/register" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Mulai Jualan</button>
+              )}
+            </div>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-2.5 py-1.5">
             {sideLinks.map(({ to, label, icon: I }) => (
               <Link key={label} to={to} onClick={() => onOpenChange(false)} activeOptions={{ exact: true }}
-                className="flex items-center gap-3 rounded-xl px-3 py-3 font-medium transition active:scale-[0.98] data-[status=active]:bg-accent data-[status=active]:text-primary">
-                <I className="h-5 w-5" strokeWidth={1.75} /> {label}
+                className="flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13.5px] font-medium text-foreground/85 transition active:scale-[0.98] data-[status=active]:bg-accent data-[status=active]:text-primary">
+                <I className="h-[17px] w-[17px]" strokeWidth={1.75} /> {label}
               </Link>
             ))}
-            <button onClick={() => toggleDark()} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 font-medium transition active:scale-[0.98]">
-              <Moon className="h-5 w-5" strokeWidth={1.75} /> Mode Gelap
+            <button onClick={() => toggleDark()} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13.5px] font-medium text-foreground/85 transition active:scale-[0.98]">
+              <Moon className="h-[17px] w-[17px]" strokeWidth={1.75} /> Mode Gelap
             </button>
             {(cats.data?.length ?? 0) > 0 && (
-              <div className="mt-2 border-t pt-3">
-                <p className="px-1 pb-2 text-xs font-bold tracking-widest text-muted-foreground">KATEGORI POPULER</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-1.5 border-t px-1 pt-3">
+                <p className="pb-2 text-[10px] font-bold tracking-[0.08em] text-muted-foreground">KATEGORI POPULER</p>
+                <div className="flex flex-wrap gap-1.5">
                   {cats.data!.slice(0, 10).map((c) => (
-                    <button key={c.id} onClick={() => go(() => navigate({ to: "/cari", search: { kategori: c.id } }))} className="rounded-lg border px-3 py-1.5 text-sm transition active:scale-95">{c.name}</button>
+                    <button key={c.id} onClick={() => go(() => navigate({ to: "/cari", search: { kategori: c.id } }))} className="rounded-md border bg-muted/40 px-2 py-1 text-[11.5px] font-medium transition active:scale-95">{c.name}</button>
                   ))}
                 </div>
               </div>
             )}
           </nav>
-          <div className="space-y-2 border-t p-3">
-            {user ? (
-              <>
-                <button onClick={() => go(() => navigate({ to: "/akun" }))} className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition active:scale-[0.98]"><User className="h-4 w-4" /> Profil & Saldo</button>
-                {store.data && <button onClick={() => go(() => navigate({ to: "/seller" }))} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Seller Center</button>}
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => go(() => navigate({ to: "/login" }))} className="rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">Masuk</button>
-                <button onClick={() => go(() => navigate({ to: "/register" }))} className="rounded-xl border py-3 text-sm font-semibold">Daftar</button>
-              </div>
-            )}
-          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 }
 
-function IconBtn({ children, label, onClick }: { children: ReactNode; label: string; onClick: () => void }) {
+/** Header icon button: clay shadow, lifts on hover, presses on tap, bounces once when tapped and glows blue while its panel is open. */
+function IconBtn({ children, label, onClick, open = false }: { children: ReactNode; label: string; onClick: () => void; open?: boolean }) {
+  const [bump, setBump] = useState(0);
   return (
-    <button onClick={onClick} aria-label={label} className="grid h-10 w-10 place-items-center rounded-full text-foreground hover:bg-accent">
+    <button
+      onClick={() => { setBump((n) => n + 1); onClick(); }}
+      onAnimationEnd={() => setBump(0)}
+      aria-label={label}
+      aria-expanded={open || undefined}
+      className={`mk-clay-icon grid h-10 w-10 place-items-center rounded-full text-foreground/85 hover:bg-accent ${open ? "is-open" : ""} ${bump ? "is-bump" : ""}`}
+    >
       {children}
     </button>
   );

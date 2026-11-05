@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { tickState } from "@/lib/chat";
 import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
-import { lastSeenLabel } from "@/components/marketku/chat-avatar";
+import { TypingPill, lastSeenLabel } from "@/components/marketku/chat-avatar";
 import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller/chat_/$id")({
@@ -72,7 +72,7 @@ function SellerChatRoom() {
   const incoming = list.filter((m) => m.sender_id !== user?.id).length;
   const lastMine = [...list].reverse().find((m) => m.sender_id === user?.id);
   const typing = !!state.data?.typing;
-  const status = typing ? "sedang mengetik..." : lastSeenLabel(state.data?.seen_at);
+  const status = typing ? "Online" : lastSeenLabel(state.data?.seen_at);
   const name = c?.buyer_name ?? "Pembeli";
 
   useEffect(() => {
@@ -124,7 +124,7 @@ function SellerChatRoom() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[15px] font-bold leading-tight">{c ? name : "Memuat..."}</p>
-            <p className={`truncate text-[12.5px] ${typing ? "text-success" : "text-muted-foreground"}`}>{state.isPending ? "Offline" : status}</p>
+            <p className="truncate text-[12.5px] text-muted-foreground">{state.isPending ? "Offline" : status === "Online" ? "Buyer sedang online" : status}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-xl border bg-background px-2.5 py-1.5 text-[12px]">
@@ -154,6 +154,7 @@ function SellerChatRoom() {
             </div>
           );
         })}
+        {typing && <TypingPill name={name} />}
         <div ref={end} />
       </div>
 
