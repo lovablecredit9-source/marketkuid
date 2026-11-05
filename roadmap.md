@@ -63,5 +63,7 @@
 - [ ] Bot Telegram & broadcast di marketku.id (user hubungkan token sendiri)
 - [ ] Upload 9 jenis produk uji di marketku.id + tampilan pembeli
 - [x] Animasi ikon & tulisan navigasi bawah Seller Center saat pindah halaman
-- [ ] Bot Telegram & broadcast di marketku.id (menunggu user menghubungkan token sendiri)
-- [ ] Upload 9 jenis produk & tes klaim garansi nyata di marketku.id (menunggu kode login & pembayaran QRIS Rp100 dari user)
+- [x] Bot @MARKETKUIDR_bot terhubung ke toko Tambas; broadcast nyata (pratinjau, tes ke saya, kirim, riwayat, gambar)
+- [ ] Tes broadcast ke @jepangges lewat @MARKETKUIDR_bot (menunggu jepangges tekan /start di bot)
+- [x] Form 9 jenis produk marketku.id dicek ulang (hanya Code punya subtype di langkah Info)
+- [ ] Tes klaim garansi nyata di marketku.id (menunggu pembayaran QRIS Rp100 dari user)
