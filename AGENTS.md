@@ -20,7 +20,7 @@
 - Orders are created only through the `place_order` database function (prices, stock, vouchers re-checked server-side; one order per seller grouped by `checkout_id`); buyers/sellers read orders via RLS and change status only via `cancel_order`/`seller_advance_order` — clients can never write prices or statuses directly.
 - Public store info, stock counts, and seller customer lists come from SECURITY DEFINER read functions (`public_stores`, `store_by_slug`, `search_stores`, `variant_stock`, `seller_customers`, `public_store_vouchers`) because `seller_stores`/`product_stock` stay owner-only (bank data, stock contents).
 - Chat uses `conversations` + `messages` (participant-only RLS; started via `start_conversation`; counters, typing, delivered/read ticks set only server-side by triggers/RPCs; `product_id` validated against the seller), polled by the client; photos in private `chat-attachments` under `<conversation_id>/`; presence via `chat_partner_state` — no realtime yet.
-- Home promo assets (banners, icons, tiles, partner logos) are listed in `src/lib/home-assets.ts` — one place for promo content.
+- Home promo assets (banners, icons, tiles, partner logos) are listed in `src/lib/home-assets.ts`.
 - Ad campaigns change only via `create_ad_campaign`/`cancel_ad_campaign` (wallet ledger); sponsored slots via `sponsored_products` — clients never set status or balances.
 - Seller Telegram bots (`telegram_bots`, token column-hidden) use `src/lib/telegram.functions.ts`; updates hit `/api/public/telegram/$botId`, verified by per-bot secret header — tokens stay server-only.
 - Seller Center has its own client-side unlock (password re-entry, `src/lib/chat.ts` helpers) on top of the buyer session; leaving Seller Center only re-locks it, while Akun "Keluar" signs out fully — a UX gate, not a security boundary (RLS still scopes data per user).
@@ -32,4 +32,4 @@
 - Seller withdrawals (`withdrawal_requests`) are created only via `request_withdrawal`/`auto_withdraw_tick` and settled via `admin_review_withdrawal`; fee constants mirrored in `src/lib/withdraw.ts` — clients never write rows or balances.
 - Rekber (`rekber_deals`) changes only via `*_rekber` RPCs; buyers join via secret `share_token` — clients never write status or balances.
 - Stock availability always goes through `stock_available` — one rule for orders, fulfilment, counts.
-- Warranty claims and category requests change status only via their RPCs.
+- Warranty/category-request status changes only via RPCs.
