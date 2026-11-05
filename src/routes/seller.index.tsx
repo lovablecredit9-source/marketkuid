@@ -166,13 +166,13 @@ function WaGroupBanner() {
   if (!show) return null;
   const close = () => { window.localStorage.setItem(WA_BANNER_KEY, "1"); setShow(false); };
   return (
-    <section className="relative flex gap-3 rounded-lg border border-info/40 border-l-4 border-l-info bg-info/10 p-3 pr-9">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-info/15 text-info"><Info className="h-4 w-4" /></span>
+    <section className="relative flex gap-3 rounded-lg border border-primary/30 border-l-4 border-l-primary bg-primary/10 p-3 pr-9">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 text-primary"><Info className="h-4 w-4" /></span>
       <div className="text-[12.5px] leading-snug">
         <h3 className="text-[13px] font-semibold">Grup Whatsapp Seller</h3>
         <p className="mt-0.5">Bagi kalian seller yang serius berjualan di marketku.id<br />Wajib gabung ke grup seller whatsapp untuk menerima info, pembaruan, dan lainnya.</p>
-        <p className="mt-2"><a href={SELLER_WA_GROUP} target="_blank" rel="noreferrer" className="text-info underline">Klik disini untuk gabung ke grup seller.</a></p>
-        <p className="mt-2">Silahkan chat admin dan berikan nama toko anda agar di konfirmasi di grup.<br />Wa admin <a href={SELLER_WA_ADMIN} target="_blank" rel="noreferrer" className="text-info underline">Klik disini</a></p>
+        <p className="mt-2"><a href={SELLER_WA_GROUP} target="_blank" rel="noreferrer" className="text-primary underline">Klik disini untuk gabung ke grup seller.</a></p>
+        <p className="mt-2">Silahkan chat admin dan berikan nama toko anda agar di konfirmasi di grup.<br />Wa admin <a href={SELLER_WA_ADMIN} target="_blank" rel="noreferrer" className="text-primary underline">Klik disini</a></p>
       </div>
       <button aria-label="Tutup" onClick={close} className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition active:scale-90"><X className="h-4 w-4" /></button>
     </section>
