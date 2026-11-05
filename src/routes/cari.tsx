@@ -1,6 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone, ArrowRight } from "lucide-react";
+import { SearchSuggest, useStoreSearch } from "@/components/marketku/search-suggest";
+import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, rpBuyer } from "@/components/marketku/product-card";
 import { useCategories } from "@/lib/products";
@@ -23,6 +25,7 @@ function Cari() {
   const { q = "", kategori } = Route.useSearch();
   const [val, setVal] = useState(q);
   const [show, setShow] = useState(false);
+  const [suggest, setSuggest] = useState(false);
   const [sort, setSort] = useState<SortKey>("relevan");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minRating, setMinRating] = useState(0);
@@ -42,11 +45,16 @@ function Cari() {
   return (
     <AppShell>
       <div className="space-y-3 px-3 pt-3">
-        <form onSubmit={(e) => { e.preventDefault(); navigate({ to: "/cari", search: { ...(val ? { q: val } : {}), ...(kategori ? { kategori } : {}) } }); }}>
+        <form className="relative" onSubmit={(e) => { e.preventDefault(); setSuggest(false); navigate({ to: "/cari", search: { ...(val.trim() ? { q: val.trim() } : {}), ...(kategori ? { kategori } : {}) } }); }}>
           <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input value={val} onChange={(e) => setVal(e.target.value)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
+            <input type="search" value={val} onChange={(e) => { setVal(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
           </label>
+          {suggest && val.trim() && val.trim() !== q && (
+            <SearchSuggest q={val} className="absolute inset-x-0 top-full mt-1"
+              onPick={() => setSuggest(false)}
+              onAll={() => { setSuggest(false); navigate({ to: "/cari", search: { q: val.trim(), ...(kategori ? { kategori } : {}) } }); }} />
+          )}
         </form>
         <div>
           <p className="flex items-center gap-1 text-xs font-bold tracking-wider text-primary"><Sparkles className="h-3 w-3" /> JELAJAHI MARKETKU</p>
@@ -91,6 +99,7 @@ function Cari() {
           </section>
         )}
 
+        {q && <RelatedSellers q={q} />}
         {q && <SearchAds q={q} />}
 
         {products.isLoading ? (
@@ -100,6 +109,43 @@ function Cari() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+/** "Seller terkait": stores whose name matches the search term, linking to their profile. */
+function RelatedSellers({ q }: { q: string }) {
+  const stores = useStoreSearch(q, 5);
+  const list = stores.data ?? [];
+  const media = useStoreMedia(list.map((s) => s.owner_id));
+  const avatars = useImageUrls(list.map((s) => media.data?.[s.owner_id]?.avatar_path ?? "").filter(Boolean));
+  if (!list.length) return null;
+  return (
+    <section className="space-y-2 pt-1">
+      <h2 className="text-[17px] font-bold">Seller terkait</h2>
+      {list.map((s) => {
+        const path = media.data?.[s.owner_id]?.avatar_path;
+        const url = path ? avatars.data?.[path] : undefined;
+        const reviews = Number(s.review_count);
+        return (
+          <div key={s.owner_id} className="flex items-start gap-3 rounded-2xl border bg-card p-3.5 shadow-sm">
+            {url ? <img src={url} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover shadow-sm" />
+              : <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary shadow-sm">{s.store_name.charAt(0).toUpperCase()}</span>}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-bold">{s.store_name}</p>
+              <p className="mt-1 flex items-center gap-1 text-[12.5px] text-muted-foreground">
+                <Star className="h-3.5 w-3.5 fill-current" />
+                {reviews ? <><b className="text-foreground">{Number(s.rating_avg ?? 0).toFixed(1)}</b> · {reviews} ulasan</> : "Belum ada ulasan"}
+                <span>· {Number(s.product_count)} produk</span>
+              </p>
+              {!s.is_open && <p className="mt-1 text-[12px] font-semibold text-destructive">Toko sedang tutup</p>}
+              <Link to="/toko/$slug" params={{ slug: s.slug }} className="mt-2 inline-flex items-center gap-1 rounded-full border border-primary px-3 py-1 text-[12.5px] font-bold text-primary transition active:scale-95">
+                Lihat profil <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 

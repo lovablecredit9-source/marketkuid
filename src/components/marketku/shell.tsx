@@ -16,6 +16,7 @@ import { useCart } from "@/lib/market";
 import { supportWaUrl } from "@/lib/support";
 import { useUnreadChats } from "@/lib/chat";
 import { BanScreen, useAccountBan } from "@/components/marketku/ban-gate";
+import { SearchSuggest } from "@/components/marketku/search-suggest";
 
 export const soon = (label: string) => toast(`${label} segera hadir`);
 
