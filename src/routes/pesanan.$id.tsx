@@ -13,7 +13,7 @@ import { rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
 import { canReportOrder, isDisputeActive } from "@/lib/disputes";
 import { ReportSheet } from "@/components/marketku/report-sheet";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Undo2 } from "lucide-react";
 
 export const Route = createFileRoute("/pesanan/$id")({
   head: () => pageMeta("Detail Pesanan — Marketku", "Status pembayaran, produk, dan pengiriman pesananmu di Marketku."),
@@ -137,6 +137,19 @@ function Pesanan() {
               <p className="flex-1 text-center text-xs leading-relaxed text-muted-foreground">Anda tidak perlu melakukan apa pun saat ini.</p>
               <Link to="/bantuan" className="flex-1 rounded-lg border bg-card py-2 text-center text-xs font-semibold transition active:scale-[0.98]">Pusat bantuan</Link>
             </div>
+          </section>
+        )}
+
+        {orders.some((o) => o.status === "refunded") && (
+          <section className="rounded-xl border bg-card p-3">
+            <div className="flex gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Undo2 className="h-5 w-5" /></span>
+              <div>
+                <p className="text-sm font-bold">Dana sudah dikembalikan</p>
+                <p className="text-xs text-muted-foreground">Refund dari laporan pesanan ini sudah masuk ke Saldo Marketku kamu.</p>
+              </div>
+            </div>
+            <Link to="/topup" className="mt-3 block rounded-xl border py-2 text-center text-xs font-semibold">Lihat Saldo Marketku</Link>
           </section>
         )}
 
