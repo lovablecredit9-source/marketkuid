@@ -10,7 +10,12 @@ import { useAuth } from "@/lib/auth";
 import { useImageUrls, useMyProducts } from "@/lib/products";
 import { ORDER_LABEL } from "@/lib/market";
 import { sellerStats, useSellerOrders } from "@/lib/seller-orders";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Circle, CircleCheck, Info, Landmark, Store, X, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSellerStore } from "@/lib/seller";
+import { SELLER_WA_ADMIN, SELLER_WA_GROUP, storeSetupSteps } from "@/lib/seller-setup";
 import { HOLD_HOURS, HoldsSheet, SELLER_FEE_PERCENT, holdLeft, useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/seller/")({
@@ -25,11 +30,6 @@ const tour = [
   { title: "Bot Telegram", desc: "Hubungkan dan kelola bot Telegram untuk jualan otomatis.", target: "qa-bot" },
   { title: "Voucher", desc: "Buat voucher diskon untuk menarik pembeli.", target: "bottomnav" },
   { title: "Withdraw", desc: "Tarik saldo hasil penjualan ke rekening kamu.", target: "qa-withdraw" },
-  { title: "Aksi cepat", desc: "Tugas harian seperti withdraw, kelola produk, dan lihat pesanan.", target: "quick" },
-  { title: "Saldo", desc: "Pantau saldo penjualan, saldo tertahan, dan credits.", target: "saldo" },
-  { title: "Ringkasan performa", desc: "Pendapatan, transaksi, dan produk aktif tokomu.", target: "perf" },
-  { title: "Transaksi terbaru", desc: "Pesanan terbaru yang masuk ke toko.", target: "recent" },
-  { title: "Produk terlaris", desc: "Produk dengan penjualan terbanyak.", target: "best" },
   { title: "Notifikasi", desc: "Pesanan baru muncul di lonceng ini.", target: "h-notif" },
   { title: "Menu profil", desc: "Buka atau tutup toko dan akses profil di sini.", target: "h-profile" },
   { title: "Panduan", desc: "Buka pusat panduan lengkap kapan saja di menu ini.", target: "h-panduan" },
@@ -57,7 +57,9 @@ function Dasbor() {
   return (
     <>
       <HoldsSheet open={holdOpen} onClose={() => setHoldOpen(false)} uid={user?.id} />
-      <SellerCard className="border-primary/50 p-4">
+      <WaGroupBanner />
+      <StoreSetup userId={user?.id} hasProduct={active > 0} />
+      {pending > 0 && <SellerCard className="border-primary/50 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold">Aktivitas Pending</h2>
@@ -72,7 +74,7 @@ function Dasbor() {
             <span className="block text-lg font-semibold">{pending}</span>
           </span>
         </button>
-      </SellerCard>
+      </SellerCard>}
 
       <SellerCard data-tour="quick">
         <h3 className="border-b px-4 py-3 text-xs font-medium tracking-wide text-muted-foreground">AKSI CEPAT</h3>
@@ -153,5 +155,82 @@ function Dasbor() {
       </SellerCard>
       <PageTour id="seller-dashboard" steps={tour} panel />
     </>
+  );
+}
+
+const WA_BANNER_KEY = "marketku-seller-wa-banner";
+
+function WaGroupBanner() {
+  const [show, setShow] = useState(false);
+  useEffect(() => { setShow(!window.localStorage.getItem(WA_BANNER_KEY)); }, []);
+  if (!show) return null;
+  const close = () => { window.localStorage.setItem(WA_BANNER_KEY, "1"); setShow(false); };
+  return (
+    <section className="relative flex gap-3 rounded-lg border border-primary/30 border-l-4 border-l-primary bg-primary/10 p-3 pr-9">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 text-primary"><Info className="h-4 w-4" /></span>
+      <div className="text-[12.5px] leading-snug">
+        <h3 className="text-[13px] font-semibold">Grup Whatsapp Seller</h3>
+        <p className="mt-0.5">Bagi kalian seller yang serius berjualan di marketku.id<br />Wajib gabung ke grup seller whatsapp untuk menerima info, pembaruan, dan lainnya.</p>
+        <p className="mt-2"><a href={SELLER_WA_GROUP} target="_blank" rel="noreferrer" className="text-primary underline">Klik disini untuk gabung ke grup seller.</a></p>
+        <p className="mt-2">Silahkan chat admin dan berikan nama toko anda agar di konfirmasi di grup.<br />Wa admin <a href={SELLER_WA_ADMIN} target="_blank" rel="noreferrer" className="text-primary underline">Klik disini</a></p>
+      </div>
+      <button aria-label="Tutup" onClick={close} className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition active:scale-90"><X className="h-4 w-4" /></button>
+    </section>
+  );
+}
+
+function StoreSetup({ userId, hasProduct }: { userId: string | undefined; hasProduct: boolean }) {
+  const navigate = useNavigate();
+  const store = useSellerStore(userId);
+  const bots = useQuery({
+    queryKey: ["telegram_bots_count", userId], enabled: !!userId,
+    queryFn: async () => {
+      const { count } = await supabase.from("telegram_bots").select("id", { count: "exact", head: true }).eq("owner_id", userId!);
+      return count ?? 0;
+    },
+  });
+  if (!store.data) return null;
+  const steps = storeSetupSteps({ store: store.data, hasProduct, botCount: bots.data ?? 0 });
+  const required = steps.filter((s) => !s.optional);
+  const done = required.filter((s) => s.done).length;
+  if (steps.every((s) => s.done)) return null;
+  const pct = Math.round((done / required.length) * 100);
+  const icons = { profil: Store, bank: Landmark, produk: Package, bot: Bot } as const;
+  const go = (key: keyof typeof icons) => {
+    if (key === "profil") navigate({ to: "/seller/pengaturan", search: { tab: "profil" } });
+    else if (key === "bank") navigate({ to: "/seller/pengaturan", search: { tab: "keuangan" } });
+    else if (key === "produk") navigate({ to: "/seller/produk/baru" });
+    else navigate({ to: "/seller/bot" });
+  };
+  return (
+    <SellerCard className="overflow-hidden rounded-lg">
+      <div className="flex items-start justify-between gap-3 border-b px-3 py-2.5">
+        <div>
+          <h2 className="text-[13px] font-semibold">Siapkan toko kamu</h2>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">{done} dari {required.length} langkah wajib selesai.</p>
+        </div>
+        <span className="shrink-0 text-[12px] font-semibold tabular-nums text-primary">{pct}%</span>
+      </div>
+      <div className="px-3 pt-2.5"><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} /></div></div>
+      <ol className="grid gap-2 p-3">
+        {steps.map((s) => {
+          const I = icons[s.key];
+          return (
+            <li key={s.key}>
+              <button type="button" disabled={s.done} onClick={() => go(s.key)}
+                className="flex min-h-[60px] w-full items-center gap-3 rounded-md border bg-background/40 p-2.5 text-left transition active:scale-[0.98] disabled:opacity-70">
+                {s.done ? <CircleCheck className="h-[18px] w-[18px] shrink-0 text-success" /> : <Circle className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}
+                <I className="h-[15px] w-[15px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
+                <span className="min-w-0 flex-1">
+                  <span className={`block truncate text-[12.5px] font-semibold ${s.done ? "line-through text-muted-foreground" : ""}`}>{s.title}{s.optional && <span className="font-normal text-muted-foreground"> (opsional)</span>}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">{s.desc}</span>
+                </span>
+                {!s.done && <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </SellerCard>
   );
 }
