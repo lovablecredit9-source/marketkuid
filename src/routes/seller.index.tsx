@@ -16,7 +16,7 @@ import { Circle, CircleCheck, Info, Landmark, Store, X, ArrowRight } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { useSellerStore } from "@/lib/seller";
 import { SELLER_WA_ADMIN, SELLER_WA_GROUP, storeSetupSteps } from "@/lib/seller-setup";
-import { HOLD_HOURS, HoldsSheet, SELLER_FEE_PERCENT, holdLeft, useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
+import { HoldsSheet, SELLER_FEE_PERCENT, WARRANTY_HOLD_MAX_DAYS, holdLeft, holdsOfKind, useSellerBalance, useSellerHolds, type HoldKind } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/seller/")({
   head: () => pageMeta("Dasbor Seller — Marketku", "Ringkasan aktivitas, saldo, dan penjualan toko kamu di Marketku."),
@@ -48,15 +48,19 @@ function Dasbor() {
   const pending = st.preorderTodo;
   const holds = useSellerHolds(user?.id);
   const balance = useSellerBalance(user?.id);
-  const [holdOpen, setHoldOpen] = useState(false);
-  const heldTotal = (holds.data ?? []).reduce((s, h) => s + Number(h.amount), 0);
-  const nextRelease = (holds.data ?? []).map((h) => h.release_at).sort()[0];
+  const [holdOpen, setHoldOpen] = useState<HoldKind | null>(null);
+  const biasa = holdsOfKind(holds.data ?? [], "biasa");
+  const garansi = holdsOfKind(holds.data ?? [], "garansi");
+  const heldTotal = biasa.reduce((s, h) => s + Number(h.amount), 0);
+  const garansiTotal = garansi.reduce((s, h) => s + Number(h.amount), 0);
+  const nextRelease = biasa.map((h) => h.release_at).sort()[0];
+  const nextGaransi = garansi.map((h) => h.release_at).sort()[0];
   const coverOf = (id: string | null) => prods.find((p) => p.id === id)?.images?.[0] ?? "";
   const bestImgs = useImageUrls(st.bestSellers.map((b) => coverOf(b.id)).filter(Boolean));
   const maxQty = Math.max(1, ...st.bestSellers.map((b) => b.qty));
   return (
     <>
-      <HoldsSheet open={holdOpen} onClose={() => setHoldOpen(false)} uid={user?.id} />
+      <HoldsSheet open={!!holdOpen} kind={holdOpen ?? "biasa"} onClose={() => setHoldOpen(null)} uid={user?.id} />
       <WaGroupBanner />
       <StoreSetup userId={user?.id} hasProduct={active > 0} />
       {pending > 0 && <SellerCard className="border-primary/50 p-4">
@@ -90,18 +94,16 @@ function Dasbor() {
 
       <SellerCard data-tour="saldo" className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
         <StatCell icon={Wallet} label="Saldo Penjualan" value={rpSeller(balance.data ?? 0)} sub={`Sudah dipotong admin ${SELLER_FEE_PERCENT}%`} valueClass="text-success" />
-        <button onClick={() => setHoldOpen(true)} className="text-left transition active:scale-[0.98]">
-          <StatCell icon={Clock} label="Saldo Tertahan" value={rpSeller(heldTotal)} sub={nextRelease ? `Cair ${holdLeft(nextRelease)}` : `Ditahan maks ${HOLD_HOURS} jam · ketuk detail`} valueClass="text-warning" />
-        </button>
-        <StatCell icon={ShieldCheck} label="Saldo Menunggu Masa Garansi" value={rpSeller(0)} sub="Dana ditahan paling lama 3 hari" valueClass="text-warning" />
+        <StatCell onClick={() => setHoldOpen("biasa")} icon={Clock} label="Saldo Tertahan" value={rpSeller(heldTotal)} sub={nextRelease ? `Cair ${holdLeft(nextRelease)}` : "Menunggu konfirmasi pembeli"} valueClass="text-warning" />
+        <StatCell onClick={() => setHoldOpen("garansi")} icon={ShieldCheck} label="Saldo Menunggu Masa Garansi" value={rpSeller(garansiTotal)} sub={nextGaransi ? `Cair ${holdLeft(nextGaransi)}` : `Dana ditahan paling lama ${WARRANTY_HOLD_MAX_DAYS} hari`} valueClass="text-warning" />
         <StatCell icon={Snowflake} label="Saldo Freeze" value={rpSeller(0)} sub="Ditahan sementara · Tidak dapat ditarik" valueClass="text-destructive" />
       </SellerCard>
 
       <SellerCard data-tour="perf" className="grid grid-cols-2 divide-x divide-y overflow-hidden [&>*:nth-child(2)]:border-t-0 [&>*:first-child]:border-t-0">
-        <StatCell icon={DollarSign} label="Total Pendapatan" value={rpSeller(st.revenue)} sub={`Hari ini: ${rpSeller(st.today)}`} />
-        <StatCell icon={ShoppingBag} label="Transaksi" value={String(st.total)} sub={`${st.completed} selesai`} />
-        <StatCell icon={Package} label="Produk Aktif" value={String(active)} sub={`Total: ${prods.length}`} />
-        <StatCell icon={Clock} label="Menunggu" value={String(st.waiting)} sub="menunggu bayar" />
+        <StatCell onClick={() => navigate({ to: "/seller/transaksi" })} icon={DollarSign} label="Total Pendapatan" value={rpSeller(st.revenue)} sub={`Hari ini: ${rpSeller(st.today)}`} />
+        <StatCell onClick={() => navigate({ to: "/seller/transaksi" })} icon={ShoppingBag} label="Transaksi" value={String(st.total)} sub={`${st.completed} selesai`} />
+        <StatCell onClick={() => navigate({ to: "/seller/produk" })} icon={Package} label="Produk Aktif" value={String(active)} sub={`Total: ${prods.length}`} />
+        <StatCell onClick={() => navigate({ to: "/seller/transaksi" })} icon={Clock} label="Menunggu" value={String(st.waiting)} sub="menunggu bayar" />
         <StatCell icon={Users} label="Pelanggan" value={String(st.buyers)} sub="unik bertransaksi" />
         <StatCell icon={Percent} label="Konversi" value={`${st.conversion}%`} sub={`avg ${rpSeller(st.avgOrder)}`} />
       </SellerCard>
