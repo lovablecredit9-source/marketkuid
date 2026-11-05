@@ -50,3 +50,5 @@
 - [x] Tarik saldo seller (reguler Rp2.000 / same day Rp3.000, riwayat, detail, pendapatan, auto withdraw, diproses admin)
 - [x] Top Up Credits seller (QRIS/e-wallet + bukti, disetujui admin di tab Deposit, saldo & riwayat credits)
 - [ ] Pengajuan PG pribadi di Kontrol Pembayaran (masih "segera hadir")
+
+- [x] Laporan/dispute pesanan: pembeli lapor, Dispute Room, seller refund/tolak/selesai, admin putuskan
