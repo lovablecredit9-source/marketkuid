@@ -54,14 +54,25 @@ function useChatProducts(ids: string[]) {
 }
 
 function ProductCard({ p, url, compact = false }: { p: ChatProduct; url?: string | undefined; compact?: boolean }) {
-  return (
-    <Link to="/produk/$id" params={{ id: p.id }} className={`flex items-center gap-3 rounded-xl border bg-card p-2 text-left text-foreground transition active:scale-[0.98] ${compact ? "" : "mb-1.5"}`}>
+  if (compact) return (
+    <Link to="/produk/$id" params={{ id: p.id }} className="flex items-center gap-3 rounded-xl border bg-card p-2 text-left text-foreground transition active:scale-[0.98]">
       <ProductImage url={url} path={p.image} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg" />
       <span className="min-w-0 flex-1">
         <span className="line-clamp-2 text-[13px] font-semibold leading-snug">{p.name}</span>
         {p.price !== null && <span className="mt-0.5 block text-xs font-bold text-primary">{rpBuyer(p.price)}</span>}
       </span>
     </Link>
+  );
+  // Product sent with a message: photo, name, price and a "Beli sekarang" shortcut, like marketku.id's chat card.
+  return (
+    <div className="mb-1.5 flex gap-3 rounded-2xl border bg-card p-2 text-left text-foreground shadow-sm">
+      <Link to="/produk/$id" params={{ id: p.id }} className="shrink-0"><ProductImage url={url} path={p.image} alt={p.name} className="h-16 w-16 rounded-xl" /></Link>
+      <span className="min-w-0 flex-1">
+        <Link to="/produk/$id" params={{ id: p.id }} className="line-clamp-2 text-[13px] font-bold uppercase leading-snug">{p.name}</Link>
+        {p.price !== null && <span className="mt-0.5 block text-[13px] font-bold text-primary">{rpBuyer(p.price)}</span>}
+        <Link to="/produk/$id" params={{ id: p.id }} className="mt-1.5 flex h-8 items-center justify-center rounded-lg bg-primary text-[12px] font-bold text-primary-foreground transition active:scale-95">Beli sekarang</Link>
+      </span>
+    </div>
   );
 }
 
