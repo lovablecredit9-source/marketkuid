@@ -360,6 +360,7 @@ export type Database = {
           method_id: string | null
           method_label: string | null
           proof_path: string
+          purpose: string
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
@@ -373,6 +374,7 @@ export type Database = {
           method_id?: string | null
           method_label?: string | null
           proof_path: string
+          purpose?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -386,6 +388,7 @@ export type Database = {
           method_id?: string | null
           method_label?: string | null
           proof_path?: string
+          purpose?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -1106,6 +1109,54 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_credit_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          owner_id: string
+          ref_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          owner_id: string
+          ref_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          owner_id?: string
+          ref_id?: string | null
+        }
+        Relationships: []
+      }
+      seller_credits: {
+        Row: {
+          balance: number
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seller_stores: {
         Row: {
           auto_withdraw: boolean
@@ -1676,6 +1727,10 @@ export type Database = {
           p_mode: string
           p_product: string
         }
+        Returns: string
+      }
+      create_credit_topup: {
+        Args: { p_amount: number; p_method?: string; p_proof: string }
         Returns: string
       }
       create_deposit: {

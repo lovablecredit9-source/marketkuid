@@ -239,6 +239,13 @@
       "when": 1793826585080,
       "tag": "0033_stock_modes_code_subtype",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793837937766,
+      "tag": "0034_seller_credits_topup",
+      "breakpoints": true
     }
   ]
 }

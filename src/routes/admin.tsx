@@ -260,7 +260,7 @@ function Deposits() {
     const { error } = await supabase.rpc("admin_review_deposit", { p_id: id, p_approve: approve, ...(n?.trim() ? { p_note: n.trim() } : {}) });
     setBusy(null);
     if (error) { toast.error(error.message); return; }
-    toast.success(approve ? "Deposit disetujui, saldo ditambahkan" : "Deposit ditolak");
+    toast.success(approve ? "Deposit disetujui, saldo/credits ditambahkan" : "Deposit ditolak");
     setReject(null); setNote("");
     qc.invalidateQueries({ queryKey: ["admin_deposits"] });
     qc.invalidateQueries({ queryKey: ["admin_stats"] });
@@ -288,7 +288,7 @@ function Deposits() {
             <div className="mt-2 flex items-center gap-3">
               <button onClick={() => url && setView(url)} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border bg-muted">{url ? <img src={url} alt="Bukti transfer" className="h-full w-full object-cover" /> : null}</button>
               <div className="min-w-0 flex-1">
-                <p className="mk-acc-mono text-lg">{rupiah(d.amount)}</p>
+                <p className="mk-acc-mono text-lg">{rupiah(d.amount)} <span className={`ml-1 rounded-full px-2 py-0.5 align-middle font-sans text-[10px] font-bold ${d.purpose === "credits" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>{d.purpose === "credits" ? "Credits Seller" : "Saldo"}</span></p>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="h-2 w-2 rounded-full" style={{ background: providerColor(d.method_label ?? "QRIS") }} /> via {d.method_label ?? "QRIS"}</p>
                 {d.admin_note && <p className="text-xs text-muted-foreground">Catatan: {d.admin_note}</p>}
               </div>
