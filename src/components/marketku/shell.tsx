@@ -228,7 +228,7 @@ export function BottomNav() {
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: to === "/" }}
+            activeOptions={{ exact: to === "/", includeSearch: false }}
             className="group relative flex min-h-12 flex-col items-center justify-center gap-[3px] overflow-hidden rounded-[13px] px-[3px] pb-1 pt-[5px] text-foreground transition-[color,background-color,transform] duration-200 active:translate-y-px data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
           >
             <span className="absolute left-1/2 top-0 h-0.5 w-0 -translate-x-1/2 rounded-b-[1px] bg-primary transition-[width] duration-300 ease-out group-data-[status=active]:w-[38%]" />
