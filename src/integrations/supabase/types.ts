@@ -297,6 +297,39 @@ export type Database = {
           },
         ]
       }
+      category_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          icon_path: string | null
+          id: string
+          name: string
+          owner_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          icon_path?: string | null
+          id?: string
+          name: string
+          owner_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          icon_path?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           buyer_hidden: boolean
@@ -1742,6 +1775,10 @@ export type Database = {
       }
       admin_resolve_rekber: {
         Args: { p_id: string; p_note: string; p_release: boolean }
+        Returns: undefined
+      }
+      admin_review_category_request: {
+        Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
       admin_review_deposit: {
