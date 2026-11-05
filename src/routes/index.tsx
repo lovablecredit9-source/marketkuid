@@ -220,7 +220,7 @@ function CatIcon({ name, size = "h-[34px] w-[34px]" }: { name: string; size?: st
 function StripItem({ active, onClick, children, label }: { active?: boolean; onClick?: () => void; children: ReactNode; label: string }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={active}
-      className={`mk-strip-item relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full py-1.5 pl-1.5 pr-3 transition-colors active:scale-95 ${active ? "is-active bg-primary/12 bg-primary/10" : ""}`}>
+      className={`mk-strip-item relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full py-1.5 pl-1.5 pr-3 transition-colors active:scale-95 ${active ? "is-active bg-primary/10" : ""}`}>
       {children}
       <span className={`text-[12.5px] leading-tight ${active ? "font-bold text-primary" : "font-semibold text-foreground/80"}`}>{label}</span>
     </button>
@@ -269,13 +269,13 @@ function HomeCategories() {
         </Link>
       </Strip>
 
-      {levels.map((lv, i) => {
+      {levels.map((lv) => {
         const next = path[path.indexOf(lv) + 1];
         return (
           <Strip key={lv.id}>
             <StripItem label="Semua Produk" onClick={() => go(catSearch(all, lv))}><CatIcon name={lv.name} /></StripItem>
             {childCategories(all, lv.id).map((c) => (
-              <StripItem key={c.id} label={c.name} active={next?.id === c.id && i === levels.length - 1 ? true : next?.id === c.id}
+              <StripItem key={c.id} label={c.name} active={next?.id === c.id}
                 onClick={() => go(next?.id === c.id ? catSearch(all, lv) : catSearch(all, c))}>
                 <CatIcon name={c.name} />
               </StripItem>
