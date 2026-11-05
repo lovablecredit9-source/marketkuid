@@ -32,3 +32,4 @@
 - Seller withdrawals live in `withdrawal_requests`, created only via `request_withdrawal`/`auto_withdraw_tick` (debit full wallet balance, fee set server-side) and settled via `admin_review_withdrawal` (reject refunds the wallet); fee constants are mirrored in `src/lib/withdraw.ts` — clients never write withdrawal rows or balances.
 - Rekber lives in `rekber_deals`, changed only via `*_rekber` RPCs (wallet debit/credit); buyers join via secret `share_token` link — clients never write deal status or balances.
 - Stock availability always goes through `stock_available` (`products.stock_mode`; reusable via `product_stock.reuse_at`) — one rule for ordering, fulfilment and stock counts.
+- Home category browsing stays on `/` via `?kategori=<root name>&subkategori=<deeper name>` (bars + product row in `HomeCategories`), like marketku.id — `/cari?kategori=<id>` remains the search-page filter.
