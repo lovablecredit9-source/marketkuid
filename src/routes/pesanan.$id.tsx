@@ -270,7 +270,14 @@ function Received({ order: o, onDone, onReport, disputed = false }: { order: Ord
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   useEffect(() => { const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
-  const left = Math.max(0, new Date(o.paid_at!).getTime() + 5 * 3600_000 - now);
+  // Batas konfirmasi otomatis: 5 jam (biasa) atau sesuai masa garansi (maks 3 hari) — dari server.
+  const [releaseAt, setReleaseAt] = useState<number>(() => new Date(o.paid_at!).getTime() + 5 * 3600_000);
+  useEffect(() => {
+    let off = false;
+    supabase.rpc("order_release_at", { p_order: o.id }).then(({ data }) => { if (!off && data) setReleaseAt(new Date(data as string).getTime()); });
+    return () => { off = true; };
+  }, [o.id]);
+  const left = Math.max(0, releaseAt - now);
   const open = left > 0 && !confirmed && !o.buyer_confirmed_at;
   const hh = (n: number) => String(n).padStart(2, "0");
   const timer = `${hh(Math.floor(left / 3600000))}:${hh(Math.floor((left % 3600000) / 60000))}:${hh(Math.floor((left % 60000) / 1000))}`;
