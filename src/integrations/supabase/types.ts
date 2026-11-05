@@ -1923,6 +1923,8 @@ export type Database = {
         Args: { p_note: string; p_order: string; p_reasons: string[] }
         Returns: string
       }
+      order_release_at: { Args: { p_order: string }; Returns: string }
+      order_warranty_days: { Args: { p_order: string }; Returns: number }
       pay_order_with_wallet: { Args: { p_checkout: string }; Returns: number }
       pay_rekber: { Args: { p_token: string }; Returns: number }
       place_order: {
@@ -2034,10 +2036,12 @@ export type Database = {
           buyer_name: string
           buyer_whatsapp: string
           completed_at: string
+          kind: string
           order_id: string
           order_no: number
           product_name: string
           release_at: string
+          warranty_days: number
         }[]
       }
       seller_respond_dispute: {
