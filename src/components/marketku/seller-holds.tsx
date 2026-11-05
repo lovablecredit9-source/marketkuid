@@ -46,12 +46,22 @@ export function useSellerBalance(uid?: string) {
   });
 }
 
+const holdSpan = (h: { completed_at: string; release_at: string }) =>
+  Math.max(1, new Date(h.release_at).getTime() - new Date(h.completed_at).getTime() || HOLD_HOURS * 3600000);
+
 const waLink = (n: string) => {
   const d = n.replace(/\D/g, "").replace(/^0/, "62");
   return `https://wa.me/${d}`;
 };
 
-export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () => void; uid?: string | undefined }) {
+export type HoldKind = "biasa" | "garansi";
+export const HOLD_TITLE: Record<HoldKind, string> = { biasa: "Saldo Tertahan Non-Garansi", garansi: "Saldo Menunggu Masa Garansi" };
+/** Garansi orders stay held until the warranty window ends, at most this many days. */
+export const WARRANTY_HOLD_MAX_DAYS = 3;
+export const holdsOfKind = <T extends { kind?: string | null }>(list: T[], kind: HoldKind) =>
+  list.filter((h) => (h.kind === "garansi" ? "garansi" : "biasa") === kind);
+
+export function HoldsSheet({ open, onClose, uid, kind = "biasa" }: { open: boolean; onClose: () => void; uid?: string | undefined; kind?: HoldKind }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const holds = useSellerHolds(uid);
@@ -64,20 +74,20 @@ export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () 
     qc.invalidateQueries({ queryKey: ["conversations"] });
     navigate({ to: "/chat/$id", params: { id: data as string } });
   };
-  const list = holds.data ?? [];
+  const list = holdsOfKind(holds.data ?? [], kind);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/70" onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-labelledby="holds-title" className="seller-panel max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl border bg-card text-foreground" onClick={(e) => e.stopPropagation()}>
         <div className="border-b px-4 pb-3 pt-4">
           <div className="flex items-center justify-between gap-2">
-            <h3 id="holds-title" className="text-[18px] font-semibold leading-6">Saldo Tertahan</h3>
+            <h3 id="holds-title" className="text-[18px] font-semibold leading-6">{HOLD_TITLE[kind]}</h3>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup" className="h-7 w-7 shrink-0"><X /></Button>
           </div>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">Perkiraan waktu dapat berubah jika ada sengketa.</p>
         </div>
         <div className="p-4">
         {holds.isLoading ? <p className="py-6 text-center text-xs text-muted-foreground">Memuat…</p> : list.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">Tidak ada saldo tertahan.</p>
+          <p className="py-4 text-sm text-muted-foreground">Tidak ada transaksi pada kategori ini.</p>
         ) : (
           <div className="space-y-2.5">
             {list.map((h) => (
@@ -102,10 +112,10 @@ export function HoldsSheet({ open, onClose, uid }: { open: boolean; onClose: () 
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2 text-[11px] leading-4">
-                  <span className="text-warning">Menunggu</span>
+                  <span className="text-warning">{kind === "garansi" ? `Masa garansi ${h.warranty_days ?? WARRANTY_HOLD_MAX_DAYS} hari` : "Menunggu"}</span>
                   <span className="text-muted-foreground">{holdLeft(h.release_at, now).replace(/ lagi$/, "")}</span>
                 </div>
-                <progress aria-label={`Kemajuan pencairan M-${h.order_no}`} max={HOLD_HOURS * 3600000} value={Math.min(HOLD_HOURS * 3600000, Math.max(0, HOLD_HOURS * 3600000 - (new Date(h.release_at).getTime() - now)))} className="mt-2 block h-2 w-full overflow-hidden rounded-full border-0 bg-transparent [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-primary" />
+                <progress aria-label={`Kemajuan pencairan M-${h.order_no}`} max={holdSpan(h)} value={Math.min(holdSpan(h), Math.max(0, holdSpan(h) - (new Date(h.release_at).getTime() - now)))} className="mt-2 block h-2 w-full overflow-hidden rounded-full border-0 bg-transparent [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-primary" />
               </div>
             ))}
           </div>
