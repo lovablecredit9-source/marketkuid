@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
-  Search, Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
+  Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
   Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, Megaphone, type LucideIcon,
 } from "lucide-react";
@@ -9,7 +9,7 @@ import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { PriceLine, ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
-import { useCategories, useImageUrls } from "@/lib/products";
+import { categoryPath, childCategories, descendantIds, useCategories, useImageUrls, type CategoryRow } from "@/lib/products";
 import { BRAND_GROUPS, HOME_BANNERS } from "@/lib/home-assets";
 import { categoryIcon } from "@/lib/category-icons";
 
@@ -340,7 +340,9 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
     const c = all.find((x) => x.name === name && (!cat || descendantIds(all, cat.id).includes(x.id)));
     if (c) navigate({ to: "/", search: catSearch(all, c), resetScroll: false });
     else navigate({ to: "/cari", search: { q: name } });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Bring the category bars (and the picked products) into view under the header.
+    const bar = document.querySelector<HTMLElement>('[data-tour="kategori"]');
+    if (bar) window.scrollTo({ top: Math.max(0, bar.getBoundingClientRect().top + window.scrollY - 110), behavior: "smooth" });
   };
   return (
     <section className="min-w-0">
@@ -357,7 +359,7 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
       <div className="grid auto-cols-[72px] grid-flow-col gap-2.5 overflow-x-auto overscroll-x-contain rounded-b border-t border-primary/20 bg-primary/[0.06] px-2.5 py-3 [scrollbar-width:none]">
         {brands.map((b) => (
           <button type="button" key={b.name} aria-label={`Lihat kategori ${b.name}`} onClick={() => open(b.name)} className="flex min-w-0 flex-col items-center gap-1.5 transition active:scale-95">
-            <img src={b.img} alt="" loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+            <img src={b.img} alt="" loading="lazy" className="aspect-square w-[58px] rounded-md object-cover" />
             <span className="w-full truncate text-center text-[10px] text-muted-foreground">{b.name}</span>
           </button>
         ))}
