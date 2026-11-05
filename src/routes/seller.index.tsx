@@ -226,7 +226,7 @@ function StoreSetup({ userId, hasProduct }: { userId: string | undefined; hasPro
             <li key={s.key} className="min-w-0">
               <button type="button" disabled={s.done} onClick={() => go(s.key)}
                 className="seller-tap flex min-h-[60px] w-full items-center gap-3 rounded-md border bg-background/40 p-2.5 text-left disabled:cursor-default disabled:opacity-70">
-                {s.done ? <CircleCheck className="h-[18px] w-[18px] shrink-0 text-success" /> : <Circle className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}
+                {s.done ? <CircleCheck className="h-[18px] w-[18px] shrink-0 text-primary" /> : <Circle className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}
                 <I className="h-[15px] w-[15px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
                 <span className="min-w-0 flex-1">
                   <span className={`block truncate text-[12.5px] font-semibold ${s.done ? "line-through text-muted-foreground" : ""}`}>{s.title}{s.optional && <span className="font-normal text-muted-foreground"> (opsional)</span>}</span>
