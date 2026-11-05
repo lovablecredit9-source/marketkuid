@@ -383,7 +383,7 @@ export function SellerCard({ children, className = "", ...rest }: HTMLAttributes
 
 export function ActionRow({ icon: I, title, desc, onClick }: { icon: typeof Package; title: string; desc: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-xl border bg-background/40 px-3 py-3 text-left transition active:scale-[0.98]">
+    <button type="button" onClick={onClick} className="seller-tap flex min-h-[64px] w-full items-center gap-3 rounded-xl border bg-background/40 px-3 py-3 text-left">
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent"><I className="h-4 w-4" strokeWidth={1.75} /></span>
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-medium">{title}</span>
@@ -394,14 +394,16 @@ export function ActionRow({ icon: I, title, desc, onClick }: { icon: typeof Pack
   );
 }
 
-export function StatCell({ icon: I, label, value, sub, valueClass = "" }: { icon: typeof Package; label: string; value: string; sub?: string; valueClass?: string }) {
-  return (
-    <div className="min-w-0 px-3 py-3">
-      <p className="flex items-center gap-1.5 text-xs text-foreground/80"><I className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} /> <span className="truncate">{label}</span></p>
+export function StatCell({ icon: I, label, value, sub, valueClass = "", onClick }: { icon: typeof Package; label: string; value: string; sub?: string; valueClass?: string; onClick?: () => void }) {
+  const body = (
+    <>
+      <p className="flex min-w-0 items-center gap-1.5 text-xs text-foreground/80"><I className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} /> <span className="truncate">{label}</span></p>
       <p className={`mt-1 text-base font-semibold ${valueClass}`}>{value}</p>
       {sub && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{sub}</p>}
-    </div>
+    </>
   );
+  if (onClick) return <button type="button" onClick={onClick} className="seller-stat block w-full min-w-0 px-3 py-3 text-left">{body}</button>;
+  return <div className="min-w-0 px-3 py-3">{body}</div>;
 }
 
 export function SellerEmpty({ icon: I, title, desc, action }: { icon: typeof Package; title: string; desc: string; action?: ReactNode }) {
