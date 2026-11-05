@@ -2,10 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone, ArrowRight } from "lucide-react";
 import { SearchSuggest, useStoreSearch } from "@/components/marketku/search-suggest";
-import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, rpBuyer } from "@/components/marketku/product-card";
-import { useCategories } from "@/lib/products";
+import { useCategories, useImageUrls, useStoreMedia } from "@/lib/products";
 import { SORTS, sortProducts, trackAdClick, useMarketProducts, useSponsored, type SortKey } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
