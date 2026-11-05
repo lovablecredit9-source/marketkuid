@@ -204,7 +204,13 @@ function IconBtn({ children, label, onClick }: { children: ReactNode; label: str
   );
 }
 
-const tabs = [
+// Same tabs and order as marketku.id: signed-out visitors get 3 tabs, signed-in users also get Pesan.
+const GUEST_TABS = [
+  { to: "/", label: "Home", icon: Home },
+  { to: "/riwayat", label: "Pesanan", icon: Package },
+  { to: "/akun", label: "Akun", icon: User },
+] as const;
+const USER_TABS = [
   { to: "/", label: "Home", icon: Home },
   { to: "/riwayat", label: "Pesanan", icon: Package },
   { to: "/pesan", label: "Pesan", icon: MessageCircle },
@@ -214,27 +220,27 @@ const tabs = [
 export function BottomNav() {
   const { user } = useAuth();
   const unread = useUnreadChats(user?.id).data?.total ?? 0;
+  const tabs = user ? USER_TABS : GUEST_TABS;
   return (
-    // Plain sans labels like the original marketku.id nav.
-    <nav className="mk-acc-heading fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-3">
-      <div className="grid grid-cols-4 rounded-2xl border bg-card p-1 shadow-lg">
+    <nav aria-label="Navigasi utama" className="mk-acc-heading fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
+      <div className="mk-nav-pill grid w-full max-w-[400px] grid-flow-col auto-cols-fr gap-0.5 rounded-[17px] border p-1">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
             activeOptions={{ exact: to === "/" }}
-            className="group relative flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10.5px] font-semibold text-foreground transition-colors duration-300 active:scale-95 data-[status=active]:bg-accent data-[status=active]:text-primary"
+            className="group relative flex min-h-12 flex-col items-center justify-center gap-[3px] overflow-hidden rounded-[13px] px-[3px] pb-1 pt-[5px] text-foreground transition-[color,background-color,transform] duration-200 active:translate-y-px data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
           >
-            <span className="absolute -top-1 left-1/2 h-[3px] w-0 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-out group-data-[status=active]:w-1/2" />
-            <span className="relative">
-              <Icon strokeWidth={2.4} className="h-[19px] w-[19px] transition-transform duration-300 ease-out group-active:-translate-y-1 group-data-[status=active]:-translate-y-0.5" />
+            <span className="absolute left-1/2 top-0 h-0.5 w-0 -translate-x-1/2 rounded-b-[1px] bg-primary transition-[width] duration-300 ease-out group-data-[status=active]:w-[38%]" />
+            <span className="relative inline-flex">
+              <Icon strokeWidth={2.1} className="mk-nav-icon h-[19px] w-[19px]" />
               {to === "/pesan" && unread > 0 && (
-                <span key={unread} aria-label={`${unread} pesan belum dibaca`} className="mk-badge-pop mk-acc-heading absolute -right-3 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-card bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
-                  {unread > 99 ? "99+" : unread}
+                <span key={unread} aria-label={`${unread} pesan belum dibaca`} className="mk-badge-pop absolute -right-[9px] -top-[5px] h-3.5 min-w-3.5 rounded-full border-[1.5px] border-card bg-destructive px-[3px] text-center text-[8px] font-bold leading-[11px] text-destructive-foreground">
+                  {Math.min(99, unread)}
                 </span>
               )}
             </span>
-            {label}
+            <span className="max-w-full truncate text-[9.5px] font-semibold leading-[1.15] tracking-[0.01em]">{label}</span>
           </Link>
         ))}
       </div>
@@ -242,12 +248,12 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({ children, title, nav = true, header = true, showSupport = true, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; showSupport?: boolean; className?: string }) {
+export function AppShell({ children, title, nav = true, header = true, showSupport = true, homeSearch = false, className = "" }: { children: ReactNode; title?: string; nav?: boolean; header?: boolean; showSupport?: boolean; homeSearch?: boolean; className?: string }) {
   useStoredDark();
   const ban = useAccountBan();
   return (
     <div className={`mx-auto min-h-screen max-w-md bg-background ${className}`}>
-      {header && <Header title={title} showSupport={showSupport} />}
+      {header && <Header title={title} showSupport={showSupport} homeSearch={homeSearch} />}
       <main className={nav ? "pb-28" : "pb-8"}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
     </div>
