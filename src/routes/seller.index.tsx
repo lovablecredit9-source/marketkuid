@@ -212,11 +212,11 @@ function StoreSetup({ userId, hasProduct }: { userId: string | undefined; hasPro
         <span className="shrink-0 text-[12px] font-semibold tabular-nums text-primary">{pct}%</span>
       </div>
       <div className="px-3 pt-2.5"><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} /></div></div>
-      <ol className="grid gap-2 p-3">
+      <ol className="grid grid-cols-1 gap-2 p-3">
         {steps.map((s) => {
           const I = icons[s.key];
           return (
-            <li key={s.key}>
+            <li key={s.key} className="min-w-0">
               <button type="button" disabled={s.done} onClick={() => go(s.key)}
                 className="flex min-h-[60px] w-full items-center gap-3 rounded-md border bg-background/40 p-2.5 text-left transition active:scale-[0.98] disabled:opacity-70">
                 {s.done ? <CircleCheck className="h-[18px] w-[18px] shrink-0 text-success" /> : <Circle className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />}

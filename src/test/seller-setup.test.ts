@@ -12,8 +12,8 @@ describe("Siapkan toko kamu", () => {
     expect(s.find((x) => x.key === "bot")?.optional).toBe(true);
   });
   it("profil selesai hanya jika logo dan deskripsi terisi", () => {
-    expect(storeSetupSteps({ store: { ...empty, avatar_path: "a.png" }, hasProduct: false, botCount: 0 })[0].done).toBe(false);
-    expect(storeSetupSteps({ store: { ...empty, avatar_path: "a.png", description: "Toko" }, hasProduct: false, botCount: 0 })[0].done).toBe(true);
+    expect(storeSetupSteps({ store: { ...empty, avatar_path: "a.png" }, hasProduct: false, botCount: 0 })[0]?.done).toBe(false);
+    expect(storeSetupSteps({ store: { ...empty, avatar_path: "a.png", description: "Toko" }, hasProduct: false, botCount: 0 })[0]?.done).toBe(true);
   });
   it("rekening dan produk aktif", () => {
     const s = storeSetupSteps({ store: { ...empty, bank_number: "123" }, hasProduct: true, botCount: 1 });
