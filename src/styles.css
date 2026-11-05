@@ -370,3 +370,49 @@
 @keyframes mk-pop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .mk-pop { animation: mk-pop-in .25s ease; }
 .mk-missing-plain { border-color: rgb(255 213 0) !important; box-shadow: 0 0 0 2px rgb(255 213 0 / .3); animation: mk-wobble .6s ease; }
+
+/* Header icons (bell, cart, menu): soft "clay" shadow, lift on hover, press on tap, glow when open — like marketku.id. */
+.mk-clay-icon svg { filter: drop-shadow(0 1px 1px rgb(15 23 42 / .18)) drop-shadow(0 2px 6px rgb(15 23 42 / .12)); transition: filter .15s, transform .15s, color .15s; }
+.mk-clay-icon:hover svg { transform: translateY(-1px); filter: drop-shadow(0 2px 2px rgb(15 23 42 / .22)) drop-shadow(0 4px 10px rgb(15 23 42 / .16)); }
+.mk-clay-icon:active svg { transform: translateY(1px); filter: drop-shadow(0 1px 1px rgb(15 23 42 / .22)); }
+.mk-clay-icon.is-open svg { color: var(--primary); transform: translateY(-1px); filter: drop-shadow(0 1px 1px color-mix(in oklab, var(--primary) 35%, transparent)) drop-shadow(0 3px 8px color-mix(in oklab, var(--primary) 22%, transparent)); }
+.mk-clay-icon.is-bump svg { animation: mk-icon-bounce .6s ease; }
+
+/* Home section headers: gradient icon that floats up and down + coloured 3px accent on the left. */
+@keyframes mk-premium-float { 0%, 100% { transform: translateZ(0); } 50% { transform: translate3d(0, -5px, 0); } }
+.mk-float-icon { animation: mk-premium-float 5.5s ease-in-out infinite; }
+.mk-strip-item:nth-child(2n) .mk-float-icon { animation-delay: -1.4s; }
+.mk-strip-item:nth-child(3n) .mk-float-icon { animation-delay: -2.8s; }
+.mk-rail { --rail-from: var(--primary); --rail-to: oklch(0.7 0.15 250); }
+.mk-rail--gold { --rail-from: #fbbf24; --rail-to: #f59e0b; }
+.mk-rail--pink { --rail-from: #ec4899; --rail-to: #db2777; }
+.mk-rail--green { --rail-from: #34d399; --rail-to: #10b981; }
+.mk-rail--violet { --rail-from: #7c3aed; --rail-to: #a855f7; }
+.mk-rail__head { position: relative; }
+.mk-rail__head::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--rail-from), var(--rail-to)); }
+.mk-rail--violet .mk-rail__head { background: color-mix(in oklab, #7c3aed 5%, var(--card)); }
+.mk-rail__icon { background: linear-gradient(135deg, var(--rail-from), var(--rail-to)); color: #fff; }
+.mk-game-tab.is-active { color: #7c3aed; border-color: color-mix(in oklab, #7c3aed 55%, var(--border)); background: color-mix(in oklab, #7c3aed 9%, var(--card)); }
+.dark .mk-game-tab.is-active { color: #c4b5fd; }
+
+/* Product cards whose store is closed or stock is empty: faded card, greyed photo, small pill bottom-right. */
+.mk-card-off { opacity: .72; }
+.mk-card-off img { filter: grayscale(.6); opacity: .65; }
+
+/* Footer "Mitra Marketku" partner logos that slide in from the right. */
+@keyframes mk-partners { from { transform: translate3d(100vw, 0, 0); } to { transform: translate3d(-100%, 0, 0); } }
+.mk-partners { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.mk-partners__track { display: flex; gap: 32px; width: max-content; align-items: center; animation: mk-partners 22s linear infinite; }
+.mk-partners:hover .mk-partners__track { animation-play-state: paused; }
+.mk-partners__item { display: inline-flex; height: 40px; align-items: center; padding: 4px 8px; opacity: .65; filter: grayscale(1); transition: opacity .2s, filter .2s; }
+.mk-partners__item:hover { opacity: 1; filter: none; }
+
+/* Promo banner: native swipe with snap (manual drag works), auto-advance handled in JS. */
+.mk-banner-track { display: flex; gap: 8px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.mk-banner-track::-webkit-scrollbar { display: none; }
+.mk-banner-track > * { flex: 0 0 100%; scroll-snap-align: center; }
+
+/* Chat typing pill: three bouncing dots + "x sedang mengetik…". */
+@keyframes mk-typing-bounce { 0%, 80%, 100% { transform: scale(.6); opacity: .5; } 40% { transform: scale(1); opacity: 1; } }
+.mk-typing-bounce { animation: mk-typing-bounce 1.4s ease-in-out infinite both; }
+@media (prefers-reduced-motion: reduce) { .mk-float-icon, .mk-partners__track, .mk-typing-bounce, .mk-clay-icon.is-bump svg { animation: none; } }

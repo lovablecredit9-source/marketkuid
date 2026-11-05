@@ -83,3 +83,24 @@ export const BRAND_GROUPS = [
     ],
   },
 ];
+
+import gameRoblox from "@/assets/game/game-roblox.webp.asset.json";
+import gameFreeFire from "@/assets/game/game-free-fire.webp.asset.json";
+import gameMobileLegends from "@/assets/game/game-mobile-legends.webp.asset.json";
+import gamePubg from "@/assets/game/game-pubg.webp.asset.json";
+import partnerRouter from "@/assets/partners/partner-router.png.asset.json";
+import partnerLossnode from "@/assets/partners/partner-lossnode.png.asset.json";
+
+/** "Jelajahi Game" tabs on the home page, in marketku.id's order, each with its tab icon. */
+export const HOME_GAMES = [
+  { name: "Roblox", icon: gameRoblox.url },
+  { name: "Free Fire", icon: gameFreeFire.url },
+  { name: "Mobile Legends", icon: gameMobileLegends.url },
+  { name: "PUBG", icon: gamePubg.url },
+] as const;
+
+/** Footer "Mitra Marketku" partner logos. */
+export const PARTNERS = [
+  { name: "Marketku Router", img: partnerRouter.url, href: "https://router.marketku.id" },
+  { name: "LossNode", img: partnerLossnode.url, href: "https://lossnode.com" },
+] as const;
