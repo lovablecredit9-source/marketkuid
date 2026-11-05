@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,13 +9,20 @@ export const validStoreName = (v: string) => v.trim().length >= 3 && v.trim().le
 export const normalizeTelegram = (v: string) => v.trim().replace(/^@/, "");
 export const validTelegram = (v: string) => v === "" || /^[A-Za-z0-9_]{5,32}$/.test(v);
 
-export function SellerSheet({ open, onOpenChange, userId, onCreated }: {
+export const defaultStoreName = (ownerName: string) => {
+  const base = ownerName.trim().slice(0, 34);
+  return base ? `${base} Store` : "";
+};
+
+export function SellerSheet({ open, onOpenChange, userId, ownerName = "", onCreated }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   userId: string;
+  ownerName?: string;
   onCreated: () => void;
 }) {
   const [name, setName] = useState("");
+  useEffect(() => { if (open && !name) setName(defaultStoreName(ownerName)); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   const [tg, setTg] = useState("");
   const [loading, setLoading] = useState(false);
   const telegram = normalizeTelegram(tg);
@@ -51,7 +58,7 @@ export function SellerSheet({ open, onOpenChange, userId, onCreated }: {
           <form className="space-y-5 px-5 pt-5" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
             <div className="space-y-2">
               <label htmlFor="store_name" className="block text-sm font-semibold">Nama toko</label>
-              <input id="store_name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Nama toko kamu" autoFocus
+              <input id="store_name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Minimal 3 karakter" autoFocus required
                 className="w-full rounded-2xl border border-input bg-card px-4 py-3.5 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
               {name && !nameOk && <p className="text-sm text-destructive">Nama toko 3–40 karakter.</p>}
             </div>
@@ -63,10 +70,13 @@ export function SellerSheet({ open, onOpenChange, userId, onCreated }: {
                 {tgOk ? "Isi jika punya, untuk notifikasi & link bot. Tanpa @" : "Username Telegram 5–32 karakter: huruf, angka, atau _."}
               </p>
             </div>
-            <button type="submit" disabled={!nameOk || !tgOk || loading}
-              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-primary-glow py-3.5 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:opacity-55 disabled:shadow-none">
-              {loading ? "Membuat toko..." : "Buka Toko"}
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <Dialog.Close type="button" className="rounded-2xl border bg-card py-3.5 font-bold transition active:scale-[0.98]">Batal</Dialog.Close>
+              <button type="submit" disabled={!nameOk || !tgOk || loading}
+                className="flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-primary-glow py-3.5 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:opacity-55 disabled:shadow-none">
+                {loading ? "Membuat toko..." : "Buka Toko"}
+              </button>
+            </div>
           </form>
         </Dialog.Content>
       </Dialog.Portal>

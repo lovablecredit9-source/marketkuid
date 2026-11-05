@@ -226,8 +226,8 @@ function AkunDashboard({ user }: { user: User }) {
         {logoutBtn}
       </div>
       <WelcomeTour id="buyer-account" steps={BUYER_WELCOME} open={tour} onOpenChange={setTour} />
-      <SellerSheet open={sellerOpen} onOpenChange={setSellerOpen} userId={user.id}
-        onCreated={() => { switchView("seller"); void queryClient.invalidateQueries({ queryKey: ["seller_store", user.id] }); }} />
+      <SellerSheet open={sellerOpen} onOpenChange={setSellerOpen} userId={user.id} ownerName={name}
+        onCreated={() => { switchView("seller"); setTour(true); void queryClient.invalidateQueries({ queryKey: ["seller_store", user.id] }); }} />
     </AppShell>
   );
 }
@@ -301,10 +301,10 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
         <p className="mt-2 text-[11px] text-muted-foreground">Saldo terjadwal otomatis pindah ke "Tersedia" begitu pesanan selesai.</p>
       </section>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Stat icon={Package} value={0} label="PRODUK AKTIF" />
         <Stat icon={Clock} value={0} label="PESANAN BARU" />
-        <Stat icon={CircleCheck} value={0} label="SELESAI 30H" full />
+        <Stat icon={CircleCheck} value={0} label="SELESAI 30H" />
       </div>
 
       <Section title="AKUN">
