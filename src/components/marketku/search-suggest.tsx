@@ -95,7 +95,7 @@ export function SearchSuggest({ q, onPick, onAll, className = "" }: { q: string;
             const path = media.data?.[s.owner_id]?.avatar_path;
             const url = path ? avatars.data?.[path] : undefined;
             return (
-              <Link key={s.owner_id} to="/toko/$slug" params={{ slug: s.slug }} onClick={onPick} className={`flex items-center gap-3 ${prods.length ? "px-1" : "px-4"} py-2 transition active:bg-accent`}>
+              <Link key={s.owner_id} to="/toko/$slug" params={{ slug: s.slug ?? s.owner_id }} onClick={onPick} className={`flex items-center gap-3 ${prods.length ? "px-1" : "px-4"} py-2 transition active:bg-accent`}>
                 {url ? <img src={url} alt="" className="h-9 w-9 shrink-0 rounded-md object-cover" />
                   : <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Store className="h-4 w-4" /></span>}
                 <span className="min-w-0 flex-1">
