@@ -57,3 +57,8 @@
 - [x] Efek tekan/garis biru tombol Seller Center, kotak saldo bisa diklik, panduan 15 langkah gaya marketku.id
 - [x] Saldo Tertahan Non-Garansi vs Saldo Menunggu Masa Garansi (maks 3 hari)
 - [ ] Bandingkan hasil dana garansi dengan tes bayar nyata di marketku.id (menunggu pembayaran QRIS dari user)
+- [x] Ajukan kategori baru (seller) + persetujuan admin
+- [x] Klaim garansi pembeli + setujui/tolak seller
+- [ ] Uji klaim garansi sungguhan di marketku.id (butuh QRIS dibayar user + akun pembeli baru)
+- [ ] Bot Telegram & broadcast di marketku.id (user hubungkan token sendiri)
+- [ ] Upload 9 jenis produk uji di marketku.id + tampilan pembeli

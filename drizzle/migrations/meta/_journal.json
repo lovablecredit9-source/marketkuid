@@ -274,6 +274,20 @@
       "when": 1793898978799,
       "tag": "0038_warranty_holds",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793915999710,
+      "tag": "0039_category_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793916260896,
+      "tag": "0040_warranty_claims",
+      "breakpoints": true
     }
   ]
 }

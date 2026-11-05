@@ -12,7 +12,7 @@ import {
   type ProductType, type CodeSubtype, type StockMode, type VariantDraft, type Warranty, type Discount, type Bonus,
 } from "@/lib/products";
 import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, FloatTextarea, GaransiSheet, KategoriSheet, fieldCls } from "@/components/marketku/product-form";
-import { soon } from "@/components/marketku/shell";
+import { CategoryRequestSheet } from "@/components/marketku/category-request-sheet";
 import { SellerLoading } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller/produk_/baru")({
@@ -61,6 +61,7 @@ function ProductWizard() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [removed, setRemoved] = useState<string[]>([]);
   const [catOpen, setCatOpen] = useState(false);
+  const [catReqOpen, setCatReqOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -260,7 +261,7 @@ function ProductWizard() {
                 <span className={catName ? "" : "text-foreground/80"}>{catName ?? "Pilih kategori produk"}</span>
                 <span className="text-sm font-semibold text-primary">{catName ? "Ganti" : "Pilih"}</span>
               </button>
-              <button type="button" onClick={() => soon("Ajukan kategori baru")} className="mt-3 flex items-center gap-1.5 px-4 text-sm font-semibold text-primary"><Plus className="h-4 w-4" /> Ajukan kategori baru</button>
+              <button type="button" onClick={() => setCatReqOpen(true)} className="mt-3 flex items-center gap-1.5 px-4 text-sm font-semibold text-primary"><Plus className="h-4 w-4" /> Ajukan kategori baru</button>
             </div>
             {showGuide ? (
               <div><div className="mb-2 flex items-center justify-between"><p className="text-sm font-semibold">Panduan penggunaan</p>
@@ -451,6 +452,7 @@ function ProductWizard() {
         </button>
       </div>
 
+      {user && <CategoryRequestSheet open={catReqOpen} onOpenChange={setCatReqOpen} userId={user.id} />}
       <KategoriSheet open={catOpen} onOpenChange={setCatOpen} value={categoryId} onPick={(id) => { setCategoryId(id); setErrors([]); }} />
       {sheet?.kind === "garansi" && (
         <GaransiSheet key={sheet.n} open onOpenChange={(o) => !o && setSheet(null)} value={variants[sheet.idx]?.warranty ?? null} onSave={(w) => setV(sheet.idx, { warranty: w })} />

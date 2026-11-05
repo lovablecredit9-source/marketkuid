@@ -13,6 +13,7 @@ import { rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
 import { canReportOrder, isDisputeActive } from "@/lib/disputes";
 import { ReportSheet } from "@/components/marketku/report-sheet";
+import { WarrantyClaimBlock } from "@/components/marketku/warranty-claim";
 import { ShieldAlert, Undo2 } from "lucide-react";
 
 export const Route = createFileRoute("/pesanan/$id")({
@@ -197,6 +198,7 @@ function Pesanan() {
                       {i.delivered.map((d, n) => <p key={n} className="whitespace-pre-wrap break-all font-mono text-xs">{d}</p>)}
                     </div>
                   )}
+                  {o.paid_at && <WarrantyClaimBlock itemId={i.id} />}
                 </div>
               ))}
             </div>
