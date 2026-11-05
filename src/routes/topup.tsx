@@ -31,7 +31,7 @@ function TopUp() {
   const history = useQuery({
     queryKey: ["my_deposits", user?.id], enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("deposit_requests").select("id, amount, status, admin_note, created_at, method_label").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(30);
+      const { data, error } = await supabase.from("deposit_requests").select("id, amount, status, admin_note, created_at, method_label").eq("user_id", user!.id).eq("purpose", "wallet").order("created_at", { ascending: false }).limit(30);
       if (error) throw error;
       return data ?? [];
     },
