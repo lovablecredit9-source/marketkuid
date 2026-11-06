@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { siteBase, tg } from "@/lib/telegram-bot.server";
+import { siteBase, signedImage, tg } from "@/lib/telegram-bot.server";
 import {
   ADMIN_COMMANDS, ADMIN_KEYBOARD, ADMIN_TAB, adminActionFromText, adminNotifyText, parseAdminLink,
   type AdminMenuAction, type AdminNotifyKind,
@@ -19,7 +19,8 @@ type Update = {
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const rp = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`;
 const when = (s: string) => new Date(s).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-export const adminBanner = (site: string) => `${site}/tg-admin-banner.jpg`;
+/** Banner lives in private storage (dev host blocks static files); Telegram fetches it via a signed URL. */
+export const ADMIN_BANNER_PATH = "system/tg-admin-banner.jpg";
 const panel = (site: string, tab?: string) => `${site}/admin${tab ? `?tab=${tab}` : ""}`;
 
 export async function registerAdminWebhook(bot: Pick<AdminBotRow, "token" | "webhook_secret">) {
@@ -79,7 +80,7 @@ async function section(admin: Admin, action: AdminMenuAction, site: string): Pro
       + `├ 💰 Deposit menunggu: <b>${k.dep}</b>\n├ 🧾 Bukti bayar order: <b>${k.pay}</b>\n├ 🏦 Withdraw menunggu: <b>${k.wd}</b>\n├ ⚠️ Dispute aktif: <b>${k.dis}</b>\n└ 🗂 Pengajuan kategori: <b>${k.cat}</b>\n\n`
       + `📈 <b>Platform</b>\n├ 👥 Pengguna: <b>${k.users}</b>\n├ 🏪 Toko: <b>${k.stores}</b>\n└ 🛒 Pesanan 24 jam: <b>${k.ordersToday}</b>\n\n`
       + `🕒 ${when(new Date().toISOString())} WIB`;
-    return { text, markup: menuInline(site, k), photo: adminBanner(site) };
+    return { text, markup: menuInline(site, k), photo: (await signedImage(admin, ADMIN_BANNER_PATH)) ?? undefined };
   }
   if (action === "help") {
     return {
