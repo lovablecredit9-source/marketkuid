@@ -403,6 +403,7 @@ export async function drainHubNotifications(admin: Admin, site: string, limit = 
     if (!out) { await mark(true); continue; }
     const res = await deliver(bot.token, Number(link.tg_user_id), out);
     await mark(res.ok, res.description);
+    if (res.ok && res.messageId) await admin.from("seller_hub_notifications").update({ tg_chat_id: Number(link.tg_user_id), tg_message_id: res.messageId }).eq("id", r.id);
     if (res.ok) sent++;
   }
   return { sent };
@@ -421,7 +422,7 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
     const png = await chatCard({ store, buyer, message: m.body ?? "", product: prod?.name ?? null, photo: !!m.attachment_path, at: new Date(m.created_at) });
     return {
       png,
-      text: `💬 <b>Chat Baru dari ${esc(buyer)}</b>\n\n${esc((m.body || (m.attachment_path ? "📷 Foto" : "")).slice(0, 600))}${prod?.name ? `\n\n📦 ${esc(prod.name)}` : ""}`,
+      text: hubChatCaption({ store, buyer, product: prod?.name ?? null, body: m.body || (m.attachment_path ? "📷 Foto" : "") }),
       markup: { inline_keyboard: [[{ text: "💬 Balas Chat", url: `${site}/seller/chat/${m.conversation_id}`, style: "primary" }], [dashBtn]] },
     };
   }
@@ -446,6 +447,19 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
   const first = its[0];
   const qty = its.reduce((a, i) => a + i.qty, 0);
   const product = first ? `${first.product_name}${its.length > 1 ? ` +${its.length - 1}` : ""}` : "-";
+  const detailBtns = { inline_keyboard: [[{ text: "📋 Detail Pesanan", callback_data: `od:${o.order_no}`, style: "primary" }], [dashBtn, { text: "🆕 Pesanan Aktif", callback_data: "h:new" }]] };
+  if (kind === "order_released") {
+    const { data: led } = await admin.from("wallet_ledger").select("amount").eq("ref_id", orderId).eq("kind", "sale").limit(1).maybeSingle();
+    const { data: ord } = await admin.from("orders").select("buyer_confirmed_at").eq("id", orderId).maybeSingle();
+    return { text: hubReleasedCaption({ product, amount: Number(led?.amount ?? sellerNet(Number(o.total))), orderNo: o.order_no, byBuyer: !!ord?.buyer_confirmed_at }), markup: detailBtns };
+  }
+  if (kind === "dispute_open" || kind === "dispute_done") {
+    const { data: dp } = refId ? await admin.from("order_disputes").select("status, resolution_note").eq("id", refId).maybeSingle() : { data: null };
+    return {
+      text: hubDisputeCaption(kind, { product, orderNo: o.order_no, status: dp?.status ?? "", amount: kind === "dispute_done" && dp?.status !== "refund" ? sellerNet(Number(o.total)) : Number(o.total), note: dp?.resolution_note }),
+      markup: { inline_keyboard: [[{ text: "🚨 Buka Ruang Laporan", url: `${site}/seller/dispute`, style: "danger" }], [dashBtn]] },
+    };
+  }
   const at = new Date(kind === "order_new" ? o.created_at : kind === "order_paid" ? o.paid_at ?? o.updated_at : kind === "order_expired" ? o.expires_at ?? o.updated_at : o.updated_at);
   const png = await orderCard({
     kind: kind as OrderCardKind, store, orderNo: o.order_no, product: first?.product_name ?? "-", variant: first?.variant_name ?? "-",
@@ -454,7 +468,10 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
   });
   return {
     png,
-    text: hubOrderCaption(kind, { orderNo: o.order_no, total: Number(o.total), product, qty, buyer: o.buyer_name, method: o.payment_method }),
-    markup: { inline_keyboard: [[{ text: "📋 Detail Pesanan", url: `${site}/seller/transaksi`, style: "primary" }], [dashBtn, { text: "🆕 Pesanan Aktif", callback_data: "h:new" }]] },
+    text: hubOrderCaption(kind, {
+      orderNo: o.order_no, total: Number(o.total), product, qty, buyer: o.buyer_name, method: o.payment_method,
+      variant: first?.variant_name ?? null, expiresAt: o.expires_at ? new Date(o.expires_at) : null, note: o.buyer_note,
+    }),
+    markup: detailBtns,
   };
 }
