@@ -383,6 +383,25 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     if (d === "noop") return;
     if (d === "home" || d === "joined" || d === "menu") return d === "home" ? catalog() : welcome();
     if (d.startsWith("p:")) return showProduct(d.slice(2));
+    if (d.startsWith("v:")) {
+      const [, vid, q] = d.split(":");
+      if (vid && /^[0-9a-f-]{36}$/i.test(vid)) return orderCard(vid, Number(q) || 1);
+      return;
+    }
+    if (d.startsWith("s:") || d.startsWith("t:")) {
+      if (!isOwner) return send("⛔ Menu ini khusus pemilik toko.");
+      if (d === "s:order") return sellerOrders();
+      if (d === "s:prod") return sellerProducts();
+      const pid = d.slice(2);
+      if (d.startsWith("t:") && /^[0-9a-f-]{36}$/i.test(pid)) {
+        const { data: p } = await admin.from("products").select("id, status").eq("id", pid).eq("owner_id", bot.owner_id).maybeSingle();
+        if (!p) return send("Produk tidak ditemukan.");
+        const { error } = await admin.from("products").update({ status: p.status === "active" ? "draft" : "active" }).eq("id", p.id).eq("owner_id", bot.owner_id);
+        if (error) return send(`Gagal mengubah produk: ${esc(error.message)}`);
+        return sellerProducts(true);
+      }
+      return;
+    }
     if (d.startsWith("c:")) {
       const id = d.slice(2);
       const list = products.filter((p) => (p.category_id ?? "none") === id);
@@ -393,7 +412,16 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     }
     return;
   }
+  if (isOwner) {
+    if (text === "/start" || text.startsWith("/start ")) {
+      await send("🧑‍💼 <b>Menu Seller</b> — pilih menu di bawah untuk kelola toko.\n🔔 Notifikasi pesanan masuk otomatis ke chat ini.", sellerKb());
+      return sellerDashboardFor();
+    }
+    const sa = sellerActionFromText(text);
+    if (sa) return runSeller(sa);
+  }
   if (text.startsWith("/start")) return welcome();
+  if (text === "/produk") return catalog();
   const a = actionFromText(text);
   if (a) return runAction(a);
   return send("Ketik /start untuk membuka menu toko.", replyKb());
