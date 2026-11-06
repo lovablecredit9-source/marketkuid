@@ -71,7 +71,7 @@ const back = (site: string, tab?: string) => ({
   ],
 });
 
-async function section(admin: Admin, action: AdminMenuAction, site: string): Promise<{ text: string; markup: unknown; photo?: string }> {
+async function section(admin: Admin, action: AdminMenuAction, site: string): Promise<{ text: string; markup: unknown; photo?: string | undefined }> {
   if (action === "home") {
     const k = await counts(admin);
     const waiting = k.dep + k.pay + k.wd + k.dis + k.cat;
@@ -125,7 +125,7 @@ async function section(admin: Admin, action: AdminMenuAction, site: string): Pro
   return { text, markup: back(site, action) };
 }
 
-async function reply(token: string, chatId: number, s: { text: string; markup: unknown; photo?: string }, editId?: number) {
+async function reply(token: string, chatId: number, s: { text: string; markup: unknown; photo?: string | undefined }, editId?: number) {
   if (editId) {
     // Photo messages can't become text; replace the message instead.
     await tg(token, "deleteMessage", { chat_id: chatId, message_id: editId });
