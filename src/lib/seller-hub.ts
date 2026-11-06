@@ -47,24 +47,85 @@ export function hubActionFromText(text: string): HubAction | null {
   return null;
 }
 
-export type HubKind = "order_new" | "order_paid" | "order_completed" | "order_cancelled" | "order_expired" | "chat" | "deposit";
+export type HubKind = "order_new" | "order_paid" | "order_completed" | "order_cancelled" | "order_expired" | "order_released" | "dispute_open" | "dispute_done" | "chat" | "deposit";
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const rp = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`;
+const METHOD: Record<string, string> = { qris: "QRIS", saldo: "Saldo Marketku", wallet: "Saldo Marketku" };
+export const hubMethod = (m: string | null) => (m ? METHOD[m.toLowerCase()] ?? m.toUpperCase() : "Belum dipilih");
+const wibShort = (d: Date) => d.toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).replace(/\./g, ".");
 
-export function hubOrderCaption(kind: HubKind, d: { orderNo: number; total: number; product: string; qty: number; buyer: string | null; method: string | null }) {
+export type HubOrderInfo = {
+  orderNo: number; total: number; product: string; qty: number; buyer: string | null; method: string | null;
+  variant?: string | null; unit?: number; expiresAt?: Date | null; note?: string | null; preorder?: boolean;
+};
+
+/** Order notices in the style of the original Marketku seller bot: headline, emoji field list, italic footer. */
+export function hubOrderCaption(kind: HubKind, d: HubOrderInfo) {
+  const order = `🆔 Order: <code>M-${d.orderNo}</code>`;
+  const buyer = `👤 Pembeli: ${esc(d.buyer ?? "Pembeli")}`;
+  if (kind === "order_new") {
+    return [
+      "⏳ <b>Pesanan Menunggu Pembayaran!</b>", "",
+      buyer, `📦 ${esc(d.product)}`, ...(d.variant ? [`🏷 Variasi: ${esc(d.variant)}`] : []),
+      ...(d.preorder ? ["🚨 Jenis: Pre-Order"] : []),
+      `📊 Jumlah: ${d.qty}x`, `💰 Total: ${rp(d.total)}`, `💳 Metode: ${esc(hubMethod(d.method))}`, order,
+      ...(d.expiresAt ? [`⏰ Batas bayar: ${wibShort(d.expiresAt)}`] : []),
+      ...(d.note ? [`📝 Catatan: ${esc(d.note.slice(0, 200))}`] : []),
+      "", "<i>Invoice sudah dibuat. Notifikasi sukses akan dikirim setelah pembayaran diterima.</i>",
+    ].join("\n");
+  }
+  if (kind === "order_paid") {
+    return [
+      "✅ <b>Pembayaran Dikonfirmasi</b>", "", "Transaksi telah berhasil diproses oleh sistem.", "",
+      "🧾 <b>Detail Transaksi</b>",
+      `      •  Produk    : ${esc(d.product)}`,
+      ...(d.variant ? [`      •  Variasi  : ${esc(d.variant)}`] : []),
+      `      •  Jumlah   : ${d.qty}x`,
+      `      •  Harga      : ${rp(d.total)}`,
+      `      •  Metode   : ${esc(hubMethod(d.method))}`, "",
+      `Order ID: <code>M-${d.orderNo}</code>`,
+      "<i>Terima kasih telah mempercayakan transaksi anda kepada kami</i> 🙏",
+    ].join("\n");
+  }
   const head: Record<string, string> = {
-    order_new: "🛒 <b>Pesanan Baru — Belum Dibayar</b>",
-    order_paid: "✅ <b>Pembayaran Berhasil</b>",
     order_completed: "🎉 <b>Pesanan Selesai</b>",
     order_cancelled: "❌ <b>Pesanan Dibatalkan</b>",
     order_expired: "⌛ <b>Pesanan Habis Waktu</b>",
   };
   const tail: Record<string, string> = {
-    order_new: "Menunggu pembeli menyelesaikan pembayaran.",
-    order_paid: "Stok dikirim otomatis. Saldo masuk setelah masa tahan.",
     order_completed: "Pembeli sudah menerima pesanan.",
     order_cancelled: "Stok yang dipesan kembali tersedia.",
     order_expired: "Batas waktu bayar terlewati, pesanan tidak diproses.",
   };
-  return `${head[kind]}\n\n🧾 <code>M-${d.orderNo}</code>\n📦 ${esc(d.product)} · ${d.qty}x\n👤 ${esc(d.buyer ?? "Pembeli")}\n💳 ${esc(d.method ? d.method.toUpperCase() : "Belum dipilih")}\n💰 <b>${rp(d.total)}</b>\n\n<i>${tail[kind]}</i>`;
+  return `${head[kind] ?? "📋 <b>Pesanan</b>"}\n\n${buyer}\n📦 ${esc(d.product)}\n📊 Jumlah: ${d.qty}x\n💰 Total: ${rp(d.total)}\n${order}\n\n<i>${tail[kind] ?? ""}</i>`;
 }
+
+/** "Escrow Otomatis Dirilis" — seller net credited after the hold window. */
+export function hubReleasedCaption(d: { product: string; amount: number; orderNo: number; byBuyer: boolean }) {
+  return `⏱ <b>Escrow Otomatis Dirilis</b>\n\n📦 ${esc(d.product)}\n💰 Dana dirilis: ${rp(d.amount)}\n🆔 Order: <code>M-${d.orderNo}</code>\n\n<i>${d.byBuyer ? "Pembeli sudah konfirmasi pesanan diterima, dana diteruskan ke saldo kamu." : "Masa tahan selesai tanpa komplain, dana otomatis diteruskan."}</i>`;
+}
+
+/** Dispute opened / resolved notices. */
+export function hubDisputeCaption(kind: "dispute_open" | "dispute_done", d: { product: string; orderNo: number; status: string; amount: number; note?: string | null }) {
+  if (kind === "dispute_open") {
+    return `🚨 <b>Laporan Masalah Pesanan</b>\n\n📦 ${esc(d.product)}\n🆔 Order: <code>M-${d.orderNo}</code>\n\n<i>Pembeli membuka laporan. Mohon tanggapi di ruang laporan secepatnya.</i>`;
+  }
+  const refund = d.status === "refund";
+  return `${refund ? "↩️ <b>Dispute Diselesaikan — Refund Pembeli</b>" : "✅ <b>Dispute Diselesaikan — Dana Dirilis</b>"}\n\n📦 ${esc(d.product)}\n${refund ? `💸 Refund: ${rp(d.amount)}` : `💰 Dana dirilis: ${rp(d.amount)}`}\n🆔 Order: <code>M-${d.orderNo}</code>${d.note ? `\n\n📝 Catatan: ${esc(d.note.slice(0, 200))}` : ""}\n\n<i>${refund ? "Dana telah dikembalikan ke pembeli." : "Saldo telah masuk ke dompet Anda."}</i>`;
+}
+
+/** Chat notice; the seller replies to this message in Telegram to answer the buyer. */
+export function hubChatCaption(d: { store: string; buyer: string; product: string | null; body: string }) {
+  return `💬 <b>Pesan baru di ${esc(d.store)}</b>\n👤 <b>Buyer:</b> ${esc(d.buyer)}${d.product ? `\n📦 <b>Produk:</b> ${esc(d.product)}` : ""}\n────────────────────\n${esc(d.body.slice(0, 700))}\n\n<i>Balas pesan ini untuk membalas buyer.</i>`;
+}
+
+export type OrderFilter = "all" | "done" | "pending" | "paid";
+export const ORDER_PAGE_SIZE = 5;
+export const ORDER_FILTER_STATUSES: Record<OrderFilter, string[] | null> = {
+  all: null, done: ["completed"], pending: ["pending"], paid: ["paid", "processing"],
+};
+export const parseOrderCb = (data: string): { filter: OrderFilter; page: number } | null => {
+  const m = /^o:(all|done|pending|paid):(\d{1,4})$/.exec(data);
+  return m ? { filter: m[1] as OrderFilter, page: Number(m[2]) } : null;
+};
+export const pageCount = (total: number) => Math.max(1, Math.ceil(total / ORDER_PAGE_SIZE));
