@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/market";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -51,11 +52,11 @@ function SellerChatRoom() {
 
   const conv = useQuery({
     queryKey: ["conversation", id], enabled: !!user,
-    queryFn: async () => (await supabase.from("conversations").select("*").eq("id", id).maybeSingle()).data,
+    queryFn: async () => !isUuid(id) ? null : (await supabase.from("conversations").select("*").eq("id", id).maybeSingle()).data,
   });
   const msgs = useQuery({
     queryKey: ["messages", id], enabled: !!user, refetchInterval: 3000,
-    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at, deleted_at, hidden_for").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
+    queryFn: async () => !isUuid(id) ? [] : (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at, deleted_at, hidden_for").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
   });
   const state = useQuery({
     queryKey: ["partner_state", id], enabled: !!user && !!conv.data, refetchInterval: 2500,
@@ -112,6 +113,14 @@ function SellerChatRoom() {
     setText("");
     void qc.invalidateQueries({ queryKey: ["messages", id] });
   };
+
+  if (conv.isFetched && c === null) return (
+    <div className="rounded-2xl border bg-card px-4 py-16 text-center">
+      <p className="text-sm font-semibold">Percakapan tidak ditemukan</p>
+      <p className="mt-1 text-xs text-muted-foreground">Chat ini sudah dihapus atau bukan milik toko kamu.</p>
+      <button onClick={() => navigate({ to: "/seller/chat" })} className="mt-4 rounded-xl border px-4 py-2 text-xs font-semibold transition active:scale-95">Kembali ke Inbox</button>
+    </div>
+  );
 
   return (
     <div className="-mx-1 flex h-[calc(100dvh-170px)] flex-col overflow-hidden rounded-2xl border bg-card">

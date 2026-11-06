@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/market";
 import { isFileStock, fileStockName, downloadStockFile } from "@/lib/products";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -40,6 +41,7 @@ function Pesanan() {
   const q = useQuery({
     queryKey: ["order_view", id, user?.id], enabled: !!user,
     queryFn: async () => {
+      if (!isUuid(id)) return { orders: [], reviewed: new Map(), disputes: [] };
       const { data, error } = await supabase.from("orders").select("*, order_items(*)").or(`checkout_id.eq.${id},id.eq.${id}`).eq("buyer_id", user!.id).order("created_at");
       if (error) throw error;
       const itemIds = (data ?? []).flatMap((o) => o.order_items.map((i) => i.id));

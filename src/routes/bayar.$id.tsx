@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/market";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,6 +38,7 @@ function Bayar() {
   const q = useQuery({
     queryKey: ["order_view", id, user?.id], enabled: !!user,
     queryFn: async () => {
+      if (!isUuid(id)) return { orders: [] };
       const { data, error } = await supabase.from("orders").select("*, order_items(*)").eq("checkout_id", id).eq("buyer_id", user!.id).order("created_at");
       if (error) throw error;
       return { orders: data ?? [] };
@@ -56,7 +58,7 @@ function Bayar() {
   const qrUrls = usePaymentUrls(active.map((m) => m.qr_path));
   const payments = useQuery({
     queryKey: ["order_payments", id], enabled: !!user,
-    queryFn: async () => (await supabase.from("order_payments").select("id, status, admin_note, amount, method_label").eq("checkout_id", id).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => !isUuid(id) ? [] : (await supabase.from("order_payments").select("id, status, admin_note, amount, method_label").eq("checkout_id", id).order("created_at", { ascending: false })).data ?? [],
   });
   const [tab, setTab] = useState<"qris" | "saldo">("qris");
   const [methodId, setMethodId] = useState<string | null>(null);
