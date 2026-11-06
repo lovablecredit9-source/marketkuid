@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/public/telegram/$botId")({
         } catch (e) {
           console.error("Telegram notify drain failed", e);
         }
-        return Response.json({ ok: true });
+        return Response.json({ ok: true, dbg: (globalThis as any).__tgdbg });
       },
     },
   },
