@@ -208,10 +208,129 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     const { data: stock } = await admin.rpc("variant_stock", { p_product_ids: [p.id] });
     const st = new Map((stock ?? []).map((s) => [s.variant_id, s.available]));
     const vs = [...p.product_variants].sort((a, b) => a.sort - b.sort);
-    const lines = vs.map((v, i) => `${i + 1}. ${esc(v.name)} - ${rp(Number(v.price))}${p.product_type === "preorder" ? "" : ` (stok ${st.get(v.id) ?? 0})`}`).join("\n");
-    await send(`📦 <b>${esc(p.name)}</b>\n\nPilih varian yang diinginkan sebelum checkout:\n\n${lines || "Belum ada varian."}`, {
-      inline_keyboard: [[{ text: "🛒 Beli di Marketku", url: `${site}/produk/${p.id}` }], [{ text: "← Kembali", callback_data: "home" }]],
+    const pre = p.product_type === "preorder";
+    const lines = vs.map((v, i) => `${i + 1}. ${esc(v.name)} - ${rp(Number(v.price))}${pre ? "" : ` (stok ${st.get(v.id) ?? 0})`}`).join("\n");
+    const buttons = vs.map((v) => {
+      const out = !pre && (st.get(v.id) ?? 0) <= 0;
+      return [{ text: `${out ? "🚫" : "🛒"} ${v.name.slice(0, 28)} · ${rp(Number(v.price))}${out ? " (habis)" : ""}`, callback_data: out ? "noop" : `v:${v.id}:1` }];
     });
+    await send(`📦 <b>${esc(p.name)}</b>\n\nPilih varian yang diinginkan sebelum checkout:\n\n${lines || "Belum ada varian."}`, {
+      inline_keyboard: [...buttons, [{ text: "🌐 Lihat di Marketku", url: `${site}/produk/${p.id}` }], [{ text: "← Kembali", callback_data: "home" }]],
+    });
+  };
+
+  /** Order card: quantity −/+ and a pay button that opens checkout with the chosen variant. */
+  const orderCard = async (variantId: string, qtyIn: number) => {
+    const p = products.find((x) => x.product_variants.some((v) => v.id === variantId));
+    const v = p?.product_variants.find((x) => x.id === variantId);
+    if (!p || !v) { await send("Varian tidak ditemukan atau sudah tidak aktif."); return; }
+    if (store && !store.is_open) { await send("⛔ Toko sedang tutup. Coba lagi nanti ya."); return; }
+    const pre = p.product_type === "preorder";
+    let stock: number | null = null;
+    if (!pre) {
+      const { data } = await admin.rpc("variant_stock", { p_product_ids: [p.id] });
+      stock = data?.find((s) => s.variant_id === v.id)?.available ?? 0;
+      if (stock <= 0) { await edit(`🚫 <b>${esc(p.name)}</b>\n\nStok varian <b>${esc(v.name)}</b> sedang habis.`, { inline_keyboard: [[{ text: "← Kembali", callback_data: `p:${p.id}` }]] }); return; }
+    }
+    const qty = clampQty(qtyIn, stock);
+    const total = qty * Number(v.price);
+    await edit(
+      `⚙️ <b>Mode Pesanan</b>\n━━━━━━━━━━━━━━━\n📦 <b>${esc(p.name)}</b>\n🏷 Varian: ${esc(v.name)}\n💵 Harga: ${rp(Number(v.price))}${stock != null ? `\n📊 Stok: ${stock}` : "\n⏳ Pre-order (diproses seller)"}\n🔢 Jumlah: <b>${qty}</b>\n━━━━━━━━━━━━━━━\n💰 Total: <b>${rp(total)}</b>\n\n💳 Bayar pakai Saldo Marketku, QRIS atau e-wallet. Catatan untuk seller bisa diisi di halaman checkout.`,
+      {
+        inline_keyboard: [
+          [{ text: "➖", callback_data: `v:${v.id}:${qty - 1}` }, { text: String(qty), callback_data: "noop" }, { text: "➕", callback_data: `v:${v.id}:${qty + 1}` }],
+          [{ text: `⚡ Bayar Sekarang - ${rp(total)}`, url: `${site}/checkout?items=${v.id}:${qty}`, style: "success" }],
+          [{ text: "← Kembali", callback_data: `p:${p.id}` }],
+        ],
+      },
+    );
+  };
+
+  /* ---------- seller (linked owner) menu ---------- */
+  async function sellerDashboardFor() {
+    const now = new Date();
+    const wib = new Date(now.getTime() + 7 * 3600_000);
+    const dayStart = new Date(Date.UTC(wib.getUTCFullYear(), wib.getUTCMonth(), wib.getUTCDate()) - 7 * 3600_000);
+    const weekStart = new Date(dayStart.getTime() - 6 * 86400_000);
+    const monthStart = new Date(Date.UTC(wib.getUTCFullYear(), wib.getUTCMonth(), 1) - 7 * 3600_000);
+    const since = new Date(Math.min(weekStart.getTime(), monthStart.getTime())).toISOString();
+    const [{ data: paid }, { data: wallet }, { data: credits }, { count: allProducts }, { data: credited }] = await Promise.all([
+      admin.from("orders").select("id, subtotal, discount, paid_at, status").eq("seller_id", bot.owner_id).not("paid_at", "is", null).gte("paid_at", since).in("status", ["paid", "processing", "completed"]),
+      admin.from("wallets").select("balance").eq("user_id", bot.owner_id).maybeSingle(),
+      admin.from("seller_credits").select("balance").eq("owner_id", bot.owner_id).maybeSingle(),
+      admin.from("products").select("id", { count: "exact", head: true }).eq("owner_id", bot.owner_id).neq("status", "deleted"),
+      admin.from("wallet_ledger").select("ref_id").eq("user_id", bot.owner_id).eq("kind", "sale").gte("created_at", since),
+    ]);
+    const rows = paid ?? [];
+    const sum = (from: Date) => {
+      const xs = rows.filter((o) => new Date(o.paid_at!) >= from);
+      return `${xs.length} pesanan · ${rp(xs.reduce((a, o) => a + Number(o.subtotal) - Number(o.discount), 0))}`;
+    };
+    const done = new Set((credited ?? []).map((x) => x.ref_id));
+    const held = rows.filter((o) => !done.has(o.id)).reduce((a, o) => a + sellerNet(Number(o.subtotal) - Number(o.discount)), 0);
+    const { data: stock } = products.length ? await admin.rpc("variant_stock", { p_product_ids: products.map((p) => p.id) }) : { data: [] };
+    const totalStock = (stock ?? []).reduce((a, s) => a + Number(s.available), 0);
+    await send(
+      `🏪 <b>${esc(storeName)}</b>\n━━━━━━━━━━━━━━━\n📅 <b>Hari Ini</b>\n${sum(dayStart)}\n\n🗓 <b>7 Hari</b>\n${sum(weekStart)}\n\n📆 <b>Bulan Ini</b>\n${sum(monthStart)}\n━━━━━━━━━━━━━━━\n💰 ${rp(Number(wallet?.balance ?? 0))} tersedia\n🔒 ${rp(held)} tertahan\n🪙 ${rp(Number(credits?.balance ?? 0))} credits\n\n📦 ${products.length}/${allProducts ?? products.length} produk aktif · ${totalStock.toLocaleString("id-ID")} stok`,
+      { inline_keyboard: [[{ text: "🧾 Pesanan Terbaru", callback_data: "s:order" }, { text: "📦 Produk", callback_data: "s:prod" }], [{ text: "🖥 Buka Seller Center", url: `${site}/seller` }]] },
+    );
+  }
+
+  const sellerProducts = async (asEdit = false) => {
+    const { data: all } = await admin.from("products").select("id, name, status").eq("owner_id", bot.owner_id).in("status", ["active", "draft"]).order("created_at", { ascending: false }).limit(20);
+    const list = all ?? [];
+    const { data: stock } = list.length ? await admin.rpc("variant_stock", { p_product_ids: list.map((p) => p.id) }) : { data: [] };
+    const { data: vrows } = list.length ? await admin.from("product_variants").select("id, product_id, price").in("product_id", list.map((p) => p.id)) : { data: [] };
+    const st = new Map((stock ?? []).map((s) => [s.variant_id, Number(s.available)]));
+    const body = list.length
+      ? list.map((p) => {
+        const vs = (vrows ?? []).filter((v) => v.product_id === p.id);
+        const price = vs.length ? Math.min(...vs.map((v) => Number(v.price))) : 0;
+        const s = vs.reduce((a, v) => a + (st.get(v.id) ?? 0), 0);
+        return `${p.status === "active" ? "🟢" : "⚪️"} <b>${esc(p.name)}</b>\n${rp(price)} · Stok: ${s}`;
+      }).join("\n\n")
+      : "Belum ada produk.";
+    const kb = {
+      inline_keyboard: [
+        ...list.map((p) => [{ text: `${p.status === "active" ? "🔴 Off" : "🟢 On"} · ${p.name.slice(0, 24)}`, callback_data: `t:${p.id}` }]),
+        [{ text: "➕ Kelola Produk", url: `${site}/seller/produk` }],
+      ],
+    };
+    const text = `📦 <b>Produk — ${list.length} item</b>\n━━━━━━━━━━━━━━━\n\n${body}`;
+    return asEdit ? edit(text, kb) : send(text, kb);
+  };
+
+  const sellerOrders = async () => {
+    const { data } = await admin.from("orders").select("id, order_no, status, total, created_at, order_items(product_name, qty)").eq("seller_id", bot.owner_id).order("created_at", { ascending: false }).limit(8);
+    const label: Record<string, string> = { pending: "⏳ Menunggu bayar", paid: "💳 Dibayar", processing: "📦 Diproses", completed: "✅ Selesai", cancelled: "❌ Batal", refunded: "↩️ Refund", failed: "❌ Gagal" };
+    const rows = (data ?? []) as unknown as { order_no: number; status: string; total: number; created_at: string; order_items: { product_name: string; qty: number }[] }[];
+    const body = rows.length
+      ? rows.map((o) => `${label[o.status] ?? o.status} · <code>M-${o.order_no}</code>\n${esc(o.order_items[0]?.product_name ?? "-")} · ${o.order_items.reduce((a, i) => a + i.qty, 0)}x · ${rp(Number(o.total))}\n🕒 ${new Date(o.created_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}`).join("\n\n")
+      : "Belum ada pesanan.";
+    return send(`🧾 <b>Pesanan — ${rows.length}</b>\n━━━━━━━━━━━━━━━\n\n${body}`, { inline_keyboard: [[{ text: "📋 Semua Pesanan", url: `${site}/seller/pesanan` }]] });
+  };
+
+  const sellerFinance = async () => {
+    const { data: wallet } = await admin.from("wallets").select("balance").eq("user_id", bot.owner_id).maybeSingle();
+    const { data: led } = await admin.from("wallet_ledger").select("amount, note, created_at").eq("user_id", bot.owner_id).order("created_at", { ascending: false }).limit(5);
+    const mut = (led ?? []).map((l) => `${Number(l.amount) >= 0 ? "➕" : "➖"} ${rp(Math.abs(Number(l.amount)))} · ${esc((l.note ?? "").slice(0, 40))}`).join("\n") || "Belum ada mutasi.";
+    return send(`💰 <b>Keuangan</b>\n━━━━━━━━━━━━━━━\n\n💵 ${rp(Number(wallet?.balance ?? 0))} tersedia\n\n📜 <b>Mutasi terakhir</b>\n${mut}`, {
+      inline_keyboard: [[{ text: "💸 Tarik Saldo", url: `${site}/seller/withdraw` }, { text: "📜 Pendapatan", url: `${site}/seller/pendapatan` }]],
+    });
+  };
+
+  const runSeller = async (a: SellerAction) => {
+    switch (a) {
+      case "s_dash": return sellerDashboardFor();
+      case "s_prod": return sellerProducts();
+      case "s_order": return sellerOrders();
+      case "s_fin": return sellerFinance();
+      case "s_buyer": return welcome();
+      case "s_help":
+        return send("⚙️ <b>Menu Lainnya</b>\n━━━━━━━━━━━━━━━\n\n✨ Yang bisa dilakukan di bot ini:\n\n📊 Lihat statistik penjualan\n📦 Aktif/nonaktifkan produk\n🧾 Pantau pesanan terbaru\n💰 Cek saldo & mutasi\n🔔 Notifikasi otomatis (pesanan baru, dibayar, selesai, laporan, stok menipis)\n\n📌 Perintah:\n/start — Menu seller\n/produk — Menu pembeli", {
+          inline_keyboard: [[{ text: "🖥 Buka Seller Center", url: `${site}/seller` }]],
+        });
+    }
   };
 
   const runAction = async (a: BotAction) => {
