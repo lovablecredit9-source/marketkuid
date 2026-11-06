@@ -34,4 +34,4 @@
 - Stock availability always goes through `stock_available` — one rule for orders, fulfilment, counts.
 - Warranty/category-request status changes only via RPCs.
 - Platform bots `admin_bot`/`seller_hub_bot`: service-role singletons, has_role-gated setup, trigger-queued alerts, PNG cards via `card-image.server.ts` (no AI) — tokens stay server-side.
-- Admin Console Mini App (`adminMiniAppLogin`) signs in only Telegram accounts in `admin_bot_admins` whose user still has the admin role; its menu button is set per admin chat — non-admins never get a session or the button.
+- Admin Mini App login only for current admins in `admin_bot_admins`; per-chat menu button.
