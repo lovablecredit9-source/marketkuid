@@ -201,12 +201,90 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
   }
 }
 
-async function deliver(token: string, chatId: number, o: Out) {
+const FILTER_LABEL: Record<OrderFilter, string> = { all: "📊 Semua", done: "🟢 Selesai", pending: "🟡 Pending", paid: "🟠 Dibayar" };
+const STATUS_ICON: Record<string, string> = { pending: "⏳", paid: "💳", processing: "📦", completed: "✅", cancelled: "❌", refunded: "↩️", failed: "❌" };
+
+/** Paginated order list: 5 per page, order buttons, Next/Prev and status filters (like the original bot). */
+async function ordersPage(admin: Admin, owner: string, filter: OrderFilter, page: number, site: string): Promise<Out> {
+  const statuses = ORDER_FILTER_STATUSES[filter];
+  let cq = admin.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", owner);
+  if (statuses) cq = cq.in("status", statuses);
+  const { count } = await cq;
+  const total = count ?? 0;
+  const pages = pageCount(total);
+  const p = Math.min(Math.max(1, page), pages);
+  let q = admin.from("orders").select("order_no, status, total, created_at, order_items(product_name, qty)").eq("seller_id", owner)
+    .order("created_at", { ascending: false }).range((p - 1) * ORDER_PAGE_SIZE, p * ORDER_PAGE_SIZE - 1);
+  if (statuses) q = q.in("status", statuses);
+  const { data } = await q;
+  const rows = (data ?? []) as unknown as { order_no: number; status: string; total: number; created_at: string; order_items: { product_name: string; qty: number }[] }[];
+  const body = rows.map((o) => {
+    const name = o.order_items[0]?.product_name ?? "-";
+    return `${STATUS_ICON[o.status] ?? "•"} <b>${esc(name.length > 22 ? `${name.slice(0, 22)}…` : name)}</b>\n${o.order_items.reduce((a, i) => a + i.qty, 0)}x · ${rp(Number(o.total))} · ${when(o.created_at)}`;
+  }).join("\n\n");
+  const nav = [
+    ...(p > 1 ? [{ text: "« Prev", callback_data: `o:${filter}:${p - 1}` }] : []),
+    ...(p < pages ? [{ text: "Next »", callback_data: `o:${filter}:${p + 1}` }] : []),
+  ];
+  const fb = (f: OrderFilter) => ({ text: FILTER_LABEL[f], callback_data: `o:${f}:1`, ...(f === filter ? { style: "primary" } : {}) });
+  return {
+    text: `📋 <b>Pesanan — ${total}</b>${filter !== "all" ? ` · ${FILTER_LABEL[filter].slice(3)}` : ""}\n${LINE}\n\n${body || "Belum ada pesanan."}\n\n📄 ${p}/${pages}`,
+    markup: { inline_keyboard: [
+      ...rows.map((o) => [{ text: `🔍 M-${o.order_no}`, callback_data: `od:${o.order_no}` }]),
+      ...(nav.length ? [nav] : []),
+      [fb("all"), fb("done")], [fb("pending"), fb("paid")],
+      [{ text: "🖥 Semua di Seller Panel", url: `${site}/seller/transaksi` }],
+    ] },
+  };
+}
+
+async function orderDetail(admin: Admin, owner: string, orderNo: number, site: string): Promise<Out> {
+  const { data: o } = await admin.from("orders").select("id, order_no, status, total, payment_method, buyer_name, buyer_note, created_at, paid_at, expires_at").eq("seller_id", owner).eq("order_no", orderNo).maybeSingle();
+  if (!o) return { text: "⚠️ Pesanan tidak ditemukan." };
+  const { data: items } = await admin.from("order_items").select("product_name, variant_name, qty, unit_price").eq("order_id", o.id);
+  const lb: Record<string, string> = { pending: "⏳ Menunggu pembayaran", paid: "💳 Dibayar", processing: "📦 Diproses", completed: "✅ Selesai", cancelled: "❌ Dibatalkan", refunded: "↩️ Refund", failed: "❌ Gagal" };
+  const its = (items ?? []).map((i) => `      •  ${esc(i.product_name)}${i.variant_name ? ` — ${esc(i.variant_name)}` : ""}\n         ${i.qty}x · ${rp(Number(i.unit_price))}`).join("\n");
+  return {
+    text: [
+      `🧾 <b>Detail Pesanan</b>`, LINE,
+      `🆔 Order: <code>M-${o.order_no}</code>`, `📌 Status: ${lb[o.status] ?? o.status}`,
+      `👤 Pembeli: ${esc(o.buyer_name ?? "Pembeli")}`, `💳 Metode: ${esc(hubMethod(o.payment_method))}`,
+      `🕒 Dibuat: ${when(o.created_at)}`, ...(o.paid_at ? [`✅ Dibayar: ${when(o.paid_at)}`] : []),
+      ...(o.status === "pending" && o.expires_at ? [`⏰ Batas bayar: ${when(o.expires_at)}`] : []),
+      "", "📦 <b>Item</b>", its || "-", "", `💰 Total: <b>${rp(Number(o.total))}</b>`,
+      ...(o.buyer_note ? ["", `📝 Catatan: ${esc(o.buyer_note.slice(0, 300))}`] : []),
+    ].join("\n"),
+    markup: { inline_keyboard: [
+      [{ text: "📋 Buka di Seller Panel", url: `${site}/seller/transaksi`, style: "primary" }],
+      [{ text: "← Kembali", callback_data: "o:all:1" }],
+    ] },
+  };
+}
+
+async function deliver(token: string, chatId: number, o: Out): Promise<{ ok: boolean; description?: string; messageId?: number }> {
   if (o.png && o.text.length <= 1024) {
-    const r = await sendPng(token, chatId, o.png, o.text, o.markup);
-    if (r.ok) return r;
+    const r = (await sendPng(token, chatId, o.png, o.text, o.markup)) as { ok: boolean; description?: string; result?: { message_id: number } };
+    if (r.ok) return { ok: true, messageId: r.result?.message_id };
   }
-  return call(token, "sendMessage", { chat_id: chatId, text: o.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: o.markup });
+  const r = (await call(token, "sendMessage", { chat_id: chatId, text: o.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: o.markup })) as { ok: boolean; description?: string; result?: { message_id: number } };
+  return { ok: r.ok, description: r.description, messageId: r.result?.message_id };
+}
+
+/** Seller replied (Telegram reply) to a chat notice → post the text into that conversation as the seller. */
+async function replyToBuyer(admin: Admin, token: string, owner: string, chatId: number, replyTo: number, body: string) {
+  const { data: n } = await admin.from("seller_hub_notifications").select("ref_id").eq("owner_id", owner).eq("kind", "chat")
+    .eq("tg_chat_id", chatId).eq("tg_message_id", replyTo).maybeSingle();
+  if (!n?.ref_id) return false;
+  const { data: m } = await admin.from("messages").select("conversation_id").eq("id", n.ref_id).maybeSingle();
+  if (!m) return false;
+  const { data: conv } = await admin.from("conversations").select("seller_id, buyer_name").eq("id", m.conversation_id).maybeSingle();
+  if (!conv || conv.seller_id !== owner) return false;
+  const { error } = await admin.from("messages").insert({ conversation_id: m.conversation_id, sender_id: owner, body: body.slice(0, 2000) });
+  await tg(token, "sendMessage", {
+    chat_id: chatId, reply_to_message_id: replyTo, parse_mode: "HTML",
+    text: error ? `⚠️ Gagal mengirim balasan: ${esc(error.message)}` : `✅ Balasan terkirim ke <b>${esc(conv.buyer_name || "pembeli")}</b>.`,
+  });
+  return true;
 }
 
 export async function handleHubUpdate(admin: Admin, bot: HubBotRow, update: Update, site: string) {
