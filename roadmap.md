@@ -90,6 +90,7 @@
 - [x] Mini App Seller Center masuk otomatis dari Telegram (tetap masuk walau logout); tombol menu Mini App di bot Seller Center
 - [x] Kartu pasang bot Auth Marketku di Admin → Bot
 - [x] Avatar + deskripsi untuk bot admin, bot toko, bot Seller Center
-- [ ] Buat bot "Auth Marketku" di BotFather, pasang token, avatar — menunggu kode login Telegram dari user
-- [ ] Uji login via kode & link otomatis 2x, uji Mini App, uji chat pembeli → notif bot (tunggu login Telegram)
-- [ ] Cek alur login Telegram di panel.marketku.id (username jbapppremandpanelsosmed) — butuh kode dari Telegram user
+- [x] Bot @AuthMarketkuID_bot dibuat di BotFather, dipasang lewat Admin → Bot, avatar + deskripsi
+- [x] Uji login via kode (2x) & link otomatis, Mini App masuk otomatis + tetap masuk setelah logout
+- [ ] Publish agar Mini App & link Login Otomatis di HP memakai versi baru (alamat preview tidak bisa dibuka dari Telegram)
+- [x] Login Telegram di panel.marketku.id dicoba (jbapppremandpanelsosmed) dan langkah kode disamakan
