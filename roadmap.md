@@ -73,3 +73,4 @@
 - [x] Menu seller di bot toko sendiri: hubungkan Telegram pemilik, notifikasi otomatis (pesanan baru/dibayar/selesai/laporan/stok menipis), Dashboard/Produk on-off/Pesanan/Keuangan/Lainnya, pilih jumlah beli +/-, menu perintah /
 - [ ] Bot Seller Panel terpisah untuk semua seller (seperti @seller_panelbot) — menunggu token bot baru dari user
 - [ ] Gambar kartu sambutan otomatis (profil toko, saldo, poin, referral, transaksi) dan saldo/poin di bot — butuh sistem poin & saldo bot
+- [x] Bot admin Marketku Center (@MarketkuCenterAdmin_bot): tab Bot di Admin Console, hubungkan Telegram admin, ringkasan + banner, tombol Deposit/Bayar/Withdraw/Dispute/Kategori/Toko, notifikasi otomatis
