@@ -264,7 +264,7 @@ async function orderDetail(admin: Admin, owner: string, orderNo: number, site: s
   };
 }
 
-async function deliver(token: string, chatId: number, o: Out): Promise<{ ok: boolean; description?: string; messageId?: number }> {
+async function deliver(token: string, chatId: number, o: Out): Promise<{ ok: boolean; description?: string | undefined; messageId?: number | undefined }> {
   if (o.png && o.text.length <= 1024) {
     const r = (await sendPng(token, chatId, o.png, o.text, o.markup)) as { ok: boolean; description?: string; result?: { message_id: number } };
     if (r.ok) return { ok: true, messageId: r.result?.message_id };
@@ -456,7 +456,7 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
   if (kind === "dispute_open" || kind === "dispute_done") {
     const { data: dp } = refId ? await admin.from("order_disputes").select("status, resolution_note").eq("id", refId).maybeSingle() : { data: null };
     return {
-      text: hubDisputeCaption(kind, { product, orderNo: o.order_no, status: dp?.status ?? "", amount: kind === "dispute_done" && dp?.status !== "refund" ? sellerNet(Number(o.total)) : Number(o.total), note: dp?.resolution_note }),
+      text: hubDisputeCaption(kind, { product, orderNo: o.order_no, status: dp?.status ?? "", amount: kind === "dispute_done" && dp?.status !== "refund" ? sellerNet(Number(o.total)) : Number(o.total), note: dp?.resolution_note ?? null }),
       markup: { inline_keyboard: [[{ text: "🚨 Buka Ruang Laporan", url: `${site}/seller/dispute`, style: "danger" }], [dashBtn]] },
     };
   }
