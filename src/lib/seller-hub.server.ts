@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { siteBase, tg } from "@/lib/telegram-bot.server";
+import { pageBase, siteBase, tg } from "@/lib/telegram-bot.server";
 import { sellerNet } from "@/lib/telegram";
 import { HUB_COMMANDS, HUB_KEYBOARD, hubActionFromText, hubOrderCaption, parseHubLink, type HubAction, type HubKind } from "@/lib/seller-hub";
 import { chatCard, dashboardCard, depositCard, orderCard, type OrderCardKind } from "@/lib/seller-hub-cards.server";
@@ -60,7 +60,7 @@ export async function registerHubWebhook(bot: Pick<HubBotRow, "token" | "webhook
     await tg(bot.token, "setMyCommands", { commands: HUB_COMMANDS });
     await tg(bot.token, "setMyDescription", { description: "Marketku Seller Center — dashboard toko & notifikasi realtime: pesanan baru, pembayaran, pembatalan, habis waktu, chat pembeli dan deposit." });
     await tg(bot.token, "setMyShortDescription", { short_description: "Dashboard & notifikasi seller Marketku" });
-    await tg(bot.token, "setChatMenuButton", { menu_button: { type: "web_app", text: "Seller Center", web_app: { url: `${siteBase()}/seller` } } });
+    await tg(bot.token, "setChatMenuButton", { menu_button: { type: "web_app", text: "Seller Center", web_app: { url: `${pageBase()}/seller` } } });
   }
   return r;
 }
