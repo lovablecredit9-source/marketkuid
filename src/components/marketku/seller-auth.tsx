@@ -38,12 +38,12 @@ export function SellerAuthShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ icon, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { icon: React.ReactNode }) {
+function Field({ icon, children, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { icon: React.ReactNode }) {
   return (
     <label className="flex h-[52px] items-center gap-3 rounded-xl border bg-card px-4 transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
       <span className="text-primary">{icon}</span>
       <input {...p} className="h-full w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground/80" />
-      {p.children}
+      {children}
     </label>
   );
 }
