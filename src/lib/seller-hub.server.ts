@@ -158,7 +158,7 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
       const d = await dashboard(admin, owner);
       const { data: led } = await admin.from("wallet_ledger").select("amount, note, created_at").eq("user_id", owner).order("created_at", { ascending: false }).limit(6);
       const mut = (led ?? []).map((l) => `${Number(l.amount) >= 0 ? "➕" : "➖"} ${rp(Math.abs(Number(l.amount)))} · ${esc((l.note ?? "").slice(0, 36))}\n   🕒 ${when(l.created_at)}`).join("\n") || "Belum ada mutasi.";
-      return { text: `💰 <b>Keuangan</b>\n${LINE}\n💵 ${rp(d.available)} tersedia\n🔒 ${rp(d.held)} tertahan\n💳 ${rp(d.credits)} credits\n\n📜 <b>Mutasi terakhir</b>\n${mut}`, markup: { inline_keyboard: [[{ text: "💸 Tarik Saldo", url: `${site}/seller/withdraw`, style: "success" }, { text: "📈 Pendapatan", url: `${site}/seller/pendapatan` }], [{ text: "💳 Top Up Credits", url: `${site}/seller/credits` }]] } };
+      return { text: `💰 <b>Keuangan</b>\n${LINE}\n💵 ${rp(d.available)} tersedia\n🔒 ${rp(d.held)} tertahan\n💳 ${rp(d.credits)} credits\n\n📜 <b>Mutasi terakhir</b>\n${mut}`, markup: { inline_keyboard: [[{ text: "💸 Tarik Saldo", url: `${site}/seller/withdraw`, style: "success" }, { text: "📈 Pendapatan", url: `${site}/seller/pendapatan` }], [{ text: "💳 Top Up Credits", url: `${site}/seller/saldo` }]] } };
     }
     case "voucher": {
       const { data } = await admin.from("seller_vouchers").select("code, name, value_type, value, used_count, usage_limit, is_active, ends_at").eq("owner_id", owner).order("created_at", { ascending: false }).limit(8);
@@ -325,7 +325,7 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
     return {
       png,
       text: `💳 <b>Deposit ${d.purpose === "credits" ? "Seller Credits" : "Saldo"}</b>\n\n💰 <b>${rp(Number(d.amount))}</b>\n🏦 ${esc(d.method_label ?? "-")}\n📌 ${lb[d.status] ?? d.status}`,
-      markup: { inline_keyboard: [[{ text: "💳 Lihat Credits", url: `${site}/seller/credits` }], [dashBtn]] },
+      markup: { inline_keyboard: [[{ text: "💳 Lihat Credits", url: `${site}/seller/saldo` }], [dashBtn]] },
     };
   }
   if (!orderId) return null;
