@@ -1,14 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, Fragment, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw, Upload, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { useAuth } from "@/lib/auth";
 import {
   PRODUCT_TYPES, MAX_PHOTOS, emptyVariant, fmtThousands, digits, parsePrice, stockLines, validateInfo, validateDetail, CODE_SUBTYPES, stockFormat,
-  validateVariants, warrantyLabel, useCategories, useImageUrls, uploadProductImage, categoryPath,
+  validateVariants, warrantyLabel, useCategories, useImageUrls, uploadProductImage, categoryPath, uploadStockFile, fileStockName,
   type ProductType, type CodeSubtype, type StockMode, type VariantDraft, type Warranty, type Discount, type Bonus,
 } from "@/lib/products";
 import { BonusSheet, DiskonSheet, ErrorBox, FieldLabel, FloatInput, FloatTextarea, GaransiSheet, KategoriSheet, fieldCls } from "@/components/marketku/product-form";
@@ -58,6 +58,7 @@ function ProductWizard() {
   const [stockMode, setStockMode] = useState<StockMode>("normal");
   const [customFields, setCustomFields] = useState<string[]>([""]);
   const [variants, setVariants] = useState<VariantDraft[]>([emptyVariant()]);
+  const [fileBusy, setFileBusy] = useState<number | null>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [removed, setRemoved] = useState<string[]>([]);
   const [catOpen, setCatOpen] = useState(false);
@@ -114,7 +115,7 @@ function ProductWizard() {
     if (k === "foto") return photos.length ? [] : ["Tambahkan minimal satu foto produk sebelum melanjutkan."];
     if (k === "detail") return type === "gsuite" ? ["Pilih minimal 1 Workspace Profile"] : validateDetail(contact, estimate, type === "preorder");
     if (k === "stok" && type === "custom" && !customFields.some((f) => f.trim())) return ["Isi minimal 1 nama field stok kustom"];
-    if (k === "varian") return validateVariants(variants);
+    if (k === "varian") return type === "otp" ? (parsePrice(variants[0]?.price ?? "") > 0 ? [] : ["Harga per OTP wajib diisi"]) : validateVariants(variants);
     return [];
   };
   const next = () => {
@@ -332,8 +333,20 @@ function ProductWizard() {
 
         {cur === "varian" && (
           <>
-            <Head title="Varian Produk" desc="Buat satu atau lebih varian (durasi, harga, garansi, dan lainnya)." />
+            <Head title="Varian Produk" desc={type === "otp" ? "Tentukan harga per layanan OTP. Tidak ada varian." : "Buat satu atau lebih varian (durasi, harga, garansi, dan lainnya)."} />
             <ErrorBox title="Harap lengkapi field berikut" items={errors} />
+            {type === "otp" ? (
+              <div>
+                <FieldLabel>Harga per OTP (Rp) <span className="text-destructive">*</span></FieldLabel>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-sm text-muted-foreground">Rp</span>
+                  <FloatInput label="Contoh: 5.000" inputMode="numeric" missing={errors.length > 0} value={variants[0]?.price ?? ""}
+                    onChange={(e) => setVariants([{ ...(variants[0] ?? emptyVariant()), name: "Per OTP", lifetime: true, price: fmtThousands(e.target.value) }])}
+                    className="[&>input]:pl-10 [&>label]:left-10" />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">Pembeli membayar sekali per request OTP.</p>
+              </div>
+            ) : (<>
             <button type="button" onClick={() => { if (variants.length >= 20) { toast.error("Maksimal 20 varian"); return; } setVariants([...variants, emptyVariant()]); setActiveIdx(variants.length); }}
               className="flex w-full items-center justify-center gap-2 rounded-lg border py-3 text-sm font-semibold transition active:scale-[0.98]">
               <Plus className="h-4 w-4" /> Tambah opsi produk
@@ -353,6 +366,7 @@ function ProductWizard() {
                   }} />
               ))}
             </div>
+            </>)}
             <input ref={variantFileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => void onPickVariantImage(e.target.files)} />
           </>
         )}
@@ -425,7 +439,23 @@ function ProductWizard() {
                       <span className="text-xs text-muted-foreground">{n} stok</span>
                     </div>
                     <p className="mb-2 text-xs text-muted-foreground">{fmt.hint}</p>
-                    <FloatTextarea label={fmt.example} value={v.stock} rows={4} onChange={(e) => setV(i, { stock: e.target.value })} className="[&_textarea]:font-mono [&_textarea]:text-xs" />
+                    {type === "file" ? (
+                      <>
+                        <label className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-6 text-sm text-muted-foreground transition active:scale-[0.98] ${fileBusy === i ? "pointer-events-none opacity-60" : ""}`}>
+                          {fileBusy === i ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+                          {fileBusy === i ? "Mengunggah..." : "Klik untuk upload file"}
+                          <input type="file" multiple hidden onChange={(e) => { void onPickStockFiles(i, e.target.files); e.target.value = ""; }} />
+                        </label>
+                        {stockLines(v.stock).map((f, j) => (
+                          <div key={j} className="mt-2 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs">
+                            <FileText className="h-4 w-4 shrink-0 text-primary" /><span className="min-w-0 flex-1 truncate">{fileStockName(f)}</span>
+                            <button type="button" aria-label="Hapus file" onClick={() => setV(i, { stock: stockLines(v.stock).filter((_, k) => k !== j).join("\n") })}><X className="h-4 w-4 text-muted-foreground" /></button>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <FloatTextarea label={fmt.example} value={v.stock} rows={4} onChange={(e) => setV(i, { stock: e.target.value })} className="[&_textarea]:font-mono [&_textarea]:text-xs" />
+                    )}
                     <p className="mt-2 text-xs text-muted-foreground">{n ? `${n} stok siap dijual.` : "Belum ada stok."}</p>
                   </div>
                   );
