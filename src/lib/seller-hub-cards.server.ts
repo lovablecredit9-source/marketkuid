@@ -1,5 +1,5 @@
 /** Auto-generated (non-AI) image cards for the Marketku Seller Center bot. */
-import { Canvas, hex, hgrad, text, vgrad, wrap, type RGBA } from "@/lib/card-image.server";
+import { Canvas, hex, hgrad, measure, text, vgrad, wrap, type RGBA } from "@/lib/card-image.server";
 
 const W = 1000, H = 560;
 const C = {
@@ -27,7 +27,7 @@ async function frame(title: string, subtitle: string, badge: { label: string; to
   await text(c, subtitle, 128, 152, { size: 17, color: C.sub, maxWidth: 560 });
   // badge
   const col = toneColor(badge.tone);
-  const bw = Math.min(260, 30 + badge.label.length * 12);
+  const bw = Math.min(280, Math.ceil(await measure(badge.label, { size: 18, weight: "bold" })) + 56);
   c.rect(W - 48 - bw, 104, bw, 40, [col[0], col[1], col[2], 0.12], 20);
   c.circle(W - 48 - bw + 22, 124, 6, col);
   await text(c, badge.label, W - 48 - bw + 36, 131, { size: 18, color: col, weight: "bold" });
@@ -135,15 +135,15 @@ export async function dashboardCard(d: {
   await box(358, "7 Hari", d.week, C.violet);
   await box(660, "Bulan Ini", d.month, C.orange);
   const kpi = async (x: number, label: string, v: string, tone: RGBA) => {
-    c.rect(x, 326, 214, 96, C.white, 16);
-    c.stroke(x, 326, 214, 96, C.line, 16, 1.5);
+    c.rect(x, 326, 206, 96, C.white, 16);
+    c.stroke(x, 326, 206, 96, C.line, 16, 1.5);
     await text(c, label.toUpperCase(), x + 18, 356, { size: 13, color: C.sub, weight: "bold" });
-    await text(c, v, x + 18, 398, { size: 22, color: tone, weight: "bold", maxWidth: 186 });
+    await text(c, v, x + 18, 398, { size: 22, color: tone, weight: "bold", maxWidth: 176 });
   };
   await kpi(56, "Saldo Tersedia", rp(d.available), C.green);
-  await kpi(286, "Tertahan", rp(d.held), C.orange);
-  await kpi(516, "Credits", rp(d.credits), C.blue);
-  await kpi(746, "Dilihat", `${d.views.toLocaleString("id-ID")}x`, C.violet);
+  await kpi(278, "Tertahan", rp(d.held), C.orange);
+  await kpi(500, "Credits", rp(d.credits), C.blue);
+  await kpi(722, "Dilihat", `${d.views.toLocaleString("id-ID")}x`, C.violet);
   await footer(c, `${d.products} produk aktif · ${d.stock.toLocaleString("id-ID")} stok`, d.at);
   return c.png();
 }
