@@ -69,6 +69,13 @@ function stripStyle(markup: unknown): unknown {
   return markup;
 }
 
+/** Short-lived signed URL for an image in the private product-images bucket (Telegram downloads it once). */
+export async function signedImage(admin: Admin, path: string | null | undefined) {
+  if (!path) return null;
+  const { data } = await admin.storage.from("product-images").createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
 /* ---------------- webhook update handling ---------------- */
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -82,7 +89,7 @@ type Update = {
 };
 
 type Product = {
-  id: string; name: string; category_id: string | null; product_type: string;
+  id: string; name: string; images: string[] | null; category_id: string | null; product_type: string;
   product_categories: { name: string } | null;
   product_variants: { id: string; name: string; price: number; sort: number; is_active?: boolean }[];
 };
@@ -103,12 +110,28 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     if (!r.ok && markup) return T("sendMessage", { ...body, reply_markup: stripStyle(markup) });
     return r;
   };
+  /** Photo card (store banner / product image) with caption + buttons; falls back to text. */
+  const sendPhoto = async (path: string | null | undefined, caption: string, markup?: unknown) => {
+    const photo = await signedImage(admin, path);
+    if (photo && caption.length <= 1024) {
+      const body = { chat_id: chatId, photo, caption, parse_mode: "HTML" };
+      let r = await T("sendPhoto", { ...body, ...(markup ? { reply_markup: markup } : {}) });
+      if (!r.ok && markup) r = await T("sendPhoto", { ...body, reply_markup: stripStyle(markup) });
+      if (r.ok) return r;
+    }
+    return send(caption, markup);
+  };
   const edit = async (text: string, markup: unknown) => {
     const mid = cq?.message?.message_id;
     if (!mid) return send(text, markup);
     const r = await T("editMessageText", { chat_id: chatId, message_id: mid, text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: markup });
-    if (!r.ok && !/not modified/i.test(r.description ?? "")) return send(text, markup);
-    return r;
+    if (r.ok || /not modified/i.test(r.description ?? "")) return r;
+    // The card is a photo message: edit its caption instead.
+    if (text.length <= 1024) {
+      const c = await T("editMessageCaption", { chat_id: chatId, message_id: mid, caption: text, parse_mode: "HTML", reply_markup: markup });
+      if (c.ok || /not modified/i.test(c.description ?? "")) return c;
+    }
+    return send(text, markup);
   };
   const isOwner = bot.owner_tg_id != null && Number(bot.owner_tg_id) === from.id;
   const sellerKb = () => ({
@@ -161,8 +184,8 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
   }
 
   const [{ data: store }, { data: prodRows }] = await Promise.all([
-    admin.from("seller_stores").select("store_name, slug, is_open").eq("owner_id", bot.owner_id).maybeSingle(),
-    admin.from("products").select("id, name, category_id, product_type, product_categories(name), product_variants(id, name, price, sort)")
+    admin.from("seller_stores").select("store_name, slug, is_open, avatar_path, banner_path").eq("owner_id", bot.owner_id).maybeSingle(),
+    admin.from("products").select("id, name, images, category_id, product_type, product_categories(name), product_variants(id, name, price, sort)")
       .eq("owner_id", bot.owner_id).eq("status", "active").order("created_at", { ascending: false }).limit(60),
   ]);
   const products = (prodRows ?? []) as unknown as Product[];
@@ -194,7 +217,8 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     const inline = products.length
       ? pairs([...cats].map(([id, name]) => ({ text: `📦 ${name}`, callback_data: `c:${id}` })))
       : [[{ text: "📦 Belum ada produk", callback_data: "noop" }]];
-    await send(
+    await sendPhoto(
+      store?.banner_path ?? store?.avatar_path,
       `🏪 <b>Selamat datang di ${esc(storeName)}</b>${store && !store.is_open ? "\n⛔ <i>Toko sedang tutup</i>" : ""}\n━━━━━━━━━━━━━━━\n┌─ 👋 Halo, <b>${esc(from.first_name ?? "Kak")}</b>\n├─ 📦 ${products.length} produk aktif\n├─ 👥 ${refs ?? 0} referral\n└──────────────\n\n🛍 Pilih kategori produk di bawah:`,
       { inline_keyboard: inline },
     );
@@ -213,7 +237,7 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
       const out = !pre && (st.get(v.id) ?? 0) <= 0;
       return [{ text: `${out ? "🚫" : "🛒"} ${v.name.slice(0, 28)} · ${rp(Number(v.price))}${out ? " (habis)" : ""}`, callback_data: out ? "noop" : `v:${v.id}:1` }];
     });
-    await send(`📦 <b>${esc(p.name)}</b>\n\nPilih varian yang diinginkan sebelum checkout:\n\n${lines || "Belum ada varian."}`, {
+    await sendPhoto(p.images?.[0], `📦 <b>${esc(p.name)}</b>\n\nPilih varian yang diinginkan sebelum checkout:\n\n${lines || "Belum ada varian."}`, {
       inline_keyboard: [...buttons, [{ text: "🌐 Lihat di Marketku", url: `${site}/produk/${p.id}` }], [{ text: "← Kembali", callback_data: "home" }]],
     });
   };
