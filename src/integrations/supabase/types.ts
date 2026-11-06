@@ -1542,6 +1542,11 @@ export type Database = {
           keyboard: Json
           name: string
           owner_id: string
+          owner_link_code: string | null
+          owner_link_expires: string | null
+          owner_linked_at: string | null
+          owner_tg_id: number | null
+          owner_tg_name: string | null
           tg_bot_id: number
           token: string
           username: string
@@ -1561,6 +1566,11 @@ export type Database = {
           keyboard?: Json
           name: string
           owner_id: string
+          owner_link_code?: string | null
+          owner_link_expires?: string | null
+          owner_linked_at?: string | null
+          owner_tg_id?: number | null
+          owner_tg_name?: string | null
           tg_bot_id: number
           token: string
           username: string
@@ -1580,6 +1590,11 @@ export type Database = {
           keyboard?: Json
           name?: string
           owner_id?: string
+          owner_link_code?: string | null
+          owner_link_expires?: string | null
+          owner_linked_at?: string | null
+          owner_tg_id?: number | null
+          owner_tg_name?: string | null
           tg_bot_id?: number
           token?: string
           username?: string
@@ -1632,6 +1647,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "telegram_broadcasts_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "telegram_bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telegram_notifications: {
+        Row: {
+          attempts: number
+          bot_id: string
+          chat_id: number
+          created_at: string
+          dispute_id: string | null
+          error: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          bot_id: string
+          chat_id: number
+          created_at?: string
+          dispute_id?: string | null
+          error?: string | null
+          id?: string
+          kind: string
+          order_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          bot_id?: string
+          chat_id?: number
+          created_at?: string
+          dispute_id?: string | null
+          error?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_notifications_bot_id_fkey"
             columns: ["bot_id"]
             isOneToOne: false
             referencedRelation: "telegram_bots"
@@ -2045,6 +2107,15 @@ export type Database = {
       }
       edit_review: {
         Args: { p_comment: string; p_id: string; p_rating: number }
+        Returns: undefined
+      }
+      enqueue_seller_tg: {
+        Args: {
+          p_dispute: string
+          p_kind: string
+          p_order: string
+          p_seller: string
+        }
         Returns: undefined
       }
       fulfill_paid_order: {

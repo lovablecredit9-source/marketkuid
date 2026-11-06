@@ -30,11 +30,19 @@ export const Route = createFileRoute("/api/public/telegram/$botId")({
         const { error: dup } = await supabaseAdmin.from("telegram_bot_updates").insert({ bot_id: bot.id, update_id: update.update_id });
         if (dup) return Response.json({ ok: true, duplicate: true });
 
-        const { handleUpdate } = await import("@/lib/telegram-bot.server");
+        const { handleUpdate, siteBase } = await import("@/lib/telegram-bot.server");
+        const site = siteBase();
         try {
-          await handleUpdate(supabaseAdmin, bot, update as Parameters<typeof handleUpdate>[2], new URL(request.url).origin);
+          await handleUpdate(supabaseAdmin, bot, update as Parameters<typeof handleUpdate>[2], site);
         } catch (e) {
           console.error("Telegram update failed", e);
+        }
+        // Piggy-back: flush any queued seller notifications (the minute schedule also does this).
+        try {
+          const { drainNotifications } = await import("@/lib/telegram-notify.server");
+          await drainNotifications(supabaseAdmin, site, 10);
+        } catch (e) {
+          console.error("Telegram notify drain failed", e);
         }
         return Response.json({ ok: true });
       },

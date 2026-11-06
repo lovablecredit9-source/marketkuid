@@ -108,3 +108,28 @@ export const testBotJoin = createServerFn({ method: "POST" })
     const admin = me.ok && ["administrator", "creator"].includes(me.result?.status ?? "");
     return { ok: admin, title: chat.result?.title ?? data.chat, message: admin ? null : "Bot belum dijadikan admin di channel/grup" };
   });
+
+/** Creates a 15-minute deep link that links the seller's own Telegram account to this bot (for order notifications). */
+export const createOwnerLink = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => { if (!isId(d?.id)) throw new Error("Bot tidak valid"); return { id: d.id }; })
+  .handler(async ({ data, context }) => {
+    const { bot, supabaseAdmin } = await ownBot(context.supabase, data.id);
+    const code = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, "0")).join("");
+    const { error } = await supabaseAdmin.from("telegram_bots")
+      .update({ owner_link_code: code, owner_link_expires: new Date(Date.now() + 15 * 60_000).toISOString() }).eq("id", bot.id);
+    if (error) throw new Error("Gagal membuat link");
+    const { ownerLinkParam } = await import("@/lib/telegram");
+    return { url: `https://t.me/${bot.username}?start=${ownerLinkParam(code)}` };
+  });
+
+export const unlinkOwner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => { if (!isId(d?.id)) throw new Error("Bot tidak valid"); return { id: d.id }; })
+  .handler(async ({ data, context }) => {
+    const { bot, supabaseAdmin } = await ownBot(context.supabase, data.id);
+    const { error } = await supabaseAdmin.from("telegram_bots")
+      .update({ owner_tg_id: null, owner_tg_name: null, owner_linked_at: null, owner_link_code: null, owner_link_expires: null }).eq("id", bot.id);
+    if (error) throw new Error("Gagal memutus Telegram");
+    return { ok: true };
+  });

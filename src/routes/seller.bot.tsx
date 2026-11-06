@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   Bot, Plus, RefreshCw, Search, Link2, Power, Pencil, LayoutGrid, ShieldCheck, Trash2, Package, Users, Gift, Globe, DollarSign,
-  Settings, Smartphone, Check, X, RotateCcw, Info, Save, Loader2, type LucideIcon,
+  Settings, Smartphone, Check, X, RotateCcw, Info, Save, Loader2, Bell, type LucideIcon,
 } from "lucide-react";
 import { pageMeta } from "@/lib/meta";
 import { useAuth } from "@/lib/auth";
@@ -18,7 +18,7 @@ import {
   BOT_ACTIONS, BOT_ACTION_KEYS, BUYER_MODES, DEFAULT_GATE, MAX_BOTS, MAX_PER_ROW, MAX_ROWS, cleanKeyboard, isAdminUsername, isAdminWa,
   isBotToken, isChatRef, type BotAction, type ForceJoin,
 } from "@/lib/telegram";
-import { connectBot, deleteBot, refreshBotWebhook, setBotActive, testBotJoin } from "@/lib/telegram.functions";
+import { connectBot, createOwnerLink, deleteBot, refreshBotWebhook, setBotActive, testBotJoin, unlinkOwner } from "@/lib/telegram.functions";
 
 export const Route = createFileRoute("/seller/bot")({
   head: () => pageMeta("Bot Telegram — Seller Center Marketku", "Hubungkan dan kelola bot Telegram untuk jualan otomatis."),
@@ -32,11 +32,11 @@ const tour = [
   { title: "Selesai", desc: "Buat bot lewat @BotFather, lalu hubungkan tokennya di sini." },
 ];
 
-const COLS = "id, owner_id, tg_bot_id, username, name, admin_username, admin_wa, is_active, webhook_ok, webhook_at, buyer_mode, keyboard, force_join, crypto_enabled, created_at";
+const COLS = "id, owner_id, tg_bot_id, username, name, admin_username, admin_wa, is_active, webhook_ok, webhook_at, buyer_mode, keyboard, force_join, crypto_enabled, created_at, owner_tg_id, owner_tg_name, owner_linked_at";
 type BotRow = {
   id: string; owner_id: string; tg_bot_id: number; username: string; name: string; admin_username: string | null; admin_wa: string | null;
   is_active: boolean; webhook_ok: boolean; webhook_at: string | null; buyer_mode: number; keyboard: unknown; force_join: unknown;
-  crypto_enabled: boolean; created_at: string;
+  crypto_enabled: boolean; created_at: string; owner_tg_id: number | null; owner_tg_name: string | null; owner_linked_at: string | null;
 };
 const errMsg = (e: unknown) => (e instanceof Error && e.message ? e.message : "Terjadi kesalahan, coba lagi");
 
@@ -94,6 +94,16 @@ function BotPage() {
   const activeFn = useServerFn(setBotActive);
   const hookFn = useServerFn(refreshBotWebhook);
   const delFn = useServerFn(deleteBot);
+  const linkFn = useServerFn(createOwnerLink);
+  const unlinkFn = useServerFn(unlinkOwner);
+  const openLink = async (b: BotRow) => {
+    setBusy(`l${b.id}`);
+    try {
+      const r = await linkFn({ data: { id: b.id } });
+      const w = window.open(r.url, "_blank"); if (w) w.opener = null; else window.location.href = r.url;
+      toast.success("Tekan Start di bot, lalu kembali ke sini dan muat ulang");
+    } catch (e) { toast.error(errMsg(e)); } finally { setBusy(null); }
+  };
 
   const run = async (key: string, fn: () => Promise<unknown>, ok: string) => {
     setBusy(key);
@@ -152,6 +162,22 @@ function BotPage() {
                 <Line icon={Globe} label="Webhook"><span className={b.webhook_ok && b.is_active ? "text-success" : "text-destructive"}>{b.is_active ? (b.webhook_ok ? "Aktif" : "Gagal") : "Mati"}</span>{b.webhook_at ? ` • ${fmtDate(b.webhook_at)}` : ""}</Line>
                 <Line icon={ShieldCheck} label="Wajib join"><b className="text-foreground">{fj.enabled ? `Aktif (${fj.title || fj.chat})` : "Nonaktif"}</b></Line>
                 <Line icon={DollarSign} label="Crypto Mini App"><span className="rounded-md border px-1.5 py-0.5">{b.crypto_enabled ? "Aktif" : "Nonaktif"}</span></Line>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border bg-background/40 p-3">
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${b.owner_tg_id ? "bg-success/15 text-success" : "bg-primary/10 text-primary"}`}><Bell className="h-4 w-4" /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">Notifikasi pesanan</p>
+                  <p className="truncate text-xs text-muted-foreground">{b.owner_tg_id ? `Terhubung ke ${b.owner_tg_name || "Telegram kamu"} • menu seller aktif di bot` : "Hubungkan Telegram kamu untuk notif pesanan & menu seller"}</p>
+                </div>
+                {b.owner_tg_id ? (
+                  <button disabled={!!busy} onClick={() => void run(`u${b.id}`, () => unlinkFn({ data: { id: b.id } }), "Telegram diputus dari bot")} className="rounded-lg border border-destructive/40 px-3 py-2 text-xs font-semibold text-destructive transition active:scale-95">
+                    {busy === `u${b.id}` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Putuskan"}
+                  </button>
+                ) : (
+                  <button disabled={!!busy || !b.is_active} onClick={() => void openLink(b)} className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition active:scale-95 disabled:opacity-50">
+                    {busy === `l${b.id}` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}Hubungkan
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-2 border-t pt-3">
                 <button disabled={!!busy} onClick={() => void run(`a${b.id}`, () => activeFn({ data: { id: b.id, active: !b.is_active } }), b.is_active ? `Bot @${b.username} berhasil dinonaktifkan` : `Bot @${b.username} berhasil diaktifkan`)}
