@@ -14,10 +14,10 @@ const errMsg = (e: unknown) => (e && typeof e === "object" && "message" in e ? S
 type Step = "email" | "password" | "tg" | "code";
 
 /** Exchanges a one-time server token for a browser session and unlocks Seller Center. */
-export async function finishTokenLogin(tokenHash: string) {
+export async function finishTokenLogin(tokenHash: string, via = "telegram_code") {
   const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "magiclink" });
   if (error || !data.user) throw new Error(error ? authErrorText(error.message) : "Gagal masuk");
-  unlockSeller(data.user.id);
+  unlockSeller(data.user.id, via);
   return data.user.id;
 }
 

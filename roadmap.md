@@ -100,3 +100,4 @@
 - [x] 50+ halaman pembeli, Seller Center, admin dibuka tanpa login & sebagai seller Tambas — tanpa error tampilan
 - [x] Tautan produk/ulasan/pesanan/bayar/chat yang salah kini tampil "tidak ditemukan" (sebelumnya error/macet "Memuat pembayaran...")
 - [x] Halaman 404/error berbahasa Indonesia; admin tidak memanggil data sebelum masuk
+- [x] Riwayat sesi login seller (perangkat, versi Android, baterai, WiFi/data, IP, lokasi, provider kartu) — tes live di HP belum

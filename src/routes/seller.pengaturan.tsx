@@ -13,6 +13,8 @@ import { useSellerStore } from "@/lib/seller";
 import { pageMeta } from "@/lib/meta";
 import { passwordRules, slugify, validateBank, validateStoreProfile } from "@/lib/seller-settings";
 import { SellerCard, SellerInput } from "@/components/marketku/seller-ui";
+import { SELLER_SESSION_ID_KEY } from "@/lib/chat";
+import { batteryLabel, networkLabel } from "@/lib/login-session";
 
 const TABS = [
   { key: "profil", label: "Profil Toko", icon: Store },
@@ -367,25 +369,77 @@ function Koneksi() {
   );
 }
 
+const VIA_LABEL: Record<string, string> = {
+  password: "Email & Password", telegram_code: "Kode Telegram", telegram_link: "Link Login Telegram",
+  mini_app: "Telegram Mini App", seller_switch: "Buka Toko Baru",
+};
+const fmtWib = (s: string) => new Date(s).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " WIB";
+
 function Sesi() {
-  const [device, setDevice] = useState("Perangkat ini");
-  useEffect(() => {
-    const ua = navigator.userAgent;
-    const browser = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "Browser";
-    const os = /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : /Windows/.test(ua) ? "Windows" : /Mac OS/.test(ua) ? "macOS" : /Linux/.test(ua) ? "Linux" : "";
-    setDevice(`${browser}${os ? ` di ${os}` : ""}`);
-  }, []);
+  const { user } = useAuth();
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  useEffect(() => { if (user) setCurrentId(window.localStorage.getItem(SELLER_SESSION_ID_KEY + user.id)); }, [user]);
+  const q = useQuery({
+    queryKey: ["seller-login-sessions", user?.id],
+    enabled: !!user,
+    refetchInterval: 15_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("seller_login_sessions").select("*").order("created_at", { ascending: false }).limit(50);
+      if (error) throw error;
+      return data;
+    },
+  });
+  const rows = q.data ?? [];
   return (
     <>
-      <Head title="Sesi" desc="Perangkat yang login" />
-      <SellerCard className="flex gap-3 p-4">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border"><MonitorSmartphone className="h-5 w-5" /></span>
-        <div>
-          <p className="font-semibold">{device} <span className="ml-1 text-xs font-normal text-success">Saat ini</span></p>
-          <p className="text-xs text-muted-foreground">Aktif sekarang</p>
-        </div>
-      </SellerCard>
-      <p className="text-xs text-muted-foreground">Keluar dari menu profil untuk mengakhiri sesi di perangkat ini.</p>
+      <Head title="Riwayat Sesi Login" desc="Perangkat, jaringan, dan lokasi setiap kali Seller Center dibuka" />
+      {q.isLoading && <SellerCard className="flex items-center gap-2 p-4 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Memuat riwayat…</SellerCard>}
+      {!q.isLoading && rows.length === 0 && (
+        <SellerCard className="p-4 text-sm text-muted-foreground">Belum ada riwayat. Sesi tercatat setiap kali kamu masuk Seller Center.</SellerCard>
+      )}
+      {rows.map((s) => {
+        const current = s.id === currentId;
+        const deviceName = [s.device_vendor, s.device_model].filter(Boolean).join(" ") || (s.is_mobile ? "HP" : "Komputer");
+        const os = [s.os_name, s.os_version].filter(Boolean).join(" ");
+        const place = [s.city, s.region, s.country].filter(Boolean).join(", ") || "Tidak diketahui";
+        const Row = ({ k, v }: { k: string; v: ReactNode }) => (
+          <div className="flex justify-between gap-3 py-1.5 text-sm"><span className="shrink-0 text-muted-foreground">{k}</span><span className="text-right font-medium">{v}</span></div>
+        );
+        return (
+          <SellerCard key={s.id} className={`p-4 ${current ? "border-primary" : ""}`}>
+            <div className="flex gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border"><MonitorSmartphone className="h-5 w-5" /></span>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">{deviceName}{current && <span className="ml-1.5 text-xs font-normal text-success">Saat ini</span>}</p>
+                <p className="text-xs text-muted-foreground">{os || "OS tidak diketahui"} · {s.browser ?? "Browser"}</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {s.automation ? <Badge tone="danger">Otomatisasi / Emulator</Badge>
+                    : s.is_real_device ? <Badge tone="success">HP asli</Badge>
+                    : <Badge tone="muted">{s.is_mobile ? "Belum terverifikasi" : "Komputer"}</Badge>}
+                  <Badge tone="muted">{VIA_LABEL[s.via] ?? s.via}</Badge>
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 divide-y border-t pt-1">
+              <Row k="Waktu masuk" v={fmtWib(s.created_at)} />
+              <Row k="Terakhir aktif" v={fmtWib(s.last_seen_at)} />
+              <Row k="Baterai" v={batteryLabel(s.battery_level, s.battery_charging)} />
+              <Row k="Jaringan" v={networkLabel(s.network_type, s.carrier)} />
+              {s.network_effective && <Row k="Kecepatan" v={`${s.network_effective.toUpperCase()}${s.network_downlink != null ? ` · ${s.network_downlink} Mbps` : ""}`} />}
+              <Row k="Provider / Kartu" v={s.carrier ?? s.isp ?? "Tidak diketahui"} />
+              <Row k="IP" v={<code className="text-xs">{s.ip ?? "-"}</code>} />
+              <Row k="Lokasi" v={place} />
+              {s.screen && <Row k="Layar" v={s.screen} />}
+            </div>
+          </SellerCard>
+        );
+      })}
+      <p className="flex gap-1 text-xs text-muted-foreground"><AlertTriangle className="h-3.5 w-3.5 shrink-0" /> Lokasi dan provider diperkirakan dari alamat IP. Merek HP, versi Android, baterai, dan jenis jaringan hanya terbaca di browser yang mendukung (Chrome Android). Bukan kamu? Segera ganti password di tab Keamanan.</p>
     </>
   );
+}
+
+function Badge({ tone, children }: { tone: "success" | "danger" | "muted"; children: ReactNode }) {
+  const c = tone === "success" ? "bg-success/15 text-success" : tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground";
+  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${c}`}>{children}</span>;
 }
