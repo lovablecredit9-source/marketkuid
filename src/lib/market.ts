@@ -108,6 +108,10 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   });
 }
 
+/** True for a well-formed UUID; invalid ids in a link must show "not found", not a server error. */
+export const isUuid = (v: string | null | undefined) =>
+  !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
 const CARD_SELECT = "id, name, owner_id, images, sold_count, created_at, product_type, product_categories(name), product_variants(id, price, discount)";
 
 export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number } = {}) {
@@ -123,7 +127,10 @@ export function useMarketProducts(opts: { q?: string; category?: string | null; 
         const { data: cats } = await supabase.from("product_categories").select("id, parent_id");
         query = query.in("category_id", descendantIds(cats ?? [], category));
       }
-      if (owner) query = query.eq("owner_id", owner);
+      if (owner !== undefined) {
+        if (!isUuid(owner)) return [];
+        query = query.eq("owner_id", owner);
+      }
       const { data, error } = await query;
       if (error) throw error;
       return decorate((data ?? []) as unknown as RawProduct[]);
@@ -135,6 +142,7 @@ export function useProductDetail(id: string) {
   return useQuery({
     queryKey: ["product_detail", id],
     queryFn: async () => {
+      if (!isUuid(id)) return null;
       const { data, error } = await supabase
         .from("products")
         .select("*, product_categories(name), product_variants(id, name, price, lifetime, duration_value, duration_unit, warranty, discount, bonus, preorder_quota, image_url, sort)")
@@ -158,6 +166,7 @@ export function useReviews(filter: { product?: string; seller?: string }) {
     queryKey: ["reviews", filter.product ?? null, filter.seller ?? null],
     enabled: !!(filter.product || filter.seller),
     queryFn: async () => {
+      if ((filter.product && !isUuid(filter.product)) || (filter.seller && !isUuid(filter.seller))) return [];
       let q = supabase.from("product_reviews").select("id, product_id, rating, comment, topic, buyer_label, helpful_count, created_at, products(name, images)").order("created_at", { ascending: false }).limit(200);
       if (filter.product) q = q.eq("product_id", filter.product);
       if (filter.seller) q = q.eq("seller_id", filter.seller);

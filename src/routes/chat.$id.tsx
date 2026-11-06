@@ -129,7 +129,7 @@ function ChatRoom() {
   // store_by_slug also accepts the owner id, so stores without a slug are still reachable.
   const store = useQuery({
     queryKey: ["chat_store_slug", c?.seller_id], enabled: !!c && isBuyer,
-    queryFn: async () => (await supabase.rpc("public_stores", { p_ids: [c!.seller_id] })).data?.[0]?.slug ?? null,
+    queryFn: async () => (await supabase.rpc("public_stores", { p_ids: [c!.seller_id] })).data?.[0]?.slug || c!.seller_id,
   });
   const storeSlug = c && isBuyer ? store.data || c.seller_id : null;
   const storeAvatar = c ? media.data?.[c.seller_id]?.avatar_path ?? null : null;

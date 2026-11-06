@@ -137,7 +137,7 @@ function RelatedSellers({ q }: { q: string }) {
                 <span>· {Number(s.product_count)} produk</span>
               </p>
               {!s.is_open && <p className="mt-1 text-[12px] font-semibold text-destructive">Toko sedang tutup</p>}
-              <Link to="/toko/$slug" params={{ slug: s.slug ?? s.owner_id }} className="mt-2 inline-flex items-center gap-1 rounded-full border border-primary px-3 py-1 text-[12.5px] font-bold text-primary transition active:scale-95">
+              <Link to="/toko/$slug" params={{ slug: s.slug || s.owner_id }} className="mt-2 inline-flex items-center gap-1 rounded-full border border-primary px-3 py-1 text-[12.5px] font-bold text-primary transition active:scale-95">
                 Lihat profil <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
