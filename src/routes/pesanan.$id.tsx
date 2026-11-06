@@ -1,3 +1,5 @@
+import { isFileStock, fileStockName, downloadStockFile } from "@/lib/products";
+import { Download } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -195,7 +197,12 @@ function Pesanan() {
                   {i.delivered.length > 0 && (
                     <div id="data-akses" className="scroll-mt-24 rounded-xl bg-accent p-3 text-sm">
                       <p className="mb-1 font-semibold text-primary">Produk kamu</p>
-                      {i.delivered.map((d, n) => <p key={n} className="whitespace-pre-wrap break-all font-mono text-xs">{d}</p>)}
+                      {i.delivered.map((d, n) => isFileStock(d) ? (
+                        <button key={n} type="button" onClick={() => void downloadStockFile(d).catch(() => toast.error("Gagal membuka file"))}
+                          className="mt-1 flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left text-xs font-semibold transition active:scale-[0.98]">
+                          <Download className="h-4 w-4 shrink-0 text-primary" /><span className="min-w-0 flex-1 truncate">{fileStockName(d)}</span><span className="text-primary">Unduh</span>
+                        </button>
+                      ) : <p key={n} className="whitespace-pre-wrap break-all font-mono text-xs">{d}</p>)}
                     </div>
                   )}
                   {o.paid_at && <WarrantyClaimBlock itemId={i.id} />}
