@@ -29,8 +29,8 @@ export function stockFormat(type: string, customFields: string[] = []): { title:
     case "code": return { title: "Stok — Code", hint: "1 kode per baris", example: "ABCD-1234-EFGH" };
     case "email_2fa": return { title: "Stok — Email:Pass:2FA", hint: "Format: email:password:2fa (1 akun per baris)", example: "email@contoh.com:password123:2fa_secret" };
     case "email_pin": return { title: "Stok — Email:Pass:Profile:Pin", hint: "Format: email:password:profile:pin (1 akun per baris)", example: "email@contoh.com:password123:ProfileName:1234" };
-    case "file": return { title: "Stok — File / Script", hint: "1 link file per baris (1 file = 1 stok)", example: "https://drive.google.com/file/..." };
-    case "otp": return { title: "Stok — OTP Service", hint: "1 nomor / layanan per baris", example: "WhatsApp Indonesia" };
+    case "file": return { title: "Upload File Stok", hint: "1 file = 1 stok. Maks 50MB per file.", example: "" };
+    case "otp": return { title: "Input Nomor HP — Stok OTP", hint: "1 nomor per baris = 1 stok.", example: "081234567890" };
     case "custom": {
       const f = customFields.filter((x) => x.trim());
       return { title: "Stok — Custom Field", hint: "1 stok per baris, pisahkan tiap field dengan |", example: f.length ? f.map((x) => x.trim()).join("|") : "value1|value2|value3" };
@@ -243,4 +243,25 @@ export function useStoreMedia(ownerIds: string[]) {
       return m;
     },
   });
+}
+
+/** File/Script stock: each uploaded file is one stock item stored as `file:<path>`. */
+export const FILE_STOCK_PREFIX = "file:";
+export const isFileStock = (s: string) => s.startsWith(FILE_STOCK_PREFIX);
+export const fileStockName = (s: string) => s.slice(FILE_STOCK_PREFIX.length).split("/").pop()?.replace(/^[0-9a-f-]{36}-/, "") ?? "file";
+
+export async function uploadStockFile(userId: string, file: File) {
+  if (file.size > 50 * 1024 * 1024) throw new Error("Ukuran file maksimal 50MB");
+  const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-80) || "file";
+  const path = `${userId}/${crypto.randomUUID()}-${safe}`;
+  const { error } = await supabase.storage.from("product-files").upload(path, file, { contentType: file.type || "application/octet-stream" });
+  if (error) throw error;
+  return `${FILE_STOCK_PREFIX}${path}`;
+}
+
+export async function downloadStockFile(content: string) {
+  const path = content.slice(FILE_STOCK_PREFIX.length);
+  const { data, error } = await supabase.storage.from("product-files").createSignedUrl(path, 300, { download: fileStockName(content) });
+  if (error) throw error;
+  window.open(data.signedUrl, "_blank", "noopener");
 }
