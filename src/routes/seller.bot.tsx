@@ -100,7 +100,7 @@ function BotPage() {
     setBusy(`l${b.id}`);
     try {
       const r = await linkFn({ data: { id: b.id } });
-      if (!window.open(r.url, "_blank", "noopener")) window.location.href = r.url;
+      const w = window.open(r.url, "_blank"); if (w) w.opener = null; else window.location.href = r.url;
       toast.success("Tekan Start di bot, lalu kembali ke sini dan muat ulang");
     } catch (e) { toast.error(errMsg(e)); } finally { setBusy(null); }
   };
