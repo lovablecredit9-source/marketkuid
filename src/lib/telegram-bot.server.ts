@@ -2,8 +2,9 @@ import { getRequestHeader, getRequestHost } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import {
-  BOT_ACTIONS, DEFAULT_GATE, actionFromText, fillGate, keyboardOrDefault, parseReferral, referralCode,
-  type BotAction, type ForceJoin,
+  BOT_ACTIONS, DEFAULT_GATE, SELLER_ACTIONS, SELLER_KEYBOARD, actionFromText, clampQty, fillGate, keyboardOrDefault,
+  parseOwnerLink, parseReferral, referralCode, sellerActionFromText, sellerNet,
+  type BotAction, type ForceJoin, type SellerAction,
 } from "@/lib/telegram";
 
 type Admin = SupabaseClient<Database>;
@@ -42,7 +43,30 @@ export async function registerWebhook(bot: Pick<BotRow, "id" | "token" | "webhoo
     secret_token: bot.webhook_secret,
     allowed_updates: ["message", "callback_query"],
     drop_pending_updates: true,
+  }).then(async (r) => {
+    if (r.ok) {
+      await tg(bot.token, "setMyCommands", {
+        commands: [
+          { command: "start", description: "Menu utama toko" },
+          { command: "produk", description: "Lihat kategori & produk" },
+          { command: "pesanan", description: "Riwayat pesanan saya" },
+          { command: "bantuan", description: "Bantuan & kontak admin" },
+        ],
+      });
+    }
+    return r;
   });
+}
+
+/** Removes the optional `style` colour field from keyboards (fallback for older Telegram API behaviour). */
+function stripStyle(markup: unknown): unknown {
+  if (Array.isArray(markup)) return markup.map(stripStyle);
+  if (markup && typeof markup === "object") {
+    const o: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(markup)) if (k !== "style") o[k] = stripStyle(v);
+    return o;
+  }
+  return markup;
 }
 
 /* ---------------- webhook update handling ---------------- */
@@ -54,7 +78,7 @@ type TgUser = { id: number; first_name?: string; username?: string };
 type Update = {
   update_id: number;
   message?: { chat: { id: number; type: string }; from?: TgUser; text?: string };
-  callback_query?: { id: string; from: TgUser; data?: string; message?: { chat: { id: number } } };
+  callback_query?: { id: string; from: TgUser; data?: string; message?: { message_id: number; chat: { id: number } } };
 };
 
 type Product = {
@@ -73,8 +97,24 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
   if (msg && msg.chat.type !== "private") return;
   if (cq) await T("answerCallbackQuery", { callback_query_id: cq.id });
 
-  const send = (text: string, markup?: unknown) =>
-    T("sendMessage", { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true, ...(markup ? { reply_markup: markup } : {}) });
+  const send = async (text: string, markup?: unknown) => {
+    const body = { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
+    const r = await T("sendMessage", { ...body, ...(markup ? { reply_markup: markup } : {}) });
+    if (!r.ok && markup) return T("sendMessage", { ...body, reply_markup: stripStyle(markup) });
+    return r;
+  };
+  const edit = async (text: string, markup: unknown) => {
+    const mid = cq?.message?.message_id;
+    if (!mid) return send(text, markup);
+    const r = await T("editMessageText", { chat_id: chatId, message_id: mid, text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: markup });
+    if (!r.ok && !/not modified/i.test(r.description ?? "")) return send(text, markup);
+    return r;
+  };
+  const isOwner = bot.owner_tg_id != null && Number(bot.owner_tg_id) === from.id;
+  const sellerKb = () => ({
+    keyboard: SELLER_KEYBOARD.map((row) => row.map((a) => ({ text: SELLER_ACTIONS[a].text, ...(SELLER_ACTIONS[a].style ? { style: SELLER_ACTIONS[a].style } : {}) }))),
+    resize_keyboard: true, is_persistent: true,
+  });
   const replyKb = () => ({
     keyboard: keyboardOrDefault(bot.keyboard).map((row) => row.map((a) => ({ text: BOT_ACTIONS[a] }))),
     resize_keyboard: true, is_persistent: true,
