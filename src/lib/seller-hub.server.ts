@@ -116,7 +116,16 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
     case "dash": {
       const d = await dashboard(admin, owner);
       const f = (v: [number, number]) => `${v[0]} pesanan · ${rp(v[1])}`;
-      const text = `🏪 <b>${esc(name)}</b>\n${LINE}\n🔵 <b>Hari Ini</b>\n${f(d.today)}\n\n🟣 <b>7 Hari</b>\n${f(d.week)}\n\n🟠 <b>Bulan Ini</b>\n${f(d.month)}\n${LINE}\n💰 ${rp(d.available)} tersedia\n🔒 ${rp(d.held)} tertahan\n💳 ${rp(d.credits)} credits\n\n📦 ${d.products} produk · ${d.stock.toLocaleString("id-ID")} stok\n👁 Dilihat ${d.views.toLocaleString("id-ID")}x`;
+      const text = [
+        `🏪 <b>${esc(name)}</b>`, LINE,
+        "┌─ 🔵 <b>Hari Ini</b>", `│  ${f(d.today)}`,
+        "├─ 🟣 <b>7 Hari</b>", `│  ${f(d.week)}`,
+        "├─ 🟠 <b>Bulan Ini</b>", `│  ${f(d.month)}`,
+        "├─ 📦 <b>Toko</b>", `│  ${d.products} produk aktif · ${d.stock.toLocaleString("id-ID")} stok`, `│  👁 Dilihat ${d.views.toLocaleString("id-ID")}x`,
+        "├─ 💰 <b>Saldo</b>", `│  ${rp(d.available)} tersedia`, `│  ${rp(d.held)} tertahan`, `│  ${rp(d.credits)} credits`,
+        "└──────────────", "",
+        "👇 Pilih menu di bawah untuk mulai kelola toko.", "<i>Notifikasi pesanan masuk otomatis ke chat ini.</i>",
+      ].join("\n");
       let png: Uint8Array | undefined;
       try { png = await dashboardCard({ store: name, ...d, at: new Date() }); } catch (e) { console.error("dashboard card", e); }
       return {
@@ -143,7 +152,9 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
       }).join("\n\n");
       return { text: `${action === "laris" ? "🏆 <b>Produk Laris</b>" : `📦 <b>Produk — ${list.length}</b>`}\n${LINE}\n\n${body || "Belum ada produk."}`, markup: { inline_keyboard: [open("/seller/produk", "➕ Kelola Produk"), [{ text: "⬅️ Dashboard", callback_data: "h:dash" }]] } };
     }
-    case "order": case "new": {
+    case "order":
+      return ordersPage(admin, owner, "all", 1, site);
+    case "new": {
       let q = admin.from("orders").select("order_no, status, total, created_at, expires_at, order_items(product_name, qty)").eq("seller_id", owner).order("created_at", { ascending: false }).limit(8);
       if (action === "new") q = q.in("status", ["pending", "paid", "processing"]);
       const { data } = await q;
