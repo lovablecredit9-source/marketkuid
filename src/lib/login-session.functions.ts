@@ -8,7 +8,7 @@ const str = (v: unknown, n = 80) => (typeof v === "string" && v.trim() ? v.trim(
 const num = (v: unknown, min: number, max: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : null);
 const VIA = new Set(["password", "telegram_code", "telegram_link", "mini_app", "seller_switch"]);
 
-type Geo = { city?: string; region?: string; country?: string; isp?: string };
+type Geo = { city?: string | undefined; region?: string | undefined; country?: string | undefined; isp?: string | undefined };
 
 async function lookupIp(ip: string): Promise<Geo> {
   if (!ip || /^(127\.|10\.|192\.168\.|::1|fc|fd)/.test(ip)) return {};
