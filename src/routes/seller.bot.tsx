@@ -18,6 +18,7 @@ import {
   BOT_ACTIONS, BOT_ACTION_KEYS, BUYER_MODES, DEFAULT_GATE, MAX_BOTS, MAX_PER_ROW, MAX_ROWS, cleanKeyboard, isAdminUsername, isAdminWa,
   isBotToken, isChatRef, type BotAction, type ForceJoin,
 } from "@/lib/telegram";
+import { HubLinkCard } from "@/components/marketku/seller-hub-ui";
 import { connectBot, createOwnerLink, deleteBot, refreshBotWebhook, setBotActive, testBotJoin, unlinkOwner } from "@/lib/telegram.functions";
 
 export const Route = createFileRoute("/seller/bot")({
@@ -117,6 +118,7 @@ function BotPage() {
         <Bot className="mt-1 h-5 w-5 text-primary" />
         <div><h2 className="text-lg font-bold">Bot Telegram</h2><p className="text-xs text-muted-foreground">Kelola bot store Anda • {bots.data?.length ?? 0}/{MAX_BOTS} bot</p></div>
       </div>
+      <HubLinkCard />
       <div className="flex gap-2">
         <button aria-label="Muat ulang" onClick={() => { void refresh(); void users.refetch(); }} className="grid h-11 w-11 place-items-center rounded-xl border bg-card"><RefreshCw className={`h-4 w-4 ${bots.isFetching ? "animate-spin" : ""}`} /></button>
         <button data-tour="b-add" disabled={(bots.data?.length ?? 0) >= MAX_BOTS} onClick={() => setConnect(true)} className="flex items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-95 disabled:opacity-50"><Plus className="h-4 w-4" /> Hubungkan Bot</button>
