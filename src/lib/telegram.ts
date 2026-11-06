@@ -77,7 +77,7 @@ export type NotifyData = {
 };
 const escH = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const rupiah = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`;
-const METHOD_LABEL: Record<string, string> = { wallet: "Saldo Marketku", qris: "QRIS", ewallet: "E-Wallet" };
+const METHOD_LABEL: Record<string, string> = { saldo: "Saldo Marketku", wallet: "Saldo Marketku", qris: "QRIS", ewallet: "E-Wallet" };
 /** Seller receives the sale minus the 3% admin fee (mirrors credit_seller_for_order). */
 export const sellerNet = (gross: number) => Math.max(0, gross - Math.ceil(gross * 0.03));
 
