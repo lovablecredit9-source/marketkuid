@@ -1622,6 +1622,8 @@ export type Database = {
           owner_id: string
           ref_id: string | null
           sent_at: string | null
+          tg_chat_id: number | null
+          tg_message_id: number | null
         }
         Insert: {
           attempts?: number
@@ -1633,6 +1635,8 @@ export type Database = {
           owner_id: string
           ref_id?: string | null
           sent_at?: string | null
+          tg_chat_id?: number | null
+          tg_message_id?: number | null
         }
         Update: {
           attempts?: number
@@ -1644,6 +1648,8 @@ export type Database = {
           owner_id?: string
           ref_id?: string | null
           sent_at?: string | null
+          tg_chat_id?: number | null
+          tg_message_id?: number | null
         }
         Relationships: []
       }

@@ -2,7 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { pageBase, siteBase, tg } from "@/lib/telegram-bot.server";
 import { sellerNet } from "@/lib/telegram";
-import { HUB_COMMANDS, HUB_KEYBOARD, hubActionFromText, hubOrderCaption, parseHubLink, type HubAction, type HubKind } from "@/lib/seller-hub";
+import {
+  HUB_COMMANDS, HUB_KEYBOARD, ORDER_FILTER_STATUSES, ORDER_PAGE_SIZE, hubActionFromText, hubChatCaption, hubDisputeCaption, hubMethod,
+  hubOrderCaption, hubReleasedCaption, pageCount, parseHubLink, parseOrderCb, type HubAction, type HubKind, type OrderFilter,
+} from "@/lib/seller-hub";
 import { chatCard, dashboardCard, depositCard, orderCard, type OrderCardKind } from "@/lib/seller-hub-cards.server";
 
 type Admin = SupabaseClient<Database>;
@@ -10,7 +13,7 @@ export type HubBotRow = Database["public"]["Tables"]["seller_hub_bot"]["Row"];
 type TgUser = { id: number; first_name?: string; username?: string };
 type Update = {
   update_id: number;
-  message?: { chat: { id: number; type: string }; from?: TgUser; text?: string };
+  message?: { chat: { id: number; type: string }; from?: TgUser; text?: string; reply_to_message?: { message_id: number } };
   callback_query?: { id: string; from: TgUser; data?: string; message?: { chat: { id: number }; message_id: number } };
 };
 
@@ -116,7 +119,16 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
     case "dash": {
       const d = await dashboard(admin, owner);
       const f = (v: [number, number]) => `${v[0]} pesanan · ${rp(v[1])}`;
-      const text = `🏪 <b>${esc(name)}</b>\n${LINE}\n🔵 <b>Hari Ini</b>\n${f(d.today)}\n\n🟣 <b>7 Hari</b>\n${f(d.week)}\n\n🟠 <b>Bulan Ini</b>\n${f(d.month)}\n${LINE}\n💰 ${rp(d.available)} tersedia\n🔒 ${rp(d.held)} tertahan\n💳 ${rp(d.credits)} credits\n\n📦 ${d.products} produk · ${d.stock.toLocaleString("id-ID")} stok\n👁 Dilihat ${d.views.toLocaleString("id-ID")}x`;
+      const text = [
+        `🏪 <b>${esc(name)}</b>`, LINE,
+        "┌─ 🔵 <b>Hari Ini</b>", `│  ${f(d.today)}`,
+        "├─ 🟣 <b>7 Hari</b>", `│  ${f(d.week)}`,
+        "├─ 🟠 <b>Bulan Ini</b>", `│  ${f(d.month)}`,
+        "├─ 📦 <b>Toko</b>", `│  ${d.products} produk aktif · ${d.stock.toLocaleString("id-ID")} stok`, `│  👁 Dilihat ${d.views.toLocaleString("id-ID")}x`,
+        "├─ 💰 <b>Saldo</b>", `│  ${rp(d.available)} tersedia`, `│  ${rp(d.held)} tertahan`, `│  ${rp(d.credits)} credits`,
+        "└──────────────", "",
+        "👇 Pilih menu di bawah untuk mulai kelola toko.", "<i>Notifikasi pesanan masuk otomatis ke chat ini.</i>",
+      ].join("\n");
       let png: Uint8Array | undefined;
       try { png = await dashboardCard({ store: name, ...d, at: new Date() }); } catch (e) { console.error("dashboard card", e); }
       return {
@@ -143,7 +155,9 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
       }).join("\n\n");
       return { text: `${action === "laris" ? "🏆 <b>Produk Laris</b>" : `📦 <b>Produk — ${list.length}</b>`}\n${LINE}\n\n${body || "Belum ada produk."}`, markup: { inline_keyboard: [open("/seller/produk", "➕ Kelola Produk"), [{ text: "⬅️ Dashboard", callback_data: "h:dash" }]] } };
     }
-    case "order": case "new": {
+    case "order":
+      return ordersPage(admin, owner, "all", 1, site);
+    case "new": {
       let q = admin.from("orders").select("order_no, status, total, created_at, expires_at, order_items(product_name, qty)").eq("seller_id", owner).order("created_at", { ascending: false }).limit(8);
       if (action === "new") q = q.in("status", ["pending", "paid", "processing"]);
       const { data } = await q;
@@ -190,12 +204,90 @@ async function section(admin: Admin, owner: string, action: HubAction, site: str
   }
 }
 
-async function deliver(token: string, chatId: number, o: Out) {
+const FILTER_LABEL: Record<OrderFilter, string> = { all: "📊 Semua", done: "🟢 Selesai", pending: "🟡 Pending", paid: "🟠 Dibayar" };
+const STATUS_ICON: Record<string, string> = { pending: "⏳", paid: "💳", processing: "📦", completed: "✅", cancelled: "❌", refunded: "↩️", failed: "❌" };
+
+/** Paginated order list: 5 per page, order buttons, Next/Prev and status filters (like the original bot). */
+async function ordersPage(admin: Admin, owner: string, filter: OrderFilter, page: number, site: string): Promise<Out> {
+  const statuses = ORDER_FILTER_STATUSES[filter];
+  let cq = admin.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", owner);
+  if (statuses) cq = cq.in("status", statuses);
+  const { count } = await cq;
+  const total = count ?? 0;
+  const pages = pageCount(total);
+  const p = Math.min(Math.max(1, page), pages);
+  let q = admin.from("orders").select("order_no, status, total, created_at, order_items(product_name, qty)").eq("seller_id", owner)
+    .order("created_at", { ascending: false }).range((p - 1) * ORDER_PAGE_SIZE, p * ORDER_PAGE_SIZE - 1);
+  if (statuses) q = q.in("status", statuses);
+  const { data } = await q;
+  const rows = (data ?? []) as unknown as { order_no: number; status: string; total: number; created_at: string; order_items: { product_name: string; qty: number }[] }[];
+  const body = rows.map((o) => {
+    const name = o.order_items[0]?.product_name ?? "-";
+    return `${STATUS_ICON[o.status] ?? "•"} <b>${esc(name.length > 22 ? `${name.slice(0, 22)}…` : name)}</b>\n${o.order_items.reduce((a, i) => a + i.qty, 0)}x · ${rp(Number(o.total))} · ${when(o.created_at)}`;
+  }).join("\n\n");
+  const nav = [
+    ...(p > 1 ? [{ text: "« Prev", callback_data: `o:${filter}:${p - 1}` }] : []),
+    ...(p < pages ? [{ text: "Next »", callback_data: `o:${filter}:${p + 1}` }] : []),
+  ];
+  const fb = (f: OrderFilter) => ({ text: FILTER_LABEL[f], callback_data: `o:${f}:1`, ...(f === filter ? { style: "primary" } : {}) });
+  return {
+    text: `📋 <b>Pesanan — ${total}</b>${filter !== "all" ? ` · ${FILTER_LABEL[filter].slice(3)}` : ""}\n${LINE}\n\n${body || "Belum ada pesanan."}\n\n📄 ${p}/${pages}`,
+    markup: { inline_keyboard: [
+      ...rows.map((o) => [{ text: `🔍 M-${o.order_no}`, callback_data: `od:${o.order_no}` }]),
+      ...(nav.length ? [nav] : []),
+      [fb("all"), fb("done")], [fb("pending"), fb("paid")],
+      [{ text: "🖥 Semua di Seller Panel", url: `${site}/seller/transaksi` }],
+    ] },
+  };
+}
+
+async function orderDetail(admin: Admin, owner: string, orderNo: number, site: string): Promise<Out> {
+  const { data: o } = await admin.from("orders").select("id, order_no, status, total, payment_method, buyer_name, buyer_note, created_at, paid_at, expires_at").eq("seller_id", owner).eq("order_no", orderNo).maybeSingle();
+  if (!o) return { text: "⚠️ Pesanan tidak ditemukan." };
+  const { data: items } = await admin.from("order_items").select("product_name, variant_name, qty, unit_price").eq("order_id", o.id);
+  const lb: Record<string, string> = { pending: "⏳ Menunggu pembayaran", paid: "💳 Dibayar", processing: "📦 Diproses", completed: "✅ Selesai", cancelled: "❌ Dibatalkan", refunded: "↩️ Refund", failed: "❌ Gagal" };
+  const its = (items ?? []).map((i) => `      •  ${esc(i.product_name)}${i.variant_name ? ` — ${esc(i.variant_name)}` : ""}\n         ${i.qty}x · ${rp(Number(i.unit_price))}`).join("\n");
+  return {
+    text: [
+      `🧾 <b>Detail Pesanan</b>`, LINE,
+      `🆔 Order: <code>M-${o.order_no}</code>`, `📌 Status: ${lb[o.status] ?? o.status}`,
+      `👤 Pembeli: ${esc(o.buyer_name ?? "Pembeli")}`, `💳 Metode: ${esc(hubMethod(o.payment_method))}`,
+      `🕒 Dibuat: ${when(o.created_at)}`, ...(o.paid_at ? [`✅ Dibayar: ${when(o.paid_at)}`] : []),
+      ...(o.status === "pending" && o.expires_at ? [`⏰ Batas bayar: ${when(o.expires_at)}`] : []),
+      "", "📦 <b>Item</b>", its || "-", "", `💰 Total: <b>${rp(Number(o.total))}</b>`,
+      ...(o.buyer_note ? ["", `📝 Catatan: ${esc(o.buyer_note.slice(0, 300))}`] : []),
+    ].join("\n"),
+    markup: { inline_keyboard: [
+      [{ text: "📋 Buka di Seller Panel", url: `${site}/seller/transaksi`, style: "primary" }],
+      [{ text: "← Kembali", callback_data: "o:all:1" }],
+    ] },
+  };
+}
+
+async function deliver(token: string, chatId: number, o: Out): Promise<{ ok: boolean; description?: string | undefined; messageId?: number | undefined }> {
   if (o.png && o.text.length <= 1024) {
-    const r = await sendPng(token, chatId, o.png, o.text, o.markup);
-    if (r.ok) return r;
+    const r = (await sendPng(token, chatId, o.png, o.text, o.markup)) as { ok: boolean; description?: string; result?: { message_id: number } };
+    if (r.ok) return { ok: true, messageId: r.result?.message_id };
   }
-  return call(token, "sendMessage", { chat_id: chatId, text: o.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: o.markup });
+  const r = (await call(token, "sendMessage", { chat_id: chatId, text: o.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: o.markup })) as { ok: boolean; description?: string; result?: { message_id: number } };
+  return { ok: r.ok, description: r.description, messageId: r.result?.message_id };
+}
+
+/** Seller replied (Telegram reply) to a chat notice → post the text into that conversation as the seller. */
+async function replyToBuyer(admin: Admin, token: string, owner: string, chatId: number, replyTo: number, body: string) {
+  const { data: n } = await admin.from("seller_hub_notifications").select("ref_id").eq("owner_id", owner).eq("kind", "chat")
+    .eq("tg_chat_id", chatId).eq("tg_message_id", replyTo).maybeSingle();
+  if (!n?.ref_id) return false;
+  const { data: m } = await admin.from("messages").select("conversation_id").eq("id", n.ref_id).maybeSingle();
+  if (!m) return false;
+  const { data: conv } = await admin.from("conversations").select("seller_id, buyer_name").eq("id", m.conversation_id).maybeSingle();
+  if (!conv || conv.seller_id !== owner) return false;
+  const { error } = await admin.from("messages").insert({ conversation_id: m.conversation_id, sender_id: owner, body: body.slice(0, 2000) });
+  await tg(token, "sendMessage", {
+    chat_id: chatId, reply_to_message_id: replyTo, parse_mode: "HTML",
+    text: error ? `⚠️ Gagal mengirim balasan: ${esc(error.message)}` : `✅ Balasan terkirim ke <b>${esc(conv.buyer_name || "pembeli")}</b>.`,
+  });
+  return true;
 }
 
 export async function handleHubUpdate(admin: Admin, bot: HubBotRow, update: Update, site: string) {
@@ -248,12 +340,27 @@ export async function handleHubUpdate(admin: Admin, bot: HubBotRow, update: Upda
       return;
     }
     await tg(bot.token, "answerCallbackQuery", { callback_query_id: cq.id });
+    const data = cq.data ?? "";
+    const oc = parseOrderCb(data);
+    const detail = /^od:(\d{1,10})$/.exec(data);
+    if (oc || detail) {
+      const out = oc ? await ordersPage(admin, me.owner_id, oc.filter, oc.page, site) : await orderDetail(admin, me.owner_id, Number(detail![1]), site);
+      const mid = cq.message?.message_id;
+      // Edit the list in place (like the original bot); fall back to a new message for photo cards.
+      const r = mid ? await call(bot.token, "editMessageText", { chat_id: chatId, message_id: mid, text: out.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: out.markup }) : { ok: false };
+      if (!r.ok) await deliver(bot.token, chatId, out);
+      return;
+    }
     const ok: HubAction[] = ["dash", "prod", "order", "fin", "voucher", "garansi", "profil", "broadcast", "more", "new", "laris"];
     if (!ok.includes(action)) return;
     await deliver(bot.token, chatId, await section(admin, me.owner_id, action, site));
     return;
   }
 
+  const replyTo = update.message?.reply_to_message?.message_id;
+  if (replyTo && text && !text.startsWith("/") && !hubActionFromText(text)) {
+    if (await replyToBuyer(admin, bot.token, me.owner_id, chatId, replyTo, text)) return;
+  }
   const action = hubActionFromText(text) ?? "dash";
   if (text.startsWith("/start")) await call(bot.token, "sendMessage", { chat_id: chatId, text: "👋 Selamat datang kembali di Marketku Seller Center!", reply_markup: replyKb() });
   await deliver(bot.token, chatId, await section(admin, me.owner_id, action, site));
@@ -296,6 +403,7 @@ export async function drainHubNotifications(admin: Admin, site: string, limit = 
     if (!out) { await mark(true); continue; }
     const res = await deliver(bot.token, Number(link.tg_user_id), out);
     await mark(res.ok, res.description);
+    if (res.ok && res.messageId) await admin.from("seller_hub_notifications").update({ tg_chat_id: Number(link.tg_user_id), tg_message_id: res.messageId }).eq("id", r.id);
     if (res.ok) sent++;
   }
   return { sent };
@@ -314,7 +422,7 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
     const png = await chatCard({ store, buyer, message: m.body ?? "", product: prod?.name ?? null, photo: !!m.attachment_path, at: new Date(m.created_at) });
     return {
       png,
-      text: `💬 <b>Chat Baru dari ${esc(buyer)}</b>\n\n${esc((m.body || (m.attachment_path ? "📷 Foto" : "")).slice(0, 600))}${prod?.name ? `\n\n📦 ${esc(prod.name)}` : ""}`,
+      text: hubChatCaption({ store, buyer, product: prod?.name ?? null, body: m.body || (m.attachment_path ? "📷 Foto" : "") }),
       markup: { inline_keyboard: [[{ text: "💬 Balas Chat", url: `${site}/seller/chat/${m.conversation_id}`, style: "primary" }], [dashBtn]] },
     };
   }
@@ -339,6 +447,19 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
   const first = its[0];
   const qty = its.reduce((a, i) => a + i.qty, 0);
   const product = first ? `${first.product_name}${its.length > 1 ? ` +${its.length - 1}` : ""}` : "-";
+  const detailBtns = { inline_keyboard: [[{ text: "📋 Detail Pesanan", callback_data: `od:${o.order_no}`, style: "primary" }], [dashBtn, { text: "🆕 Pesanan Aktif", callback_data: "h:new" }]] };
+  if (kind === "order_released") {
+    const { data: led } = await admin.from("wallet_ledger").select("amount").eq("ref_id", orderId).eq("kind", "sale").limit(1).maybeSingle();
+    const { data: ord } = await admin.from("orders").select("buyer_confirmed_at").eq("id", orderId).maybeSingle();
+    return { text: hubReleasedCaption({ product, amount: Number(led?.amount ?? sellerNet(Number(o.total))), orderNo: o.order_no, byBuyer: !!ord?.buyer_confirmed_at }), markup: detailBtns };
+  }
+  if (kind === "dispute_open" || kind === "dispute_done") {
+    const { data: dp } = refId ? await admin.from("order_disputes").select("status, resolution_note").eq("id", refId).maybeSingle() : { data: null };
+    return {
+      text: hubDisputeCaption(kind, { product, orderNo: o.order_no, status: dp?.status ?? "", amount: kind === "dispute_done" && dp?.status !== "refund" ? sellerNet(Number(o.total)) : Number(o.total), note: dp?.resolution_note ?? null }),
+      markup: { inline_keyboard: [[{ text: "🚨 Buka Ruang Laporan", url: `${site}/seller/dispute`, style: "danger" }], [dashBtn]] },
+    };
+  }
   const at = new Date(kind === "order_new" ? o.created_at : kind === "order_paid" ? o.paid_at ?? o.updated_at : kind === "order_expired" ? o.expires_at ?? o.updated_at : o.updated_at);
   const png = await orderCard({
     kind: kind as OrderCardKind, store, orderNo: o.order_no, product: first?.product_name ?? "-", variant: first?.variant_name ?? "-",
@@ -347,7 +468,10 @@ async function buildNotice(admin: Admin, kind: HubKind, orderId: string | null, 
   });
   return {
     png,
-    text: hubOrderCaption(kind, { orderNo: o.order_no, total: Number(o.total), product, qty, buyer: o.buyer_name, method: o.payment_method }),
-    markup: { inline_keyboard: [[{ text: "📋 Detail Pesanan", url: `${site}/seller/transaksi`, style: "primary" }], [dashBtn, { text: "🆕 Pesanan Aktif", callback_data: "h:new" }]] },
+    text: hubOrderCaption(kind, {
+      orderNo: o.order_no, total: Number(o.total), product, qty, buyer: o.buyer_name, method: o.payment_method,
+      variant: first?.variant_name ?? null, expiresAt: o.expires_at ? new Date(o.expires_at) : null, note: o.buyer_note,
+    }),
+    markup: detailBtns,
   };
 }
