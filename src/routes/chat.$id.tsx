@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/market";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -103,11 +104,11 @@ function ChatRoom() {
 
   const conv = useQuery({
     queryKey: ["conversation", id], enabled: !!user,
-    queryFn: async () => (await supabase.from("conversations").select("*").eq("id", id).maybeSingle()).data,
+    queryFn: async () => !isUuid(id) ? null : (await supabase.from("conversations").select("*").eq("id", id).maybeSingle()).data,
   });
   const msgs = useQuery({
     queryKey: ["messages", id], enabled: !!user, refetchInterval: 3000,
-    queryFn: async () => (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at, deleted_at, hidden_for").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
+    queryFn: async () => !isUuid(id) ? [] : (await supabase.from("messages").select("id, sender_id, body, created_at, attachment_path, product_id, delivered_at, read_at, deleted_at, hidden_for").eq("conversation_id", id).order("created_at").limit(500)).data ?? [],
   });
   const c = conv.data;
   const isBuyer = c?.buyer_id === user?.id;
