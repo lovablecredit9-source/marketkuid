@@ -316,6 +316,13 @@
       "when": 1793949689332,
       "tag": "0044_admin_telegram_bot",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1793951797231,
+      "tag": "0045_seller_center_telegram_bot",
+      "breakpoints": true
     }
   ]
 }
