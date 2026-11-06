@@ -33,4 +33,4 @@
 - Rekber (`rekber_deals`) changes only via `*_rekber` RPCs; buyers join via secret `share_token` — clients never write status or balances.
 - Stock availability always goes through `stock_available` — one rule for orders, fulfilment, counts.
 - Warranty/category-request status changes only via RPCs.
-- Admin bot: singleton `admin_bot` (service-role only) via `admin-bot.functions.ts` (has_role first); alerts in `admin_tg_notifications` (triggers) drained by `/api/public/telegram/admin` + cron — token never reaches the browser.
+- Platform bots `admin_bot`/`seller_hub_bot` (Marketku Center / Seller Center) are service-role singletons set via `*.functions.ts` (has_role first); trigger-queued alerts drain on their webhooks + notify cron; seller cards are PNGs rendered by `card-image.server.ts` (no AI) — tokens never reach the browser.
