@@ -114,6 +114,14 @@ function SellerChatRoom() {
     void qc.invalidateQueries({ queryKey: ["messages", id] });
   };
 
+  if (conv.isFetched && c === null) return (
+    <div className="rounded-2xl border bg-card px-4 py-16 text-center">
+      <p className="text-sm font-semibold">Percakapan tidak ditemukan</p>
+      <p className="mt-1 text-xs text-muted-foreground">Chat ini sudah dihapus atau bukan milik toko kamu.</p>
+      <button onClick={() => navigate({ to: "/seller/chat" })} className="mt-4 rounded-xl border px-4 py-2 text-xs font-semibold transition active:scale-95">Kembali ke Inbox</button>
+    </div>
+  );
+
   return (
     <div className="-mx-1 flex h-[calc(100dvh-170px)] flex-col overflow-hidden rounded-2xl border bg-card">
       <div className="space-y-2.5 border-b px-3 py-2.5">
