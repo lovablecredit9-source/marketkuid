@@ -104,7 +104,7 @@ function ProfilToko() {
     if (errs.length) { toast.error(errs[0]); return; }
     setSaving(true);
     const { error } = await supabase.from("seller_stores").update({
-      store_name: f.store_name.trim(), slug: f.slug, description: f.description.trim() || null,
+      store_name: f.store_name.trim(), slug: f.slug.trim() || null, description: f.description.trim() || null,
       contact_name: f.contact_name.trim() || null, contact_phone: f.contact_phone.trim() || null,
       telegram_username: f.telegram_username.replace(/^@/, "").trim() || null,
     }).eq("owner_id", user!.id);
