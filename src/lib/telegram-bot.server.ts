@@ -132,9 +132,23 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     });
   }
 
+  // Seller links their own Telegram account from Seller Center: /start own_<code>.
+  const ownCode = startParam ? parseOwnerLink(startParam) : null;
+  if (ownCode) {
+    const valid = bot.owner_link_code === ownCode && !!bot.owner_link_expires && new Date(bot.owner_link_expires) > new Date();
+    if (!valid) { await send("⛔ Link sudah kedaluwarsa. Buat link baru dari Seller Center → Bot Telegram."); return; }
+    await admin.from("telegram_bots").update({
+      owner_tg_id: from.id, owner_tg_name: (from.username ? `@${from.username}` : from.first_name ?? "").slice(0, 64) || null,
+      owner_linked_at: new Date().toISOString(), owner_link_code: null, owner_link_expires: null,
+    }).eq("id", bot.id);
+    bot = { ...bot, owner_tg_id: from.id };
+    await send("✅ <b>Telegram terhubung ke toko kamu!</b>\n\nMulai sekarang notifikasi pesanan baru, pembayaran, pesanan selesai, laporan masalah dan stok menipis dikirim otomatis ke chat ini.", sellerKb());
+    return sellerDashboardFor();
+  }
+
   // Force-subscribe gate.
   const fj = (bot.force_join ?? {}) as ForceJoin;
-  if (fj.enabled && fj.chat) {
+  if (fj.enabled && fj.chat && !isOwner) {
     const m = await tg<{ status: string }>(bot.token, "getChatMember", { chat_id: fj.chat, user_id: from.id });
     const joined = !m.ok || ["creator", "administrator", "member", "restricted"].includes(m.result?.status ?? "");
     if (!joined) {
