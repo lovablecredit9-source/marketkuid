@@ -135,11 +135,17 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
   };
 
   const welcome = async () => {
+    const { count: refs } = await admin.from("telegram_bot_users").select("tg_user_id", { count: "exact", head: true }).eq("bot_id", bot.id).eq("referred_by", from.id);
+    const cats = new Map<string, string>();
+    for (const p of products) cats.set(p.category_id ?? "none", p.product_categories?.name ?? "Lainnya");
+    const inline = products.length
+      ? pairs([...cats].map(([id, name]) => ({ text: `📦 ${name}`, callback_data: `c:${id}` })))
+      : [[{ text: "📦 Belum ada produk", callback_data: "noop" }]];
     await send(
-      `👋 Halo <b>${esc(from.first_name ?? "Kak")}</b>!\nSelamat datang di <b>${esc(storeName)}</b>${store && !store.is_open ? " (toko sedang tutup)" : ""}.\n\nBelanja produk digital dari toko ini langsung lewat bot.\n\n📱 <i>Gunakan menu bantuan jika ada kendala.</i>`,
-      replyKb(),
+      `🏪 <b>Selamat datang di ${esc(storeName)}</b>${store && !store.is_open ? "\n⛔ <i>Toko sedang tutup</i>" : ""}\n━━━━━━━━━━━━━━━\n┌─ 👋 Halo, <b>${esc(from.first_name ?? "Kak")}</b>\n├─ 📦 ${products.length} produk aktif\n├─ 👥 ${refs ?? 0} referral\n└──────────────\n\n🛍 Pilih kategori produk di bawah:`,
+      { inline_keyboard: inline },
     );
-    await catalog();
+    await send("📱 <i>Gunakan menu bantuan jika ada kendala.</i>", replyKb());
   };
 
   const showProduct = async (id: string) => {
@@ -164,29 +170,36 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
       case "kurir": return send("✅ Bot terhubung dan berjalan normal.");
       case "pesanan":
         return send("📋 Riwayat pesanan tersimpan di akun Marketku kamu.", { inline_keyboard: [[{ text: "📋 Buka Riwayat Pesanan", url: `${site}/riwayat` }]] });
-      case "topup": case "tarik":
-        return send("💰 Saldo bot belum tersedia karena pembayaran QRIS Marketku belum aktif.\n\nKamu tetap bisa membeli produk lewat tombol <b>Beli di Marketku</b>.");
+      case "topup":
+        return send("💰 <b>TOP UP SALDO</b>\n\nTop up Saldo Marketku lewat QRIS atau e-wallet di web Marketku. Saldo bisa langsung dipakai checkout.", {
+          inline_keyboard: [[{ text: "💰 Top Up di Marketku", url: `${site}/topup` }], [{ text: "← Kembali", callback_data: "menu" }]],
+        });
+      case "tarik":
+        return send("💸 <b>Tarik Saldo</b>\n\nPenarikan saldo hanya untuk seller dan diajukan dari Seller Center di web Marketku.", {
+          inline_keyboard: [[{ text: "← Kembali", callback_data: "menu" }]],
+        });
       case "garansi":
-        return send("🛡 <b>GARANSI</b>\n\nKlaim garansi dari halaman pesanan di Marketku. Siapkan nomor pesanan dan bukti kendala.", { inline_keyboard: [[{ text: "🛡 Ajukan Klaim", url: `${site}/dispute` }]] });
+        return send("🛡 <b>GARANSI</b>\n\nKlaim garansi dari halaman pesanan di Marketku. Siapkan nomor pesanan dan bukti kendala.", { inline_keyboard: [[{ text: "🛡 Ajukan Klaim", url: `${site}/riwayat` }], [{ text: "← Kembali", callback_data: "menu" }]] });
       case "promo": {
         const { data: vs } = await admin.from("seller_vouchers").select("code, name, ends_at").eq("owner_id", bot.owner_id).eq("is_active", true).limit(10);
         const live = (vs ?? []).filter((v) => !v.ends_at || new Date(v.ends_at) > new Date());
         const body = live.length ? live.map((v) => `🎫 <code>${esc(v.code)}</code> — ${esc(v.name)}`).join("\n") : "📭 <i>Belum ada promo aktif saat ini.</i>";
-        return send(`🎫 <b>PROMO</b>\n━━━━━━━━━━━━\n\n${body}\n\n━━━━━━━━━━━━\n💡 <i>Pakai kode promo saat checkout di Marketku.</i>`);
+        return send(`🎫 <b>PROMO</b>\n━━━━━━━━━━━━\n\n${body}\n\n━━━━━━━━━━━━\n💡 <i>Pakai kode promo saat checkout di Marketku.</i>`, { inline_keyboard: [[{ text: "← Kembali", callback_data: "menu" }]] });
       }
       case "referral": {
         const { count } = await admin.from("telegram_bot_users").select("tg_user_id", { count: "exact", head: true }).eq("bot_id", bot.id).eq("referred_by", from.id);
         const code = referralCode(from.id);
-        return send(`🎁 <b>Program Referral</b>\n\n📋 Kode Referral Anda: <code>${code}</code>\n\n🔗 Link Referral:\nhttps://t.me/${esc(bot.username)}?start=ref_${code}\n\n👥 Total Referral: ${count ?? 0} orang`);
+        return send(`🎁 <b>Program Referral</b>\n\n📋 Kode Referral Anda: <code>${code}</code>\n\n🔗 Link Referral:\nhttps://t.me/${esc(bot.username)}?start=ref_${code}\n\n👥 Total Referral: ${count ?? 0} orang\n\n━━━━━━━━━━━━━━━━━━━\n🎁 Bagikan link di atas untuk mengajak teman belanja di toko ini.`, { inline_keyboard: [[{ text: "🏠 Menu Utama", callback_data: "menu" }]] });
       }
       case "bantuan": {
         const btns = [
           ...(bot.admin_username ? [[{ text: "💬 Chat Admin", url: `https://t.me/${bot.admin_username}` }]] : []),
           ...(bot.admin_wa ? [[{ text: "📞 WhatsApp Admin", url: `https://wa.me/${bot.admin_wa}` }]] : []),
+          [{ text: "🏠 Menu Utama", callback_data: "menu" }],
         ];
         return send(
           "🙋 <b>BANTUAN</b>\n\n📌 <b>Cara Berbelanja:</b>\n1. Pilih kategori produk\n2. Pilih produk yang diinginkan\n3. Pilih varian\n4. Tekan Beli di Marketku lalu bayar via QRIS\n5. Produk dikirim otomatis di halaman pesanan\n\n📌 <b>Masalah & Bantuan:</b>\nHubungi admin untuk bantuan lebih lanjut.",
-          btns.length ? { inline_keyboard: btns } : undefined,
+          { inline_keyboard: btns },
         );
       }
     }
@@ -194,7 +207,8 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
 
   if (cq?.data) {
     const d = cq.data;
-    if (d === "home" || d === "joined") return d === "joined" ? welcome() : catalog();
+    if (d === "noop") return;
+    if (d === "home" || d === "joined" || d === "menu") return d === "home" ? catalog() : welcome();
     if (d.startsWith("p:")) return showProduct(d.slice(2));
     if (d.startsWith("c:")) {
       const id = d.slice(2);
