@@ -83,3 +83,13 @@
 - [x] Pembeli uji chat + pesan + batal → 3 notifikasi terkirim ke Telegram seller
 - [ ] Publish agar notifikasi otomatis tiap menit memakai versi baru (tunggu persetujuan user)
 - [ ] Lihat langsung gambar notifikasi chat/pesanan/batal di Telegram (sesi Telegram hilang saat sistem restart)
+
+## Bot ke-4: Auth Marketku + login Seller Center (Nov 6)
+- [x] Halaman masuk Seller Center seperti panel.marketku.id: email → password, atau Telegram (username → kode 6 angka / link Login Otomatis)
+- [x] Bot Auth: /start mencatat username, kirim kode login (5 menit, maks 5 percobaan, kirim ulang 60 detik), pesan "Login Berhasil" (IP, device, browser, waktu WIB)
+- [x] Mini App Seller Center masuk otomatis dari Telegram (tetap masuk walau logout); tombol menu Mini App di bot Seller Center
+- [x] Kartu pasang bot Auth Marketku di Admin → Bot
+- [x] Avatar + deskripsi untuk bot admin, bot toko, bot Seller Center
+- [ ] Buat bot "Auth Marketku" di BotFather, pasang token, avatar — menunggu kode login Telegram dari user
+- [ ] Uji login via kode & link otomatis 2x, uji Mini App, uji chat pembeli → notif bot (tunggu login Telegram)
+- [ ] Cek alur login Telegram di panel.marketku.id (username jbapppremandpanelsosmed) — butuh kode dari Telegram user

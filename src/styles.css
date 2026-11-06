@@ -472,3 +472,31 @@
 [data-status="active"] > .seller-nav-icon, .seller-nav-bounce { animation: mk-icon-bounce .55s cubic-bezier(.34,1.56,.64,1); }
 [data-status="active"] > .seller-nav-label, button > .seller-nav-label { display: inline-block; overflow: hidden; white-space: nowrap; animation: mk-nav-label .32s ease-out both; }
 @media (prefers-reduced-motion: reduce) { [data-status="active"] > .seller-nav-icon, .seller-nav-bounce, .seller-nav-label { animation: none; } }
+
+/* Seller Center sign-in (light card on soft blue→lavender, like panel.marketku.id) */
+.seller-auth {
+  --background: oklch(0.97 0.02 270);
+  --foreground: oklch(0.21 0.03 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.03 265);
+  --muted-foreground: oklch(0.52 0.03 260);
+  --border: oklch(0.88 0.015 265);
+  --primary: oklch(0.52 0.2 270);
+  --primary-foreground: oklch(0.99 0 0);
+  --auth-from: oklch(0.42 0.19 265);
+  --auth-mid: oklch(0.62 0.18 255);
+  --auth-to: oklch(0.72 0.14 215);
+  color-scheme: light;
+  color: var(--foreground);
+  background: linear-gradient(160deg, oklch(0.95 0.03 245) 0%, oklch(0.95 0.035 285) 60%, oklch(0.93 0.045 290) 100%);
+}
+.seller-auth-btn {
+  background-image: linear-gradient(90deg, var(--auth-from), var(--auth-mid) 50%, var(--auth-to));
+  color: var(--primary-foreground);
+  box-shadow: 0 10px 24px -12px var(--auth-mid);
+}
+.seller-auth-btn-soft {
+  background-image: linear-gradient(90deg, oklch(0.66 0.11 270), oklch(0.78 0.1 245) 55%, oklch(0.82 0.1 205));
+  color: var(--primary-foreground);
+}
+.seller-auth-card { box-shadow: 0 30px 60px -30px oklch(0.55 0.15 280 / 0.45); }

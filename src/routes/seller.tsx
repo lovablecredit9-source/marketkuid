@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 import { SellerLoading } from "@/components/marketku/loading";
 import { SellerBanBanner } from "@/components/marketku/ban-gate";
+import { SellerAuth, finishTokenLogin } from "@/components/marketku/seller-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { miniAppLogin, verifyTelegramLogin } from "@/lib/auth-bot.functions";
 
 export const Route = createFileRoute("/seller")({
   head: () => ({
@@ -71,18 +74,57 @@ function SellerLogin({ email, storeName, passwordAccount, onDone }: { email: str
   );
 }
 
+const TG_INIT_KEY = "marketku-tg-initdata";
+/** Telegram Mini App initData from the launch hash (kept for in-app navigation). */
+function readMiniAppInitData() {
+  const w = window as unknown as { Telegram?: { WebApp?: { initData?: string } } };
+  const fromHash = new URLSearchParams(window.location.hash.slice(1)).get("tgWebAppData");
+  const v = w.Telegram?.WebApp?.initData || fromHash || window.sessionStorage.getItem(TG_INIT_KEY) || "";
+  if (v) window.sessionStorage.setItem(TG_INIT_KEY, v);
+  return v;
+}
+
 function SellerLayout() {
   const { user, ready } = useAuth();
   const store = useSellerStore(user?.id);
   const [menu, setMenu] = useState(false);
   const [theme, setTheme] = useSellerTheme();
   const [unlocked, setUnlocked] = useState<boolean | null>(null);
-  useEffect(() => { setUnlocked(isSellerUnlocked(user?.id)); }, [user?.id]);
+  const [tick, setTick] = useState(0);
+  const [auto, setAuto] = useState<string | null>(null);
+  const verifyFn = useServerFn(verifyTelegramLogin);
+  const miniFn = useServerFn(miniAppLogin);
+  useEffect(() => { setUnlocked(isSellerUnlocked(user?.id)); }, [user?.id, tick]);
   // Mark the seller online (2 ticks for buyers) as soon as Seller Center opens.
   useEffect(() => { if (unlocked && user) beatPresence(user.id); }, [unlocked, user]);
 
+  // One-time "Login Otomatis" link from the Auth bot, or a Telegram Mini App launch: sign in without typing.
+  useEffect(() => {
+    if (!ready) return;
+    const url = new URL(window.location.href);
+    const magic = url.searchParams.get("magic");
+    const initData = magic ? "" : readMiniAppInitData();
+    if (!magic && (!initData || (user && isSellerUnlocked(user.id)))) return;
+    if (magic) { url.searchParams.delete("magic"); window.history.replaceState(null, "", url.pathname + url.search + url.hash); }
+    setAuto(magic ? "Memproses link login" : "Masuk lewat Telegram");
+    void (async () => {
+      try {
+        const r = magic ? await verifyFn({ data: { magic } }) : await miniFn({ data: { initData } });
+        await finishTokenLogin(r.token_hash);
+        toast.success("Login berhasil");
+        setTick((t) => t + 1);
+      } catch (e) {
+        if (!magic) window.sessionStorage.removeItem(TG_INIT_KEY);
+        toast.error(e instanceof Error ? e.message : "Gagal masuk");
+      } finally { setAuto(null); }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
+  if (auto) return <Gate><SellerLoading label={auto} className="py-0" /></Gate>;
   if (!ready || unlocked === null || (user && store.isLoading)) return <Gate><SellerLoading label="Memuat Seller Center" className="py-0" /></Gate>;
-  if (!user || !store.data) {
+  if (!user) return <SellerAuth onDone={() => setTick((t) => t + 1)} />;
+  if (!store.data) {
     return (
       <Gate>
         <div className="w-full max-w-sm rounded-2xl border bg-card p-6">
@@ -99,6 +141,7 @@ function SellerLayout() {
   if (!unlocked) {
     // Ask for the password unless the account is known to have no password sign-in (e.g. Google only).
     const providers = user.app_metadata?.["providers"] as string[] | undefined;
+    if (!providers?.length || providers.includes("email")) return <SellerAuth presetEmail={user.email ?? ""} onDone={() => setTick((t) => t + 1)} />;
     return (
       <SellerLogin email={user.email ?? ""} storeName={store.data.store_name} passwordAccount={!providers?.length || providers.includes("email")}
         onDone={() => { unlockSeller(user.id); setUnlocked(true); }} />
