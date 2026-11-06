@@ -40,7 +40,7 @@ export function SellerSheet({ open, onOpenChange, userId, ownerName = "", onCrea
     setLoading(false);
     if (error) { toast.error(error.code === "23505" ? "Kamu sudah punya toko." : "Gagal membuat toko. Coba lagi."); return; }
     toast.success("Toko berhasil dibuat");
-    unlockSeller(userId);
+    unlockSeller(userId, "seller_switch");
     onOpenChange(false);
     onCreated();
   };

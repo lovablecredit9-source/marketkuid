@@ -4,7 +4,9 @@ import { Store, Lock, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { beatPresence, useAuth, authErrorText } from "@/lib/auth";
 import { useSellerStore } from "@/lib/seller";
-import { isSellerUnlocked, unlockSeller } from "@/lib/chat";
+import { isSellerUnlocked, unlockSeller, takePendingSellerSession, SELLER_SESSION_ID_KEY } from "@/lib/chat";
+import { recordSellerSession, touchSellerSession } from "@/lib/login-session.functions";
+import { collectDeviceInfo } from "@/lib/login-session";
 import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 import { SellerLoading } from "@/components/marketku/loading";
@@ -97,6 +99,24 @@ function SellerLayout() {
   useEffect(() => { setUnlocked(isSellerUnlocked(user?.id)); }, [user?.id, tick]);
   // Mark the seller online (2 ticks for buyers) as soon as Seller Center opens.
   useEffect(() => { if (unlocked && user) beatPresence(user.id); }, [unlocked, user]);
+  // Login history: record a queued sign-in once, then keep "terakhir aktif" fresh.
+  const recordFn = useServerFn(recordSellerSession);
+  const touchFn = useServerFn(touchSellerSession);
+  useEffect(() => {
+    if (!unlocked || !user) return;
+    const via = takePendingSellerSession(user.id);
+    const idKey = SELLER_SESSION_ID_KEY + user.id;
+    const touch = () => { const id = window.localStorage.getItem(idKey); if (id) void touchFn({ data: { id } }).catch(() => {}); };
+    if (via) {
+      void collectDeviceInfo()
+        .then((info) => recordFn({ data: { via, info } }))
+        .then((r) => window.localStorage.setItem(idKey, r.id))
+        .catch((e) => console.error("record session", e));
+    } else touch();
+    const t = window.setInterval(touch, 5 * 60_000);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocked, user?.id]);
 
   // One-time "Login Otomatis" link from the Auth bot, or a Telegram Mini App launch: sign in without typing.
   useEffect(() => {
@@ -110,7 +130,7 @@ function SellerLayout() {
     void (async () => {
       try {
         const r = magic ? await verifyFn({ data: { magic } }) : await miniFn({ data: { initData } });
-        await finishTokenLogin(r.token_hash);
+        await finishTokenLogin(r.token_hash, magic ? "telegram_link" : "mini_app");
         toast.success("Login berhasil");
         setTick((t) => t + 1);
       } catch (e) {

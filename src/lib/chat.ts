@@ -6,7 +6,18 @@ const UNLOCK_PREFIX = "marketku-seller-unlock:";
 
 export const isSellerUnlocked = (uid: string | undefined) =>
   !!uid && typeof window !== "undefined" && window.localStorage.getItem(UNLOCK_PREFIX + uid) === "1";
-export const unlockSeller = (uid: string) => window.localStorage.setItem(UNLOCK_PREFIX + uid, "1");
+const SESSION_PENDING = "marketku-seller-session-pending:";
+/** Unlocks Seller Center and queues one login-history entry (recorded by the Seller Center layout). */
+export const unlockSeller = (uid: string, via = "password") => {
+  window.localStorage.setItem(UNLOCK_PREFIX + uid, "1");
+  window.localStorage.setItem(SESSION_PENDING + uid, via);
+};
+export const takePendingSellerSession = (uid: string) => {
+  const v = window.localStorage.getItem(SESSION_PENDING + uid);
+  if (v) window.localStorage.removeItem(SESSION_PENDING + uid);
+  return v;
+};
+export const SELLER_SESSION_ID_KEY = "marketku-seller-session-id:";
 export const lockSeller = (uid: string) => window.localStorage.removeItem(UNLOCK_PREFIX + uid);
 export function clearSellerLocks() {
   for (const k of Object.keys(window.localStorage)) if (k.startsWith(UNLOCK_PREFIX)) window.localStorage.removeItem(k);
