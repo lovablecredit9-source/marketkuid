@@ -100,7 +100,6 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
   const send = async (text: string, markup?: unknown) => {
     const body = { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
     const r = await T("sendMessage", { ...body, ...(markup ? { reply_markup: markup } : {}) });
-    (globalThis as any).__tgdbg = [...((globalThis as any).__tgdbg ?? []), JSON.stringify(r).slice(0, 200)];
     if (!r.ok && markup) return T("sendMessage", { ...body, reply_markup: stripStyle(markup) });
     return r;
   };
@@ -111,7 +110,6 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     if (!r.ok && !/not modified/i.test(r.description ?? "")) return send(text, markup);
     return r;
   };
-  (globalThis as any).__tgdbg = [`owner=${bot.owner_tg_id} from=${from.id} text=${msg?.text}`];
   const isOwner = bot.owner_tg_id != null && Number(bot.owner_tg_id) === from.id;
   const sellerKb = () => ({
     keyboard: SELLER_KEYBOARD.map((row) => row.map((a) => ({ text: SELLER_ACTIONS[a].text, ...(SELLER_ACTIONS[a].style ? { style: SELLER_ACTIONS[a].style } : {}) }))),
