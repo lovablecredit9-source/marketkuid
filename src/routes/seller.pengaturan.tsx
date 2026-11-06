@@ -91,7 +91,7 @@ function useStore() {
 function ProfilToko() {
   const { user, store, refresh } = useStore();
   const init = () => ({
-    store_name: store?.store_name ?? "", slug: store?.slug ?? slugify(store?.store_name ?? ""), description: store?.description ?? "",
+    store_name: store?.store_name ?? "", slug: store?.slug || slugify(store?.store_name ?? ""), description: store?.description ?? "",
     contact_name: store?.contact_name ?? "", contact_phone: store?.contact_phone ?? "", telegram_username: store?.telegram_username ?? "",
   });
   const [f, setF] = useState(init);
