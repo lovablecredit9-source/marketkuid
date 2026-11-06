@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls, useStoreMedia, warrantyLabel, type Warranty } from "@/lib/products";
 import { supportWaUrl } from "@/lib/support";
-import { ratingBars, ratingOf, unitPrice, useCartActions, useMarketProducts, useProductDetail, useReviews, dbError, fmtDate, type Discount } from "@/lib/market";
+import { isUuid, ratingBars, ratingOf, unitPrice, useCartActions, useMarketProducts, useProductDetail, useReviews, dbError, fmtDate, type Discount } from "@/lib/market";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductImage, Stars, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { productTypeText } from "@/components/marketku/product-sheet";
@@ -54,7 +54,7 @@ function ProdukDetail() {
   }, []);
   useEffect(() => {
     const key = `mk-viewed-${id}`;
-    if (sessionStorage.getItem(key)) return;
+    if (!isUuid(id) || sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
     supabase.rpc("record_product_view", { p_product: id }).then(() => {}, () => {});
   }, [id]);

@@ -48,9 +48,9 @@ const fmtDate = (s: string) => new Date(s).toLocaleString("id-ID", { day: "2-dig
 const errMsg = (e: unknown) => (e && typeof e === "object" && "message" in e ? String((e as { message: unknown }).message) : "Terjadi kesalahan");
 
 type Stats = Record<"users" | "users_today" | "stores" | "products" | "products_hidden" | "orders" | "orders_done" | "orders_pending" | "gmv" | "deposits_pending" | "deposits_approved" | "deposits_today" | "wallet_total" | "banned_users" | "banned_stores", number>;
-function useStats() {
+function useStats(enabled = true) {
   return useQuery({
-    queryKey: ["admin_stats"],
+    queryKey: ["admin_stats"], enabled,
     queryFn: async () => { const { data, error } = await supabase.rpc("admin_stats"); if (error) throw error; return data as unknown as Stats; },
   });
 }
@@ -67,7 +67,7 @@ function Admin() {
   }, []);
   const denied = ready && (!user || isAdmin.data === false);
   useEffect(() => { if (denied) navigate({ to: "/admin/login", replace: true }); }, [denied, navigate]);
-  const stats = useStats();
+  const stats = useStats(!!isAdmin.data);
   const orderPayCount = useQuery({
     queryKey: ["admin_order_pay_count"], enabled: !!isAdmin.data, refetchInterval: 60_000,
     queryFn: async () => (await supabase.from("order_payments").select("id", { count: "exact", head: true }).eq("status", "pending")).count ?? 0,
