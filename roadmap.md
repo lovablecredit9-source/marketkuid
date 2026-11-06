@@ -78,5 +78,6 @@
 ## Bot ke-3: Marketku Seller Center (Nov 6)
 - [x] Bot platform untuk semua seller: hubungkan dari Seller Center → Bot Telegram, menu Dashboard/Produk/Pesanan/Keuangan/Voucher/Garansi/Profil/Broadcast/Lainnya
 - [x] Notifikasi bergambar otomatis (bukan AI): pesanan baru belum dibayar, dibayar, selesai, dibatalkan, habis waktu, chat pembeli, deposit
-- [ ] Buat bot di BotFather + pasang token + uji di Telegram (menunggu kode login Telegram)
+- [x] Bot @MarketkuSellerCenter_bot dibuat di BotFather & dipasang di Admin → Bot (webhook aktif)
+- [ ] Hubungkan seller Tambas ke bot + uji tombol & gambar di Telegram (menunggu kode login Telegram baru)
 - [ ] Uji pembeli chat & pesan di Rumah Kayu → notifikasi masuk
