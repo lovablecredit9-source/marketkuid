@@ -1416,6 +1416,138 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_hub_bot: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: number
+          is_active: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at: string | null
+          webhook_ok: boolean
+          webhook_secret: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name?: string
+          tg_bot_id?: number
+          token?: string
+          username?: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret?: string
+        }
+        Relationships: []
+      }
+      seller_hub_link_codes: {
+        Row: {
+          code: string
+          expires_at: string
+          owner_id: string
+        }
+        Insert: {
+          code: string
+          expires_at: string
+          owner_id: string
+        }
+        Update: {
+          code?: string
+          expires_at?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      seller_hub_links: {
+        Row: {
+          linked_at: string
+          owner_id: string
+          tg_name: string | null
+          tg_user_id: number
+        }
+        Insert: {
+          linked_at?: string
+          owner_id: string
+          tg_name?: string | null
+          tg_user_id: number
+        }
+        Update: {
+          linked_at?: string
+          owner_id?: string
+          tg_name?: string | null
+          tg_user_id?: number
+        }
+        Relationships: []
+      }
+      seller_hub_notifications: {
+        Row: {
+          attempts: number
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          owner_id: string
+          ref_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          order_id?: string | null
+          owner_id: string
+          ref_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          owner_id?: string
+          ref_id?: string | null
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
+      seller_hub_updates: {
+        Row: {
+          created_at: string
+          update_id: number
+        }
+        Insert: {
+          created_at?: string
+          update_id: number
+        }
+        Update: {
+          created_at?: string
+          update_id?: number
+        }
+        Relationships: []
+      }
       seller_stores: {
         Row: {
           auto_withdraw: boolean
@@ -2239,6 +2371,15 @@ export type Database = {
       }
       edit_review: {
         Args: { p_comment: string; p_id: string; p_rating: number }
+        Returns: undefined
+      }
+      enqueue_seller_hub: {
+        Args: {
+          p_kind: string
+          p_order: string
+          p_owner: string
+          p_ref: string
+        }
         Returns: undefined
       }
       enqueue_seller_tg: {

@@ -74,3 +74,9 @@
 - [ ] Bot Seller Panel terpisah untuk semua seller (seperti @seller_panelbot) — menunggu token bot baru dari user
 - [ ] Gambar kartu sambutan otomatis (profil toko, saldo, poin, referral, transaksi) dan saldo/poin di bot — butuh sistem poin & saldo bot
 - [x] Bot admin Marketku Center (@MarketkuCenterAdmin_bot): tab Bot di Admin Console, hubungkan Telegram admin, ringkasan + banner, tombol Deposit/Bayar/Withdraw/Dispute/Kategori/Toko, notifikasi otomatis
+
+## Bot ke-3: Marketku Seller Center (Nov 6)
+- [x] Bot platform untuk semua seller: hubungkan dari Seller Center → Bot Telegram, menu Dashboard/Produk/Pesanan/Keuangan/Voucher/Garansi/Profil/Broadcast/Lainnya
+- [x] Notifikasi bergambar otomatis (bukan AI): pesanan baru belum dibayar, dibayar, selesai, dibatalkan, habis waktu, chat pembeli, deposit
+- [ ] Buat bot di BotFather + pasang token + uji di Telegram (menunggu kode login Telegram)
+- [ ] Uji pembeli chat & pesan di Rumah Kayu → notifikasi masuk

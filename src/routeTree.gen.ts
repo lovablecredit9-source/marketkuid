@@ -65,6 +65,7 @@ import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.ba
 import { Route as ApiPublicTelegramBotIdRouteImport } from './routes/api/public/telegram.$botId'
 import { Route as ApiPublicTelegramAdminRouteImport } from './routes/api/public/telegram.admin'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram.notify'
+import { Route as ApiPublicTelegramSellerCenterRouteImport } from './routes/api/public/telegram.seller-center'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -346,6 +347,12 @@ const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   path: '/api/public/telegram/notify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelegramSellerCenterRoute =
+  ApiPublicTelegramSellerCenterRouteImport.update({
+    id: '/api/public/telegram/seller-center',
+    path: '/api/public/telegram/seller-center',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
   '/api/public/telegram/admin': typeof ApiPublicTelegramAdminRoute
   '/api/public/telegram/notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram/seller-center': typeof ApiPublicTelegramSellerCenterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -461,6 +469,7 @@ export interface FileRoutesByTo {
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
   '/api/public/telegram/admin': typeof ApiPublicTelegramAdminRoute
   '/api/public/telegram/notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram/seller-center': typeof ApiPublicTelegramSellerCenterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -520,6 +529,7 @@ export interface FileRoutesById {
   '/api/public/telegram/$botId': typeof ApiPublicTelegramBotIdRoute
   '/api/public/telegram/admin': typeof ApiPublicTelegramAdminRoute
   '/api/public/telegram/notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram/seller-center': typeof ApiPublicTelegramSellerCenterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -580,6 +590,7 @@ export interface FileRouteTypes {
     | '/api/public/telegram/$botId'
     | '/api/public/telegram/admin'
     | '/api/public/telegram/notify'
+    | '/api/public/telegram/seller-center'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -637,6 +648,7 @@ export interface FileRouteTypes {
     | '/api/public/telegram/$botId'
     | '/api/public/telegram/admin'
     | '/api/public/telegram/notify'
+    | '/api/public/telegram/seller-center'
   id:
     | '__root__'
     | '/'
@@ -695,6 +707,7 @@ export interface FileRouteTypes {
     | '/api/public/telegram/$botId'
     | '/api/public/telegram/admin'
     | '/api/public/telegram/notify'
+    | '/api/public/telegram/seller-center'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -731,6 +744,7 @@ export interface RootRouteChildren {
   ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
   ApiPublicTelegramAdminRoute: typeof ApiPublicTelegramAdminRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
+  ApiPublicTelegramSellerCenterRoute: typeof ApiPublicTelegramSellerCenterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1127,6 +1141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/telegram/seller-center': {
+      id: '/api/public/telegram/seller-center'
+      path: '/api/public/telegram/seller-center'
+      fullPath: '/api/public/telegram/seller-center'
+      preLoaderRoute: typeof ApiPublicTelegramSellerCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1229,6 +1250,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,
   ApiPublicTelegramAdminRoute: ApiPublicTelegramAdminRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
+  ApiPublicTelegramSellerCenterRoute: ApiPublicTelegramSellerCenterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

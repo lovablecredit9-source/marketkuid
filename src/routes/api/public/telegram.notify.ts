@@ -14,7 +14,10 @@ export const Route = createFileRoute("/api/public/telegram/notify")({
         const r = await drainNotifications(supabaseAdmin, siteBase());
         const { drainAdminNotifications } = await import("@/lib/admin-bot.server");
         const a = await drainAdminNotifications(supabaseAdmin, siteBase());
-        return Response.json({ ok: true, ...r, admin_sent: a.sent });
+        const { drainHubNotifications } = await import("@/lib/seller-hub.server");
+        let hub = 0;
+        try { hub = (await drainHubNotifications(supabaseAdmin, siteBase())).sent; } catch (e) { console.error("Seller hub drain failed", e); }
+        return Response.json({ ok: true, ...r, admin_sent: a.sent, seller_center_sent: hub });
       },
     },
   },

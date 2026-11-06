@@ -15,6 +15,7 @@ import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, useP
 import { DISPUTE_STATUS, isDisputeActive, useDispute, useDisputes, type DisputeStatus } from "@/lib/disputes";
 import { DisputeThread } from "@/components/marketku/dispute-thread";
 import { AdminBotTab } from "@/components/marketku/admin-bot-tab";
+import { HubBotAdminCard } from "@/components/marketku/seller-hub-ui";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
@@ -124,7 +125,7 @@ function Admin() {
           {tab === "produk" && <ProductsTab />}
           {tab === "pesanan" && <OrdersTab />}
           {tab === "kategori" && <CategoryRequestsTab />}
-          {tab === "bot" && <AdminBotTab />}
+          {tab === "bot" && <div className="space-y-3"><AdminBotTab /><HubBotAdminCard /></div>}
           {tab === "log" && <LogsTab />}
         </main>
       </div>
