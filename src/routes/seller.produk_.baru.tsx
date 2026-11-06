@@ -350,11 +350,11 @@ function ProductWizard() {
             {type === "otp" ? (
               <div>
                 <FieldLabel>Harga per OTP (Rp) <span className="text-destructive">*</span></FieldLabel>
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-sm text-muted-foreground">Rp</span>
-                  <FloatInput label="Contoh: 5.000" inputMode="numeric" missing={errors.length > 0} value={variants[0]?.price ?? ""}
+                <div className={`flex items-center overflow-hidden rounded-lg border focus-within:border-primary ${errors.length ? "border-destructive" : ""}`}>
+                  <span className="border-r bg-muted px-3 py-3 text-sm text-muted-foreground">Rp</span>
+                  <input inputMode="numeric" placeholder="Contoh: 5.000" value={variants[0]?.price ?? ""}
                     onChange={(e) => setVariants([{ ...(variants[0] ?? emptyVariant()), name: "Per OTP", lifetime: true, price: fmtThousands(e.target.value) }])}
-                    className="[&>input]:pl-10 [&>label]:left-10" />
+                    className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm outline-none" />
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">Pembeli membayar sekali per request OTP.</p>
               </div>
