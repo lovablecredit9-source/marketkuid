@@ -105,6 +105,18 @@ function ProductWizard() {
   const catName = categoryId ? categoryPath(cats.data ?? [], categoryId).map((c) => c.name).join(" › ") || undefined : undefined;
 
   const setV = (i: number, patch: Partial<VariantDraft>) => setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, ...patch } : v)));
+  async function onPickStockFiles(i: number, files: FileList | null) {
+    if (!user || !files?.length) return;
+    setFileBusy(i);
+    try {
+      const added: string[] = [];
+      for (const f of Array.from(files)) added.push(await uploadStockFile(user.id, f));
+      setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, stock: [...stockLines(v.stock), ...added].join("\n") } : v)));
+      toast.success(`${added.length} file diunggah`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal mengunggah file");
+    } finally { setFileBusy(null); }
+  }
 
   const validate = (k: StepKey) => {
     if (k === "info") {
