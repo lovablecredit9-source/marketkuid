@@ -390,6 +390,120 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_bot: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: number
+          is_active: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at: string | null
+          webhook_ok: boolean
+          webhook_secret: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name?: string
+          tg_bot_id?: number
+          token?: string
+          username?: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret?: string
+        }
+        Relationships: []
+      }
+      auth_bot_chats: {
+        Row: {
+          first_name: string | null
+          started_at: string
+          tg_user_id: number
+          tg_username: string | null
+        }
+        Insert: {
+          first_name?: string | null
+          started_at?: string
+          tg_user_id: number
+          tg_username?: string | null
+        }
+        Update: {
+          first_name?: string | null
+          started_at?: string
+          tg_user_id?: number
+          tg_username?: string | null
+        }
+        Relationships: []
+      }
+      auth_bot_updates: {
+        Row: {
+          created_at: string
+          update_id: number
+        }
+        Insert: {
+          created_at?: string
+          update_id: number
+        }
+        Update: {
+          created_at?: string
+          update_id?: number
+        }
+        Relationships: []
+      }
+      auth_login_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          magic_hash: string
+          tg_user_id: number
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          magic_hash: string
+          tg_user_id: number
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          magic_hash?: string
+          tg_user_id?: number
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
