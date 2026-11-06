@@ -1668,6 +1668,96 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_login_sessions: {
+        Row: {
+          automation: boolean
+          battery_charging: boolean | null
+          battery_level: number | null
+          browser: string | null
+          carrier: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_model: string | null
+          device_vendor: string | null
+          id: string
+          ip: string | null
+          is_mobile: boolean
+          is_real_device: boolean
+          isp: string | null
+          last_seen_at: string
+          network_downlink: number | null
+          network_effective: string | null
+          network_type: string | null
+          os_name: string | null
+          os_version: string | null
+          region: string | null
+          screen: string | null
+          timezone: string | null
+          user_agent: string | null
+          user_id: string
+          via: string
+        }
+        Insert: {
+          automation?: boolean
+          battery_charging?: boolean | null
+          battery_level?: number | null
+          browser?: string | null
+          carrier?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_model?: string | null
+          device_vendor?: string | null
+          id?: string
+          ip?: string | null
+          is_mobile?: boolean
+          is_real_device?: boolean
+          isp?: string | null
+          last_seen_at?: string
+          network_downlink?: number | null
+          network_effective?: string | null
+          network_type?: string | null
+          os_name?: string | null
+          os_version?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
+          user_agent?: string | null
+          user_id: string
+          via?: string
+        }
+        Update: {
+          automation?: boolean
+          battery_charging?: boolean | null
+          battery_level?: number | null
+          browser?: string | null
+          carrier?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_model?: string | null
+          device_vendor?: string | null
+          id?: string
+          ip?: string | null
+          is_mobile?: boolean
+          is_real_device?: boolean
+          isp?: string | null
+          last_seen_at?: string
+          network_downlink?: number | null
+          network_effective?: string | null
+          network_type?: string | null
+          os_name?: string | null
+          os_version?: string | null
+          region?: string | null
+          screen?: string | null
+          timezone?: string | null
+          user_agent?: string | null
+          user_id?: string
+          via?: string
+        }
+        Relationships: []
+      }
       seller_stores: {
         Row: {
           auto_withdraw: boolean

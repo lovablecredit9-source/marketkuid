@@ -344,6 +344,13 @@
       "when": 1793965216710,
       "tag": "0048_seller_hub_escrow_dispute_reply",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1793974362815,
+      "tag": "0049_seller_login_sessions",
+      "breakpoints": true
     }
   ]
 }
