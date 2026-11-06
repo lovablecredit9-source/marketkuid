@@ -65,3 +65,10 @@ export function adminNotifyText(kind: AdminNotifyKind, amount: number | null, la
     case "store": return `🏪 <b>Toko Baru Dibuka</b>\n\n🛍 ${l}\n\nCek toko di tab Toko.`;
   }
 }
+
+/** Shown when someone other than a linked admin opens the Marketku Center Mini App. */
+export const ADMIN_MINI_DENIED = "Maaf, Mini App ini hanya khusus admin Marketku. Kamu tidak punya akses.";
+/** Mini App sign-in is allowed only for a Telegram account linked to an account that still has the admin role. */
+export function canOpenAdminMiniApp(linkedUserId: string | null | undefined, stillAdmin: boolean) {
+  return !!linkedUserId && stillAdmin;
+}

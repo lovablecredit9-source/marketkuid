@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { clearSellerLocks } from "@/lib/chat";
 import { pageMeta } from "@/lib/meta";
+import { ADMIN_TG_INIT_KEY, hasTgInitData } from "@/lib/tg-miniapp";
 import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
 import { DISPUTE_STATUS, isDisputeActive, useDispute, useDisputes, type DisputeStatus } from "@/lib/disputes";
 import { DisputeThread } from "@/components/marketku/dispute-thread";
@@ -83,6 +84,8 @@ function Admin() {
   const signOut = async () => {
     await qc.cancelQueries(); qc.clear(); clearSellerLocks();
     await supabase.auth.signOut();
+    // Inside the Telegram Mini App the admin is signed straight back in from the verified Telegram account.
+    if (hasTgInitData(ADMIN_TG_INIT_KEY)) toast.info("Mini App admin masuk otomatis lagi lewat Telegram");
     navigate({ to: "/admin/login", replace: true });
   };
   const pending = stats.data?.deposits_pending ?? 0;

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -103,5 +104,27 @@ export const unlinkAdminTelegram = createServerFn({ method: "POST" })
     const admin = await requireAdmin(context.supabase, context.userId);
     const { error } = await admin.from("admin_bot_admins").delete().eq("tg_user_id", Number(data.id));
     if (error) throw new Error("Gagal memutus");
+    const { data: bot } = await admin.from("admin_bot").select("token").eq("id", 1).maybeSingle();
+    if (bot) {
+      const { setAdminMenuButton } = await import("@/lib/admin-bot.server");
+      await setAdminMenuButton(bot.token, Number(data.id), false);
+    }
     return { ok: true };
+  });
+
+/** Public: Telegram Mini App of the admin bot signs in only linked admins (initData is verified server-side). */
+export const adminMiniAppLogin = createServerFn({ method: "POST" })
+  .inputValidator((d: { initData: string }) => {
+    const initData = String(d?.initData ?? "");
+    if (!initData || initData.length > 4096 || !initData.includes("hash=")) throw new Error("Data Mini App tidak valid");
+    return { initData };
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { adminMiniAppSession } = await import("@/lib/admin-bot.server");
+    const meta = {
+      ip: (getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-forwarded-for") ?? "").split(",")[0]!.trim(),
+      ua: (getRequestHeader("user-agent") ?? "").slice(0, 400),
+    };
+    return adminMiniAppSession(supabaseAdmin, data.initData, meta);
   });

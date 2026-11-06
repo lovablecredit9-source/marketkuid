@@ -21,3 +21,14 @@ describe("Marketku Center admin bot", () => {
     expect(adminNotifyText("category", null, "<Game>")).toContain("&lt;Game&gt;");
   });
 });
+
+describe("Marketku Center admin Mini App access", () => {
+  it("only a Telegram account linked to a current admin may open the Mini App", async () => {
+    const { canOpenAdminMiniApp, ADMIN_MINI_DENIED } = await import("@/lib/admin-bot");
+    expect(canOpenAdminMiniApp("admin-uuid", true)).toBe(true);
+    expect(canOpenAdminMiniApp(null, false)).toBe(false);
+    expect(canOpenAdminMiniApp(undefined, true)).toBe(false);
+    expect(canOpenAdminMiniApp("ex-admin-uuid", false)).toBe(false);
+    expect(ADMIN_MINI_DENIED).toContain("hanya khusus admin");
+  });
+});

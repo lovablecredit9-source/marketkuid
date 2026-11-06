@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { siteBase, signedImage, tg } from "@/lib/telegram-bot.server";
+import { pageBase, siteBase, signedImage, tg } from "@/lib/telegram-bot.server";
+import { verifyInitData } from "@/lib/auth-bot";
 import {
-  ADMIN_COMMANDS, ADMIN_KEYBOARD, ADMIN_TAB, adminActionFromText, adminNotifyText, parseAdminLink,
+  ADMIN_COMMANDS, ADMIN_KEYBOARD, ADMIN_MINI_DENIED, ADMIN_TAB, adminActionFromText, adminNotifyText, canOpenAdminMiniApp, parseAdminLink,
   type AdminMenuAction, type AdminNotifyKind,
 } from "@/lib/admin-bot";
 
@@ -22,6 +23,25 @@ const when = (s: string) => new Date(s).toLocaleString("id-ID", { timeZone: "Asi
 /** Banner lives in private storage (dev host blocks static files); Telegram fetches it via a signed URL. */
 export const ADMIN_BANNER_PATH = "system/tg-admin-banner.jpg";
 const panel = (site: string, tab?: string) => `${site}/admin${tab ? `?tab=${tab}` : ""}`;
+/** Mini App entry: published host (dev host is auth-walled for Telegram's in-app browser). */
+export const adminMiniUrl = () => `${pageBase()}/admin/login`;
+
+/** Admin Mini App button only in linked admins' chats; everyone else keeps the plain commands menu. */
+export async function setAdminMenuButton(token: string, chatId: number, isAdmin: boolean) {
+  return tg(token, "setChatMenuButton", {
+    chat_id: chatId,
+    menu_button: isAdmin ? { type: "web_app", text: "Admin Console", web_app: { url: adminMiniUrl() } } : { type: "commands" },
+  });
+}
+
+async function syncAdminMenuButtons(admin: Admin, token: string) {
+  await tg(token, "setChatMenuButton", { menu_button: { type: "commands" } });
+  const { data: rows } = await admin.from("admin_bot_admins").select("tg_user_id, user_id");
+  for (const r of rows ?? []) {
+    const { data: ok } = await admin.from("user_roles").select("role").eq("user_id", r.user_id).eq("role", "admin").maybeSingle();
+    await setAdminMenuButton(token, r.tg_user_id, !!ok);
+  }
+}
 
 export async function registerAdminWebhook(bot: Pick<AdminBotRow, "token" | "webhook_secret">) {
   const r = await tg<boolean>(bot.token, "setWebhook", {
@@ -34,6 +54,10 @@ export async function registerAdminWebhook(bot: Pick<AdminBotRow, "token" | "web
     await tg(bot.token, "setMyCommands", { commands: ADMIN_COMMANDS });
     await tg(bot.token, "setMyDescription", { description: "Marketku Center — bot khusus admin Marketku: notifikasi deposit, withdraw, bukti bayar, dispute, kategori & toko baru." });
     await tg(bot.token, "setMyShortDescription", { short_description: "Bot admin Marketku Center" });
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await syncAdminMenuButtons(supabaseAdmin, bot.token);
+    } catch (e) { console.error("admin menu buttons", e); }
   }
   return r;
 }
@@ -60,6 +84,7 @@ const menuInline = (site: string, k: Awaited<ReturnType<typeof counts>>) => ({
     [{ text: `🏦 Withdraw (${k.wd})`, callback_data: "a:withdraw" }, { text: `⚠️ Dispute (${k.dis})`, callback_data: "a:dispute" }],
     [{ text: `🗂 Kategori (${k.cat})`, callback_data: "a:kategori" }, { text: "🏪 Toko Baru", callback_data: "a:toko" }],
     [{ text: "🔄 Refresh", callback_data: "a:home" }],
+    [{ text: "📱 Buka Mini App Admin", web_app: { url: adminMiniUrl() } }],
     [{ text: "🖥 Buka Admin Console", url: panel(site) }],
   ],
 });
@@ -158,6 +183,7 @@ export async function handleAdminUpdate(admin: Admin, bot: AdminBotRow, update: 
     }
     const name = [from.first_name, from.username ? `@${from.username}` : null].filter(Boolean).join(" ").slice(0, 80);
     await admin.from("admin_bot_admins").upsert({ tg_user_id: from.id, user_id: link.user_id, tg_name: name, linked_at: new Date().toISOString() });
+    await setAdminMenuButton(bot.token, chatId, true);
     await tg(bot.token, "sendMessage", {
       chat_id: chatId, parse_mode: "HTML",
       text: `✅ <b>Telegram terhubung sebagai admin Marketku</b>\n\nMulai sekarang notifikasi deposit, withdraw, bukti bayar, dispute, kategori dan toko baru dikirim ke sini.`,
@@ -170,6 +196,7 @@ export async function handleAdminUpdate(admin: Admin, bot: AdminBotRow, update: 
   const { data: me } = await admin.from("admin_bot_admins").select("user_id").eq("tg_user_id", from.id).maybeSingle();
   const { data: stillAdmin } = me ? await admin.from("user_roles").select("role").eq("user_id", me.user_id).eq("role", "admin").maybeSingle() : { data: null };
   if (!stillAdmin) {
+    if (me) await setAdminMenuButton(bot.token, chatId, false);
     if (update.callback_query) await tg(bot.token, "answerCallbackQuery", { callback_query_id: update.callback_query.id, text: "Khusus admin", show_alert: true });
     else await tg(bot.token, "sendMessage", {
       chat_id: chatId, parse_mode: "HTML",
@@ -219,4 +246,24 @@ export async function drainAdminNotifications(admin: Admin, site: string, limit 
     if (ok) sent++;
   }
   return { sent };
+}
+
+/** Telegram Mini App sign-in for Admin Console: initData signed by the admin bot, linked Telegram account, admin role re-checked. */
+export async function adminMiniAppSession(admin: Admin, initData: string, meta: { ip: string; ua: string }) {
+  const { data: bot } = await admin.from("admin_bot").select("token, is_active").eq("id", 1).maybeSingle();
+  if (!bot?.is_active) throw new Error("Mini App admin sedang tidak aktif");
+  const user = await verifyInitData(initData, bot.token);
+  if (!user) throw new Error(ADMIN_MINI_DENIED);
+  const { data: link } = await admin.from("admin_bot_admins").select("user_id").eq("tg_user_id", user.id).maybeSingle();
+  const { data: role } = link ? await admin.from("user_roles").select("role").eq("user_id", link.user_id).eq("role", "admin").maybeSingle() : { data: null };
+  if (!canOpenAdminMiniApp(link?.user_id, !!role)) throw new Error(ADMIN_MINI_DENIED);
+  const { sessionFor } = await import("@/lib/auth-bot.server");
+  const s = await sessionFor(admin, link!.user_id);
+  const { describeUA } = await import("@/lib/auth-bot");
+  const { device, browser } = describeUA(meta.ua);
+  await tg(bot.token, "sendMessage", {
+    chat_id: user.id, parse_mode: "HTML",
+    text: `🔐 <b>Login Admin Console</b>\n\n📱 Lewat: Telegram Mini App\n💻 ${esc(device)} · ${esc(browser)}\n🌐 IP: ${esc(meta.ip || "-")}\n🕒 ${when(new Date().toISOString())} WIB\n\nBukan kamu? Putuskan Telegram ini di Admin Console → Bot.`,
+  });
+  return { token_hash: s.token_hash };
 }

@@ -91,7 +91,7 @@ export async function requestLoginCode(admin: Admin, rawUsername: string, _site:
   return { bot: bot.username };
 }
 
-async function sessionFor(admin: Admin, userId: string) {
+export async function sessionFor(admin: Admin, userId: string) {
   const { data: u } = await admin.auth.admin.getUserById(userId);
   const email = u?.user?.email;
   if (!email) throw new Error("Akun tidak ditemukan");
