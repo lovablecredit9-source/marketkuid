@@ -33,3 +33,4 @@
 - Rekber (`rekber_deals`) changes only via `*_rekber` RPCs; buyers join via secret `share_token` — clients never write status or balances.
 - Stock availability always goes through `stock_available` — one rule for orders, fulfilment, counts.
 - Warranty/category-request status changes only via RPCs.
+- Admin Telegram bot "Marketku Center" is a singleton `admin_bot` (service-role only) managed from Admin Console → Bot via `admin-bot.functions.ts` (has_role check first); admins link via one-time `admin_bot_links`, alerts queued in `admin_tg_notifications` by insert triggers and drained by the webhook `/api/public/telegram/admin` + notify cron — token and admin data never reach the browser.
