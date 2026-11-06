@@ -67,3 +67,8 @@
 - [ ] Tes broadcast ke @jepangges lewat @MARKETKUIDR_bot (menunggu jepangges tekan /start di bot)
 - [x] Form 9 jenis produk marketku.id dicek ulang (hanya Code punya subtype di langkah Info)
 - [ ] Tes klaim garansi nyata di marketku.id (menunggu pembayaran QRIS Rp100 dari user)
+
+## Bot Telegram seperti RUMAH KAYU STORE / @seller_panelbot (Nov 6)
+- [x] Bot toko: kartu sambutan + tombol kategori, menu Top Up/Referral/Promo/Garansi/Tarik Saldo/Bantuan dengan tombol Kembali/Menu Utama
+- [ ] Bot Seller Panel untuk semua seller (notifikasi pesanan masuk, Dashboard/Produk/Pesanan/Keuangan/Voucher/Garansi/Profil/Broadcast/Lainnya, tombol Mini App ke Seller Center) — menunggu token bot baru dari user
+- [ ] Gambar kartu sambutan otomatis (profil toko, saldo, poin, referral, transaksi) dan saldo/poin di bot — butuh sistem poin & saldo bot
