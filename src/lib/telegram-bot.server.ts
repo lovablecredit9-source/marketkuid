@@ -141,9 +141,8 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
       owner_tg_id: from.id, owner_tg_name: (from.username ? `@${from.username}` : from.first_name ?? "").slice(0, 64) || null,
       owner_linked_at: new Date().toISOString(), owner_link_code: null, owner_link_expires: null,
     }).eq("id", bot.id);
-    bot = { ...bot, owner_tg_id: from.id };
-    await send("✅ <b>Telegram terhubung ke toko kamu!</b>\n\nMulai sekarang notifikasi pesanan baru, pembayaran, pesanan selesai, laporan masalah dan stok menipis dikirim otomatis ke chat ini.", sellerKb());
-    return sellerDashboardFor();
+    await send("✅ <b>Telegram terhubung ke toko kamu!</b>\n\nMulai sekarang notifikasi pesanan baru, pembayaran, pesanan selesai, laporan masalah dan stok menipis dikirim otomatis ke chat ini.\n\nTekan 📊 Dashboard untuk melihat ringkasan toko.", sellerKb());
+    return;
   }
 
   // Force-subscribe gate.

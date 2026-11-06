@@ -36,6 +36,13 @@ export const Route = createFileRoute("/api/public/telegram/$botId")({
         } catch (e) {
           console.error("Telegram update failed", e);
         }
+        // Piggy-back: flush any queued seller notifications (the minute schedule also does this).
+        try {
+          const { drainNotifications } = await import("@/lib/telegram-notify.server");
+          await drainNotifications(supabaseAdmin, new URL(request.url).origin, 10);
+        } catch (e) {
+          console.error("Telegram notify drain failed", e);
+        }
         return Response.json({ ok: true });
       },
     },
