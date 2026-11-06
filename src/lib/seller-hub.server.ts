@@ -2,7 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { pageBase, siteBase, tg } from "@/lib/telegram-bot.server";
 import { sellerNet } from "@/lib/telegram";
-import { HUB_COMMANDS, HUB_KEYBOARD, hubActionFromText, hubOrderCaption, parseHubLink, type HubAction, type HubKind } from "@/lib/seller-hub";
+import {
+  HUB_COMMANDS, HUB_KEYBOARD, ORDER_FILTER_STATUSES, ORDER_PAGE_SIZE, hubActionFromText, hubChatCaption, hubDisputeCaption, hubMethod,
+  hubOrderCaption, hubReleasedCaption, pageCount, parseHubLink, parseOrderCb, type HubAction, type HubKind, type OrderFilter,
+} from "@/lib/seller-hub";
 import { chatCard, dashboardCard, depositCard, orderCard, type OrderCardKind } from "@/lib/seller-hub-cards.server";
 
 type Admin = SupabaseClient<Database>;
@@ -10,7 +13,7 @@ export type HubBotRow = Database["public"]["Tables"]["seller_hub_bot"]["Row"];
 type TgUser = { id: number; first_name?: string; username?: string };
 type Update = {
   update_id: number;
-  message?: { chat: { id: number; type: string }; from?: TgUser; text?: string };
+  message?: { chat: { id: number; type: string }; from?: TgUser; text?: string; reply_to_message?: { message_id: number } };
   callback_query?: { id: string; from: TgUser; data?: string; message?: { chat: { id: number }; message_id: number } };
 };
 
@@ -337,12 +340,27 @@ export async function handleHubUpdate(admin: Admin, bot: HubBotRow, update: Upda
       return;
     }
     await tg(bot.token, "answerCallbackQuery", { callback_query_id: cq.id });
+    const data = cq.data ?? "";
+    const oc = parseOrderCb(data);
+    const detail = /^od:(\d{1,10})$/.exec(data);
+    if (oc || detail) {
+      const out = oc ? await ordersPage(admin, me.owner_id, oc.filter, oc.page, site) : await orderDetail(admin, me.owner_id, Number(detail![1]), site);
+      const mid = cq.message?.message_id;
+      // Edit the list in place (like the original bot); fall back to a new message for photo cards.
+      const r = mid ? await call(bot.token, "editMessageText", { chat_id: chatId, message_id: mid, text: out.text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: out.markup }) : { ok: false };
+      if (!r.ok) await deliver(bot.token, chatId, out);
+      return;
+    }
     const ok: HubAction[] = ["dash", "prod", "order", "fin", "voucher", "garansi", "profil", "broadcast", "more", "new", "laris"];
     if (!ok.includes(action)) return;
     await deliver(bot.token, chatId, await section(admin, me.owner_id, action, site));
     return;
   }
 
+  const replyTo = update.message?.reply_to_message?.message_id;
+  if (replyTo && text && !text.startsWith("/") && !hubActionFromText(text)) {
+    if (await replyToBuyer(admin, bot.token, me.owner_id, chatId, replyTo, text)) return;
+  }
   const action = hubActionFromText(text) ?? "dash";
   if (text.startsWith("/start")) await call(bot.token, "sendMessage", { chat_id: chatId, text: "👋 Selamat datang kembali di Marketku Seller Center!", reply_markup: replyKb() });
   await deliver(bot.token, chatId, await section(admin, me.owner_id, action, site));
