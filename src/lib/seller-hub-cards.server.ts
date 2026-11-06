@@ -106,7 +106,7 @@ export async function depositCard(d: { store: string; amount: number; method: st
     approved: { title: "Deposit Berhasil", label: "Disetujui", tone: "green" },
     rejected: { title: "Deposit Ditolak", label: "Ditolak", tone: "red" },
   };
-  const b = map[d.status] ?? map.pending!;
+  const b = map[d.status] ?? map["pending"]!;
   const c = await frame(b.title, d.purpose === "credits" ? "Top up Seller Credits" : "Top up Saldo Marketku", b, d.store);
   await field(c, 56, 230, "Metode", d.method ?? "-", 260);
   await field(c, 356, 230, "Tujuan", d.purpose === "credits" ? "Seller Credits" : "Saldo Marketku", 260);

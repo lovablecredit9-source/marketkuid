@@ -27,7 +27,7 @@ function stripStyle(m: unknown): unknown {
 }
 async function call(token: string, method: string, body: Record<string, unknown>) {
   const r = await tg(token, method, body);
-  if (!r.ok && body.reply_markup && /style|button/i.test(r.description ?? "")) return tg(token, method, { ...body, reply_markup: stripStyle(body.reply_markup) });
+  if (!r.ok && body["reply_markup"] && /style|button/i.test(r.description ?? "")) return tg(token, method, { ...body, reply_markup: stripStyle(body["reply_markup"]) });
   return r;
 }
 
@@ -105,7 +105,7 @@ async function dashboard(admin: Admin, owner: string) {
   };
 }
 
-type Out = { text: string; markup?: unknown; png?: Uint8Array };
+type Out = { text: string; markup?: unknown; png?: Uint8Array | undefined };
 
 async function section(admin: Admin, owner: string, action: HubAction, site: string): Promise<Out> {
   const store = await storeOf(admin, owner);
