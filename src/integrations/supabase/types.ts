@@ -228,6 +228,102 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_bot: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: number
+          is_active: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at: string | null
+          webhook_ok: boolean
+          webhook_secret: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name: string
+          tg_bot_id: number
+          token: string
+          username: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          is_active?: boolean
+          name?: string
+          tg_bot_id?: number
+          token?: string
+          username?: string
+          webhook_at?: string | null
+          webhook_ok?: boolean
+          webhook_secret?: string
+        }
+        Relationships: []
+      }
+      admin_bot_admins: {
+        Row: {
+          linked_at: string
+          tg_name: string | null
+          tg_user_id: number
+          user_id: string
+        }
+        Insert: {
+          linked_at?: string
+          tg_name?: string | null
+          tg_user_id: number
+          user_id: string
+        }
+        Update: {
+          linked_at?: string
+          tg_name?: string | null
+          tg_user_id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_bot_links: {
+        Row: {
+          code: string
+          expires_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          expires_at: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          expires_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_bot_updates: {
+        Row: {
+          created_at: string
+          update_id: number
+        }
+        Insert: {
+          created_at?: string
+          update_id: number
+        }
+        Update: {
+          created_at?: string
+          update_id?: number
+        }
+        Relationships: []
+      }
       admin_logs: {
         Row: {
           action: string
@@ -255,6 +351,42 @@ export type Database = {
           note?: string | null
           target_id?: string | null
           target_type?: string
+        }
+        Relationships: []
+      }
+      admin_tg_notifications: {
+        Row: {
+          amount: number | null
+          attempts: number
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          label: string | null
+          ref_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          label?: string | null
+          ref_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          ref_id?: string | null
+          sent_at?: string | null
         }
         Relationships: []
       }
