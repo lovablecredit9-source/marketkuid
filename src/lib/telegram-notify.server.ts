@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { tg } from "@/lib/telegram-bot.server";
+import { signedImage, tg } from "@/lib/telegram-bot.server";
 import { LOW_STOCK, notifyText, type NotifyKind } from "@/lib/telegram";
 
 type Admin = SupabaseClient<Database>;
@@ -20,7 +20,7 @@ export async function drainNotifications(admin: Admin, site: string, limit = 25)
   const [{ data: bots }, { data: orders }, { data: items }] = await Promise.all([
     admin.from("telegram_bots").select("id, token, is_active").in("id", botIds),
     orderIds.length ? admin.from("orders").select("id, order_no, total, subtotal, discount, payment_method, buyer_name, buyer_note, status").in("id", orderIds) : Promise.resolve({ data: [] }),
-    orderIds.length ? admin.from("order_items").select("order_id, product_id, variant_id, product_name, variant_name, qty, unit_price").in("order_id", orderIds) : Promise.resolve({ data: [] }),
+    orderIds.length ? admin.from("order_items").select("order_id, product_id, image_path, variant_id, product_name, variant_name, qty, unit_price").in("order_id", orderIds) : Promise.resolve({ data: [] }),
   ]);
   const botMap = new Map((bots ?? []).map((b) => [b.id, b]));
   const orderMap = new Map((orders ?? []).map((o) => [o.id, o]));
@@ -39,10 +39,10 @@ export async function drainNotifications(admin: Admin, site: string, limit = 25)
       method: o?.payment_method ?? null, buyer: o?.buyer_name ?? null, note: o?.buyer_note ?? null,
       items: its.map((i) => ({ name: i.product_name, variant: i.variant_name, qty: i.qty, price: Number(i.unit_price) })),
     });
-    const res = await tg(bot.token, "sendMessage", {
-      chat_id: r.chat_id, text, parse_mode: "HTML", disable_web_page_preview: true,
-      reply_markup: { inline_keyboard: [[{ text: "📋 Buka Pesanan", url: `${site}/seller/transaksi` }]] },
-    });
+    const markup = { inline_keyboard: [[{ text: "📋 Buka Pesanan", url: `${site}/seller/transaksi` }]] };
+    const photo = text.length <= 1024 ? await signedImage(admin, its.find((i) => i.image_path)?.image_path) : null;
+    let res = photo ? await tg(bot.token, "sendPhoto", { chat_id: r.chat_id, photo, caption: text, parse_mode: "HTML", reply_markup: markup }) : { ok: false };
+    if (!res.ok) res = await tg(bot.token, "sendMessage", { chat_id: r.chat_id, text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: markup });
     await admin.from("telegram_notifications").update(
       res.ok ? { sent_at: new Date().toISOString(), attempts: r.attempts + 1 } : { attempts: r.attempts + 1, error: (res.description ?? "gagal").slice(0, 200) },
     ).eq("id", r.id);
