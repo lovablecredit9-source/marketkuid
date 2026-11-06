@@ -22,6 +22,13 @@ export function siteBase() {
   return `https://${host}`;
 }
 
+const PUBLISHED_SITE = "https://marketkuid.lovable.app";
+/** Pages people open from Telegram (Mini App, login links): the dev host only serves webhooks, its pages are private. */
+export function pageBase() {
+  const site = siteBase();
+  return /^https:\/\/project--[0-9a-f-]+-dev\./.test(site) ? PUBLISHED_SITE : site;
+}
+
 export type TgResult<T> = { ok: boolean; result?: T; description?: string };
 export async function tg<T = unknown>(token: string, method: string, body: Record<string, unknown> = {}): Promise<TgResult<T>> {
   try {

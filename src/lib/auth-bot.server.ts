@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { siteBase, tg } from "@/lib/telegram-bot.server";
+import { pageBase, siteBase, tg } from "@/lib/telegram-bot.server";
 import { AUTH_CODE_MINUTES, AUTH_MAX_ATTEMPTS, AUTH_RESEND_SECONDS, describeUA, loginCodeText, loginOkText, normalizeTgUsername, verifyInitData } from "@/lib/auth-bot";
 
 type Admin = SupabaseClient<Database>;
@@ -14,9 +14,9 @@ const randomHex = (n: number) => Array.from(crypto.getRandomValues(new Uint8Arra
 const randomCode = () => String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0]! % 900000));
 
 export async function registerAuthWebhook(bot: Pick<AuthBotRow, "token" | "webhook_secret">) {
-  const site = siteBase();
+  const site = pageBase();
   const r = await tg<boolean>(bot.token, "setWebhook", {
-    url: `${site}/api/public/telegram/auth`, secret_token: bot.webhook_secret, allowed_updates: ["message"], drop_pending_updates: true,
+    url: `${siteBase()}/api/public/telegram/auth`, secret_token: bot.webhook_secret, allowed_updates: ["message"], drop_pending_updates: true,
   });
   if (r.ok) {
     await tg(bot.token, "setMyCommands", { commands: [{ command: "start", description: "Aktifkan kode login Seller Center" }] });
@@ -43,7 +43,8 @@ export async function ownerForTg(admin: Admin, tgUserId: number, username: strin
   return hit?.owner_id ?? null;
 }
 
-export async function handleAuthUpdate(admin: Admin, bot: AuthBotRow, update: Update, site: string) {
+export async function handleAuthUpdate(admin: Admin, bot: AuthBotRow, update: Update, _site: string) {
+  const site = pageBase();
   const m = update.message;
   if (!m?.from || m.chat.type !== "private" || m.from.is_bot) return;
   const from = m.from;
@@ -61,7 +62,8 @@ export async function handleAuthUpdate(admin: Admin, bot: AuthBotRow, update: Up
   });
 }
 
-export async function requestLoginCode(admin: Admin, rawUsername: string, site: string) {
+export async function requestLoginCode(admin: Admin, rawUsername: string, _site: string) {
+  const site = pageBase();
   const bot = await getAuthBot(admin);
   if (!bot?.is_active) throw new Error("Login Telegram sedang tidak tersedia");
   const u = normalizeTgUsername(rawUsername);

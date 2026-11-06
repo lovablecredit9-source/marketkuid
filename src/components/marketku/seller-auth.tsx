@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, Lock, Mail, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardPaste, Eye, EyeOff, Loader2, Lock, Mail, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrorText } from "@/lib/auth";
@@ -110,10 +110,10 @@ export function SellerAuth({ presetEmail, onDone }: { presetEmail?: string; onDo
     email: ["Masuk ke Akun", "Masukkan email untuk masuk atau buat akun baru."],
     password: ["Masukkan Password", email],
     tg: ["Masuk via Telegram", "Login dengan kode dari bot Telegram."],
-    code: ["Masukkan Kode", `Kode 6 angka dikirim ke Telegram @${normalizeTgUsername(tgUser) ?? tgUser}.`],
+    code: ["Masuk via Telegram", "Login dengan kode dari bot Telegram."],
   };
   const [title, sub] = titles[step];
-  const primaryLabel = { email: "Lanjutkan", password: "Masuk", tg: "Kirim Kode Login", code: "Masuk" }[step];
+  const primaryLabel = { email: "Lanjutkan", password: "Masuk", tg: "Kirim Kode Login", code: "Verifikasi & Masuk" }[step];
   const soft = (step === "tg" && !normalizeTgUsername(tgUser)) || (step === "code" && code.length !== 6);
 
   return (
@@ -129,7 +129,23 @@ export function SellerAuth({ presetEmail, onDone }: { presetEmail?: string; onDo
             </Field>
           )}
           {step === "tg" && <Field icon={<Send className="h-5 w-5" />} autoFocus value={tgUser} onChange={(e) => setTgUser(e.target.value)} placeholder="Username Telegram" aria-label="Username Telegram" autoCapitalize="none" autoCorrect="off" />}
-          {step === "code" && <Field icon={<KeyRound className="h-5 w-5" />} autoFocus inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Kode login 6 angka" aria-label="Kode login" />}
+          {step === "code" && (
+            <>
+              <p className="flex items-center gap-2.5 rounded-xl border border-success/40 bg-success/10 px-4 py-3 text-[14px] font-medium text-success"><CheckCircle2 className="h-5 w-5 shrink-0" /> Kode login telah dikirim ke Telegram Anda.</p>
+              <p className="mx-auto flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-4 py-1.5 text-[13px] font-semibold text-primary"><Send className="h-4 w-4" /> @{normalizeTgUsername(tgUser) ?? tgUser}</p>
+              <p className="pt-1 text-center text-[14px] text-muted-foreground">Masukkan 6 digit kode dari bot Telegram.</p>
+              <div className="relative mx-auto flex w-fit gap-2.5">
+                {Array.from({ length: 6 }, (_, i) => (
+                  <span key={i} className={`grid h-11 w-10 place-items-center rounded-lg border text-lg font-bold transition ${i === Math.min(code.length, 5) ? "border-primary ring-2 ring-primary/15" : ""}`}>{code[i] ?? ""}</span>
+                ))}
+                <input autoFocus inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} aria-label="Kode login"
+                  className="absolute inset-0 h-full w-full cursor-text bg-transparent text-transparent caret-transparent outline-none" />
+              </div>
+              <p className="text-center text-[13px] text-muted-foreground">Belum melihat kode? <a href={bot ? `https://t.me/${bot}` : "#"} target="_blank" rel="noreferrer" className="ml-1 font-semibold text-primary">Buka @{bot}</a></p>
+              <button type="button" onClick={async () => { try { const t = await navigator.clipboard.readText(); const d = t.replace(/\D/g, "").slice(0, 6); if (d.length === 6) setCode(d); else toast.error("Tidak ada kode 6 angka di clipboard"); } catch { toast.error("Izinkan akses clipboard atau ketik kodenya"); } }}
+                className="flex h-[46px] w-full items-center justify-center gap-2 rounded-xl border text-[15px] font-semibold transition active:scale-[0.98]"><ClipboardPaste className="h-4 w-4" /> Tempel Kode</button>
+            </>
+          )}
           <button disabled={busy} className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-xl text-[17px] font-bold transition active:scale-[0.98] disabled:opacity-70 ${soft ? "seller-auth-btn-soft" : "seller-auth-btn"}`}>
             {busy && <Loader2 className="h-4 w-4 animate-spin" />} {primaryLabel}
           </button>
@@ -165,12 +181,15 @@ export function SellerAuth({ presetEmail, onDone }: { presetEmail?: string; onDo
           </>
         )}
         {step === "code" && (
-          <div className="mt-4 flex items-center justify-between text-sm">
-            <button type="button" onClick={() => setStep("tg")} className="flex items-center gap-1.5 text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Ganti username</button>
-            <button type="button" disabled={wait > 0 || busy} onClick={() => void sendCode()} className="font-semibold text-primary disabled:text-muted-foreground">
-              {wait > 0 ? `Kirim ulang (${wait}s)` : "Kirim ulang kode"}
-            </button>
-          </div>
+          <>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-[14px]">
+              <button type="button" onClick={() => setStep("tg")} className="flex h-[44px] items-center justify-center gap-1.5 rounded-xl border font-semibold transition active:scale-95"><ArrowLeft className="h-4 w-4" /> Ganti username</button>
+              <button type="button" disabled={wait > 0 || busy} onClick={() => void sendCode()} className="flex h-[44px] items-center justify-center rounded-xl border font-semibold text-primary transition active:scale-95 disabled:text-muted-foreground disabled:opacity-60">
+                {wait > 0 ? `Kirim ulang (${wait}s)` : "Kirim ulang"}
+              </button>
+            </div>
+            <button type="button" onClick={() => setStep(presetEmail ? "password" : "email")} className="mx-auto mt-5 flex items-center gap-1.5 text-[15px] text-muted-foreground"><ArrowLeft className="h-4 w-4" /> Gunakan Email</button>
+          </>
         )}
         {presetEmail && step !== "code" && (
           <Link to="/akun" className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground"><ArrowLeft className="h-3.5 w-3.5" /> Kembali ke akun pembeli</Link>
