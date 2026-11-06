@@ -60,6 +60,7 @@ export async function registerHubWebhook(bot: Pick<HubBotRow, "token" | "webhook
     await tg(bot.token, "setMyCommands", { commands: HUB_COMMANDS });
     await tg(bot.token, "setMyDescription", { description: "Marketku Seller Center — dashboard toko & notifikasi realtime: pesanan baru, pembayaran, pembatalan, habis waktu, chat pembeli dan deposit." });
     await tg(bot.token, "setMyShortDescription", { short_description: "Dashboard & notifikasi seller Marketku" });
+    await tg(bot.token, "setChatMenuButton", { menu_button: { type: "web_app", text: "Seller Center", web_app: { url: `${siteBase()}/seller` } } });
   }
   return r;
 }
