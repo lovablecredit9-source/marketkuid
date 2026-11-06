@@ -12,7 +12,9 @@ export const Route = createFileRoute("/api/public/telegram/notify")({
         const { drainNotifications } = await import("@/lib/telegram-notify.server");
         const { siteBase } = await import("@/lib/telegram-bot.server");
         const r = await drainNotifications(supabaseAdmin, siteBase());
-        return Response.json({ ok: true, ...r });
+        const { drainAdminNotifications } = await import("@/lib/admin-bot.server");
+        const a = await drainAdminNotifications(supabaseAdmin, siteBase());
+        return Response.json({ ok: true, ...r, admin_sent: a.sent });
       },
     },
   },
