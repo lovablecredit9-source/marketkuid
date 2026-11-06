@@ -94,3 +94,9 @@
 - [x] Uji login via kode (2x) & link otomatis, Mini App masuk otomatis + tetap masuk setelah logout
 - [ ] Publish agar Mini App & link Login Otomatis di HP memakai versi baru (alamat preview tidak bisa dibuka dari Telegram)
 - [x] Login Telegram di panel.marketku.id dicoba (jbapppremandpanelsosmed) dan langkah kode disamakan
+
+## Cek bug seluruh web (Nov 6)
+- [x] Daftar seller (nama toko + username Telegram) diperbaiki
+- [x] 50+ halaman pembeli, Seller Center, admin dibuka tanpa login & sebagai seller Tambas — tanpa error tampilan
+- [x] Tautan produk/ulasan/pesanan/bayar/chat yang salah kini tampil "tidak ditemukan" (sebelumnya error/macet "Memuat pembayaran...")
+- [x] Halaman 404/error berbahasa Indonesia; admin tidak memanggil data sebelum masuk
