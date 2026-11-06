@@ -14,8 +14,7 @@ import { pageMeta } from "@/lib/meta";
 import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
 import { DISPUTE_STATUS, isDisputeActive, useDispute, useDisputes, type DisputeStatus } from "@/lib/disputes";
 import { DisputeThread } from "@/components/marketku/dispute-thread";
-import { useServerFn } from "@tanstack/react-start";
-import { connectAdminBot, createAdminBotLink, deleteAdminBot, getAdminBot, setAdminBotActive, unlinkAdminTelegram } from "@/lib/admin-bot.functions";
+import { AdminBotTab } from "@/components/marketku/admin-bot-tab";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
