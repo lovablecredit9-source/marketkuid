@@ -14,6 +14,8 @@ import { pageMeta } from "@/lib/meta";
 import { depositStatus, uploadPaymentImage, useIsAdmin, usePaymentSettings, usePaymentUrls } from "@/lib/wallet";
 import { DISPUTE_STATUS, isDisputeActive, useDispute, useDisputes, type DisputeStatus } from "@/lib/disputes";
 import { DisputeThread } from "@/components/marketku/dispute-thread";
+import { useServerFn } from "@tanstack/react-start";
+import { connectAdminBot, createAdminBotLink, deleteAdminBot, getAdminBot, setAdminBotActive, unlinkAdminTelegram } from "@/lib/admin-bot.functions";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
@@ -37,6 +39,7 @@ const TABS = [
   { key: "produk", label: "Produk", icon: Package },
   { key: "pesanan", label: "Pesanan", icon: Receipt },
   { key: "kategori", label: "Kategori", icon: Plus },
+  { key: "bot", label: "Bot", icon: Send },
   { key: "log", label: "Log", icon: History },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
@@ -57,6 +60,10 @@ function Admin() {
   const { user, ready } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
   const [tab, setTab] = useState<Tab>("ringkasan");
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t && TABS.some((x) => x.key === t)) setTab(t as Tab);
+  }, []);
   const denied = ready && (!user || isAdmin.data === false);
   useEffect(() => { if (denied) navigate({ to: "/admin/login", replace: true }); }, [denied, navigate]);
   const stats = useStats();
@@ -118,6 +125,7 @@ function Admin() {
           {tab === "produk" && <ProductsTab />}
           {tab === "pesanan" && <OrdersTab />}
           {tab === "kategori" && <CategoryRequestsTab />}
+          {tab === "bot" && <AdminBotTab />}
           {tab === "log" && <LogsTab />}
         </main>
       </div>
