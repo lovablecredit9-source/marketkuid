@@ -79,5 +79,7 @@
 - [x] Bot platform untuk semua seller: hubungkan dari Seller Center → Bot Telegram, menu Dashboard/Produk/Pesanan/Keuangan/Voucher/Garansi/Profil/Broadcast/Lainnya
 - [x] Notifikasi bergambar otomatis (bukan AI): pesanan baru belum dibayar, dibayar, selesai, dibatalkan, habis waktu, chat pembeli, deposit
 - [x] Bot @MarketkuSellerCenter_bot dibuat di BotFather & dipasang di Admin → Bot (webhook aktif)
-- [ ] Hubungkan seller Tambas ke bot + uji tombol & gambar di Telegram (menunggu kode login Telegram baru)
-- [ ] Uji pembeli chat & pesan di Rumah Kayu → notifikasi masuk
+- [x] Seller Tambas terhubung ke bot; semua tombol menu + kartu Dashboard bergambar diuji di Telegram
+- [x] Pembeli uji chat + pesan + batal → 3 notifikasi terkirim ke Telegram seller
+- [ ] Publish agar notifikasi otomatis tiap menit memakai versi baru (tunggu persetujuan user)
+- [ ] Lihat langsung gambar notifikasi chat/pesanan/batal di Telegram (sesi Telegram hilang saat sistem restart)
