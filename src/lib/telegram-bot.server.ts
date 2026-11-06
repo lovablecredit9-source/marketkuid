@@ -100,7 +100,6 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
   const send = async (text: string, markup?: unknown) => {
     const body = { chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true };
     const r = await T("sendMessage", { ...body, ...(markup ? { reply_markup: markup } : {}) });
-    { const fs = await import("node:fs"); fs.appendFileSync("/tmp/tgk/err.log", "SEND " + JSON.stringify(r).slice(0, 300) + "\n"); }
     if (!r.ok && markup) return T("sendMessage", { ...body, reply_markup: stripStyle(markup) });
     return r;
   };

@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/telegram/$botId")({
         try {
           await handleUpdate(supabaseAdmin, bot, update as Parameters<typeof handleUpdate>[2], new URL(request.url).origin);
         } catch (e) {
-          console.error("Telegram update failed", e); require_debug: { const fs = await import("node:fs"); fs.appendFileSync("/tmp/tgk/err.log", String((e as Error)?.stack ?? e) + "\n"); }
+          console.error("Telegram update failed", e); return Response.json({ ok: true, dbg: String((e as Error)?.stack ?? e).slice(0, 800) });
         }
         // Piggy-back: flush any queued seller notifications (the minute schedule also does this).
         try {
