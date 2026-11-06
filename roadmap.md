@@ -70,5 +70,6 @@
 
 ## Bot Telegram seperti RUMAH KAYU STORE / @seller_panelbot (Nov 6)
 - [x] Bot toko: kartu sambutan + tombol kategori, menu Top Up/Referral/Promo/Garansi/Tarik Saldo/Bantuan dengan tombol Kembali/Menu Utama
-- [ ] Bot Seller Panel untuk semua seller (notifikasi pesanan masuk, Dashboard/Produk/Pesanan/Keuangan/Voucher/Garansi/Profil/Broadcast/Lainnya, tombol Mini App ke Seller Center) — menunggu token bot baru dari user
+- [x] Menu seller di bot toko sendiri: hubungkan Telegram pemilik, notifikasi otomatis (pesanan baru/dibayar/selesai/laporan/stok menipis), Dashboard/Produk on-off/Pesanan/Keuangan/Lainnya, pilih jumlah beli +/-, menu perintah /
+- [ ] Bot Seller Panel terpisah untuk semua seller (seperti @seller_panelbot) — menunggu token bot baru dari user
 - [ ] Gambar kartu sambutan otomatis (profil toko, saldo, poin, referral, transaksi) dan saldo/poin di bot — butuh sistem poin & saldo bot
