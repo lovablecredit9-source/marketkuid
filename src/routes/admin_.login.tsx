@@ -1,12 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, Mail, ShieldCheck, ShieldX } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrorText, useAuth } from "@/lib/auth";
 import { pageMeta } from "@/lib/meta";
 import { useIsAdmin } from "@/lib/wallet";
+import { adminMiniAppLogin } from "@/lib/admin-bot.functions";
+import { ADMIN_MINI_DENIED } from "@/lib/admin-bot";
+import { ADMIN_TG_INIT_KEY, readTgInitData } from "@/lib/tg-miniapp";
 
 export const Route = createFileRoute("/admin_/login")({
   head: () => {
@@ -26,8 +30,32 @@ function AdminLogin() {
   const [pass, setPass] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [mini, setMini] = useState<"idle" | "auto" | "denied">("idle");
+  const [deniedMsg, setDeniedMsg] = useState(ADMIN_MINI_DENIED);
+  const miniFn = useServerFn(adminMiniAppLogin);
 
   useEffect(() => { if (isAdmin.data) navigate({ to: "/admin", replace: true }); }, [isAdmin.data, navigate]);
+
+  // Opened from the Marketku Center bot (Telegram Mini App): sign in linked admins automatically, refuse everyone else.
+  useEffect(() => {
+    if (!ready || isAdmin.data) return;
+    const initData = readTgInitData(ADMIN_TG_INIT_KEY);
+    if (!initData) return;
+    setMini("auto");
+    void (async () => {
+      try {
+        const r = await miniFn({ data: { initData } });
+        const { data, error } = await supabase.auth.verifyOtp({ token_hash: r.token_hash, type: "magiclink" });
+        if (error || !data.user) throw new Error(authErrorText(error?.message ?? ""));
+        qc.setQueryData(["is_admin", data.user.id], true);
+        navigate({ to: "/admin", replace: true });
+      } catch (e) {
+        setDeniedMsg(e instanceof Error && e.message ? e.message : ADMIN_MINI_DENIED);
+        setMini("denied");
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, isAdmin.data]);
 
   const submit = async () => {
     if (busy || !email || !pass) return;
@@ -47,6 +75,28 @@ function AdminLogin() {
     toast.success("Selamat datang, Admin");
     navigate({ to: "/admin", replace: true });
   };
+
+  if (mini !== "idle") {
+    return (
+      <div className="admin-panel flex min-h-screen items-center justify-center px-5">
+        <div className="mk-fade-in w-full max-w-sm rounded-3xl border bg-card p-6 text-center shadow-2xl">
+          {mini === "auto" ? (
+            <>
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+              <p className="mt-4 font-bold">Masuk lewat Telegram</p>
+              <p className="mt-1 text-sm text-muted-foreground">Memeriksa akses admin Marketku Center…</p>
+            </>
+          ) : (
+            <>
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-destructive/10 text-destructive"><ShieldX className="h-7 w-7" /></span>
+              <h1 className="mt-4 text-lg font-bold">Akses ditolak</h1>
+              <p className="mt-2 text-sm text-muted-foreground">{deniedMsg}</p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-panel relative flex min-h-screen items-center justify-center overflow-hidden px-5">
