@@ -307,7 +307,7 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
     const body = rows.length
       ? rows.map((o) => `${label[o.status] ?? o.status} · <code>M-${o.order_no}</code>\n${esc(o.order_items[0]?.product_name ?? "-")} · ${o.order_items.reduce((a, i) => a + i.qty, 0)}x · ${rp(Number(o.total))}\n🕒 ${new Date(o.created_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}`).join("\n\n")
       : "Belum ada pesanan.";
-    return send(`🧾 <b>Pesanan — ${rows.length}</b>\n━━━━━━━━━━━━━━━\n\n${body}`, { inline_keyboard: [[{ text: "📋 Semua Pesanan", url: `${site}/seller/pesanan` }]] });
+    return send(`🧾 <b>Pesanan — ${rows.length}</b>\n━━━━━━━━━━━━━━━\n\n${body}`, { inline_keyboard: [[{ text: "📋 Semua Pesanan", url: `${site}/seller/transaksi` }]] });
   };
 
   const sellerFinance = async () => {

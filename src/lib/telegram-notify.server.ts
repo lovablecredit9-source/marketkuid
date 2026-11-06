@@ -41,7 +41,7 @@ export async function drainNotifications(admin: Admin, site: string, limit = 25)
     });
     const res = await tg(bot.token, "sendMessage", {
       chat_id: r.chat_id, text, parse_mode: "HTML", disable_web_page_preview: true,
-      reply_markup: { inline_keyboard: [[{ text: "📋 Buka Pesanan", url: `${site}/seller/pesanan` }]] },
+      reply_markup: { inline_keyboard: [[{ text: "📋 Buka Pesanan", url: `${site}/seller/transaksi` }]] },
     });
     await admin.from("telegram_notifications").update(
       res.ok ? { sent_at: new Date().toISOString(), attempts: r.attempts + 1 } : { attempts: r.attempts + 1, error: (res.description ?? "gagal").slice(0, 200) },
