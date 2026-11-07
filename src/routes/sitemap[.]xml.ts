@@ -42,19 +42,29 @@ export const Route = createFileRoute("/sitemap.xml")({
           offset += data.length;
         }
 
-        // Stores that have public products.
+        // Stores that have public products (their link names are also needed for product links).
         const storeRoute = "/toko/$slug";
+        const storeSlug = new Map<string, string>();
+        const ids = [...owners].sort();
+        for (let i = 0; i < ids.length; i += 200) {
+          const { data, error } = await supabase.rpc("public_stores", { p_ids: ids.slice(i, i + 200) });
+          if (error) throw error;
+          for (const s of data ?? []) storeSlug.set(s.owner_id, s.slug || s.owner_id);
+        }
         if (isSitemapRouteIncluded(router.routesById[storeRoute])) {
-          const ids = [...owners].sort();
-          for (let i = 0; i < ids.length; i += 200) {
-            const { data, error } = await supabase.rpc("public_stores", { p_ids: ids.slice(i, i + 200) });
-            if (error) throw error;
-            for (const s of data ?? []) {
-              // Same link the product page uses: slug, or the owner id for stores without one.
-              const location = router.buildLocation({ to: "/toko/$slug", params: { slug: s.slug || s.owner_id }, search: () => ({}), hash: "" });
-              const path = sitemapPathForLocation(router, location, storeRoute);
-              if (path) entries.push({ path });
-            }
+          for (const slug of storeSlug.values()) {
+            const location = router.buildLocation({ to: "/toko/$slug", params: { slug }, search: () => ({}), hash: "" });
+            const path = sitemapPathForLocation(router, location, storeRoute);
+            if (path) entries.push({ path });
+          }
+        }
+        // Products: /produk/<nama-toko>/<nama-produk>, same link the product page uses.
+        if (isSitemapRouteIncluded(router.routesById[productRoute])) {
+          for (const row of productRows) {
+            const params = { toko: storeSlug.get(row.owner_id) ?? row.owner_id, produk: row.slug ?? row.id };
+            const location = router.buildLocation({ to: "/produk/$toko/$produk", params, search: () => ({}), hash: "" });
+            const path = sitemapPathForLocation(router, location, productRoute);
+            if (path) entries.push({ path, lastmod: row.updated_at });
           }
         }
 

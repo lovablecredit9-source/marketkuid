@@ -74,6 +74,7 @@ import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
 import { Route as USlugRouteImport } from './routes/u.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
 import { Route as KategoriProductSlugRouteImport } from './routes/$kategori.product.$slug'
+import { Route as ProdukTokoProdukRouteImport } from './routes/produk.$toko.$produk'
 import { Route as SellerChatIdRouteImport } from './routes/seller.chat_.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
@@ -409,6 +410,11 @@ const KategoriProductSlugRoute = KategoriProductSlugRouteImport.update({
   path: '/$kategori/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdukTokoProdukRoute = ProdukTokoProdukRouteImport.update({
+  id: '/produk/$toko/$produk',
+  path: '/produk/$toko/$produk',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerChatIdRoute = SellerChatIdRouteImport.update({
   id: '/chat_/$id',
   path: '/chat/$id',
@@ -523,6 +529,7 @@ export interface FileRoutesByFullPath {
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
+  '/produk/$toko/$produk': typeof ProdukTokoProdukRoute
   '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -598,6 +605,7 @@ export interface FileRoutesByTo {
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
+  '/produk/$toko/$produk': typeof ProdukTokoProdukRoute
   '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -675,6 +683,7 @@ export interface FileRoutesById {
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
+  '/produk/$toko/$produk': typeof ProdukTokoProdukRoute
   '/seller/chat_/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
@@ -753,6 +762,7 @@ export interface FileRouteTypes {
     | '/ulasan/$id'
     | '/seller/'
     | '/$kategori/product/$slug'
+    | '/produk/$toko/$produk'
     | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -828,6 +838,7 @@ export interface FileRouteTypes {
     | '/ulasan/$id'
     | '/seller'
     | '/$kategori/product/$slug'
+    | '/produk/$toko/$produk'
     | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -904,6 +915,7 @@ export interface FileRouteTypes {
     | '/ulasan/$id'
     | '/seller/'
     | '/$kategori/product/$slug'
+    | '/produk/$toko/$produk'
     | '/seller/chat_/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
@@ -960,6 +972,7 @@ export interface RootRouteChildren {
   USlugRoute: typeof USlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
   KategoriProductSlugRoute: typeof KategoriProductSlugRoute
+  ProdukTokoProdukRoute: typeof ProdukTokoProdukRoute
   KategoriProductSlugReviewsRoute: typeof KategoriProductSlugReviewsRoute
   ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
   ApiPublicTelegramAdminRoute: typeof ApiPublicTelegramAdminRoute
@@ -1425,6 +1438,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KategoriProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produk/$toko/$produk': {
+      id: '/produk/$toko/$produk'
+      path: '/produk/$toko/$produk'
+      fullPath: '/produk/$toko/$produk'
+      preLoaderRoute: typeof ProdukTokoProdukRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/chat_/$id': {
       id: '/seller/chat_/$id'
       path: '/chat/$id'
@@ -1603,6 +1623,7 @@ const rootRouteChildren: RootRouteChildren = {
   USlugRoute: USlugRoute,
   UlasanIdRoute: UlasanIdRoute,
   KategoriProductSlugRoute: KategoriProductSlugRoute,
+  ProdukTokoProdukRoute: ProdukTokoProdukRoute,
   KategoriProductSlugReviewsRoute: KategoriProductSlugReviewsRoute,
   ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,
   ApiPublicTelegramAdminRoute: ApiPublicTelegramAdminRoute,
