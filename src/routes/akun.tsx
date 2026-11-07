@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import {
   Settings, RefreshCw, ArrowUpRight, Coins, ShoppingBag, Heart, ShoppingCart, Gift, MessageCircle, Clock,
   ShieldAlert, ShieldCheck, Bell, Moon, HelpCircle, Send, Store, LogOut, Wallet, Sparkles, ExternalLink,
-  Package, CircleCheck,
+  Package, CircleCheck, GitCompareArrows,
 } from "lucide-react";
 import { AppShell, MenuRow, Section, soon, toggleDark } from "@/components/marketku/shell";
 import { SellerSheet } from "@/components/marketku/seller-sheet";
