@@ -11,6 +11,10 @@ import { dbError, parseItems, unitPrice, type Discount } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
+import { guestContactError, rememberGuestOrder } from "@/lib/guest";
+import { guestCheckout } from "@/lib/guest.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { Mail, Send } from "lucide-react";
 import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 
 export const Route = createFileRoute("/checkout")({
@@ -29,6 +33,11 @@ function Checkout() {
   const [note, setNote] = useState("");
   const [voucher, setVoucher] = useState("");
   const [busy, setBusy] = useState(false);
+  const [email, setEmail] = useState("");
+  const [tg, setTg] = useState("");
+  const [via, setVia] = useState<"wa" | "tg">("wa");
+  const placeGuest = useServerFn(guestCheckout);
+  const guest = ready && !user;
   const [method, setMethod] = useState<"saldo" | "qris">("saldo");
   const wallet = useWallet(user?.id);
 
@@ -64,13 +73,27 @@ function Checkout() {
   const [ask, setAsk] = useState(false);
 
   const start = () => {
-    if (!user) { navigate({ to: "/login" }); return; }
+    if (guest) {
+      const err = guestContactError({ email, whatsapp: via === "wa" ? wa : "", telegram: via === "tg" ? tg : "" });
+      if (err) { toast.error(err); return; }
+    } else if (!user) return;
     if (noWarranty || hasPre) setAsk(true); else void pay();
   };
 
   const pay = async () => {
     setAsk(false);
-    if (!user) { navigate({ to: "/login" }); return; }
+    if (noteReq && note.trim().length < 3) { toast.error("Catatan untuk seller wajib diisi"); return; }
+    if (guest) {
+      setBusy(true);
+      const r = await placeGuest({ data: { items: wanted, email, whatsapp: via === "wa" ? wa : "", telegram: via === "tg" ? tg : "", note, voucher } }).catch((e: unknown) => ({ ok: false as const, error: dbError(e) }));
+      setBusy(false);
+      if (!r.ok) { toast.error(r.error); return; }
+      rememberGuestOrder(r.token);
+      toast.success("Pesanan dibuat, lanjut bayar QRIS");
+      navigate({ to: "/lacak/$token", params: { token: r.token }, replace: true });
+      return;
+    }
+    if (!user) return;
     if (noteReq && note.trim().length < 3) { toast.error("Catatan untuk seller wajib diisi"); return; }
     if (phone && !/^(\+?62|0)8\d{7,12}$/.test(phone)) { toast.error("Nomor WhatsApp tidak valid"); return; }
     setBusy(true);
@@ -86,7 +109,7 @@ function Checkout() {
     navigate({ to: "/bayar/$id", params: { id: data }, replace: true });
   };
 
-  if (ready && !user) return <AppShell nav={false}><div className="p-3"><EmptyState icon={ShoppingCart} title="Masuk untuk checkout" desc="Kamu perlu masuk agar pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} /></div></AppShell>;
+  const payMethod = guest ? "qris" : method;
 
   return (
     <AppShell nav={false}>
@@ -110,9 +133,32 @@ function Checkout() {
               </div>
             );
           })}
+          {guest ? (
+            <div className="space-y-3">
+              <p className="rounded-xl border border-primary/30 bg-accent/60 p-3 text-xs text-muted-foreground">Belanja tanpa akun. Link pesanan dikirim ke halaman ini, simpan baik-baik. Sudah punya akun? <Link to="/login" className="font-bold text-primary">Masuk</Link></p>
+              <label className="block text-sm font-medium text-muted-foreground"><span className="flex items-center gap-1"><Mail className="h-4 w-4" /> Email anda *</span>
+                <input value={email} onChange={(e) => setEmail(e.target.value.slice(0, 120))} type="email" inputMode="email" autoComplete="email" placeholder="kamu@email.com" className="mt-1 w-full rounded-xl border bg-card px-3 py-2.5 text-foreground outline-none focus:border-primary" />
+              </label>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Kirim produk lewat *</p>
+                <div className="mt-1 grid grid-cols-2 gap-2">
+                  {([["wa", Phone, "WhatsApp"], ["tg", Send, "Telegram"]] as const).map(([k, I, l]) => (
+                    <button key={k} type="button" onClick={() => setVia(k)} className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-sm font-semibold transition active:scale-95 ${via === k ? "border-primary bg-accent text-primary" : "border-border bg-card text-muted-foreground"}`}><I className="h-4 w-4" />{l}{via === k && <CircleCheck className="h-4 w-4" />}</button>
+                  ))}
+                </div>
+                {via === "wa" ? (
+                  <input value={wa} onChange={(e) => setWa(e.target.value.replace(/[^\d+]/g, "").slice(0, 16))} placeholder="08xxxxxxxxxx" inputMode="tel" aria-label="Nomor WhatsApp" className="mt-2 w-full rounded-xl border bg-card px-3 py-2.5 text-foreground outline-none focus:border-primary" />
+                ) : (
+                  <input value={tg} onChange={(e) => setTg(e.target.value.replace(/[^@A-Za-z0-9_]/g, "").slice(0, 33))} placeholder="@username" aria-label="Username Telegram" className="mt-2 w-full rounded-xl border bg-card px-3 py-2.5 text-foreground outline-none focus:border-primary" />
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">Seller memakai kontak ini bila produk perlu dikirim manual.</p>
+              </div>
+            </div>
+          ) : (
           <label className="block text-sm font-medium text-muted-foreground"><span className="flex items-center gap-1"><Phone className="h-4 w-4" /> Nomor WhatsApp</span>
             <input value={phone} onChange={(e) => setWa(e.target.value.replace(/[^\d+]/g, ""))} placeholder="08xxxxxxxxxx" inputMode="tel" className="mt-1 w-full rounded-xl border bg-card px-3 py-2.5 text-foreground outline-none focus:border-primary" />
           </label>
+          )}
           <label className="block text-sm font-medium">Catatan untuk seller {noteReq ? "*" : "(opsional)"}
             <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 500))} rows={3} placeholder={noteReq ? "Wajib diisi sesuai kebutuhan pesanan." : "Tulis catatan bila perlu."} className="mt-1 w-full rounded-xl border bg-card px-3 py-2.5 outline-none focus:border-primary" />
           </label>
@@ -124,19 +170,19 @@ function Checkout() {
         </section>
         <section className="rounded-2xl border bg-card p-4">
           <h2 className="border-b pb-3 text-lg font-bold">Metode Pembayaran</h2>
-          {([["saldo", Wallet, "Saldo Marketku", `Saldo ${rpBuyer(bal)}${lowSaldo ? " • tidak cukup" : ""}`], ["qris", QrCode, "QRIS Marketku", "Scan QRIS / e-wallet, upload bukti"]] as const).map(([k, I, l, d]) => (
-            <button key={k} type="button" onClick={() => setMethod(k)} className={`mt-3 flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition active:scale-[0.99] ${method === k ? "border-primary bg-accent" : "border-border"}`}>
+          {([["saldo", Wallet, "Saldo Marketku", guest ? "Masuk untuk bayar pakai saldo" : `Saldo ${rpBuyer(bal)}${lowSaldo ? " • tidak cukup" : ""}`], ["qris", QrCode, "QRIS Marketku", "Scan QRIS / e-wallet, upload bukti"]] as const).filter(([k]) => !guest || k === "qris").map(([k, I, l, d]) => (
+            <button key={k} type="button" onClick={() => setMethod(k)} className={`mt-3 flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition active:scale-[0.99] ${payMethod === k ? "border-primary bg-accent" : "border-border"}`}>
               <I className="h-5 w-5 text-primary" />
               <span className="flex-1"><span className="block font-semibold">{l}</span><span className={`block text-xs ${k === "saldo" && lowSaldo ? "text-destructive" : "text-muted-foreground"}`}>{d}</span></span>
-              {method === k ? <CircleCheck className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
+              {payMethod === k ? <CircleCheck className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
             </button>
           ))}
-          {method === "saldo" && lowSaldo && <Link to="/topup" className="mt-2 block text-sm font-semibold text-primary">Top up saldo →</Link>}
+          {payMethod === "saldo" && lowSaldo && <Link to="/topup" className="mt-2 block text-sm font-semibold text-primary">Top up saldo →</Link>}
           <p className="mt-3 flex gap-2 text-sm text-muted-foreground"><ShieldCheck className="h-4 w-4 shrink-0 text-success" /> Data kamu aman dan hanya dipakai untuk pengiriman produk.</p>
         </section>
         <section className="space-y-2 rounded-2xl border bg-card p-4 text-sm">
           <h2 className="border-b pb-3 text-lg font-bold">Rincian Pembayaran</h2>
-          {[["Metode Pembayaran", method === "saldo" ? "Saldo Marketku" : "QRIS Marketku"], [`Total Pesanan (${count} item)`, rpBuyer(subtotal)], ["Biaya admin", rpBuyer(0)], ["Kode unik QRIS", method === "saldo" ? "Tidak ada" : "Dibuat saat bayar"]].map(([a, b]) => (
+          {[["Metode Pembayaran", payMethod === "saldo" ? "Saldo Marketku" : "QRIS Marketku"], [`Total Pesanan (${count} item)`, rpBuyer(subtotal)], ["Biaya admin", rpBuyer(0)], ["Kode unik QRIS", payMethod === "saldo" ? "Tidak ada" : "Dibuat saat bayar"]].map(([a, b]) => (
             <div key={a} className="flex justify-between"><span className="text-muted-foreground">{a}</span><span>{b}</span></div>
           ))}
           <div className="flex justify-between border-t pt-3 text-lg font-bold"><span>Total</span><span>{rpBuyer(subtotal)}</span></div>
@@ -145,8 +191,8 @@ function Checkout() {
       </div>
       <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md items-center justify-between border-t bg-card p-4">
         <div><p className="text-xs text-muted-foreground">Total dibayar</p><p className="text-xl font-bold">{rpBuyer(subtotal)}</p></div>
-        <button disabled={!lines.length || busy || (method === "saldo" && lowSaldo)} onClick={start} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />} {method === "saldo" ? "Bayar pakai Saldo" : "Bayar Sekarang"}
+        <button disabled={!lines.length || busy || (payMethod === "saldo" && lowSaldo)} onClick={start} className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground transition active:scale-95 disabled:opacity-50">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />} {payMethod === "saldo" ? "Bayar pakai Saldo" : "Bayar Sekarang"}
         </button>
       </div>
       {ask && (

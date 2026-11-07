@@ -124,3 +124,6 @@
 - [x] Daftar seller langsung dari /register?role=seller (pilihan Customer/Seller, Nama Toko, Telegram)
 - [x] Link gaya marketku.id: /search, /u/nama-toko, /terms, /privacy
 - [x] Jumlah dilihat di detail produk + link ulasan /…/product/…/reviews
+
+## Guest checkout (Nov 7)
+- [x] Beli tanpa akun: email + WhatsApp/Telegram, bayar QRIS, halaman /lacak link rahasia, kontak tamu di detail transaksi seller

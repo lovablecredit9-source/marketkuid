@@ -11,6 +11,8 @@ import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
 import { LoadingLine } from "@/components/marketku/loading";
+import { useEffect } from "react";
+import { savedGuestOrders, type SavedGuestOrder } from "@/lib/guest";
 
 export const Route = createFileRoute("/riwayat")({
   head: () => pageMeta("Riwayat Pesanan — Marketku", "Lihat daftar riwayat pesananmu di Marketku."),
@@ -54,7 +56,10 @@ function Riwayat() {
         {!ready || (user && orders.isPending) ? (
           <LoadingLine label="Memuat pesanan..." className="rounded-2xl border bg-card py-12" />
         ) : !user ? (
-          <EmptyState icon={Package} title="Masuk untuk melihat pesanan" desc="Riwayat pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} />
+          <>
+            <EmptyState icon={Package} title="Masuk untuk melihat pesanan" desc="Riwayat pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} />
+            <GuestOrders />
+          </>
         ) : list.length === 0 ? (
           <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
         ) : (
@@ -108,5 +113,22 @@ function Riwayat() {
         </Dialog.Portal>
       </Dialog.Root>
     </AppShell>
+  );
+}
+
+/** Guest (no account) orders remembered on this device. */
+function GuestOrders() {
+  const [list, setList] = useState<SavedGuestOrder[]>([]);
+  useEffect(() => setList(savedGuestOrders()), []);
+  if (!list.length) return null;
+  return (
+    <section className="rounded-xl border bg-card p-3">
+      <p className="text-sm font-bold">Pesanan tanpa akun di HP ini</p>
+      {list.map((g) => (
+        <Link key={g.token} to="/lacak/$token" params={{ token: g.token }} className="mt-2 flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+          <span>Pesanan {fmtDateTime(new Date(g.at).toISOString())}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Link>
+      ))}
+    </section>
   );
 }
