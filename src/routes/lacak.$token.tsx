@@ -20,6 +20,11 @@ export const Route = createFileRoute("/lacak/$token")({
   component: GuestOrderPage,
 });
 
+const pad = (n: number) => String(n).padStart(2, "0");
+const fmtLeft = (ms: number) => {
+  const h = Math.floor(ms / 3_600_000), m = Math.floor((ms % 3_600_000) / 60000), sec = Math.floor((ms % 60000) / 1000);
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
+};
 const rp = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`;
 
 function useNow() {
@@ -92,7 +97,7 @@ function GuestOrderPage() {
 
   return (
     <AppShell>
-      <div className="space-y-3 px-3 pb-6 pt-3">
+      <div className="space-y-3 px-3 pb-24 pt-3">
         <div className="overflow-hidden rounded-2xl border bg-card">
           <div className="border-b bg-gradient-to-b from-muted/60 to-transparent px-4 pb-4 pt-3 text-center">
             <p className="flex items-center justify-center gap-2 font-bold"><span className={`h-2.5 w-2.5 rounded-full ${status[0]}`} /> {status[1]}</p>
@@ -120,7 +125,7 @@ function GuestOrderPage() {
             <p className="m-4 rounded-xl border border-primary/40 bg-primary/10 p-3 text-sm text-muted-foreground">Bukti {waiting.method_label} sebesar <b className="text-foreground">{rp(Number(waiting.amount))}</b> sudah dikirim. Halaman ini otomatis diperbarui setelah admin menyetujui.</p>
           ) : (
             <div className="px-4 pt-4 text-center">
-              {left !== null && <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-warning/60 bg-warning/10 px-4 py-1.5 text-sm font-semibold text-warning"><Clock className="h-4 w-4" /> Berlaku selama <span className="font-mono">{String(Math.floor(left / 60000)).padStart(2, "0")}:{String(Math.floor((left % 60000) / 1000)).padStart(2, "0")}</span></p>}
+              {left !== null && <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-warning/60 bg-warning/10 px-4 py-1.5 text-sm font-semibold text-warning"><Clock className="h-4 w-4" /> Berlaku selama <span className="font-mono">{fmtLeft(left)}</span></p>}
               {methods.length > 1 && (
                 <div className="mt-3 flex justify-center gap-2 overflow-x-auto">
                   {methods.map((m) => <button key={m.id} onClick={() => setMethodId(m.id)} className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${methodId === m.id ? "border-primary text-primary" : "text-muted-foreground"}`}>{m.provider}</button>)}

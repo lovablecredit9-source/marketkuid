@@ -143,7 +143,7 @@ function Checkout() {
                 <p className="text-sm font-medium text-muted-foreground">Kirim produk lewat *</p>
                 <div className="mt-1 grid grid-cols-2 gap-2">
                   {([["wa", Phone, "WhatsApp"], ["tg", Send, "Telegram"]] as const).map(([k, I, l]) => (
-                    <button key={k} type="button" onClick={() => setVia(k)} className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-sm font-semibold transition active:scale-95 ${via === k ? "border-primary bg-accent text-primary" : "border-border text-muted-foreground"}`}><I className="h-4 w-4" />{l}</button>
+                    <button key={k} type="button" onClick={() => setVia(k)} className={`flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-sm font-semibold transition active:scale-95 ${via === k ? "border-primary bg-accent text-primary" : "border-border bg-card text-muted-foreground"}`}><I className="h-4 w-4" />{l}{via === k && <CircleCheck className="h-4 w-4" />}</button>
                   ))}
                 </div>
                 {via === "wa" ? (
