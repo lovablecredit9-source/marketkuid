@@ -321,7 +321,7 @@ function ProdukDetail() {
       ) : (
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-2.5 py-3">
         <button aria-label="Chat seller" onClick={() => void chat()} className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full border-[1.5px] border-primary text-primary transition active:scale-90"><MessageCircle className="h-[18px] w-[18px]" /></button>
-        <button disabled={!canBuy} onClick={() => (user ? setSheet(true) : needLogin())} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
+        <button disabled={!canBuy} onClick={() => setSheet(true)} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
         <button disabled={!canBuy} onClick={() => void addCart()} className="flex h-[46px] flex-1 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-[12.5px] font-bold leading-none text-primary-foreground transition active:scale-95 disabled:opacity-40">
           {added ? <><Check className="h-4 w-4" />Ditambahkan</> : <><ShoppingCart className="h-4 w-4" />Keranjang</>}
         </button>
