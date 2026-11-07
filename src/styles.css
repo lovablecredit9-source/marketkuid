@@ -516,5 +516,3 @@
   color: var(--primary-foreground);
 }
 .seller-auth-card { box-shadow: 0 30px 60px -30px oklch(0.55 0.15 280 / 0.45); }
-
-#lovable-badge { display: none !important; }
