@@ -26,6 +26,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrivasiRouteImport } from './routes/privasi'
+import { Route as ReferralRouteImport } from './routes/referral'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RekberRouteImport } from './routes/rekber'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -165,6 +166,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PrivasiRoute = PrivasiRouteImport.update({
   id: '/privasi',
   path: '/privasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralRoute = ReferralRouteImport.update({
+  id: '/referral',
+  path: '/referral',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -463,6 +469,7 @@ export interface FileRoutesByFullPath {
   '/pesan': typeof PesanRoute
   '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
+  '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -537,6 +544,7 @@ export interface FileRoutesByTo {
   '/pesan': typeof PesanRoute
   '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
+  '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -611,6 +619,7 @@ export interface FileRoutesById {
   '/pesan': typeof PesanRoute
   '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
+  '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -687,6 +696,7 @@ export interface FileRouteTypes {
     | '/pesan'
     | '/privacy'
     | '/privasi'
+    | '/referral'
     | '/register'
     | '/rekber'
     | '/reset-password'
@@ -761,6 +771,7 @@ export interface FileRouteTypes {
     | '/pesan'
     | '/privacy'
     | '/privasi'
+    | '/referral'
     | '/register'
     | '/rekber'
     | '/reset-password'
@@ -834,6 +845,7 @@ export interface FileRouteTypes {
     | '/pesan'
     | '/privacy'
     | '/privasi'
+    | '/referral'
     | '/register'
     | '/rekber'
     | '/reset-password'
@@ -909,6 +921,7 @@ export interface RootRouteChildren {
   PesanRoute: typeof PesanRoute
   PrivacyRoute: typeof PrivacyRoute
   PrivasiRoute: typeof PrivasiRoute
+  ReferralRoute: typeof ReferralRoute
   RegisterRoute: typeof RegisterRoute
   RekberRoute: typeof RekberRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -1061,6 +1074,13 @@ declare module '@tanstack/react-router' {
       path: '/privasi'
       fullPath: '/privasi'
       preLoaderRoute: typeof PrivasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referral': {
+      id: '/referral'
+      path: '/referral'
+      fullPath: '/referral'
+      preLoaderRoute: typeof ReferralRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -1536,6 +1556,7 @@ const rootRouteChildren: RootRouteChildren = {
   PesanRoute: PesanRoute,
   PrivacyRoute: PrivacyRoute,
   PrivasiRoute: PrivasiRoute,
+  ReferralRoute: ReferralRoute,
   RegisterRoute: RegisterRoute,
   RekberRoute: RekberRoute,
   ResetPasswordRoute: ResetPasswordRoute,
