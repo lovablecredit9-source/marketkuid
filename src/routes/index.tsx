@@ -225,18 +225,18 @@ function RecentPurchases() {
   const animated = items.length >= 4;
   const row = animated ? [...items, ...items] : items;
   return (
-    <section className="-mx-3 overflow-hidden pb-1.5" aria-label="Produk yang baru dibeli">
+    <section className="mk-run-viewport -mx-3 pb-1.5" aria-label="Produk yang baru dibeli">
       <div className={`flex w-max gap-6 px-3 ${animated ? "mk-runmarquee" : ""}`}>
         {row.map((p, n) => {
           const url = p.image_path ? urls.data?.[p.image_path] : undefined;
           return (
             <Link key={`${p.product_id}-${n}`} to="/produk/$id" params={{ id: p.product_id }} title={`${p.name} — baru dibeli`}
-              className="flex h-8 shrink-0 items-center gap-2 py-1">
+              className="mk-run-pill flex h-8 shrink-0 items-center gap-2 py-1">
               <span className="grid h-[18px] w-[18px] shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 text-[9px] font-bold text-primary">
                 {url ? <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" /> : p.name.slice(0, 1).toUpperCase()}
               </span>
               <span className="flex items-center text-[12px] font-bold">
-                <span className="max-w-[200px] truncate text-foreground">{p.name}</span>
+                <span className="mk-run-name max-w-[200px] truncate text-foreground">{p.name}</span>
                 <span className="px-1 text-muted-foreground" aria-hidden>-</span>
                 <span className="text-primary">{p.price ? rpBuyer(Number(p.price)) : "Gratis"}</span>
               </span>
