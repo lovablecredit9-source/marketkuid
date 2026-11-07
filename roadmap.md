@@ -112,3 +112,7 @@
 - [x] Beranda: "Pilihan bersponsor" + Lihat semua ke daftar bersponsor, judul "Sedang Populer" & "Terlaris hari ini"
 - [x] Pencarian: urutan "Rating tinggi", urutan dari tautan (?sort=), tampilan semua produk bersponsor
 - [ ] Grup WhatsApp seller di Dasbor (menunggu link grup dari user)
+
+## marketku.id gap check (Nov 7)
+- [x] Strip "Produk yang baru dibeli" dari pembelian asli (refresh 1 menit)
+- [x] Tombol "Kembali ke atas"
