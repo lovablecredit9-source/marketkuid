@@ -123,3 +123,4 @@
 ## Cek marketku.id (Nov 7)
 - [x] Daftar seller langsung dari /register?role=seller (pilihan Customer/Seller, Nama Toko, Telegram)
 - [x] Link gaya marketku.id: /search, /u/nama-toko, /terms, /privacy
+- [x] Jumlah dilihat di detail produk + link ulasan /…/product/…/reviews
