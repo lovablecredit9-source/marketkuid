@@ -15,7 +15,8 @@ import { isUuid, ratingBars, ratingOf, unitPrice, useCartActions, useMarketProdu
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductImage, Stars, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { productTypeText } from "@/components/marketku/product-sheet";
-import { pageMeta } from "@/lib/meta";
+import { productHead } from "@/lib/meta";
+import { getProductSeo } from "@/lib/seo.functions";
 import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 import { FlashStrip } from "@/components/marketku/flash-strip";
 import { rememberViewed } from "@/lib/recently-viewed";
@@ -26,7 +27,8 @@ import { readRestock, toggleRestock, writeRestock } from "@/lib/buyer-tools";
 
 export const Route = createFileRoute("/produk/$id")({
   staticData: { sitemap: true },
-  head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
+  loader: ({ params }) => getProductSeo({ data: params.id }),
+  head: ({ params, loaderData }) => productHead(params.id, loaderData),
   component: ProdukDetail,
 });
 
