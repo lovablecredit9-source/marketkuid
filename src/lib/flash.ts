@@ -19,9 +19,11 @@ export function flashPhase(f: Pick<FlashSale, "starts_at" | "ends_at" | "quota" 
 export const applyFlash = (price: number, percent: number) =>
   percent > 0 ? price - Math.floor((price * Math.min(percent, 90)) / 100) : price;
 
-/** Highest live flash percent for a product, or 0. */
-export function liveFlashPercent(list: FlashSale[] | undefined, productId: string, now = Date.now()) {
-  return (list ?? []).filter((f) => f.product_id === productId && flashPhase(f, now) === "live").reduce((a, f) => Math.max(a, f.percent), 0);
+/** Highest live flash percent for a product with quota left for `qty` units (checkout rule), or 0. */
+export function liveFlashPercent(list: FlashSale[] | undefined, productId: string, now = Date.now(), qty = 1) {
+  return (list ?? [])
+    .filter((f) => f.product_id === productId && flashPhase(f, now) === "live" && (f.quota === null || f.sold + qty <= f.quota))
+    .reduce((a, f) => Math.max(a, f.percent), 0);
 }
 
 /** "02:15:09" countdown (or "1h 02:15:09" when over a day). */

@@ -51,7 +51,7 @@ function Checkout() {
   });
   const lines = q.data ?? [];
   const flash = useFlashSales([...new Set(lines.map((l) => l.products?.id).filter(Boolean) as string[])]);
-  const fpOf = (l: (typeof lines)[number]) => liveFlashPercent(flash.data, l.products?.id ?? "");
+  const fpOf = (l: (typeof lines)[number]) => liveFlashPercent(flash.data, l.products?.id ?? "", Date.now(), l.qty);
   const urls = useImageUrls(lines.map((l) => l.image_url || l.products?.images?.[0] || "").filter(Boolean));
   const subtotal = lines.reduce((a, l) => a + unitPrice(Number(l.price), l.qty, l.discount as Discount, fpOf(l)) * l.qty, 0);
   const noteReq = lines.some((l) => l.products?.require_buyer_note);

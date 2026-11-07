@@ -94,7 +94,7 @@ function ProdukDetail() {
   const gallery = [...new Set([...p.images, ...p.variants.map((x) => x.image_url ?? "")].filter(Boolean))];
   const storeRating = ratingOf(storeReviews.data ?? []);
   const shown = gallery[Math.min(img, gallery.length - 1)];
-  const fp = liveFlashPercent(flash.data, p.id);
+  const fp = liveFlashPercent(flash.data, p.id, Date.now(), qty);
   const price = v ? unitPrice(Number(v.price), qty, v.discount as Discount, fp) : 0;
 
   const needLogin = () => { toast("Masuk dulu untuk melanjutkan"); navigate({ to: "/login" }); };

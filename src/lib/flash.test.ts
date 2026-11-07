@@ -21,6 +21,11 @@ describe("flash sale rules", () => {
     const list = [sale({ percent: 20 }), sale({ id: "g", percent: 60, starts_at: "2026-11-07T11:00:00Z" }), sale({ id: "h", product_id: "x", percent: 80 })];
     expect(liveFlashPercent(list, "p", now)).toBe(20);
   });
+  it("quota must cover the whole quantity (3 kuota, 2 terjual: beli 2 = harga normal)", () => {
+    const q = [sale({ quota: 3, sold: 2 })];
+    expect(liveFlashPercent(q, "p", now, 1)).toBe(50);
+    expect(liveFlashPercent(q, "p", now, 2)).toBe(0);
+  });
   it("seller limits: 1–90%, 1–72 jam, start ≤30 hari", () => {
     const ok = { productId: "p", percent: 50, startsAt: new Date(now), hours: 24, quota: null };
     expect(validateFlash(ok, now)).toBeNull();

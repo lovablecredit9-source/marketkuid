@@ -13,7 +13,7 @@ export const Route = createFileRoute("/keranjang")({
   component: Keranjang,
 });
 
-const lineTotal = (r: CartRow, fl?: FlashSale[]) => unitPrice(Number(r.product_variants?.price ?? 0), r.qty, (r.product_variants?.discount ?? null) as Discount, liveFlashPercent(fl, r.product_id)) * r.qty;
+const lineTotal = (r: CartRow, fl?: FlashSale[]) => unitPrice(Number(r.product_variants?.price ?? 0), r.qty, (r.product_variants?.discount ?? null) as Discount, liveFlashPercent(fl, r.product_id, Date.now(), r.qty)) * r.qty;
 
 function Keranjang() {
   const { user, ready } = useAuth();
