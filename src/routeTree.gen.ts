@@ -63,6 +63,7 @@ import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
 import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
+import { Route as KategoriProductSlugRouteImport } from './routes/$kategori.product.$slug'
 import { Route as SellerChatIdRouteImport } from './routes/seller.chat_.$id'
 import { Route as SellerPanduanSlugRouteImport } from './routes/seller.panduan.$slug'
 import { Route as SellerProdukBaruRouteImport } from './routes/seller.produk_.baru'
@@ -342,6 +343,11 @@ const UlasanIdRoute = UlasanIdRouteImport.update({
   path: '/ulasan/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KategoriProductSlugRoute = KategoriProductSlugRouteImport.update({
+  id: '/$kategori/product/$slug',
+  path: '/$kategori/product/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerChatIdRoute = SellerChatIdRouteImport.update({
   id: '/chat_/$id',
   path: '/chat/$id',
@@ -439,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
+  '/$kategori/product/$slug': typeof KategoriProductSlugRoute
   '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -502,6 +509,7 @@ export interface FileRoutesByTo {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller': typeof SellerIndexRoute
+  '/$kategori/product/$slug': typeof KategoriProductSlugRoute
   '/seller/chat/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk/baru': typeof SellerProdukBaruRoute
@@ -567,6 +575,7 @@ export interface FileRoutesById {
   '/toko/$slug': typeof TokoSlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
+  '/$kategori/product/$slug': typeof KategoriProductSlugRoute
   '/seller/chat_/$id': typeof SellerChatIdRoute
   '/seller/panduan/$slug': typeof SellerPanduanSlugRoute
   '/seller/produk_/baru': typeof SellerProdukBaruRoute
@@ -633,6 +642,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller/'
+    | '/$kategori/product/$slug'
     | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -696,6 +706,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller'
+    | '/$kategori/product/$slug'
     | '/seller/chat/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk/baru'
@@ -760,6 +771,7 @@ export interface FileRouteTypes {
     | '/toko/$slug'
     | '/ulasan/$id'
     | '/seller/'
+    | '/$kategori/product/$slug'
     | '/seller/chat_/$id'
     | '/seller/panduan/$slug'
     | '/seller/produk_/baru'
@@ -804,6 +816,7 @@ export interface RootRouteChildren {
   ProdukDiskonRoute: typeof ProdukDiskonRoute
   TokoSlugRoute: typeof TokoSlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
+  KategoriProductSlugRoute: typeof KategoriProductSlugRoute
   ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
   ApiPublicTelegramAdminRoute: typeof ApiPublicTelegramAdminRoute
   ApiPublicTelegramAuthRoute: typeof ApiPublicTelegramAuthRoute
@@ -1191,6 +1204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UlasanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$kategori/product/$slug': {
+      id: '/$kategori/product/$slug'
+      path: '/$kategori/product/$slug'
+      fullPath: '/$kategori/product/$slug'
+      preLoaderRoute: typeof KategoriProductSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/chat_/$id': {
       id: '/seller/chat_/$id'
       path: '/chat/$id'
@@ -1351,6 +1371,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukDiskonRoute: ProdukDiskonRoute,
   TokoSlugRoute: TokoSlugRoute,
   UlasanIdRoute: UlasanIdRoute,
+  KategoriProductSlugRoute: KategoriProductSlugRoute,
   ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,
   ApiPublicTelegramAdminRoute: ApiPublicTelegramAdminRoute,
   ApiPublicTelegramAuthRoute: ApiPublicTelegramAuthRoute,
