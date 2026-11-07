@@ -1407,6 +1407,7 @@ export type Database = {
           product_type: string
           require_buyer_note: boolean
           seller_contact: string | null
+          slug: string | null
           sold_count: number
           status: string
           stock_mode: string
@@ -1430,6 +1431,7 @@ export type Database = {
           product_type: string
           require_buyer_note?: boolean
           seller_contact?: string | null
+          slug?: string | null
           sold_count?: number
           status?: string
           stock_mode?: string
@@ -1453,6 +1455,7 @@ export type Database = {
           product_type?: string
           require_buyer_note?: boolean
           seller_contact?: string | null
+          slug?: string | null
           sold_count?: number
           status?: string
           stock_mode?: string
@@ -2881,6 +2884,10 @@ export type Database = {
           max_claims: number
           used: number
         }[]
+      }
+      make_product_slug: {
+        Args: { p_id: string; p_name: string }
+        Returns: string
       }
       make_store_slug: {
         Args: { p_name: string; p_owner: string }
