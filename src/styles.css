@@ -299,6 +299,20 @@
 @utility mk-marquee {
   animation: mk-marquee 30s linear infinite;
 }
+/* Beranda "Produk yang baru dibeli" strip — slow loop like marketku.id. */
+@utility mk-runmarquee {
+  animation: mk-marquee 50s linear infinite;
+}
+/* Floating "Kembali ke atas" button above the bottom nav. */
+.mk-back-to-top {
+  position: fixed; right: max(14px, calc((100vw - 28rem) / 2 + 14px)); bottom: 76px; z-index: 40;
+  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 999px;
+  background: var(--card); color: var(--primary); border: 1px solid var(--border);
+  box-shadow: 0 12px 28px -12px color-mix(in oklab, var(--foreground) 35%, transparent);
+  animation: mk-btt-in .2s ease-out;
+}
+.mk-back-to-top:active { transform: scale(.92); }
+@keyframes mk-btt-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Chat: WhatsApp-like typing dots, message pop-in, refresh spin, badge pop. */
 @keyframes mk-typing { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }

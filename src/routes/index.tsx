@@ -13,6 +13,8 @@ import { categoryPath, childCategories, descendantIds, useCategories, useImageUr
 import { BRAND_GROUPS, HOME_BANNERS, HOME_GAMES, PARTNERS } from "@/lib/home-assets";
 import { categoryIcon } from "@/lib/category-icons";
 import { HomeNotice } from "@/components/marketku/home-notice";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type FLink = { label: string; to?: "/cari" | "/flash-sale" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -67,7 +69,7 @@ function Index() {
       <div className="space-y-5 px-3 pt-3">
         <Banner />
 
-        {list.length > 0 && <Ticker items={list.slice(0, 12)} urlOf={urlOf} />}
+        <RecentPurchases />
 
         <HomeCategories />
 
@@ -206,17 +208,43 @@ function Banner() {
   );
 }
 
-function Ticker({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
-  const row = (k: string) => items.map((p) => (
-    <Link key={`${k}${p.id}`} to="/produk/$id" params={{ id: p.id }} className="flex shrink-0 items-center gap-2 border-r px-4 text-sm font-semibold uppercase last:border-r-0">
-      {urlOf(p) && <img src={urlOf(p)} alt="" className="h-7 w-7 rounded-full object-cover" />}
-      {p.name} <span className="text-muted-foreground">-</span> <span className="text-primary">{rpBuyer(p.minPrice)}</span>
-    </Link>
-  ));
+/** "Produk yang baru dibeli": real recent paid purchases (refreshed every minute); hidden until there are any. */
+function RecentPurchases() {
+  const q = useQuery({
+    queryKey: ["recent_purchases"],
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("recent_purchases", { _limit: 12 });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const items = q.data ?? [];
+  const urls = useImageUrls([...new Set(items.map((p) => p.image_path ?? "").filter(Boolean))]);
+  if (!items.length) return null;
+  const animated = items.length >= 4;
+  const row = animated ? [...items, ...items] : items;
   return (
-    <div className="overflow-hidden py-1">
-      <div className="mk-marquee flex w-max">{row("a")}{row("b")}</div>
-    </div>
+    <section className="-mx-3 overflow-hidden pb-1.5" aria-label="Produk yang baru dibeli">
+      <div className={`flex w-max gap-6 px-3 ${animated ? "mk-runmarquee" : ""}`}>
+        {row.map((p, n) => {
+          const url = p.image_path ? urls.data?.[p.image_path] : undefined;
+          return (
+            <Link key={`${p.product_id}-${n}`} to="/produk/$id" params={{ id: p.product_id }} title={`${p.name} — baru dibeli`}
+              className="flex h-8 shrink-0 items-center gap-2 py-1">
+              <span className="grid h-[18px] w-[18px] shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 text-[9px] font-bold text-primary">
+                {url ? <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" /> : p.name.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="flex items-center text-[12px] font-bold">
+                <span className="max-w-[200px] truncate text-foreground">{p.name}</span>
+                <span className="px-1 text-muted-foreground" aria-hidden>-</span>
+                <span className="text-primary">{p.price ? rpBuyer(Number(p.price)) : "Gratis"}</span>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
