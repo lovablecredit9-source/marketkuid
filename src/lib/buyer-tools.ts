@@ -57,3 +57,27 @@ export function priceDrop(saved: number | undefined, now: number): { amount: num
   if (!saved || now <= 0 || now >= saved) return null;
   return { amount: saved - now, percent: Math.round(((saved - now) / saved) * 100) };
 }
+
+/* ---------- Filter cepat pencarian ---------- */
+
+export type QuickFilter = { inStock: boolean; onSale: boolean };
+/** Keep products that have stock and/or are cheaper than their normal price. */
+export function quickFilter<T extends { stock: number; minPrice: number; basePrice: number }>(list: T[], f: QuickFilter): T[] {
+  return list.filter((p) => (!f.inStock || p.stock > 0) && (!f.onSale || (p.basePrice > 0 && p.minPrice < p.basePrice)));
+}
+
+/* ---------- Ringkasan belanja ---------- */
+
+export const PAID_STATUSES = ["paid", "processing", "completed"];
+/** Spending from paid orders: this calendar month and all time. Unpaid/cancelled orders are ignored. */
+export function spendSummary(orders: { status: string; total: number | string; created_at: string }[], now = new Date()) {
+  let month = 0, monthCount = 0, all = 0, allCount = 0;
+  for (const o of orders) {
+    if (!PAID_STATUSES.includes(o.status)) continue;
+    const t = Number(o.total) || 0;
+    all += t; allCount++;
+    const d = new Date(o.created_at);
+    if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) { month += t; monthCount++; }
+  }
+  return { month, monthCount, all, allCount };
+}
