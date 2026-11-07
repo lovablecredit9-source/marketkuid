@@ -4,8 +4,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Bell, Search, ShoppingCart, Menu, Home, Package, MessageCircle, User, ChevronRight, X, Handshake, Clock, ShieldAlert,
-  Heart, LayoutGrid, HelpCircle, Moon, Store, ArrowUp,
+  Heart, LayoutGrid, HelpCircle, Moon, Store, ArrowUp, GitCompareArrows, Smartphone,
 } from "lucide-react";
+import { VoiceSearchButton } from "@/components/marketku/voice-search";
+import { useInstallApp } from "@/components/marketku/install-app";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useCategories } from "@/lib/products";
@@ -115,6 +117,7 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
             <label className="mb-2 flex h-9 items-center gap-2.5 rounded-xl border bg-card px-3 shadow-sm">
               <Search className="h-[18px] w-[18px] text-muted-foreground" />
               <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)} tabIndex={showBar ? 0 : -1} placeholder="Cari produk digital..." className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground" />
+              {showBar && <VoiceSearchButton onResult={(t) => navigate({ to: "/cari", search: { q: t } })} />}
             </label>
           </form>
         </div>
@@ -139,6 +142,8 @@ const sideLinks = [
   { to: "/pesan", label: "Pesan", icon: MessageCircle },
   { to: "/dispute", label: "Dispute", icon: ShieldAlert },
   { to: "/wishlist", label: "Wishlist", icon: Heart },
+  { to: "/toko-diikuti", label: "Toko Diikuti", icon: Store },
+  { to: "/bandingkan", label: "Bandingkan Produk", icon: GitCompareArrows },
   { to: "/cari", label: "Kategori", icon: LayoutGrid },
   { to: "/bantuan", label: "Bantuan", icon: HelpCircle },
 ] as const;
@@ -154,6 +159,7 @@ export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: 
   });
   const name = profile.data?.full_name || user?.email?.split("@")[0];
   const go = (fn: () => void) => { onOpenChange(false); fn(); };
+  const app = useInstallApp();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -194,6 +200,11 @@ export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: 
             <button onClick={() => toggleDark()} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13.5px] font-medium text-foreground/85 transition active:scale-[0.98]">
               <Moon className="h-[17px] w-[17px]" strokeWidth={1.75} /> Mode Gelap
             </button>
+            {!app.installed && (
+              <button onClick={() => go(() => void app.install())} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13.5px] font-medium text-primary transition active:scale-[0.98]">
+                <Smartphone className="h-[17px] w-[17px]" strokeWidth={1.75} /> Pasang Aplikasi
+              </button>
+            )}
             {(cats.data?.length ?? 0) > 0 && (
               <div className="mt-1.5 border-t px-1 pt-3">
                 <p className="pb-2 text-[10px] font-bold tracking-[0.08em] text-muted-foreground">KATEGORI POPULER</p>
