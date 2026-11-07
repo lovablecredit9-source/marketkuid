@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Bell, Search, ShoppingCart, Menu, Home, Package, MessageCircle, User, ChevronRight, X, Handshake, Clock, ShieldAlert,
-  Heart, LayoutGrid, HelpCircle, Moon, Store,
+  Heart, LayoutGrid, HelpCircle, Moon, Store, ArrowUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
