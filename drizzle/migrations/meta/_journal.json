@@ -351,6 +351,13 @@
       "when": 1793974362815,
       "tag": "0049_seller_login_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794012762155,
+      "tag": "0050_flash_sales",
+      "breakpoints": true
     }
   ]
 }

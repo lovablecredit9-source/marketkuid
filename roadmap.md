@@ -104,5 +104,6 @@
 
 ## Cek ulang marketku.id (Nov 7)
 - [x] Halaman Produk Baru (/produk/baru), Produk Lagi Diskon (/produk/diskon), Flash Sale (/flash-sale) + tautan "Lihat semua" & footer
-- [ ] Jadwal Flash Sale oleh seller (belum ada fitur penjadwalan; halaman tampil kosong seperti marketku.id)
-- [ ] Bandingkan ulang semua menu Seller Center di panel.marketku.id (butuh login seller + kode)
+- [x] Jadwal Flash Sale oleh seller (Seller Center → Flash Sale; harga flash dipakai di checkout, kuota, hitung mundur)
+- [x] Bandingkan menu Seller Center panel.marketku.id (20 menu sama; dasbor grup WA + checklist sudah ada)
+- [ ] Tautan Grup WhatsApp seller di menu (menunggu link grup dari user)

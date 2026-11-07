@@ -3,16 +3,17 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { descendantIds } from "@/lib/products";
+import { applyFlash, fetchFlashSales, liveFlashPercent } from "@/lib/flash";
 
 /* ---------- pure rules (unit-tested) ---------- */
 
 export type Discount = { min_order?: number; percent?: number } | null;
 
 /** Unit price after the variant's quantity discount (same rule as the checkout function). */
-export function unitPrice(price: number, qty: number, discount: Discount) {
+export function unitPrice(price: number, qty: number, discount: Discount, flashPercent = 0) {
   const pct = Math.min(Number(discount?.percent ?? 0), 100);
-  if (pct > 0 && qty >= Number(discount?.min_order ?? 1)) return price - Math.floor((price * pct) / 100);
-  return price;
+  const p = pct > 0 && qty >= Number(discount?.min_order ?? 1) ? price - Math.floor((price * pct) / 100) : price;
+  return applyFlash(p, flashPercent);
 }
 
 export type SortKey = "relevan" | "terbaru" | "termurah" | "termahal" | "terlaris";
@@ -38,6 +39,8 @@ export type CardProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string;
   product_type: string; category: string | null; minPrice: number; basePrice: number; maxPrice: number; stock: number;
   storeName: string; storeOpen: boolean; rating: Rating; likes: number;
+  /** Live flash-sale percent (0 = none) and when it ends. */
+  flash?: { percent: number; ends_at: string } | null;
 };
 
 export function sortProducts(list: CardProduct[], sort: SortKey, q = "") {
@@ -83,18 +86,21 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const owners = [...new Set(rows.map((r) => r.owner_id))];
-  const [stores, stock, reviews, likes] = await Promise.all([
+  const [stores, stock, reviews, likes, flashes] = await Promise.all([
     supabase.rpc("public_stores", { p_ids: owners }),
     supabase.rpc("variant_stock", { p_product_ids: ids }),
     supabase.from("product_reviews").select("product_id, rating").in("product_id", ids),
     supabase.rpc("product_like_counts", { p_ids: ids }),
+    fetchFlashSales(ids),
   ]);
   const lk = new Map((likes.data ?? []).map((l) => [l.product_id, Number(l.likes)]));
   const sm = new Map((stores.data ?? []).map((s) => [s.owner_id, s]));
   const st = new Map((stock.data ?? []).map((s) => [s.variant_id, s.available]));
   return rows.map((r) => {
     const base = r.product_variants.map((v) => Number(v.price));
-    const prices = r.product_variants.map((v) => unitPrice(Number(v.price), 1, v.discount as Discount));
+    const fp = liveFlashPercent(flashes, r.id);
+    const fl = fp ? flashes.filter((f) => f.product_id === r.id && f.percent === fp)[0] : undefined;
+    const prices = r.product_variants.map((v) => unitPrice(Number(v.price), 1, v.discount as Discount, fp));
     const s = sm.get(r.owner_id);
     return {
       id: r.id, name: r.name, owner_id: r.owner_id, images: r.images ?? [], sold_count: r.sold_count, created_at: r.created_at,
@@ -104,6 +110,7 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
       storeName: s?.store_name ?? "Toko", storeOpen: s?.is_open ?? false,
       rating: ratingOf((reviews.data ?? []).filter((x) => x.product_id === r.id)),
       likes: lk.get(r.id) ?? 0,
+      flash: fl ? { percent: fp, ends_at: fl.ends_at } : null,
     };
   });
 }
@@ -114,12 +121,14 @@ export const isUuid = (v: string | null | undefined) =>
 
 const CARD_SELECT = "id, name, owner_id, images, sold_count, created_at, product_type, product_categories(name), product_variants(id, price, discount)";
 
-export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number } = {}) {
-  const { q = "", category = null, owner, limit = 60 } = opts;
+export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number; ids?: string[] } = {}) {
+  const { q = "", category = null, owner, limit = 60, ids } = opts;
   return useQuery({
-    queryKey: ["market_products", q, category, owner, limit],
+    queryKey: ["market_products", q, category, owner, limit, ids ? [...ids].sort().join(",") : null],
+    enabled: !ids || ids.length > 0,
     queryFn: async () => {
       let query = supabase.from("products").select(CARD_SELECT).eq("status", "active").order("created_at", { ascending: false }).limit(limit);
+      if (ids) query = query.in("id", ids.filter(isUuid));
       const term = q.trim().replace(/[%,()]/g, " ");
       if (term) query = query.ilike("name", `%${term}%`);
       if (category) {

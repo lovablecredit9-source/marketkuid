@@ -171,6 +171,7 @@
   --tone-slate: oklch(0.45 0.03 260);
   --tone-purple: oklch(0.7 0.17 300);
   --warning: oklch(0.8 0.16 80);
+  --warning-foreground: oklch(0.22 0.03 60);
   --chat-read: oklch(0.86 0.14 205);
 }
 @theme inline {
@@ -182,6 +183,7 @@
   --color-tone-slate: var(--tone-slate);
   --color-tone-purple: var(--tone-purple);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-chat-read: var(--chat-read);
 }
 

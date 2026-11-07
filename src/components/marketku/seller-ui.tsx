@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   LayoutGrid, Package, Coins, ShoppingBag, Menu, RefreshCw, HelpCircle, Bell, Monitor, X,
   Megaphone, Bot, Settings, LogOut, ArrowRight, BarChart3, Users, MessageCircle, AlertTriangle,
-  Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon,
+  Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon, Zap,
 } from "lucide-react";
 import logoMark from "@/assets/seller-logo-mark.png";
 import logoWord from "@/assets/seller-logo-word.png";
@@ -27,7 +27,7 @@ const navTabs = [
 const titles: [string, string][] = [
   ["/seller/produk", "Produk Saya"], ["/seller/saldo", "Credits"], ["/seller/transaksi", "Transaksi"],
   ["/seller/withdraw", "Withdraw"], ["/seller/pembayaran", "Kontrol Pembayaran"], ["/seller/rekber", "Rekber"],
-  ["/seller/garansi", "Garansi"], ["/seller/bot", "Bot Telegram"], ["/seller/voucher", "Voucher"],
+  ["/seller/garansi", "Garansi"], ["/seller/bot", "Bot Telegram"], ["/seller/voucher", "Voucher"], ["/seller/flash-sale", "Flash Sale"],
   ["/seller/broadcast", "Broadcast"], ["/seller/panduan", "Panduan"], ["/seller/pengaturan", "Pengaturan"],
   ["/seller/analitik", "Analitik"], ["/seller/pelanggan", "Pelanggan"], ["/seller/program", "Program Seller"], ["/seller/iklan", "Dashboard Iklan"],
 ];
@@ -186,7 +186,7 @@ export function SellerBottomNav({ onMenu, menuOpen }: { onMenu: () => void; menu
 
 type SellerPath =
   | "/seller" | "/seller/produk" | "/seller/saldo" | "/seller/transaksi" | "/seller/withdraw" | "/seller/pembayaran"
-  | "/seller/rekber" | "/seller/garansi" | "/seller/bot" | "/seller/voucher" | "/seller/broadcast" | "/seller/panduan"
+  | "/seller/rekber" | "/seller/garansi" | "/seller/bot" | "/seller/voucher" | "/seller/flash-sale" | "/seller/broadcast" | "/seller/panduan"
   | "/seller/pengaturan" | "/seller/analitik" | "/seller/pelanggan" | "/seller/program" | "/seller/chat" | "/seller/dispute" | "/seller/pendapatan" | "/dispute";
 type AdTab = "campaign" | "buat" | "performa" | "saldo" | undefined;
 type MenuItem = { label: string; icon: typeof Package; to?: SellerPath; badge?: string; children?: { label: string; tab: AdTab }[] };
@@ -212,6 +212,7 @@ const menuGroups: { title: string; items: MenuItem[] }[] = [
   { title: "INTEGRASI", items: [
     { label: "Bot Telegram", icon: Bot, to: "/seller/bot" },
     { label: "Voucher", icon: Percent, to: "/seller/voucher" },
+    { label: "Flash Sale", icon: Zap, to: "/seller/flash-sale" },
     { label: "Broadcast", icon: Megaphone, to: "/seller/broadcast" },
   ] },
   { title: "LAINNYA", items: [

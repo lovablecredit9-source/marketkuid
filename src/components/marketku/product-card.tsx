@@ -52,6 +52,17 @@ export function ProductImage({ path, url, alt, className = "" }: { path?: string
   );
 }
 
+/** "-50%" + "FLASH" badges on the image while a flash sale is live (like marketku.id). */
+export function FlashBadges({ p }: { p: CardProduct }) {
+  const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
+  return (
+    <span className="absolute left-2 top-2 flex items-center gap-1">
+      {off > 0 && <span className="rounded-md bg-destructive px-1.5 py-0.5 text-[11px] font-bold text-destructive-foreground">-{off}%</span>}
+      <span className="rounded-md bg-warning px-1.5 py-0.5 text-[11px] font-bold text-warning-foreground">FLASH</span>
+    </span>
+  );
+}
+
 /** Large card used on beranda, pencarian, and store pages (matches the screenshot list layout). */
 export function ProductCard({ p, url, wished, onWish, compact = false, simple = false }: { p: CardProduct; url?: string | undefined; wished: boolean; onWish: () => void; compact?: boolean; simple?: boolean }) {
   const navigate = useNavigate();
@@ -79,6 +90,7 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
           <button type="button" aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWish(); }} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/90 shadow-sm transition active:scale-90">
             <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} />
           </button>
+          {!closed && p.flash && <FlashBadges p={p} />}
           {(closed || out) && (
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-foreground/80 px-3 py-1 text-xs font-bold tracking-wider text-background">
               {closed ? "TOKO TUTUP" : "STOK HABIS"}

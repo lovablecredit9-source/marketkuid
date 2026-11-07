@@ -15,6 +15,8 @@ import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductImage, Stars, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { productTypeText } from "@/components/marketku/product-sheet";
 import { pageMeta } from "@/lib/meta";
+import { liveFlashPercent, useFlashSales } from "@/lib/flash";
+import { FlashStrip } from "@/components/marketku/flash-strip";
 
 export const Route = createFileRoute("/produk/$id")({
   head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
@@ -36,6 +38,7 @@ function ProdukDetail() {
   const wish = useWishlistIds();
   const toggleWish = useToggleWishlist();
   const cart = useCartActions();
+  const flash = useFlashSales(isUuid(id) ? [id] : []);
   const [vid, setVid] = useState<string | null>(null);
   const [img, setImg] = useState(0);
   const [more, setMore] = useState(false);
@@ -91,7 +94,8 @@ function ProdukDetail() {
   const gallery = [...new Set([...p.images, ...p.variants.map((x) => x.image_url ?? "")].filter(Boolean))];
   const storeRating = ratingOf(storeReviews.data ?? []);
   const shown = gallery[Math.min(img, gallery.length - 1)];
-  const price = v ? unitPrice(Number(v.price), qty, v.discount as Discount) : 0;
+  const fp = liveFlashPercent(flash.data, p.id, Date.now(), qty);
+  const price = v ? unitPrice(Number(v.price), qty, v.discount as Discount, fp) : 0;
 
   const needLogin = () => { toast("Masuk dulu untuk melanjutkan"); navigate({ to: "/login" }); };
   const addCart = async () => {
@@ -143,12 +147,13 @@ function ProdukDetail() {
           </div>
         )}
 
+        <FlashStrip sales={flash.data ?? []} />
         <section className="space-y-2.5 bg-card px-3.5 pb-3 pt-3.5">
           <div className="flex items-center justify-between gap-3">
             <p className="flex flex-wrap items-baseline gap-x-1.5 font-bold leading-none text-primary"><span><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></span>
-              {v && Number(v.price) * qty > price && (<>
-                <span className="text-[13px] font-normal text-muted-foreground line-through">{rpBuyer(Number(v.price) * qty)}</span>
-                <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[11.5px] text-destructive">{Math.round((1 - price / (Number(v.price) * qty)) * 100)}%</span>
+              {v && Number(v.price) > price && (<>
+                <span className="text-[13px] font-normal text-muted-foreground line-through">{rpBuyer(Number(v.price))}</span>
+                <span className="rounded-md bg-destructive/10 px-1.5 py-0.5 text-[11.5px] text-destructive">{Math.round((1 - price / Number(v.price)) * 100)}%</span>
               </>)}
             </p>
             <div className="flex items-center gap-2.5 text-[12px] text-muted-foreground">
@@ -195,7 +200,7 @@ function ProdukDetail() {
                       {empty && <span className="absolute -top-2 right-2 rounded bg-card px-1 text-[9px] text-destructive">Habis</span>}
                       {x.name}
                       {(() => {
-                        const base = Number(x.price); const net = unitPrice(base, 1, x.discount as Discount);
+                        const base = Number(x.price); const net = unitPrice(base, 1, x.discount as Discount, fp);
                         return base > net ? <span className="mt-0.5 block text-[9.5px] font-medium text-success">Hemat {rpBuyer(base - net)} · {Math.round((1 - net / base) * 100)}%</span> : null;
                       })()}
                     </button>
