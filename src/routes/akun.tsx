@@ -118,6 +118,16 @@ function AkunDashboard({ user }: { user: User }) {
   });
   const store = useSellerStore(user.id);
   const wallet = useWallet(user.id);
+  const counts = useQuery({
+    queryKey: ["buyer_counts", user.id],
+    queryFn: async () => {
+      const [o, w] = await Promise.all([
+        supabase.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", user.id),
+        supabase.from("wishlists").select("product_id", { count: "exact", head: true }).eq("user_id", user.id),
+      ]);
+      return { orders: o.count ?? 0, wishlist: w.count ?? 0 };
+    },
+  });
 
   const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
   const isSeller = !!store.data;
@@ -200,8 +210,8 @@ function AkunDashboard({ user }: { user: User }) {
 
         <div className="grid grid-cols-2 gap-2">
           <Stat icon={Coins} value={0} label="TOKEN" />
-          <Stat icon={ShoppingBag} value={0} label="TOTAL ORDER" />
-          <Stat icon={Heart} value={0} label="WISHLIST" full />
+          <Stat icon={ShoppingBag} value={counts.data?.orders ?? 0} label="TOTAL ORDER" />
+          <Stat icon={Heart} value={counts.data?.wishlist ?? 0} label="WISHLIST" full />
         </div>
 
         <section className="rounded-xl border bg-card p-3 shadow-sm">
@@ -214,6 +224,8 @@ function AkunDashboard({ user }: { user: User }) {
             <Tile icon={MessageCircle} tone="green" label="Pesan" onClick={() => navigate({ to: "/pesan" })} />
             <Tile icon={Clock} tone="blue" label="Riwayat" onClick={() => navigate({ to: "/riwayat" })} />
             <Tile icon={ShieldAlert} tone="amber" label="Dispute" onClick={() => navigate({ to: "/dispute" })} />
+            <Tile icon={Store} tone="blue" label="Toko Diikuti" onClick={() => navigate({ to: "/toko-diikuti" })} />
+            <Tile icon={GitCompareArrows} tone="cyan" label="Bandingkan" onClick={() => navigate({ to: "/bandingkan" })} />
           </div>
         </section>
 
