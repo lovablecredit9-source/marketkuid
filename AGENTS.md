@@ -38,3 +38,4 @@
 - Flash sales change only via `create_flash_sale`/`cancel_flash_sale`; `place_order` applies them — client mirror in `src/lib/flash.ts`.
 - Alias links (`/$kategori/product/…[/reviews]`, `/search`, `/u/$slug`, `/terms`, `/privacy`) only redirect.
 - Guest checkout: `guest.functions.ts` (service role) maps email→hidden buyer in `guest_buyers`, runs `guest_place_order`/`guest_submit_payment` (wrap the normal RPCs); access only via secret `guest_checkouts.token` at `/lacak/$token`.
+- Device-only buyer tools (compare list, search history, wishlist price snapshots) live in `src/lib/buyer-tools.ts` localStorage — no server state, so nothing private is stored.

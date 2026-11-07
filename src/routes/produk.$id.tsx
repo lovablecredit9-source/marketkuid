@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp, Clock, Shield,
+  ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp, Clock, Shield, GitCompareArrows,
 } from "lucide-react";
 import { viewsLabel } from "@/lib/views";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,8 @@ import { pageMeta } from "@/lib/meta";
 import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 import { FlashStrip } from "@/components/marketku/flash-strip";
 import { rememberViewed } from "@/lib/recently-viewed";
+import { ShareSheet } from "@/components/marketku/share-sheet";
+import { useCompare } from "@/components/marketku/compare";
 
 export const Route = createFileRoute("/produk/$id")({
   head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
@@ -51,6 +53,8 @@ function ProdukDetail() {
   const [added, setAdded] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const [guard, setGuard] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const compare = useCompare();
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     onScroll();
@@ -113,10 +117,7 @@ function ProdukDetail() {
     if (error || !data) { toast.error(dbError(error)); return; }
     navigate({ to: "/chat/$id", params: { id: data }, search: { produk: p.id } });
   };
-  const share = async () => {
-    const url = window.location.href;
-    try { if (navigator.share) await navigator.share({ title: p.name, url }); else { await navigator.clipboard.writeText(url); toast.success("Link produk disalin"); } } catch { /* dibatalkan */ }
-  };
+  const share = () => setShareOpen(true);
   const w = v?.warranty as Warranty | null;
   // Peringkat terlaris di kategori yang sama — hanya tampil kalau produk sudah pernah terjual.
   const rank = p.sold_count > 0 && ranked.data
@@ -135,7 +136,8 @@ function ProdukDetail() {
           </button>
           <button aria-label="Kembali" onClick={() => router.history.back()} className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><ArrowLeft className="h-5 w-5" /></button>
           <div className="absolute right-3 top-3 flex gap-2">
-            <button aria-label="Bagikan" onClick={() => void share()} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><Share2 className="h-5 w-5" /></button>
+            <button aria-label="Bagikan" onClick={share} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><Share2 className="h-5 w-5" /></button>
+            <button aria-label={compare.has(p.id) ? "Hapus dari Bandingkan" : "Bandingkan"} onClick={() => compare.toggle(p.id)} className={`grid h-10 w-10 place-items-center rounded-full shadow backdrop-blur transition active:scale-90 ${compare.has(p.id) ? "bg-primary text-primary-foreground" : "bg-card/80"}`}><GitCompareArrows className="h-5 w-5" /></button>
             <button aria-label="Menu lainnya" onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full bg-card/80 shadow backdrop-blur transition active:scale-90"><MoreVertical className="h-5 w-5" /></button>
           </div>
           {blocked && <span className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-background/30 bg-foreground/75 px-4 py-1.5 text-[12.5px] font-bold text-background shadow backdrop-blur">{blocked}</span>}
@@ -315,7 +317,7 @@ function ProdukDetail() {
           <div className="flex shrink-0 overflow-hidden rounded-md border">
             <button aria-label="Chat seller" onClick={() => void chat()} className="flex h-11 items-center gap-1.5 border-r px-3 text-[12.5px] font-semibold transition active:bg-muted"><MessageCircle className="h-4 w-4" /> Chat</button>
             <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="grid h-11 w-11 place-items-center border-r transition active:bg-muted"><Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
-            <button aria-label="Bagikan" onClick={() => void share()} className="grid h-11 w-11 place-items-center transition active:bg-muted"><Share2 className="h-4 w-4" /></button>
+            <button aria-label="Bagikan" onClick={share} className="grid h-11 w-11 place-items-center transition active:bg-muted"><Share2 className="h-4 w-4" /></button>
           </div>
         </div>
       ) : (
@@ -408,6 +410,7 @@ function ProdukDetail() {
         </Dialog.Portal>
       </Dialog.Root>
 
+      <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={p.name} url={typeof window === "undefined" ? "" : window.location.href} text={price > 0 ? `Cek ${p.name} cuma ${rpBuyer(price)} di Marketku` : `Cek ${p.name} di Marketku`} />
       <Dialog.Root open={menu} onOpenChange={setMenu}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
@@ -417,6 +420,7 @@ function ProdukDetail() {
               <Dialog.Close aria-label="Tutup" className="grid h-9 w-9 place-items-center rounded-full transition active:scale-90"><X className="h-5 w-5" /></Dialog.Close>
             </div>
             <button onClick={() => { setMenu(false); navigate({ to: "/" }); }} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><Home className="h-5 w-5" /> Kembali ke Beranda</button>
+            <button onClick={() => { setMenu(false); navigate({ to: "/bandingkan" }); }} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><GitCompareArrows className="h-5 w-5" /> Lihat Bandingkan{compare.ids.length ? ` (${compare.ids.length})` : ""}</button>
             <button onClick={() => { setMenu(false); void chat(); }} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><MessageCircle className="h-5 w-5" /> Chat penjual</button>
             <a href={supportWaUrl(`Halo Marketku, saya butuh bantuan soal produk "${p.name}".`)} target="_blank" rel="noreferrer" onClick={() => setMenu(false)} className="flex w-full items-center gap-4 border-b px-5 py-4 text-left transition active:bg-muted"><MessageCircle className="h-5 w-5" /> Hubungi bantuan Marketku</a>
             <button onClick={() => { setMenu(false); if (!user) return needLogin(); navigate({ to: "/dispute" }); }} className="flex w-full items-center gap-4 px-5 py-4 text-left transition active:bg-muted"><Flag className="h-5 w-5" /> Laporkan produk</button>
