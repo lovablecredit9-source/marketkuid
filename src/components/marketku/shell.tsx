@@ -279,7 +279,25 @@ export function AppShell({ children, title, nav = true, header = true, showSuppo
       {header && <Header title={title} showSupport={showSupport} homeSearch={homeSearch} />}
       <main className={nav ? "pb-28" : "pb-8"}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
+      {nav && <BackToTop />}
     </div>
+  );
+}
+
+/** Round "Kembali ke atas" button that appears after scrolling past 320px, like marketku.id. */
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const on = () => setShow(window.scrollY > 320);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
+  if (!show) return null;
+  return (
+    <button type="button" className="mk-back-to-top" aria-label="Kembali ke atas" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+      <ArrowUp className="h-[18px] w-[18px]" />
+    </button>
   );
 }
 
