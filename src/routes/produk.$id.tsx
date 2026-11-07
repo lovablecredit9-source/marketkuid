@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, Share2, Heart, Star, Zap, ShieldCheck, Store, ChevronRight, ChevronLeft, MessageSquareQuote, MessageCircle, ShoppingCart, Check, X, Minus, Plus, Package, MoreVertical, Home, Flag, ArrowUp, Clock, Shield,
 } from "lucide-react";
+import { viewsLabel } from "@/lib/views";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls, useStoreMedia, warrantyLabel, type Warranty } from "@/lib/products";
@@ -166,6 +167,7 @@ function ProdukDetail() {
           <h1 className="text-[14.5px] font-bold leading-snug">{p.name}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <p className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] shadow-sm"><Star className="h-3.5 w-3.5 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
+            <span className="text-[11.5px] text-muted-foreground">{viewsLabel(p.view_count)}</span>
             {rank > 0 && rank <= 10 && p.product_categories?.name && (
               <span className="text-[11.5px] font-semibold text-warning">🏅 No. {rank} terlaris di {p.product_categories.name}</span>
             )}
