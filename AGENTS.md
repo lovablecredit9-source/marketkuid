@@ -36,3 +36,4 @@
 - Platform bots `admin_bot`/`seller_hub_bot`: service-role singletons, has_role setup, trigger-queued alerts, PNG cards (`card-image.server.ts`) — tokens server-only.
 - Admin Mini App: only current admins in `admin_bot_admins`.
 - Flash sales change only via `create_flash_sale`/`cancel_flash_sale`; `place_order` applies them — client mirror in `src/lib/flash.ts`.
+- marketku.id-style links `/<kategori>/product/<judul>-<uuid>` only redirect to `/produk/$id` (id parsed by `src/lib/product-link.ts`) — one product page, old links keep working.
