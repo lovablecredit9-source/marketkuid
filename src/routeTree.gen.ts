@@ -23,13 +23,16 @@ import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PesanRouteImport } from './routes/pesan'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrivasiRouteImport } from './routes/privasi'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RekberRouteImport } from './routes/rekber'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TopupRouteImport } from './routes/topup'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
@@ -63,6 +66,7 @@ import { Route as SellerTransaksiRouteImport } from './routes/seller.transaksi'
 import { Route as SellerVoucherRouteImport } from './routes/seller.voucher'
 import { Route as SellerWithdrawRouteImport } from './routes/seller.withdraw'
 import { Route as TokoSlugRouteImport } from './routes/toko.$slug'
+import { Route as USlugRouteImport } from './routes/u.$slug'
 import { Route as UlasanIdRouteImport } from './routes/ulasan.$id'
 import { Route as KategoriProductSlugRouteImport } from './routes/$kategori.product.$slug'
 import { Route as SellerChatIdRouteImport } from './routes/seller.chat_.$id'
@@ -144,6 +148,11 @@ const PesanRoute = PesanRouteImport.update({
   path: '/pesan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivasiRoute = PrivasiRouteImport.update({
   id: '/privasi',
   path: '/privasi',
@@ -169,6 +178,11 @@ const RiwayatRoute = RiwayatRouteImport.update({
   path: '/riwayat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
@@ -177,6 +191,11 @@ const SellerRoute = SellerRouteImport.update({
 const SyaratRoute = SyaratRouteImport.update({
   id: '/syarat',
   path: '/syarat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TopupRoute = TopupRouteImport.update({
@@ -344,6 +363,11 @@ const TokoSlugRoute = TokoSlugRouteImport.update({
   path: '/toko/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const USlugRoute = USlugRouteImport.update({
+  id: '/u/$slug',
+  path: '/u/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UlasanIdRoute = UlasanIdRouteImport.update({
   id: '/ulasan/$id',
   path: '/ulasan/$id',
@@ -411,13 +435,16 @@ export interface FileRoutesByFullPath {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/terms': typeof TermsRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
@@ -450,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/toko/$slug': typeof TokoSlugRoute
+  '/u/$slug': typeof USlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
@@ -477,12 +505,15 @@ export interface FileRoutesByTo {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/search': typeof SearchRoute
   '/syarat': typeof SyaratRoute
+  '/terms': typeof TermsRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
@@ -515,6 +546,7 @@ export interface FileRoutesByTo {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/toko/$slug': typeof TokoSlugRoute
+  '/u/$slug': typeof USlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
@@ -543,13 +575,16 @@ export interface FileRoutesById {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/pesan': typeof PesanRoute
+  '/privacy': typeof PrivacyRoute
   '/privasi': typeof PrivasiRoute
   '/register': typeof RegisterRoute
   '/rekber': typeof RekberRoute
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
+  '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
+  '/terms': typeof TermsRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin_/login': typeof AdminLoginRoute
@@ -582,6 +617,7 @@ export interface FileRoutesById {
   '/seller/voucher': typeof SellerVoucherRoute
   '/seller/withdraw': typeof SellerWithdrawRoute
   '/toko/$slug': typeof TokoSlugRoute
+  '/u/$slug': typeof USlugRoute
   '/ulasan/$id': typeof UlasanIdRoute
   '/seller/': typeof SellerIndexRoute
   '/$kategori/product/$slug': typeof KategoriProductSlugRoute
@@ -611,13 +647,16 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/pesan'
+    | '/privacy'
     | '/privasi'
     | '/register'
     | '/rekber'
     | '/reset-password'
     | '/riwayat'
+    | '/search'
     | '/seller'
     | '/syarat'
+    | '/terms'
     | '/topup'
     | '/wishlist'
     | '/admin/login'
@@ -650,6 +689,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/toko/$slug'
+    | '/u/$slug'
     | '/ulasan/$id'
     | '/seller/'
     | '/$kategori/product/$slug'
@@ -677,12 +717,15 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/pesan'
+    | '/privacy'
     | '/privasi'
     | '/register'
     | '/rekber'
     | '/reset-password'
     | '/riwayat'
+    | '/search'
     | '/syarat'
+    | '/terms'
     | '/topup'
     | '/wishlist'
     | '/admin/login'
@@ -715,6 +758,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/toko/$slug'
+    | '/u/$slug'
     | '/ulasan/$id'
     | '/seller'
     | '/$kategori/product/$slug'
@@ -742,13 +786,16 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/pesan'
+    | '/privacy'
     | '/privasi'
     | '/register'
     | '/rekber'
     | '/reset-password'
     | '/riwayat'
+    | '/search'
     | '/seller'
     | '/syarat'
+    | '/terms'
     | '/topup'
     | '/wishlist'
     | '/admin_/login'
@@ -781,6 +828,7 @@ export interface FileRouteTypes {
     | '/seller/voucher'
     | '/seller/withdraw'
     | '/toko/$slug'
+    | '/u/$slug'
     | '/ulasan/$id'
     | '/seller/'
     | '/$kategori/product/$slug'
@@ -809,13 +857,16 @@ export interface RootRouteChildren {
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
   PesanRoute: typeof PesanRoute
+  PrivacyRoute: typeof PrivacyRoute
   PrivasiRoute: typeof PrivasiRoute
   RegisterRoute: typeof RegisterRoute
   RekberRoute: typeof RekberRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RiwayatRoute: typeof RiwayatRoute
+  SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
   SyaratRoute: typeof SyaratRoute
+  TermsRoute: typeof TermsRoute
   TopupRoute: typeof TopupRoute
   WishlistRoute: typeof WishlistRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -828,6 +879,7 @@ export interface RootRouteChildren {
   ProdukBaruRoute: typeof ProdukBaruRoute
   ProdukDiskonRoute: typeof ProdukDiskonRoute
   TokoSlugRoute: typeof TokoSlugRoute
+  USlugRoute: typeof USlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
   KategoriProductSlugRoute: typeof KategoriProductSlugRoute
   ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
@@ -937,6 +989,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PesanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privasi': {
       id: '/privasi'
       path: '/privasi'
@@ -972,6 +1031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RiwayatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller': {
       id: '/seller'
       path: '/seller'
@@ -984,6 +1050,13 @@ declare module '@tanstack/react-router' {
       path: '/syarat'
       fullPath: '/syarat'
       preLoaderRoute: typeof SyaratRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/topup': {
@@ -1217,6 +1290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TokoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$slug': {
+      id: '/u/$slug'
+      path: '/u/$slug'
+      fullPath: '/u/$slug'
+      preLoaderRoute: typeof USlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ulasan/$id': {
       id: '/ulasan/$id'
       path: '/ulasan/$id'
@@ -1372,13 +1452,16 @@ const rootRouteChildren: RootRouteChildren = {
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
   PesanRoute: PesanRoute,
+  PrivacyRoute: PrivacyRoute,
   PrivasiRoute: PrivasiRoute,
   RegisterRoute: RegisterRoute,
   RekberRoute: RekberRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RiwayatRoute: RiwayatRoute,
+  SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
   SyaratRoute: SyaratRoute,
+  TermsRoute: TermsRoute,
   TopupRoute: TopupRoute,
   WishlistRoute: WishlistRoute,
   AdminLoginRoute: AdminLoginRoute,
@@ -1391,6 +1474,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdukBaruRoute: ProdukBaruRoute,
   ProdukDiskonRoute: ProdukDiskonRoute,
   TokoSlugRoute: TokoSlugRoute,
+  USlugRoute: USlugRoute,
   UlasanIdRoute: UlasanIdRoute,
   KategoriProductSlugRoute: KategoriProductSlugRoute,
   ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,

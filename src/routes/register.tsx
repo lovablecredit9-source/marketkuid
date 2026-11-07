@@ -145,7 +145,7 @@ function Register() {
   return (
     <AuthLayout>
       <AuthCard>
-        <AuthTitle title={seller ? "Daftar seller" : "Buat akun"} desc={seller ? "Buat toko dan slug seller sejak awal registrasi." : undefined} />
+        {seller ? <AuthTitle title="Daftar seller" desc="Buat toko dan slug seller sejak awal registrasi." /> : <AuthTitle title="Buat akun" />}
         <div role="tablist" aria-label="Jenis akun" className="mb-4 grid grid-cols-2 gap-2">
           {([["customer", ShoppingBag, "Customer", "Daftar untuk belanja"], ["seller", Store, "Seller", "Daftar untuk jualan"]] as const).map(([r, Icon, t, d]) => {
             const on = (r === "seller") === seller;
