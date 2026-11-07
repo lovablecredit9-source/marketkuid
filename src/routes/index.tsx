@@ -88,15 +88,9 @@ function Index() {
 
             <RecentlyViewed pool={list} />
 
-            {trending.length > 0 && (
-              <Section icon={TrendingUp} tone="pink" kicker="Jelajahi Marketku" title="Sedang Populer" to="/cari">
-                <Rail>{trending.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
-              </Section>
-            )}
+            <LikedSection items={trending.length ? [...trending, ...liked.filter((p) => !trending.some((t) => t.id === p.id))] : liked} urlOf={urlOf} />
 
-            <LikedSection items={liked} urlOf={urlOf} />
-
-            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Terlaris hari ini" to="/cari" toSearch={{ sort: "terlaris" }}>
+            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Terlaris hari ini">
               {best.length ? (
                 <Rail>{best.map((p, i) => <MiniCard key={p.id} p={p} url={urlOf(p)} rank={i + 1} />)}</Rail>
               ) : (
@@ -105,7 +99,7 @@ function Index() {
             </Section>
 
             {discounted.length > 0 && (
-              <Section icon={BadgePercent} tone="pink" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/produk/diskon">
+              <Section icon={BadgePercent} tone="pink" kicker="Harga spesial terbatas" title="Produk Lagi Diskon" to="/produk/diskon">
                 <Rail>{discounted.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
@@ -514,14 +508,14 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
 function LikedSection({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
   const [n, setN] = useState(6);
   return (
-    <Section icon={Sparkles} tone="blue" kicker="Explore Marketku" title="Produk Disukai" to="/cari">
+    <Section icon={Sparkles} tone="blue" kicker="Jelajahi Marketku" title="Sedang Populer">
       <div className="grid grid-cols-2 gap-3 px-3 pb-3">
         {items.slice(0, n).map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} grid />)}
       </div>
       {items.length > n && (
         <div className="px-3 pb-3">
-          <button onClick={() => setN((v) => v + 6)} className="flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold text-primary transition active:scale-95">
-            Tampilkan lagi <ChevronDown className="h-4 w-4" />
+          <button onClick={() => setN((v) => v + 6)} className="flex items-center gap-2 rounded-xl border bg-card px-4 py-2 text-sm font-semibold text-primary transition active:scale-95">
+            Tampilkan lainnya <ChevronDown className="h-4 w-4" />
           </button>
         </div>
       )}
