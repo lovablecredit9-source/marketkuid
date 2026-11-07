@@ -410,6 +410,7 @@ function ProdukDetail() {
         </Dialog.Portal>
       </Dialog.Root>
 
+      <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={p.name} url={typeof window === "undefined" ? "" : window.location.href} text={`Cek ${p.name} mulai ${rpBuyer(price || p.variants[0] ? price : 0)} di Marketku`} />
       <Dialog.Root open={menu} onOpenChange={setMenu}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
