@@ -518,3 +518,17 @@
 .seller-auth-card { box-shadow: 0 30px 60px -30px oklch(0.55 0.15 280 / 0.45); }
 
 #lovable-badge { display: none !important; }
+
+/* Seller peek (like marketku.id): store name + store rating slide up over the product photo
+   on hover (mouse) or after a long press (touch). */
+:root { --peek-scrim: oklch(0.21 0.04 265); --peek-foreground: oklch(1 0 0); }
+.mk-peek-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.mk-seller-peek {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 4px; padding: 10px;
+  background: linear-gradient(to top, color-mix(in oklab, var(--peek-scrim) 92%, transparent), color-mix(in oklab, var(--peek-scrim) 50%, transparent) 70%, transparent);
+  color: var(--peek-foreground); opacity: 0; transform: translateY(8px); transition: opacity .22s, transform .22s; pointer-events: none;
+}
+.mk-peek-card.is-seller-peek .mk-seller-peek { opacity: 1; transform: translateY(0); }
+@media (hover: hover) { .mk-peek-card:hover .mk-seller-peek { opacity: 1; transform: translateY(0); } }
+.mk-seller-peek__avatar { display: inline-grid; place-items: center; width: 18px; height: 18px; flex-shrink: 0; border-radius: 999px; background: color-mix(in oklab, var(--peek-foreground) 18%, transparent); }
+.mk-seller-peek__reviews { color: color-mix(in oklab, var(--peek-foreground) 70%, transparent); font-weight: 500; }
