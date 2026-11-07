@@ -13,6 +13,7 @@ import { BROADCAST_MAX } from "@/lib/broadcast";
 import { broadcastPreview, broadcastTest, sendBroadcast } from "@/lib/broadcast.functions";
 
 export const Route = createFileRoute("/seller/broadcast")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Broadcast — Seller Center Marketku", "Kirim pesan massal ke pelanggan bot Telegram tokomu."),
   component: Broadcast,
 });

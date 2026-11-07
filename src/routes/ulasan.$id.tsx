@@ -9,6 +9,7 @@ import { ratingBars, ratingOf, useProductDetail, useReviews, fmtDate, type Revie
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/ulasan/$id")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Ulasan Produk — Marketku", "Baca rating dan ulasan pembeli untuk produk dan toko di Marketku."),
   component: Ulasan,
 });

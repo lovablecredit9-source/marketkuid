@@ -9,6 +9,7 @@ function sameSecret(a: string, b: string) {
 }
 
 export const Route = createFileRoute("/api/public/telegram/$botId")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request, params }) => {

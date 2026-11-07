@@ -13,6 +13,7 @@ import { pageMeta } from "@/lib/meta";
 type S = { q?: string; kategori?: string; sort?: SortKey | "sponsored" };
 const SORT_KEYS = [...SORTS.map((x) => x.value), "sponsored"] as string[];
 export const Route = createFileRoute("/cari")({
+  staticData: { sitemap: true },
   validateSearch: (s: Record<string, unknown>): S => ({
     ...(typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
     ...(typeof s["kategori"] === "string" && s["kategori"] ? { kategori: s["kategori"] } : {}),

@@ -4,6 +4,7 @@ import { pageMeta } from "@/lib/meta";
 
 // Opens marketku.id-style links (/gemini/product/gemini-pro-3-bulan-<id>) on the product page.
 export const Route = createFileRoute("/$kategori/product/$slug")({
+  staticData: { sitemap: false },
   beforeLoad: ({ params }) => {
     const id = idFromProductSlug(params.slug);
     if (!id) throw notFound();

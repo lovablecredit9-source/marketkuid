@@ -33,6 +33,7 @@ const CAT_ICON: Record<string, LucideIcon> = {
 type HomeSearch = { kategori?: string; subkategori?: string };
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   // Like marketku.id, picking a category filters right on the home page: /?kategori=AI+Tools&subkategori=9router
   validateSearch: (s: Record<string, unknown>): HomeSearch => ({
     ...(typeof s["kategori"] === "string" && s["kategori"] ? { kategori: s["kategori"] } : {}),

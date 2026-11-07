@@ -9,6 +9,7 @@ import { categoryIcon } from "@/lib/category-icons";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/kategori")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Semua Kategori — Marketku", "Jelajahi semua kategori produk digital yang tersedia di Marketku."),
   component: KategoriPage,
 });

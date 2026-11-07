@@ -9,6 +9,7 @@ function sameSecret(a: string, b: string) {
 
 /** Webhook for the "Auth Marketku" login bot: records who pressed /start so codes can be delivered. */
 export const Route = createFileRoute("/api/public/telegram/auth")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

@@ -22,6 +22,7 @@ const fmtDate = (s: string) => new Date(s).toLocaleString("id-ID", { day: "2-dig
 const DAY90 = () => new Date(Date.now() - 90 * 86400_000).toISOString();
 
 export const Route = createFileRoute("/seller/saldo")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Saldo & Credits — Seller Center Marketku" },

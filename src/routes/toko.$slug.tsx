@@ -14,6 +14,7 @@ import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/toko/$slug")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Toko Seller — Marketku", "Lihat produk, rating, dan ulasan pembeli dari toko seller di Marketku."),
   component: Toko,
 });

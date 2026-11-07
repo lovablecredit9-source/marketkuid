@@ -25,6 +25,7 @@ import { Bell, BellRing } from "lucide-react";
 import { readRestock, toggleRestock, writeRestock } from "@/lib/buyer-tools";
 
 export const Route = createFileRoute("/produk/$id")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
   component: ProdukDetail,
 });

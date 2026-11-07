@@ -16,6 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { miniAppLogin, verifyTelegramLogin } from "@/lib/auth-bot.functions";
 
 export const Route = createFileRoute("/seller")({
+  staticData: { sitemap: "exclude-subtree" },
   head: () => ({
     meta: [
       { title: "Seller Center — Marketku" },

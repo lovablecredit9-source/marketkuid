@@ -11,6 +11,7 @@ import { fmtDate } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/pendapatan")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Pendapatan Saya — Seller Center Marketku", "Pantau dana pending dan dana yang sudah dilepas dari setiap transaksi toko."),
   component: Pendapatan,
 });

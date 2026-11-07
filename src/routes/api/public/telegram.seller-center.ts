@@ -9,6 +9,7 @@ function sameSecret(a: string, b: string) {
 
 /** Webhook for the platform "Marketku Seller Center" bot; only linked sellers get their own store data. */
 export const Route = createFileRoute("/api/public/telegram/seller-center")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

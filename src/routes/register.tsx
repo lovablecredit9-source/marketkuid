@@ -12,6 +12,7 @@ import { isEmailFormat, normalizeUsername, passwordStrength, PASSWORD_MIN, usern
 type RegSearch = { email?: string; dari?: "login"; role?: "seller"; ref?: string };
 
 export const Route = createFileRoute("/register")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): RegSearch => ({
     ...(typeof s["email"] === "string" && s["email"] ? { email: s["email"] } : {}),
     ...(s["dari"] === "login" ? { dari: "login" as const } : {}),

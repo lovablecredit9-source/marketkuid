@@ -12,6 +12,7 @@ import { KIND_LABEL, providerColor, usePaymentMethods, type PaymentKind } from "
 import { DEFAULT_MIN_DEPOSIT, depositStatus, depositAmountError, uploadPaymentImage, usePaymentSettings, usePaymentUrls, useWallet } from "@/lib/wallet";
 
 export const Route = createFileRoute("/topup")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Top Up Saldo — Marketku", "Isi Saldo Marketku lewat QRIS, DANA, GoPay, OVO, ShopeePay, atau transfer bank."),
   component: TopUp,
 });

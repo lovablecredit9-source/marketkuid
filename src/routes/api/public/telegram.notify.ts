@@ -3,6 +3,7 @@ import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 
 /** Scheduled every minute: sends queued order notifications to sellers' Telegram. */
 export const Route = createFileRoute("/api/public/telegram/notify")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

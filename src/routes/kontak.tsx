@@ -3,6 +3,7 @@ import { Bullets, LegalCard, LegalPage } from "@/components/marketku/legal";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/kontak")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Hubungi Kami — Marketku", "Jalur kontak resmi tim support Marketku untuk buyer dan seller."),
   component: Kontak,
 });

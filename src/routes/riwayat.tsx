@@ -18,6 +18,7 @@ import { ordersCsv, spendSummary } from "@/lib/buyer-tools";
 import { Wallet, RotateCcw, Download } from "lucide-react";
 
 export const Route = createFileRoute("/riwayat")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Riwayat Pesanan — Marketku", "Lihat daftar riwayat pesananmu di Marketku."),
   component: Riwayat,
 });

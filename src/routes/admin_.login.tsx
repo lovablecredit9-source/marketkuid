@@ -13,6 +13,7 @@ import { ADMIN_MINI_DENIED } from "@/lib/admin-bot";
 import { ADMIN_TG_INIT_KEY, readTgInitData } from "@/lib/tg-miniapp";
 
 export const Route = createFileRoute("/admin_/login")({
+  staticData: { sitemap: false },
   head: () => {
     const m = pageMeta("Login Admin — Marketku", "Halaman masuk khusus admin Marketku.");
     return { ...m, meta: [...m.meta, { name: "robots", content: "noindex" }] };

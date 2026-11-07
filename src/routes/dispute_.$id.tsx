@@ -14,6 +14,7 @@ import { dbError } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/dispute_/$id")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Dispute Room — Marketku", "Ruang penyelesaian masalah pesanan antara pembeli, seller, dan admin Marketku."),
   component: DisputeRoom,
 });

@@ -4,6 +4,7 @@ import { categoryOf, findGuide, type Block } from "@/lib/panduan";
 import { GUIDE_ICONS as ICONS } from "@/components/marketku/guide-icons";
 
 export const Route = createFileRoute("/seller/panduan/$slug")({
+  staticData: { sitemap: false },
   loader: ({ params }) => {
     const guide = findGuide(params.slug);
     if (!guide) throw notFound();

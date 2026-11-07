@@ -6,6 +6,7 @@ import { pageMeta } from "@/lib/meta";
 import { FEE_REGULAR, FEE_SAME_DAY, MIN_WITHDRAW } from "@/lib/withdraw";
 
 export const Route = createFileRoute("/jadi-seller")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Jadi Seller — Jual Produk Digital di Marketku", "Buka toko gratis di Marketku: komisi 3% per transaksi sukses, dana aman lewat escrow, dan Seller Center lengkap."),
   component: JadiSeller,
 });

@@ -21,6 +21,7 @@ import { useSellerOrders } from "@/lib/seller-orders";
 import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/akun")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Akun Saya — Marketku" },

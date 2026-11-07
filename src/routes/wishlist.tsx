@@ -12,6 +12,7 @@ import { priceDrop, readPriceSnap, savePriceSnap, snapPrices, type PriceSnap } f
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/wishlist")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Wishlist — Marketku", "Produk digital favorit yang kamu simpan untuk dibeli nanti, lengkap dengan pantau harga turun."),
   component: Wishlist,
 });

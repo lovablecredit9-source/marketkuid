@@ -8,6 +8,7 @@ import { fmtDateTime } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/dispute")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Laporan & Dispute — Marketku", "Lihat laporan dan sengketa pesanan sebagai pembeli maupun penjual."),
   component: Dispute,
 });

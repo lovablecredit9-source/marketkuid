@@ -19,6 +19,7 @@ import { SELLER_WA_ADMIN, SELLER_WA_GROUP, storeSetupSteps } from "@/lib/seller-
 import { HoldsSheet, SELLER_FEE_PERCENT, WARRANTY_HOLD_MAX_DAYS, holdLeft, holdsOfKind, useSellerBalance, useSellerHolds, type HoldKind } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/seller/")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Dasbor Seller — Marketku", "Ringkasan aktivitas, saldo, dan penjualan toko kamu di Marketku."),
   component: Dasbor,
 });

@@ -9,6 +9,7 @@ import { useImageUrls } from "@/lib/products";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/bandingkan")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Bandingkan Produk — Marketku", "Bandingkan harga, rating, stok, dan penjualan hingga 3 produk digital sekaligus."),
   component: Bandingkan,
 });

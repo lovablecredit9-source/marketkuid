@@ -13,6 +13,7 @@ import {
 } from "@/lib/referral";
 
 export const Route = createFileRoute("/referral")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Undang Teman — Marketku", "Ajak teman belanja produk digital di Marketku dan dapatkan Saldo Marketku setelah pesanan pertamanya selesai."),
   component: ReferralPage,
 });

@@ -7,6 +7,7 @@ import { SellerCard, SellerInput, SellerPageTitle, SellerSheet } from "@/compone
 import { PageTour } from "@/components/marketku/tour";
 
 export const Route = createFileRoute("/seller/pembayaran")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Kontrol Pembayaran — Seller Center Marketku", "Hubungkan payment gateway KlikQRIS pribadi untuk tokomu."),
   component: Pembayaran,
 });

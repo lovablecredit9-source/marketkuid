@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { authErrorText, setRememberMe } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Masuk — Marketku" },

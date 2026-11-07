@@ -16,6 +16,7 @@ import { pageMeta } from "@/lib/meta";
 import logo from "@/assets/logo-marketku.png.asset.json";
 
 export const Route = createFileRoute("/bayar/$id")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Pembayaran — Marketku", "Scan QRIS atau bayar dengan Saldo Marketku untuk menyelesaikan pesananmu."),
   component: Bayar,
 });

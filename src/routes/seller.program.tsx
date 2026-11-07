@@ -7,6 +7,7 @@ import { SELLER_TIERS, tierFor, useSellerOrders } from "@/lib/seller-orders";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/program")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Program Seller — Seller Center Marketku", "Paket level seller, Marketku Star, dan Verified Seller Marketku."),
   component: Program,
 });

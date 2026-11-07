@@ -19,6 +19,7 @@ import {
 } from "@/lib/withdraw";
 
 export const Route = createFileRoute("/seller/withdraw")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Withdraw — Seller Center Marketku", "Kelola dan pantau penarikan saldo penjualan toko."),
   component: Withdraw,
 });

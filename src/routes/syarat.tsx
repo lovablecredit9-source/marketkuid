@@ -3,6 +3,7 @@ import { Bullets, LegalCard, LegalPage } from "@/components/marketku/legal";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/syarat")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Syarat & Ketentuan — Marketku", "Ringkasan syarat penggunaan Marketku sebagai pusat marketplace publik."),
   component: Syarat,
 });

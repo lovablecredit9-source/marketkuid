@@ -22,6 +22,7 @@ import { AdminReferralTab } from "@/components/marketku/admin-referral-tab";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
+  staticData: { sitemap: false },
   head: () => {
     const m = pageMeta("Admin Console — Marketku", "Panel admin Marketku: deposit, metode pembayaran, blokir akun & toko, produk, pesanan.");
     return { ...m, meta: [...m.meta, { name: "robots", content: "noindex" }] };
