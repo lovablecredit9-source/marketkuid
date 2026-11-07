@@ -394,7 +394,8 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
 }
 
 type RailTone = "blue" | "gold" | "pink" | "green" | "violet";
-function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari" | "/produk/baru" | "/produk/diskon"; children: ReactNode }) {
+function Section({ icon: I, tone, kicker, title, to, toSearch, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari" | "/produk/baru" | "/produk/diskon"; toSearch?: { sort: "sponsored" | "terlaris" }; children: ReactNode }) {
+  const cls = "flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95";
   return (
     <section className={`mk-rail ${tone === "blue" ? "" : `mk-rail--${tone}`} overflow-hidden rounded-2xl border bg-card shadow-sm`}>
       <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
@@ -403,7 +404,9 @@ function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideI
           <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-muted-foreground">{kicker}</p>
           <h2 className="truncate text-[14px] font-extrabold leading-tight">{title}</h2>
         </div>
-        {to && <Link to={to} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95">Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        {to && toSearch ? (
+          <Link to="/cari" search={toSearch} className={cls}>Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>
+        ) : to ? <Link to={to} className={cls}>Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link> : null}
       </div>
       <div className="pt-3">{children}</div>
     </section>

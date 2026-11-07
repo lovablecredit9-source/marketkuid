@@ -16,13 +16,14 @@ export function unitPrice(price: number, qty: number, discount: Discount, flashP
   return applyFlash(p, flashPercent);
 }
 
-export type SortKey = "relevan" | "terbaru" | "termurah" | "termahal" | "terlaris";
+export type SortKey = "relevan" | "terbaru" | "termurah" | "termahal" | "terlaris" | "rating";
 export const SORTS: { value: SortKey; label: string }[] = [
   { value: "relevan", label: "Paling Relevan" },
   { value: "terbaru", label: "Terbaru" },
   { value: "terlaris", label: "Terlaris" },
   { value: "termurah", label: "Termurah" },
   { value: "termahal", label: "Termahal" },
+  { value: "rating", label: "Rating tinggi" },
 ];
 
 export type Rating = { avg: number; count: number };
@@ -50,6 +51,7 @@ export function sortProducts(list: CardProduct[], sort: SortKey, q = "") {
   else if (sort === "termurah") out.sort((a, b) => a.minPrice - b.minPrice);
   else if (sort === "termahal") out.sort((a, b) => b.minPrice - a.minPrice);
   else if (sort === "terlaris") out.sort((a, b) => b.sold_count - a.sold_count);
+  else if (sort === "rating") out.sort((a, b) => b.rating.avg - a.rating.avg || b.rating.count - a.rating.count);
   else if (ql) out.sort((a, b) => Number(b.name.toLowerCase().startsWith(ql)) - Number(a.name.toLowerCase().startsWith(ql)));
   return out;
 }
