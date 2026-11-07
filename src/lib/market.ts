@@ -40,6 +40,8 @@ export type CardProduct = {
   id: string; name: string; owner_id: string; images: string[]; sold_count: number; created_at: string;
   product_type: string; category: string | null; minPrice: number; basePrice: number; maxPrice: number; stock: number;
   storeName: string; storeOpen: boolean; rating: Rating; likes: number;
+  /** Rating across all of the store's products (shown on long press / hover). */
+  storeRating?: Rating;
   /** Live flash-sale percent (0 = none) and when it ends. */
   flash?: { percent: number; ends_at: string } | null;
 };
@@ -88,12 +90,13 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const owners = [...new Set(rows.map((r) => r.owner_id))];
-  const [stores, stock, reviews, likes, flashes] = await Promise.all([
+  const [stores, stock, reviews, likes, flashes, storeReviews] = await Promise.all([
     supabase.rpc("public_stores", { p_ids: owners }),
     supabase.rpc("variant_stock", { p_product_ids: ids }),
     supabase.from("product_reviews").select("product_id, rating").in("product_id", ids),
     supabase.rpc("product_like_counts", { p_ids: ids }),
     fetchFlashSales(ids),
+    supabase.from("product_reviews").select("seller_id, rating").in("seller_id", owners).limit(5000),
   ]);
   const lk = new Map((likes.data ?? []).map((l) => [l.product_id, Number(l.likes)]));
   const sm = new Map((stores.data ?? []).map((s) => [s.owner_id, s]));
@@ -112,6 +115,7 @@ async function decorate(rows: RawProduct[]): Promise<CardProduct[]> {
       storeName: s?.store_name ?? "Toko", storeOpen: s?.is_open ?? false,
       rating: ratingOf((reviews.data ?? []).filter((x) => x.product_id === r.id)),
       likes: lk.get(r.id) ?? 0,
+      storeRating: ratingOf((storeReviews.data ?? []).filter((x) => x.seller_id === r.owner_id)),
       flash: fl ? { percent: fp, ends_at: fl.ends_at } : null,
     };
   });
