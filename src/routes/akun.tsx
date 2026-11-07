@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 import { useWallet } from "@/lib/wallet";
 import { useMyProducts } from "@/lib/products";
-import { sellerStats, useSellerOrders } from "@/lib/seller-orders";
+import { useSellerOrders } from "@/lib/seller-orders";
 import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/akun")({
@@ -287,7 +287,6 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
   const activeProducts = (products.data ?? []).filter((p) => p.status === "active").length;
   const newOrders = all.filter((o) => o.status === "paid" || o.status === "processing").length;
   const done30 = all.filter((o) => o.status === "completed" && new Date(o.created_at).getTime() >= since).length;
-  void sellerStats;
   const held = (holds.data ?? []).reduce((s, h) => s + Number(h.amount), 0);
   const amount = tab === "tersedia" ? Number(balance.data ?? 0) : tab === "tertahan" ? held : Number(credits.data ?? 0);
   const refresh = () => {
