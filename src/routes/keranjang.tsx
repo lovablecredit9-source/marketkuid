@@ -6,13 +6,14 @@ import { unitPrice, useCart, useCartActions, useMarketProducts, type CartRow, ty
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { ProductImage, ProductList, rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
+import { liveFlashPercent, useFlashSales, type FlashSale } from "@/lib/flash";
 
 export const Route = createFileRoute("/keranjang")({
   head: () => pageMeta("Keranjang — Marketku", "Keranjang belanja produk digital Marketku."),
   component: Keranjang,
 });
 
-const lineTotal = (r: CartRow) => unitPrice(Number(r.product_variants?.price ?? 0), r.qty, (r.product_variants?.discount ?? null) as Discount) * r.qty;
+const lineTotal = (r: CartRow, fl?: FlashSale[]) => unitPrice(Number(r.product_variants?.price ?? 0), r.qty, (r.product_variants?.discount ?? null) as Discount, liveFlashPercent(fl, r.product_id)) * r.qty;
 
 function Keranjang() {
   const { user, ready } = useAuth();
@@ -20,6 +21,7 @@ function Keranjang() {
   const cart = useCart();
   const act = useCartActions();
   const rows = cart.data ?? [];
+  const flash = useFlashSales([...new Set(rows.map((r) => r.product_id))]);
   const valid = rows.filter((r) => r.products?.status === "active" && r.store?.is_open);
   const urls = useImageUrls(rows.map((r) => r.product_variants?.image_url || r.products?.images?.[0] || "").filter(Boolean));
   const rec = useMarketProducts({ limit: 6 });
@@ -28,7 +30,7 @@ function Keranjang() {
     const k = r.store?.store_name ?? "Toko";
     groups.set(k, [...(groups.get(k) ?? []), r]);
   }
-  const total = valid.reduce((a, r) => a + lineTotal(r), 0);
+  const total = valid.reduce((a, r) => a + lineTotal(r, flash.data), 0);
   const recItems = (rec.data ?? []).filter((p) => !rows.some((r) => r.product_id === p.id)).slice(0, 4);
 
   if (ready && !user) {
@@ -56,7 +58,7 @@ function Keranjang() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold uppercase">{r.products?.name}</p>
                         <span className="inline-block rounded bg-accent px-1.5 text-[11px] text-primary">{r.product_variants?.name}</span>
-                        <p className="text-sm font-bold text-primary">{off ? "Tidak tersedia" : rpBuyer(lineTotal(r))}</p>
+                        <p className="text-sm font-bold text-primary">{off ? "Tidak tersedia" : rpBuyer(lineTotal(r, flash.data))}</p>
                       </div>
                       <button aria-label="Hapus" onClick={() => void act.remove([r.variant_id])} className="text-muted-foreground transition active:scale-90"><Trash2 className="h-4 w-4" /></button>
                       <div className="flex items-center rounded-full border">

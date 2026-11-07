@@ -11,6 +11,7 @@ import { dbError, parseItems, unitPrice, type Discount } from "@/lib/market";
 import { AppShell, EmptyState, PrimaryLink } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer } from "@/components/marketku/product-card";
 import { pageMeta } from "@/lib/meta";
+import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (s: Record<string, unknown>): { items?: string } => (typeof s["items"] === "string" && s["items"] ? { items: s["items"] } : {}),
@@ -49,8 +50,10 @@ function Checkout() {
     queryFn: async () => (await supabase.from("profiles").select("full_name, username, whatsapp, created_at").eq("id", user!.id).maybeSingle()).data,
   });
   const lines = q.data ?? [];
+  const flash = useFlashSales([...new Set(lines.map((l) => l.products?.id).filter(Boolean) as string[])]);
+  const fpOf = (l: (typeof lines)[number]) => liveFlashPercent(flash.data, l.products?.id ?? "");
   const urls = useImageUrls(lines.map((l) => l.image_url || l.products?.images?.[0] || "").filter(Boolean));
-  const subtotal = lines.reduce((a, l) => a + unitPrice(Number(l.price), l.qty, l.discount as Discount) * l.qty, 0);
+  const subtotal = lines.reduce((a, l) => a + unitPrice(Number(l.price), l.qty, l.discount as Discount, fpOf(l)) * l.qty, 0);
   const noteReq = lines.some((l) => l.products?.require_buyer_note);
   const count = lines.reduce((a, l) => a + l.qty, 0);
   const phone = wa || profile.data?.whatsapp || "";
@@ -103,7 +106,7 @@ function Checkout() {
                   <p className="line-clamp-2 font-semibold">{l.products?.name}</p>
                   <p className="text-muted-foreground">{l.name} · {l.qty}x</p>
                 </div>
-                <p className="font-bold">{rpBuyer(unitPrice(Number(l.price), l.qty, l.discount as Discount) * l.qty)}</p>
+                <p className="font-bold">{rpBuyer(unitPrice(Number(l.price), l.qty, l.discount as Discount, fpOf(l)) * l.qty)}</p>
               </div>
             );
           })}
