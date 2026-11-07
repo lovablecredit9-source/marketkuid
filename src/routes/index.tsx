@@ -84,14 +84,14 @@ function Index() {
             <SponsoredSection />
 
             {trending.length > 0 && (
-              <Section icon={TrendingUp} tone="pink" kicker="Explore Marketku" title="Trending Now" to="/cari">
+              <Section icon={TrendingUp} tone="pink" kicker="Jelajahi Marketku" title="Sedang Populer" to="/cari">
                 <Rail>{trending.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
 
             <LikedSection items={liked} urlOf={urlOf} />
 
-            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
+            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Terlaris hari ini" to="/cari" toSearch={{ sort: "terlaris" }}>
               {best.length ? (
                 <Rail>{best.map((p, i) => <MiniCard key={p.id} p={p} url={urlOf(p)} rank={i + 1} />)}</Rail>
               ) : (
@@ -334,7 +334,8 @@ function SponsoredSection() {
   const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
   if (!items.length) return null;
   return (
-    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Produk Bersponsor" to="/cari">
+    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Pilihan bersponsor" to="/cari" toSearch={{ sort: "sponsored" }}>
+      <p className="-mt-2 px-3.5 pb-2 text-[12.5px] text-muted-foreground">Produk yang dipromosikan seller untuk kamu.</p>
       <Rail>{items.map((p) => (
         <div key={p.campaignId} onClickCapture={() => trackAdClick(p.campaignId)}>
           <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
