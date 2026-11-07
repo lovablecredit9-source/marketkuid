@@ -14,8 +14,8 @@ const SITE = "https://marketkuid.lovable.app";
 type SeoProduct = { name: string; description: string; store: string; minPrice: number; maxPrice: number; ratingAvg: number; ratingCount: number; inStock: boolean };
 
 /** schema.org Product JSON-LD from real data; aggregateRating only when real reviews exist. */
-export function productJsonLd(id: string, p: SeoProduct) {
-  const url = `${SITE}/produk/${id}`;
+export function productJsonLd(path: string, p: SeoProduct) {
+  const url = `${SITE}${path}`;
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -36,15 +36,15 @@ export function productJsonLd(id: string, p: SeoProduct) {
 }
 
 /** Product page head: real name/description, canonical URL and JSON-LD; generic copy when unknown. */
-export function productHead(id: string, p: SeoProduct | null | undefined) {
+export function productHead(path: string, p: SeoProduct | null | undefined) {
   if (!p) return pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku.");
   const title = `${p.name} — ${p.store} | Marketku`;
   const desc = p.description || `Beli ${p.name} dari ${p.store} di Marketku.`;
   const m = pageMeta(title, desc);
   return {
-    meta: [...m.meta, { property: "og:url", content: `${SITE}/produk/${id}` }],
-    links: [{ rel: "canonical", href: `${SITE}/produk/${id}` }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(productJsonLd(id, p)) }],
+    meta: [...m.meta, { property: "og:url", content: `${SITE}${path}` }],
+    links: [{ rel: "canonical", href: `${SITE}${path}` }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(productJsonLd(path, p)) }],
   };
 }
 

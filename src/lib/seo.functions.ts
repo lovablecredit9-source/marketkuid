@@ -21,7 +21,7 @@ async function publicClient() {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const clip = (s: string, n: number) => { const t = s.replace(/\s+/g, " ").trim(); return t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t; };
 
-export type ProductSeo = { id: string; slug: string | null; name: string; description: string; store: string; minPrice: number; maxPrice: number; ratingAvg: number; ratingCount: number; inStock: boolean } | null;
+export type ProductSeo = { id: string; slug: string | null; storeSlug: string; name: string; description: string; store: string; minPrice: number; maxPrice: number; ratingAvg: number; ratingCount: number; inStock: boolean } | null;
 
 /** Title/description/price/rating for a product's head() and JSON-LD (real data only). */
 export const getProductSeo = createServerFn({ method: "GET" })
@@ -45,6 +45,7 @@ export const getProductSeo = createServerFn({ method: "GET" })
       const avail = (stock.data ?? []).reduce((a, s) => a + Number(s.available ?? 0), 0);
       return {
         id: p.id, slug: p.slug,
+        storeSlug: stores.data?.[0]?.slug || p.owner_id,
         name: p.name,
         description: clip(p.description || p.name, 155),
         store: stores.data?.[0]?.store_name ?? "Marketku",

@@ -27,19 +27,17 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const pageSize = 1000;
         const owners = new Set<string>();
-        const productRoute = "/produk/$id";
+        const productRoute = "/produk/$toko/$produk";
+        const productRows: { id: string; slug: string | null; owner_id: string; updated_at: string }[] = [];
         // Products: same public filter as the storefront (active, not taken down by admin).
         for (let offset = 0; ; ) {
-          const { data, error } = await supabase.from("products").select("id, owner_id, updated_at")
+          const { data, error } = await supabase.from("products").select("id, slug, owner_id, updated_at")
             .eq("status", "active").eq("admin_hidden", false).order("id").range(offset, offset + pageSize - 1);
           if (error) throw error;
           if (data.length === 0) break;
           for (const row of data) {
             owners.add(row.owner_id);
-            if (!isSitemapRouteIncluded(router.routesById[productRoute])) continue;
-            const location = router.buildLocation({ to: "/produk/$id", params: { id: row.id }, search: () => ({}), hash: "" });
-            const path = sitemapPathForLocation(router, location, productRoute);
-            if (path) entries.push({ path, lastmod: row.updated_at });
+            productRows.push(row);
           }
           offset += data.length;
         }
