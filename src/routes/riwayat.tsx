@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Search, Package, ChevronDown, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,8 +14,8 @@ import { pageMeta } from "@/lib/meta";
 import { LoadingLine } from "@/components/marketku/loading";
 import { useEffect } from "react";
 import { savedGuestOrders, type SavedGuestOrder } from "@/lib/guest";
-import { spendSummary } from "@/lib/buyer-tools";
-import { Wallet, RotateCcw } from "lucide-react";
+import { ordersCsv, spendSummary } from "@/lib/buyer-tools";
+import { Wallet, RotateCcw, Download } from "lucide-react";
 
 export const Route = createFileRoute("/riwayat")({
   head: () => pageMeta("Riwayat Pesanan — Marketku", "Lihat daftar riwayat pesananmu di Marketku."),
@@ -64,7 +65,7 @@ function Riwayat() {
             <GuestOrders />
           </>
         ) : (
-          <SpendCard orders={orders.data ?? []} />
+          <SpendCard orders={orders.data ?? []} onExport={() => downloadCsv(list)} />
         )}
         {!ready || !user || orders.isPending ? null : list.length === 0 ? (
           <div className="flex flex-col items-center rounded-xl border bg-card px-6 py-5 text-center">
@@ -151,10 +152,12 @@ function GuestOrders() {
 }
 
 /** This month's and all-time spending from the buyer's own paid orders. */
-function SpendCard({ orders }: { orders: { status: string; total: number; created_at: string }[] }) {
+function SpendCard({ orders, onExport }: { orders: { status: string; total: number; created_at: string }[]; onExport: () => void }) {
   const s = spendSummary(orders);
-  if (!s.allCount) return null;
+  if (!orders.length) return null;
+  if (!s.allCount) return <ExportButton onClick={onExport} />;
   return (
+    <>
     <section className="flex items-center gap-3 rounded-xl border bg-card p-3">
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-accent text-primary"><Wallet className="h-4 w-4" /></span>
       <div className="grid flex-1 grid-cols-2 gap-2">
@@ -162,5 +165,27 @@ function SpendCard({ orders }: { orders: { status: string; total: number; create
         <div><p className="text-[10px] font-semibold tracking-wider text-muted-foreground">TOTAL BELANJA</p><b className="text-sm">{rpBuyer(s.all)}</b><p className="text-[11px] text-muted-foreground">{s.allCount} pesanan</p></div>
       </div>
     </section>
+    <ExportButton onClick={onExport} />
+    </>
   );
+}
+
+function ExportButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="flex w-full items-center justify-center gap-1.5 rounded-lg border bg-card py-2 text-xs font-semibold text-primary transition active:scale-[0.98]">
+      <Download className="h-3.5 w-3.5" /> Unduh riwayat (CSV)
+    </button>
+  );
+}
+
+/** Saves the orders currently listed (after filter/search) as a spreadsheet file on this device. */
+function downloadCsv(list: Parameters<typeof ordersCsv>[0]) {
+  if (!list.length) { toast("Tidak ada pesanan untuk diunduh"); return; }
+  const blob = new Blob(["\ufeff" + ordersCsv(list, (st) => ORDER_LABEL[st] ?? st)], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `riwayat-marketku-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast.success(`${list.length} pesanan diunduh`);
 }
