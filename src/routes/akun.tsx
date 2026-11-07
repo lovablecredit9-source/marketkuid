@@ -28,6 +28,8 @@ export const Route = createFileRoute("/akun")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  // /akun?jualan=1 (from "Jadi Seller") opens the "Mulai Jualan" sheet right away.
+  validateSearch: (s: Record<string, unknown>): { jualan?: 1 } => (s["jualan"] === 1 || s["jualan"] === "1" ? { jualan: 1 } : {}),
   component: Akun,
 });
 
@@ -116,6 +118,13 @@ function AkunDashboard({ user }: { user: User }) {
 
   const name = profile.data?.full_name || user.email?.split("@")[0] || "Pengguna";
   const isSeller = !!store.data;
+  const { jualan } = Route.useSearch();
+  useEffect(() => {
+    if (!jualan || store.isLoading) return;
+    if (store.data) switchView("seller"); else setSellerOpen(true);
+    navigate({ to: "/akun", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jualan, store.isLoading, store.data]);
 
   const signOut = async () => {
     await queryClient.cancelQueries();
