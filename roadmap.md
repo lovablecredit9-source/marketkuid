@@ -107,3 +107,8 @@
 - [x] Jadwal Flash Sale oleh seller (Seller Center → Flash Sale; harga flash dipakai di checkout, kuota, hitung mundur)
 - [x] Bandingkan menu Seller Center panel.marketku.id (20 menu sama; dasbor grup WA + checklist sudah ada)
 - [ ] Tautan Grup WhatsApp seller di menu (menunggu link grup dari user)
+
+## Cek ulang marketku.id (Nov 7)
+- [x] Beranda: "Pilihan bersponsor" + Lihat semua ke daftar bersponsor, judul "Sedang Populer" & "Terlaris hari ini"
+- [x] Pencarian: urutan "Rating tinggi", urutan dari tautan (?sort=), tampilan semua produk bersponsor
+- [ ] Grup WhatsApp seller di Dasbor (menunggu link grup dari user)
