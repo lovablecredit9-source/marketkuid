@@ -31,3 +31,35 @@ describe("pantau harga wishlist", () => {
     expect(priceDrop(undefined, 5000)).toBeNull();
   });
 });
+
+import { quickFilter, spendSummary } from "./buyer-tools";
+
+describe("quickFilter", () => {
+  const items = [
+    { id: "a", stock: 0, minPrice: 9000, basePrice: 10000 },
+    { id: "b", stock: 3, minPrice: 10000, basePrice: 10000 },
+    { id: "c", stock: 2, minPrice: 8000, basePrice: 10000 },
+  ];
+  it("stok tersedia hides sold-out products", () => {
+    expect(quickFilter(items, { inStock: true, onSale: false }).map((p) => p.id)).toEqual(["b", "c"]);
+  });
+  it("lagi diskon keeps only cheaper-than-normal products", () => {
+    expect(quickFilter(items, { inStock: false, onSale: true }).map((p) => p.id)).toEqual(["a", "c"]);
+  });
+  it("both together", () => {
+    expect(quickFilter(items, { inStock: true, onSale: true }).map((p) => p.id)).toEqual(["c"]);
+  });
+});
+
+describe("spendSummary", () => {
+  const now = new Date(2026, 10, 7);
+  it("counts only paid orders, splitting this month from all time", () => {
+    const s = spendSummary([
+      { status: "completed", total: 10000, created_at: new Date(2026, 10, 2).toISOString() },
+      { status: "paid", total: "5000", created_at: new Date(2026, 9, 20).toISOString() },
+      { status: "pending", total: 99000, created_at: new Date(2026, 10, 3).toISOString() },
+      { status: "cancelled", total: 7000, created_at: new Date(2026, 10, 4).toISOString() },
+    ], now);
+    expect(s).toEqual({ month: 10000, monthCount: 1, all: 15000, allCount: 2 });
+  });
+});

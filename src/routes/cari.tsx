@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone, ArrowRight, History, X } from "lucide-react";
 import { VoiceSearchButton } from "@/components/marketku/voice-search";
-import { SEARCH_KEY, clearSearches, readSearches, rememberSearch, removeSearch } from "@/lib/buyer-tools";
+import { SEARCH_KEY, clearSearches, quickFilter, readSearches, rememberSearch, removeSearch } from "@/lib/buyer-tools";
 import { SearchSuggest, useStoreSearch } from "@/components/marketku/search-suggest";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, rpBuyer } from "@/components/marketku/product-card";
@@ -33,6 +33,8 @@ function Cari() {
   const [sort, setSort] = useState<SortKey>(sortParam && sortParam !== "sponsored" ? sortParam : "relevan");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minRating, setMinRating] = useState(0);
+  const [inStock, setInStock] = useState(false);
+  const [onSale, setOnSale] = useState(false);
   const navigate = useNavigate();
   const [history, setHistory] = useState<string[]>([]);
   useEffect(() => {
@@ -49,11 +51,11 @@ function Cari() {
   const all = products.data ?? [];
   const ceiling = Math.max(50_000, ...all.map((p) => p.minPrice));
   const list = useMemo(
-    () => sortProducts(all.filter((p) => (maxPrice == null || p.minPrice <= maxPrice) && p.rating.avg >= minRating), sort, q),
-    [all, maxPrice, minRating, sort, q],
+    () => sortProducts(quickFilter(all, { inStock, onSale }).filter((p) => (maxPrice == null || p.minPrice <= maxPrice) && p.rating.avg >= minRating), sort, q),
+    [all, maxPrice, minRating, sort, q, inStock, onSale],
   );
   const setCat = (id: string | null) => navigate({ to: "/cari", search: { ...(q ? { q } : {}), ...(id ? { kategori: id } : {}) } });
-  const reset = () => { setMaxPrice(null); setMinRating(0); setCat(null); };
+  const reset = () => { setMaxPrice(null); setMinRating(0); setInStock(false); setOnSale(false); setCat(null); };
 
   return (
     <AppShell>
@@ -91,6 +93,14 @@ function Cari() {
         <button onClick={() => setShow(!show)} className="flex w-full items-center gap-2 rounded-full border-0 bg-card px-4 py-2.5 text-[13px] font-medium shadow-sm transition active:scale-[0.98]">
           <SlidersHorizontal className="h-4 w-4" /> {show ? "Sembunyikan filter" : "Filter"}
         </button>
+        <div className="flex gap-2">
+          {([["Stok tersedia", inStock, setInStock], ["Lagi diskon", onSale, setOnSale]] as const).map(([label, on, set]) => (
+            <button key={label} type="button" aria-pressed={on} onClick={() => set(!on)}
+              className={`rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold shadow-sm transition active:scale-95 ${on ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
         <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Urutkan" className="w-full rounded-full border-0 bg-card px-4 py-2.5 text-[15px] font-bold shadow-sm">
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
