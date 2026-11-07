@@ -121,12 +121,14 @@ export const isUuid = (v: string | null | undefined) =>
 
 const CARD_SELECT = "id, name, owner_id, images, sold_count, created_at, product_type, product_categories(name), product_variants(id, price, discount)";
 
-export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number } = {}) {
-  const { q = "", category = null, owner, limit = 60 } = opts;
+export function useMarketProducts(opts: { q?: string; category?: string | null; owner?: string; limit?: number; ids?: string[] } = {}) {
+  const { q = "", category = null, owner, limit = 60, ids } = opts;
   return useQuery({
-    queryKey: ["market_products", q, category, owner, limit],
+    queryKey: ["market_products", q, category, owner, limit, ids ? [...ids].sort().join(",") : null],
+    enabled: !ids || ids.length > 0,
     queryFn: async () => {
       let query = supabase.from("products").select(CARD_SELECT).eq("status", "active").order("created_at", { ascending: false }).limit(limit);
+      if (ids) query = query.in("id", ids.filter(isUuid));
       const term = q.trim().replace(/[%,()]/g, " ");
       if (term) query = query.ilike("name", `%${term}%`);
       if (category) {
