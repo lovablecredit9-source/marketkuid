@@ -116,3 +116,5 @@
 ## marketku.id gap check (Nov 7)
 - [x] Strip "Produk yang baru dibeli" dari pembelian asli (refresh 1 menit)
 - [x] Tombol "Kembali ke atas"
+- [x] Beranda: "Terakhir kamu lihat" (+ Hapus) dan "Rekomendasi untuk kamu" dari produk yang dibuka di HP ini
+- [ ] Halaman Jadi Seller, popup WhatsApp, bentuk link produk/toko seperti marketku.id (belum dikerjakan)

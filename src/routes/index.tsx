@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
-  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, Megaphone, type LucideIcon,
+  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, Megaphone, History, type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
@@ -15,6 +15,7 @@ import { categoryIcon } from "@/lib/category-icons";
 import { HomeNotice } from "@/components/marketku/home-notice";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { clearRecent, orderByRecent, readRecent, recommendFromViewed } from "@/lib/recently-viewed";
 
 type FLink = { label: string; to?: "/cari" | "/flash-sale" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
@@ -84,6 +85,8 @@ function Index() {
         ) : (
           <>
             <SponsoredSection />
+
+            <RecentlyViewed pool={list} />
 
             {trending.length > 0 && (
               <Section icon={TrendingUp} tone="pink" kicker="Jelajahi Marketku" title="Sedang Populer" to="/cari">
@@ -370,6 +373,38 @@ function SponsoredSection() {
         </div>
       ))}</Rail>
     </Section>
+  );
+}
+
+/** "Terakhir kamu lihat" + "Rekomendasi untuk kamu" — from products opened on this device; hidden until there are any. */
+function RecentlyViewed({ pool }: { pool: CardProduct[] }) {
+  const [ids, setIds] = useState<string[]>([]);
+  useEffect(() => setIds(readRecent()), []);
+  const q = useMarketProducts({ ids, limit: 20 });
+  const viewed = useMemo(() => orderByRecent(q.data ?? [], ids), [q.data, ids]);
+  const recs = useMemo(() => recommendFromViewed(pool, viewed), [pool, viewed]);
+  const urls = useImageUrls([...new Set([...viewed, ...recs].map((p) => p.images[0] ?? "").filter(Boolean))]);
+  const urlOf = (p: CardProduct) => (p.images[0] ? urls.data?.[p.images[0]] : undefined);
+  if (!ids.length || !viewed.length) return null;
+  return (
+    <>
+      <section className="mk-rail overflow-hidden rounded-2xl border bg-card shadow-sm">
+        <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
+          <span className="mk-rail__icon mk-float-icon grid h-[30px] w-[30px] shrink-0 place-items-center rounded-[9px]"><History className="h-4 w-4" /></span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-muted-foreground">Riwayat kamu</p>
+            <h2 className="truncate text-[14px] font-extrabold leading-tight">Terakhir kamu lihat</h2>
+          </div>
+          <button type="button" onClick={() => { clearRecent(); setIds([]); }} className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95">Hapus</button>
+        </div>
+        <div className="pt-3"><Rail>{viewed.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail></div>
+      </section>
+      {recs.length > 0 && (
+        <Section icon={Sparkles} tone="green" kicker="Berdasarkan yang kamu lihat" title="Rekomendasi untuk kamu">
+          <Rail>{recs.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
+        </Section>
+      )}
+    </>
   );
 }
 
