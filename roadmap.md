@@ -101,3 +101,8 @@
 - [x] Tautan produk/ulasan/pesanan/bayar/chat yang salah kini tampil "tidak ditemukan" (sebelumnya error/macet "Memuat pembayaran...")
 - [x] Halaman 404/error berbahasa Indonesia; admin tidak memanggil data sebelum masuk
 - [x] Riwayat sesi login seller (perangkat, versi Android, baterai, WiFi/data, IP, lokasi, provider kartu) — tes live di HP belum
+
+## Cek ulang marketku.id (Nov 7)
+- [x] Halaman Produk Baru (/produk/baru), Produk Lagi Diskon (/produk/diskon), Flash Sale (/flash-sale) + tautan "Lihat semua" & footer
+- [ ] Jadwal Flash Sale oleh seller (belum ada fitur penjadwalan; halaman tampil kosong seperti marketku.id)
+- [ ] Bandingkan ulang semua menu Seller Center di panel.marketku.id (butuh login seller + kode)
