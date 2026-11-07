@@ -7,6 +7,7 @@ import { CATEGORIES, GUIDES, searchGuides } from "@/lib/panduan";
 import { PageTour } from "@/components/marketku/tour";
 
 export const Route = createFileRoute("/seller/panduan")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Panduan Seller — Marketku", "Panduan lengkap fitur Seller Center Marketku, dari setup bot sampai withdraw."),
   component: Panduan,
 });

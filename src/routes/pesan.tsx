@@ -14,6 +14,7 @@ import { useUnreadChats } from "@/lib/chat";
 import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/pesan")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Chat — Marketku", "Ruang chat pembeli dan seller Marketku."),
   component: Pesan,
 });

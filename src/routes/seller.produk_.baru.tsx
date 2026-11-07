@@ -16,6 +16,7 @@ import { CategoryRequestSheet } from "@/components/marketku/category-request-she
 import { SellerLoading } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller/produk_/baru")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): { edit?: string } => (typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
   head: () => ({
     meta: [

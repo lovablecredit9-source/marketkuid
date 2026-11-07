@@ -5,6 +5,7 @@ import { Bullets, LegalCard, LegalPage } from "@/components/marketku/legal";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/bantuan")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Pusat Bantuan — Marketku", "Bantuan cepat untuk buyer dan seller Marketku."),
   component: Bantuan,
 });

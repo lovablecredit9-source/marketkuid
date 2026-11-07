@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { authErrorText } from "@/lib/auth";
 
 export const Route = createFileRoute("/reset-password")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Atur Password Baru — Marketku" },

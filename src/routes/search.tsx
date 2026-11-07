@@ -3,6 +3,7 @@ import { pageMeta } from "@/lib/meta";
 
 // marketku.id-style search links (/search?q=&category=&sort=) open the Cari page.
 export const Route = createFileRoute("/search")({
+  staticData: { sitemap: false },
   beforeLoad: ({ search }) => {
     const s = search as Record<string, unknown>;
     const str = (k: string) => (typeof s[k] === "string" && s[k] ? (s[k] as string) : undefined);

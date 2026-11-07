@@ -13,6 +13,7 @@ import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-h
 import { rpSeller } from "@/components/marketku/seller-ui";
 
 export const Route = createFileRoute("/akun_/pengaturan")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Pengaturan Akun — Marketku", "Ubah nama, username, nomor HP, dan password akun Marketku."),
   component: PengaturanAkun,
 });

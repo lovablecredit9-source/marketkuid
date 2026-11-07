@@ -9,6 +9,7 @@ import { pageMeta } from "@/lib/meta";
 import { liveFlashPercent, useFlashSales, type FlashSale } from "@/lib/flash";
 
 export const Route = createFileRoute("/keranjang")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Keranjang — Marketku", "Keranjang belanja produk digital Marketku."),
   component: Keranjang,
 });

@@ -24,6 +24,7 @@ const tour = [
 ];
 
 export const Route = createFileRoute("/seller/transaksi")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Transaksi — Seller Center Marketku", "Pantau dan proses pesanan pembeli di toko Marketku kamu."),
   component: Transaksi,
 });

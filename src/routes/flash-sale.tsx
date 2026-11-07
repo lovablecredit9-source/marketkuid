@@ -10,6 +10,7 @@ import { applyFlash, countdown, flashPhase, useFlashSales, type FlashSale } from
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/flash-sale")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Flash Sale — Marketku", "Promo flash sale terjadwal dari seller Marketku: diskon terbatas waktu dan kuota."),
   component: FlashSalePage,
 });

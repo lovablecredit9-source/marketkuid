@@ -12,6 +12,7 @@ import { PageTour } from "@/components/marketku/tour";
 import { CLAIM_LABEL, CLAIM_TONE, claimProofUrl, type ClaimStatus } from "@/components/marketku/warranty-claim";
 
 export const Route = createFileRoute("/seller/garansi")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Klaim Garansi — Seller Center Marketku", "Pantau dan proses klaim garansi dari pembeli."),
   component: Garansi,
 });

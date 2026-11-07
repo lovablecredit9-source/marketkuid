@@ -13,6 +13,7 @@ import { TypingPill, lastSeenLabel } from "@/components/marketku/chat-avatar";
 import { LoadingLine } from "@/components/marketku/loading";
 
 export const Route = createFileRoute("/seller/chat_/$id")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Ruang Chat — Seller Center Marketku", "Balas chat pembeli tanpa keluar dari Seller Center Marketku."),
   component: SellerChatRoom,
 });

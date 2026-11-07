@@ -13,6 +13,7 @@ import { Chips, SellerCard, SellerEmpty, SellerInput, SellerPageTitle, SellerShe
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/flash-sale")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Flash Sale — Seller Center Marketku", "Jadwalkan flash sale produk dengan diskon, durasi, dan kuota terbatas."),
   component: SellerFlashSale,
 });

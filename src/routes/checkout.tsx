@@ -19,6 +19,7 @@ import { Mail, Send } from "lucide-react";
 import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 
 export const Route = createFileRoute("/checkout")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): { items?: string } => (typeof s["items"] === "string" && s["items"] ? { items: s["items"] } : {}),
   head: () => pageMeta("Checkout — Marketku", "Selesaikan pesananmu dengan pembayaran Saldo Marketku atau QRIS."),
   component: Checkout,

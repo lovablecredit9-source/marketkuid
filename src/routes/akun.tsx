@@ -21,6 +21,7 @@ import { useSellerOrders } from "@/lib/seller-orders";
 import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/akun")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Akun Saya — Marketku" },
@@ -226,6 +227,7 @@ function AkunDashboard({ user }: { user: User }) {
             <Tile icon={ShieldAlert} tone="amber" label="Dispute" onClick={() => navigate({ to: "/dispute" })} />
             <Tile icon={Store} tone="blue" label="Toko Diikuti" onClick={() => navigate({ to: "/toko-diikuti" })} />
             <Tile icon={GitCompareArrows} tone="cyan" label="Bandingkan" onClick={() => navigate({ to: "/bandingkan" })} />
+            <Tile icon={Gift} tone="pink" label="Undang Teman" onClick={() => navigate({ to: "/referral" })} />
           </div>
         </section>
 

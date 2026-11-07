@@ -13,6 +13,7 @@ import { dbError } from "@/lib/market";
 import logo from "@/assets/logo-marketku.png.asset.json";
 
 export const Route = createFileRoute("/lacak/$token")({
+  staticData: { sitemap: false },
   head: () => {
     const m = pageMeta("Pesanan Tamu — Marketku", "Bayar QRIS dan buka produk pesananmu tanpa akun Marketku.");
     return { meta: [...m.meta, { name: "robots", content: "noindex" }] };

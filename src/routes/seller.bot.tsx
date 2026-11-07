@@ -22,6 +22,7 @@ import { HubLinkCard } from "@/components/marketku/seller-hub-ui";
 import { connectBot, createOwnerLink, deleteBot, refreshBotWebhook, setBotActive, testBotJoin, unlinkOwner } from "@/lib/telegram.functions";
 
 export const Route = createFileRoute("/seller/bot")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Bot Telegram — Seller Center Marketku", "Hubungkan dan kelola bot Telegram untuk jualan otomatis."),
   component: BotPage,
 });

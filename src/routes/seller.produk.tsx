@@ -14,6 +14,7 @@ import { StockManager } from "@/components/marketku/stock-manager";
 type Search = { tab?: "stok"; pid?: string };
 
 export const Route = createFileRoute("/seller/produk")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): Search => ({
     ...(s["tab"] === "stok" ? { tab: "stok" as const } : {}),
     ...(typeof s["pid"] === "string" ? { pid: s["pid"] } : {}),

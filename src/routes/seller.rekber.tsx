@@ -12,6 +12,7 @@ import { RekberCard, RekberDetail } from "@/components/marketku/rekber-detail";
 import { REKBER_MAX, REKBER_MIN, errText, rekberFees, rekberLink, rekberStats, rekberView, useMyRekber, type FeeBearer, type RekberDeal } from "@/lib/rekber";
 
 export const Route = createFileRoute("/seller/rekber")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Rekber Marketku — Seller Center", "Titipkan dana ke Marketku sampai kedua pihak selesai bertransaksi."),
   component: Rekber,
 });

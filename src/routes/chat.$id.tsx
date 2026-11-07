@@ -17,6 +17,7 @@ import { LoadingLine } from "@/components/marketku/loading";
 
 type S = { produk?: string };
 export const Route = createFileRoute("/chat/$id")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): S => (typeof s["produk"] === "string" && s["produk"] ? { produk: s["produk"] } : {}),
   head: () => pageMeta("Ruang Chat — Marketku", "Percakapan antara pembeli dan seller di Marketku."),
   component: ChatRoom,

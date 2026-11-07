@@ -18,6 +18,7 @@ import { Chips, SellerCard, SellerInput } from "@/components/marketku/seller-ui"
 import { PageTour } from "@/components/marketku/tour";
 
 export const Route = createFileRoute("/seller/voucher")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Voucher & Promo Toko — Seller Center Marketku", "Buat dan kelola kode promo eksklusif untuk tokomu."),
   component: VoucherPage,
 });

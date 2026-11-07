@@ -18,6 +18,7 @@ const TABS = ["dashboard", "campaign", "buat", "performa", "saldo"] as const;
 type Tab = (typeof TABS)[number];
 
 export const Route = createFileRoute("/seller/iklan")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): { tab?: Tab } => (TABS.includes(s["tab"] as Tab) ? { tab: s["tab"] as Tab } : {}),
   head: () => pageMeta("Dashboard Iklan — Seller Center Marketku", "Ringkasan campaign bersponsor, saldo iklan, dan performa iklan toko kamu."),
   component: Iklan,

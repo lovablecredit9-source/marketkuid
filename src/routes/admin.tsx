@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Ban, Check, ChevronRight, Copy, Eye, EyeOff, History, ImagePlus, LayoutDashboard, Loader2, LogOut, MessageCircle, Minus, Package,
+  Ban, Check, Gift, ChevronRight, Copy, Eye, EyeOff, History, ImagePlus, LayoutDashboard, Loader2, LogOut, MessageCircle, Minus, Package,
   Plus, QrCode, Receipt, RefreshCw, Search, ShieldCheck, ShieldOff, Store, Trash2, TrendingUp, Users, Wallet, X, CreditCard, UserX, AlertTriangle, Landmark, Send,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,9 +18,11 @@ import { DisputeThread } from "@/components/marketku/dispute-thread";
 import { AdminBotTab } from "@/components/marketku/admin-bot-tab";
 import { HubBotAdminCard } from "@/components/marketku/seller-hub-ui";
 import { AuthBotAdminCard } from "@/components/marketku/auth-bot-ui";
+import { AdminReferralTab } from "@/components/marketku/admin-referral-tab";
 import { ADMIN_ACTION_LABEL, BAN_DURATIONS, KIND_LABEL, PAYMENT_PROVIDERS, banDaysLeft, banUntilLabel, providerColor, usePaymentMethods, type PaymentKind } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin")({
+  staticData: { sitemap: false },
   head: () => {
     const m = pageMeta("Admin Console — Marketku", "Panel admin Marketku: deposit, metode pembayaran, blokir akun & toko, produk, pesanan.");
     return { ...m, meta: [...m.meta, { name: "robots", content: "noindex" }] };
@@ -41,6 +43,7 @@ const TABS = [
   { key: "produk", label: "Produk", icon: Package },
   { key: "pesanan", label: "Pesanan", icon: Receipt },
   { key: "kategori", label: "Kategori", icon: Plus },
+  { key: "referral", label: "Referral", icon: Gift },
   { key: "bot", label: "Bot", icon: Send },
   { key: "log", label: "Log", icon: History },
 ] as const;
@@ -130,6 +133,7 @@ function Admin() {
           {tab === "pesanan" && <OrdersTab />}
           {tab === "kategori" && <CategoryRequestsTab />}
           {tab === "bot" && <div className="space-y-3"><AdminBotTab /><HubBotAdminCard /><AuthBotAdminCard /></div>}
+          {tab === "referral" && <AdminReferralTab />}
           {tab === "log" && <LogsTab />}
         </main>
       </div>

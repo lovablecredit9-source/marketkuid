@@ -9,6 +9,7 @@ import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/toko-diikuti")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Toko Diikuti — Marketku", "Daftar toko produk digital favorit yang kamu ikuti di Marketku."),
   component: TokoDiikuti,
 });

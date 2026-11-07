@@ -10,6 +10,7 @@ import { useSellerOrders, type SellerOrder } from "@/lib/seller-orders";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/analitik")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Analitik — Seller Center Marketku", "Grafik pendapatan, pesanan, metode pembayaran, kategori dan jam sibuk toko kamu."),
   component: Analitik,
 });

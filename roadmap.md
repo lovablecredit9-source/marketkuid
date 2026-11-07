@@ -1,5 +1,17 @@
 # Marketku roadmap (from Screenshots1.zip)
 
+## Upgrade Besar Marketkuid (Nov 2026)
+- [x] Referral: kode unik, halaman Undang Teman, kode di daftar, aturan diatur admin + log, hadiah hanya setelah pesanan valid selesai
+- [x] SEO: sitemap.xml (halaman + produk + toko), robots.txt, judul/deskripsi/canonical/JSON-LD produk & toko asli
+- [x] Beranda: nama toko + bintang saat tekan lama produk
+- [ ] Desain ulang warna navy/electric blue/cyan — perlu konfirmasi (bertentangan dengan aturan "ikuti tampilan marketku.id")
+- [ ] Beranda: Toko pilihan dari data penjualan asli
+- [ ] Seller Center: grafik pendapatan per periode & produk terlaris (cek yang sudah ada di Analitik)
+- [ ] Admin: laporan transaksi & statistik marketplace per periode
+- [ ] Pelaporan produk/toko oleh pembeli
+- [ ] Status verifikasi seller (hanya dari admin)
+- [ ] Uji alur Undang Teman saat sudah masuk akun (belum ada sesi login untuk tes)
+
 ## Store profile reference
 - [x] Compact store profile, rating, products and reviews; remove store-only support strip; show public reviewer names; verify mobile layout.
 

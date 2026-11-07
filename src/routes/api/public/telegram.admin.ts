@@ -9,6 +9,7 @@ function sameSecret(a: string, b: string) {
 
 /** Webhook for the Marketku Center admin bot; only linked admins get data. */
 export const Route = createFileRoute("/api/public/telegram/admin")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

@@ -9,12 +9,15 @@ import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, Stars } from "@/components/marketku/product-card";
 import { ratingBars, ratingOf, useMarketProducts, useReviews, dbError, fmtDate } from "@/lib/market";
-import { pageMeta } from "@/lib/meta";
+import { storeHead } from "@/lib/meta";
+import { getStoreSeo } from "@/lib/seo.functions";
 import { useImageUrls, useStoreMedia } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/toko/$slug")({
-  head: () => pageMeta("Toko Seller — Marketku", "Lihat produk, rating, dan ulasan pembeli dari toko seller di Marketku."),
+  staticData: { sitemap: true },
+  loader: ({ params }) => getStoreSeo({ data: params.slug }),
+  head: ({ loaderData }) => storeHead(loaderData),
   component: Toko,
 });
 

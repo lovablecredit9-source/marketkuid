@@ -5,6 +5,7 @@ import { pageMeta } from "@/lib/meta";
 import { ProductListingPage } from "@/components/marketku/listing-page";
 
 export const Route = createFileRoute("/produk/diskon")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Produk Lagi Diskon — Marketku", "Produk digital dengan harga spesial dan promo aktif, diurutkan dari diskon terbesar."),
   component: DiscountProducts,
 });

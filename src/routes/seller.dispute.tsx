@@ -12,6 +12,7 @@ import { dbError, fmtDateTime } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/dispute")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Dispute Pesanan — Seller Center Marketku", "Pantau komplain pembeli atas pesanan toko kamu."),
   component: SellerDispute,
 });

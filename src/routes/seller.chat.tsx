@@ -11,6 +11,7 @@ import { LoadingLine } from "@/components/marketku/loading";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/seller/chat")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Inbox Chat — Seller Center Marketku", "Balas chat pembeli langsung dari Seller Center Marketku."),
   component: SellerInbox,
 });

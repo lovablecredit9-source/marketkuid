@@ -19,6 +19,7 @@ import { WarrantyClaimBlock } from "@/components/marketku/warranty-claim";
 import { ShieldAlert, Undo2 } from "lucide-react";
 
 export const Route = createFileRoute("/pesanan/$id")({
+  staticData: { sitemap: false },
   head: () => pageMeta("Detail Pesanan — Marketku", "Status pembayaran, produk, dan pengiriman pesananmu di Marketku."),
   component: Pesanan,
 });

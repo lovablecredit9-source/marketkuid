@@ -3,6 +3,7 @@ import { LegalCard, LegalPage } from "@/components/marketku/legal";
 import { pageMeta } from "@/lib/meta";
 
 export const Route = createFileRoute("/privasi")({
+  staticData: { sitemap: true },
   head: () => pageMeta("Kebijakan Privasi — Marketku", "Cara Marketku menggunakan dan melindungi data pengguna."),
   component: Privasi,
 });
