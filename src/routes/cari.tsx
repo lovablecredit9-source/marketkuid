@@ -14,7 +14,7 @@ export const Route = createFileRoute("/cari")({
   validateSearch: (s: Record<string, unknown>): S => ({
     ...(typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
     ...(typeof s["kategori"] === "string" && s["kategori"] ? { kategori: s["kategori"] } : {}),
-    ...(typeof s["sort"] === "string" && SORT_KEYS.includes(s["sort"]) ? { sort: s["sort"] as S["sort"] } : {}),
+    ...(typeof s["sort"] === "string" && SORT_KEYS.includes(s["sort"]) ? { sort: s["sort"] as SortKey | "sponsored" } : {}),
   }),
   head: () => pageMeta("Cari Produk — Marketku", "Cari dan saring produk digital di Marketku berdasarkan kategori, harga, dan rating."),
   component: Cari,
