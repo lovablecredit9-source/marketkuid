@@ -359,14 +359,22 @@ function SponsoredSection() {
   const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
   if (!items.length) return null;
   return (
-    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Pilihan bersponsor" to="/cari" toSearch={{ sort: "sponsored" }}>
-      <p className="-mt-2 px-3.5 pb-2 text-[12.5px] text-muted-foreground">Produk yang dipromosikan seller untuk kamu.</p>
-      <Rail>{items.map((p) => (
+    <section aria-labelledby="mk-sponsored-title">
+      <div className="mb-2.5 flex items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <h2 id="mk-sponsored-title" className="flex items-center gap-2 text-[17px] font-extrabold leading-tight">
+            Pilihan bersponsor <span className="rounded-full bg-muted px-2 py-0.5 text-[10.5px] font-semibold text-muted-foreground">Iklan</span>
+          </h2>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">Produk yang dipromosikan seller untuk kamu.</p>
+        </div>
+        <Link to="/cari" search={{ sort: "sponsored" }} className="shrink-0 pb-0.5 text-[12px] font-semibold text-primary">Lihat semua →</Link>
+      </div>
+      <div className="-mx-3"><Rail>{items.map((p) => (
         <div key={p.campaignId} onClickCapture={() => trackAdClick(p.campaignId)}>
           <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
         </div>
-      ))}</Rail>
-    </Section>
+      ))}</Rail></div>
+    </section>
   );
 }
 
@@ -480,25 +488,30 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
   const toggle = useToggleWishlist();
   const on = wish.data?.has(p.id) ?? false;
   const out = !p.storeOpen ? "Toko Tutup" : p.product_type !== "preorder" && p.stock <= 0 ? "Kosong" : null;
+  const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
   return (
-    <article className={`relative overflow-hidden rounded-xl border bg-card ${grid ? "" : "w-40 shrink-0"} ${out ? "mk-card-off" : ""}`}>
+    <article className={`relative overflow-hidden rounded-2xl border bg-card ${grid ? "" : "w-[150px] shrink-0"} ${out ? "mk-card-off" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5">
-        <div className="relative overflow-hidden rounded-lg">
+        <div className="relative overflow-hidden rounded-xl bg-muted/70 p-3">
           <ProductImage url={url} alt={p.name} className="aspect-square" />
           {out && <span className="absolute bottom-2 right-2 z-[2] rounded-full bg-foreground/75 px-2 py-1 text-[10px] font-bold leading-none text-background">{out}</span>}
-          {rank && <span className="absolute left-1.5 top-1.5 rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-foreground">#{rank}</span>}
+          <span className="absolute left-1.5 top-1.5 z-[2] flex gap-1">
+            {rank && <span className="rounded-full bg-warning px-1.5 py-0.5 text-[10px] font-bold text-foreground">#{rank}</span>}
+            {off > 0 && <span className="rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">-{off}%</span>}
+          </span>
         </div>
       </Link>
       <button aria-label={on ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggle(p.id, on)} className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full bg-card/90 shadow transition active:scale-90">
         <Heart className={`h-3.5 w-3.5 ${on ? "fill-destructive text-destructive" : ""}`} />
       </button>
-      <Link to="/produk/$id" params={{ id: p.id }} className="block px-2.5 pb-2.5">
-        {p.category && <span className="inline-block rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{p.category}</span>}
-        <p className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-tight">{p.name}</p>
-        <PriceLine p={p} className="mt-1.5 font-bold" />
-        <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Star className="h-3 w-3 fill-warning text-warning" />{p.rating.count ? p.rating.avg.toFixed(1) : "0"}
-          <span className="h-3 w-px bg-border" />{p.sold_count > 0 ? `${p.sold_count}+ terjual` : "Baru"}
+      <Link to="/produk/$id" params={{ id: p.id }} className="block px-2.5 pb-3">
+        {p.category && <span className="inline-block rounded-md border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{p.category}</span>}
+        <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-[13px] font-medium leading-tight">{p.name}</p>
+        <p className="mt-1.5 text-[15px] font-bold leading-tight text-primary">{rpBuyer(p.minPrice)}</p>
+        {off > 0 && <p className="text-[11px] leading-tight text-muted-foreground line-through">{rpBuyer(p.basePrice)}</p>}
+        <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          {p.rating.count > 0 && <><Star className="h-3 w-3 fill-warning text-warning" /><span className="font-semibold text-foreground/80">{p.rating.avg.toFixed(1)}</span><span className="h-3 w-px bg-border" /></>}
+          {p.sold_count > 0 ? `${p.sold_count}+ terjual` : "Baru"}
         </p>
       </Link>
     </article>
