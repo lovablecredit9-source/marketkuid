@@ -84,14 +84,14 @@ function Index() {
             <SponsoredSection />
 
             {trending.length > 0 && (
-              <Section icon={TrendingUp} tone="pink" kicker="Explore Marketku" title="Trending Now" to="/cari">
+              <Section icon={TrendingUp} tone="pink" kicker="Jelajahi Marketku" title="Sedang Populer" to="/cari">
                 <Rail>{trending.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
 
             <LikedSection items={liked} urlOf={urlOf} />
 
-            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Produk Terlaris" to="/cari">
+            <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Terlaris hari ini" to="/cari" toSearch={{ sort: "terlaris" }}>
               {best.length ? (
                 <Rail>{best.map((p, i) => <MiniCard key={p.id} p={p} url={urlOf(p)} rank={i + 1} />)}</Rail>
               ) : (
@@ -334,7 +334,8 @@ function SponsoredSection() {
   const urls = useImageUrls([...new Set(items.map((p) => p.images[0] ?? "").filter(Boolean))]);
   if (!items.length) return null;
   return (
-    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Produk Bersponsor" to="/cari">
+    <Section icon={Megaphone} tone="blue" kicker="Iklan" title="Pilihan bersponsor" to="/cari" toSearch={{ sort: "sponsored" }}>
+      <p className="-mt-2 px-3.5 pb-2 text-[12.5px] text-muted-foreground">Produk yang dipromosikan seller untuk kamu.</p>
       <Rail>{items.map((p) => (
         <div key={p.campaignId} onClickCapture={() => trackAdClick(p.campaignId)}>
           <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
@@ -393,7 +394,8 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
 }
 
 type RailTone = "blue" | "gold" | "pink" | "green" | "violet";
-function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari" | "/produk/baru" | "/produk/diskon"; children: ReactNode }) {
+function Section({ icon: I, tone, kicker, title, to, toSearch, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari" | "/produk/baru" | "/produk/diskon"; toSearch?: { sort: "sponsored" | "terlaris" }; children: ReactNode }) {
+  const cls = "flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95";
   return (
     <section className={`mk-rail ${tone === "blue" ? "" : `mk-rail--${tone}`} overflow-hidden rounded-2xl border bg-card shadow-sm`}>
       <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
@@ -402,7 +404,9 @@ function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideI
           <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-muted-foreground">{kicker}</p>
           <h2 className="truncate text-[14px] font-extrabold leading-tight">{title}</h2>
         </div>
-        {to && <Link to={to} className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95">Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>}
+        {to && toSearch ? (
+          <Link to="/cari" search={toSearch} className={cls}>Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link>
+        ) : to ? <Link to={to} className={cls}>Lihat semua <ArrowRight className="h-3.5 w-3.5" /></Link> : null}
       </div>
       <div className="pt-3">{children}</div>
     </section>

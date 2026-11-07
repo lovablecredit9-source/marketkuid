@@ -8,11 +8,13 @@ import { useCategories, useImageUrls, useStoreMedia } from "@/lib/products";
 import { SORTS, sortProducts, trackAdClick, useMarketProducts, useSponsored, type SortKey } from "@/lib/market";
 import { pageMeta } from "@/lib/meta";
 
-type S = { q?: string; kategori?: string };
+type S = { q?: string; kategori?: string; sort?: SortKey | "sponsored" };
+const SORT_KEYS = [...SORTS.map((x) => x.value), "sponsored"] as string[];
 export const Route = createFileRoute("/cari")({
   validateSearch: (s: Record<string, unknown>): S => ({
     ...(typeof s["q"] === "string" && s["q"] ? { q: s["q"] } : {}),
     ...(typeof s["kategori"] === "string" && s["kategori"] ? { kategori: s["kategori"] } : {}),
+    ...(typeof s["sort"] === "string" && SORT_KEYS.includes(s["sort"]) ? { sort: s["sort"] as SortKey | "sponsored" } : {}),
   }),
   head: () => pageMeta("Cari Produk — Marketku", "Cari dan saring produk digital di Marketku berdasarkan kategori, harga, dan rating."),
   component: Cari,
@@ -21,11 +23,12 @@ export const Route = createFileRoute("/cari")({
 const RATINGS = [0, 4, 4.5, 4.8];
 
 function Cari() {
-  const { q = "", kategori } = Route.useSearch();
+  const { q = "", kategori, sort: sortParam } = Route.useSearch();
+  const sponsoredView = sortParam === "sponsored";
   const [val, setVal] = useState(q);
   const [show, setShow] = useState(false);
   const [suggest, setSuggest] = useState(false);
-  const [sort, setSort] = useState<SortKey>("relevan");
+  const [sort, setSort] = useState<SortKey>(sortParam && sortParam !== "sponsored" ? sortParam : "relevan");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minRating, setMinRating] = useState(0);
   const navigate = useNavigate();
@@ -99,7 +102,7 @@ function Cari() {
         )}
 
         {q && <RelatedSellers q={q} />}
-        {q && <SearchAds q={q} />}
+        {(q || sponsoredView) && <SearchAds q={q} limit={sponsoredView ? 20 : 4} />}
 
         {products.isLoading ? (
           <div className="space-y-3">{[0, 1].map((i) => <div key={i} className="h-64 animate-pulse rounded-2xl border bg-card" />)}</div>
@@ -149,8 +152,8 @@ function RelatedSellers({ q }: { q: string }) {
 }
 
 /** Sponsored products whose campaign keywords match the search term. */
-function SearchAds({ q }: { q: string }) {
-  const ads = useSponsored(q, 4);
+function SearchAds({ q, limit = 4 }: { q: string; limit?: number }) {
+  const ads = useSponsored(q, limit);
   const items = ads.data ?? [];
   if (!items.length) return null;
   return (
