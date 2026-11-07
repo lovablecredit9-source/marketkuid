@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   LayoutGrid, Package, Coins, ShoppingBag, Menu, RefreshCw, HelpCircle, Bell, Monitor, X,
   Megaphone, Bot, Settings, LogOut, ArrowRight, BarChart3, Users, MessageCircle, AlertTriangle,
-  Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon,
+  Wallet, CreditCard, Handshake, Gem, Shield, Percent, BookOpen, ChevronDown, Sun, Moon, Store, User as UserIcon, Zap,
 } from "lucide-react";
 import logoMark from "@/assets/seller-logo-mark.png";
 import logoWord from "@/assets/seller-logo-word.png";
