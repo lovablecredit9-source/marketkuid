@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
-  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, History, type LucideIcon,
+  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, History, BellRing, type LucideIcon,
 } from "lucide-react";
+import { readRestock, restocked, writeRestock } from "@/lib/buyer-tools";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
 import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
@@ -86,6 +87,7 @@ function Index() {
           <>
             <SponsoredSection />
 
+            <RestockAlert />
             <RecentlyViewed pool={list} />
 
             <LikedSection items={trending.length ? [...trending, ...liked.filter((p) => !trending.includes(p))] : liked} urlOf={urlOf} />
@@ -374,6 +376,30 @@ function SponsoredSection() {
           <MiniCard p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />
         </div>
       ))}</Rail></div>
+    </section>
+  );
+}
+
+/** Sold-out products the buyer asked to be reminded about, shown once they have stock again. */
+function RestockAlert() {
+  const [ids, setIds] = useState<string[]>([]);
+  useEffect(() => setIds(readRestock()), []);
+  const q = useMarketProducts({ ids, limit: 20 });
+  const back = useMemo(() => restocked(ids, q.data ?? []), [ids, q.data]);
+  const urls = useImageUrls(back.map((p) => p.images[0] ?? "").filter(Boolean));
+  if (!ids.length || !back.length) return null;
+  const dismiss = () => { const left = ids.filter((x) => !back.some((p) => p.id === x)); writeRestock(left); setIds(left); };
+  return (
+    <section className="mk-rail overflow-hidden rounded-2xl border border-success/40 bg-card shadow-sm" aria-label="Stok tersedia lagi">
+      <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
+        <span className="mk-float-icon grid h-[30px] w-[30px] shrink-0 place-items-center rounded-[9px] bg-success/15 text-success"><BellRing className="h-4 w-4" /></span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-muted-foreground">Pengingat kamu</p>
+          <h2 className="truncate text-[14px] font-extrabold leading-tight">Stok tersedia lagi</h2>
+        </div>
+        <button type="button" onClick={dismiss} className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-primary transition active:scale-95">Tutup</button>
+      </div>
+      <div className="pt-3"><Rail>{back.map((p) => <MiniCard key={p.id} p={p} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} />)}</Rail></div>
     </section>
   );
 }
