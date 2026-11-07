@@ -31,9 +31,9 @@
 - Orders are paid only via `pay_order_with_wallet` (Saldo Marketku, no unique code) or `submit_order_payment` + `admin_review_order_payment` (QRIS/e-wallet proof in `order_payments`); both run `fulfill_paid_order`, which auto-delivers stock items and completes the order, and `credit_seller_for_order` credits the seller once after `order_release_at` (5h/buyer confirm; garansi: warranty window, max 3d) — clients never set paid status or balances.
 - Seller withdrawals (`withdrawal_requests`) are created only via `request_withdrawal`/`auto_withdraw_tick` and settled via `admin_review_withdrawal`; fee constants mirrored in `src/lib/withdraw.ts` — clients never write rows or balances.
 - Rekber (`rekber_deals`) changes only via `*_rekber` RPCs; buyers join via secret `share_token` — clients never write status or balances.
-- Stock availability always via `stock_available` — one rule for orders, fulfilment, counts.
+- Stock availability always via `stock_available`.
 - Warranty/category-request status changes only via RPCs.
 - Platform bots `admin_bot`/`seller_hub_bot`: service-role singletons, has_role setup, trigger-queued alerts, PNG cards (`card-image.server.ts`) — tokens server-only.
 - Admin Mini App: only current admins in `admin_bot_admins`.
 - Flash sales change only via `create_flash_sale`/`cancel_flash_sale`; `place_order` applies them — client mirror in `src/lib/flash.ts`.
-- Pretty links `/$kategori/product/<slug>-<uuid>` only redirect to `/produk/$id` — one product page.
+- Alias links (`/$kategori/product/…`, `/search`, `/u/$slug`, `/terms`, `/privacy`) only redirect.
