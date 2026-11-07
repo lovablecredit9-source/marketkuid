@@ -41,7 +41,7 @@ function JadiSeller() {
   const { user } = useAuth();
   const start = user
     ? <Link to="/akun" search={{ jualan: 1 }} className="mk-btn-primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground transition active:scale-95">Mulai Jualan Sekarang <ArrowRight className="h-4 w-4" /></Link>
-    : <Link to="/register" className="mk-btn-primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground transition active:scale-95">Daftar & Mulai Jualan <ArrowRight className="h-4 w-4" /></Link>;
+    : <Link to="/register" search={{ role: "seller" }} className="mk-btn-primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground transition active:scale-95">Daftar & Mulai Jualan <ArrowRight className="h-4 w-4" /></Link>;
 
   return (
     <AppShell>
