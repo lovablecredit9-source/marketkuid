@@ -16,6 +16,7 @@ import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DisputeRouteImport } from './routes/dispute'
+import { Route as FlashSaleRouteImport } from './routes/flash-sale'
 import { Route as KategoriRouteImport } from './routes/kategori'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as KontakRouteImport } from './routes/kontak'
@@ -37,6 +38,8 @@ import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as DisputeIdRouteImport } from './routes/dispute_.$id'
 import { Route as PesananIdRouteImport } from './routes/pesanan.$id'
 import { Route as ProdukIdRouteImport } from './routes/produk.$id'
+import { Route as ProdukBaruRouteImport } from './routes/produk.baru'
+import { Route as ProdukDiskonRouteImport } from './routes/produk.diskon'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerAnalitikRouteImport } from './routes/seller.analitik'
 import { Route as SellerBotRouteImport } from './routes/seller.bot'
@@ -101,6 +104,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const DisputeRoute = DisputeRouteImport.update({
   id: '/dispute',
   path: '/dispute',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlashSaleRoute = FlashSaleRouteImport.update({
+  id: '/flash-sale',
+  path: '/flash-sale',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KategoriRoute = KategoriRouteImport.update({
@@ -206,6 +214,16 @@ const PesananIdRoute = PesananIdRouteImport.update({
 const ProdukIdRoute = ProdukIdRouteImport.update({
   id: '/produk/$id',
   path: '/produk/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdukBaruRoute = ProdukBaruRouteImport.update({
+  id: '/produk/baru',
+  path: '/produk/baru',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdukDiskonRoute = ProdukDiskonRouteImport.update({
+  id: '/produk/diskon',
+  path: '/produk/diskon',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerIndexRoute = SellerIndexRouteImport.update({
@@ -368,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/flash-sale': typeof FlashSaleRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -389,6 +408,8 @@ export interface FileRoutesByFullPath {
   '/dispute/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
+  '/produk/baru': typeof ProdukBaruRoute
+  '/produk/diskon': typeof ProdukDiskonRoute
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -428,6 +449,7 @@ export interface FileRoutesByTo {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/flash-sale': typeof FlashSaleRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -448,6 +470,8 @@ export interface FileRoutesByTo {
   '/dispute/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
+  '/produk/baru': typeof ProdukBaruRoute
+  '/produk/diskon': typeof ProdukDiskonRoute
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -488,6 +512,7 @@ export interface FileRoutesById {
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
+  '/flash-sale': typeof FlashSaleRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -509,6 +534,8 @@ export interface FileRoutesById {
   '/dispute_/$id': typeof DisputeIdRoute
   '/pesanan/$id': typeof PesananIdRoute
   '/produk/$id': typeof ProdukIdRoute
+  '/produk/baru': typeof ProdukBaruRoute
+  '/produk/diskon': typeof ProdukDiskonRoute
   '/seller/analitik': typeof SellerAnalitikRoute
   '/seller/bot': typeof SellerBotRoute
   '/seller/broadcast': typeof SellerBroadcastRoute
@@ -550,6 +577,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/flash-sale'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -571,6 +599,8 @@ export interface FileRouteTypes {
     | '/dispute/$id'
     | '/pesanan/$id'
     | '/produk/$id'
+    | '/produk/baru'
+    | '/produk/diskon'
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -610,6 +640,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/flash-sale'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -630,6 +661,8 @@ export interface FileRouteTypes {
     | '/dispute/$id'
     | '/pesanan/$id'
     | '/produk/$id'
+    | '/produk/baru'
+    | '/produk/diskon'
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -669,6 +702,7 @@ export interface FileRouteTypes {
     | '/cari'
     | '/checkout'
     | '/dispute'
+    | '/flash-sale'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -690,6 +724,8 @@ export interface FileRouteTypes {
     | '/dispute_/$id'
     | '/pesanan/$id'
     | '/produk/$id'
+    | '/produk/baru'
+    | '/produk/diskon'
     | '/seller/analitik'
     | '/seller/bot'
     | '/seller/broadcast'
@@ -730,6 +766,7 @@ export interface RootRouteChildren {
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
   DisputeRoute: typeof DisputeRoute
+  FlashSaleRoute: typeof FlashSaleRoute
   KategoriRoute: typeof KategoriRoute
   KeranjangRoute: typeof KeranjangRoute
   KontakRoute: typeof KontakRoute
@@ -751,6 +788,8 @@ export interface RootRouteChildren {
   DisputeIdRoute: typeof DisputeIdRoute
   PesananIdRoute: typeof PesananIdRoute
   ProdukIdRoute: typeof ProdukIdRoute
+  ProdukBaruRoute: typeof ProdukBaruRoute
+  ProdukDiskonRoute: typeof ProdukDiskonRoute
   TokoSlugRoute: typeof TokoSlugRoute
   UlasanIdRoute: typeof UlasanIdRoute
   ApiPublicTelegramBotIdRoute: typeof ApiPublicTelegramBotIdRoute
@@ -809,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/dispute'
       fullPath: '/dispute'
       preLoaderRoute: typeof DisputeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flash-sale': {
+      id: '/flash-sale'
+      path: '/flash-sale'
+      fullPath: '/flash-sale'
+      preLoaderRoute: typeof FlashSaleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kategori': {
@@ -956,6 +1002,20 @@ declare module '@tanstack/react-router' {
       path: '/produk/$id'
       fullPath: '/produk/$id'
       preLoaderRoute: typeof ProdukIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produk/baru': {
+      id: '/produk/baru'
+      path: '/produk/baru'
+      fullPath: '/produk/baru'
+      preLoaderRoute: typeof ProdukBaruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produk/diskon': {
+      id: '/produk/diskon'
+      path: '/produk/diskon'
+      fullPath: '/produk/diskon'
+      preLoaderRoute: typeof ProdukDiskonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller/': {
@@ -1244,6 +1304,7 @@ const rootRouteChildren: RootRouteChildren = {
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
   DisputeRoute: DisputeRoute,
+  FlashSaleRoute: FlashSaleRoute,
   KategoriRoute: KategoriRoute,
   KeranjangRoute: KeranjangRoute,
   KontakRoute: KontakRoute,
@@ -1265,6 +1326,8 @@ const rootRouteChildren: RootRouteChildren = {
   DisputeIdRoute: DisputeIdRoute,
   PesananIdRoute: PesananIdRoute,
   ProdukIdRoute: ProdukIdRoute,
+  ProdukBaruRoute: ProdukBaruRoute,
+  ProdukDiskonRoute: ProdukDiskonRoute,
   TokoSlugRoute: TokoSlugRoute,
   UlasanIdRoute: UlasanIdRoute,
   ApiPublicTelegramBotIdRoute: ApiPublicTelegramBotIdRoute,

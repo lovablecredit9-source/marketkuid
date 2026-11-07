@@ -14,9 +14,9 @@ import { BRAND_GROUPS, HOME_BANNERS, HOME_GAMES, PARTNERS } from "@/lib/home-ass
 import { categoryIcon } from "@/lib/category-icons";
 import { HomeNotice } from "@/components/marketku/home-notice";
 
-type FLink = { label: string; to?: "/cari" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
+type FLink = { label: string; to?: "/cari" | "/flash-sale" | "/akun" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
 const FOOTER: { title: string; links: FLink[] }[] = [
-  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/kategori" }] },
+  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale", to: "/flash-sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/kategori" }] },
   { title: "Seller", links: [{ label: "Mulai Jualan", to: "/akun" }, { label: "Seller Center", to: "/seller" }, { label: "Panduan Seller", to: "/seller/panduan" }, { label: "Biaya Layanan", to: "/syarat" }] },
   { title: "Bantuan", links: [{ label: "Pusat Bantuan", to: "/bantuan" }, { label: "Syarat & Ketentuan", to: "/syarat" }, { label: "Kebijakan Privasi", to: "/privasi" }, { label: "Hubungi Kami", to: "/kontak" }] },
 ];
@@ -100,12 +100,12 @@ function Index() {
             </Section>
 
             {discounted.length > 0 && (
-              <Section icon={BadgePercent} tone="pink" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/cari">
+              <Section icon={BadgePercent} tone="pink" kicker="Hemat hari ini" title="Produk Lagi Diskon" to="/produk/diskon">
                 <Rail>{discounted.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
               </Section>
             )}
 
-            <Section icon={Clock} tone="green" kicker="Baru ditambahkan" title="Produk Baru" to="/cari">
+            <Section icon={Clock} tone="green" kicker="Baru ditambahkan" title="Produk Baru" to="/produk/baru">
               <Rail>{fresh.map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} />)}</Rail>
             </Section>
 
@@ -393,7 +393,7 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
 }
 
 type RailTone = "blue" | "gold" | "pink" | "green" | "violet";
-function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari"; children: ReactNode }) {
+function Section({ icon: I, tone, kicker, title, to, children }: { icon: LucideIcon; tone: RailTone; kicker: string; title: string; to?: "/cari" | "/produk/baru" | "/produk/diskon"; children: ReactNode }) {
   return (
     <section className={`mk-rail ${tone === "blue" ? "" : `mk-rail--${tone}`} overflow-hidden rounded-2xl border bg-card shadow-sm`}>
       <div className="mk-rail__head flex items-center gap-3 border-b px-3 py-2.5">
