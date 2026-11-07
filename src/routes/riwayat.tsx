@@ -39,17 +39,18 @@ function Riwayat() {
     (!ql || `m-${o.order_no} ${o.store_name ?? ""} ${o.order_items.map((i) => i.product_name).join(" ")}`.toLowerCase().includes(ql)));
 
   return (
-    <AppShell>
-      <div className="space-y-3 px-3 pt-3">
-        <div className="rounded-xl bg-accent/50 p-3">
+    <AppShell showSupport={false}>
+      <div className="space-y-4 px-4">
+        <div className="-mx-4 space-y-4 rounded-b-xl bg-gradient-to-b from-accent/70 to-background px-7 pb-4 pt-3">
+        <div>
           <h1 className="mb-2 text-base font-bold">Daftar Riwayat Pesanan</h1>
           <div className="overflow-hidden rounded-lg border bg-card">
-            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-3 py-2 text-sm font-semibold">
+            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-4 py-2.5 text-[15px] font-semibold">
               {status} <ChevronDown className="h-4 w-4" />
             </button>
-            <label className="flex items-center gap-2 px-3 py-2">
+            <label className="flex items-center gap-2 px-4 py-2.5">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent text-sm outline-none" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent text-[15px] outline-none" />
             </label>
           </div>
         </div>
@@ -61,7 +62,12 @@ function Riwayat() {
             <GuestOrders />
           </>
         ) : list.length === 0 ? (
-          <EmptyState icon={Package} title="Belum ada pesanan" desc="Pesanan baru akan muncul di sini setelah kamu membuat pesanan." action={<PrimaryLink to="/cari">Jelajahi produk</PrimaryLink>} />
+          <div className="flex flex-col items-center rounded-xl border bg-card px-6 py-5 text-center">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary"><Package className="h-4 w-4" /></div>
+            <h3 className="mt-3 text-[13px] font-bold">Belum ada pesanan</h3>
+            <p className="mt-3 text-xs leading-relaxed text-foreground/80">Pesanan baru akan muncul di sini setelah kamu membuat pesanan.</p>
+            <Link to="/cari" className="mt-4 inline-flex rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Jelajahi produk</Link>
+          </div>
         ) : (
           <div className="space-y-3">
             {list.map((o) => {
@@ -95,7 +101,8 @@ function Riwayat() {
             })}
           </div>
         )}
-        <Link to="/" className="block text-center font-semibold text-primary">← Kembali ke Beranda</Link>
+        </div>
+        <Link to="/" className="block text-center text-[13px] font-medium text-primary">← Kembali ke Beranda</Link>
       </div>
 
       <Dialog.Root open={open} onOpenChange={setOpen}>

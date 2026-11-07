@@ -16,6 +16,9 @@ import { clearSellerLocks } from "@/lib/chat";
 import { useAuth } from "@/lib/auth";
 import { toneClass, useSellerStore, type Tone } from "@/lib/seller";
 import { useWallet } from "@/lib/wallet";
+import { useMyProducts } from "@/lib/products";
+import { useSellerOrders } from "@/lib/seller-orders";
+import { useSellerBalance, useSellerHolds } from "@/components/marketku/seller-holds";
 
 export const Route = createFileRoute("/akun")({
   head: () => ({
@@ -37,7 +40,7 @@ function Stat({ icon: I, value, label, full }: { icon: typeof Coins; value: numb
   return (
     <div className={`rounded-xl border bg-card p-3 shadow-sm ${full ? "col-span-2" : ""}`}>
       <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-primary"><I className="h-3.5 w-3.5" /></span>
-      <p className="mk-acc-mono mt-2 text-sm font-medium">{value}</p>
+      <p className="mk-acc-mono mt-2 text-base font-bold">{value}</p>
       <p className="mt-0.5 text-[10px] font-semibold tracking-wider text-muted-foreground">{label}</p>
     </div>
   );
@@ -265,14 +268,39 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
   const navigate = useNavigate();
   const [tab, setTab] = useState<(typeof revenueTabs)[number]["key"]>("tersedia");
   const active = revenueTabs.find((t) => t.key === tab)!;
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const balance = useSellerBalance(user?.id);
+  const holds = useSellerHolds(user?.id);
+  const credits = useQuery({
+    queryKey: ["seller_credits", user?.id], enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("seller_credits").select("balance").eq("owner_id", user!.id).maybeSingle();
+      if (error) throw error;
+      return Number(data?.balance ?? 0);
+    },
+  });
+  const orders = useSellerOrders(user?.id);
+  const products = useMyProducts(user?.id);
+  const all = orders.data ?? [];
+  const since = Date.now() - 30 * 864e5;
+  const activeProducts = (products.data ?? []).filter((p) => p.status === "active").length;
+  const newOrders = all.filter((o) => o.status === "paid" || o.status === "processing").length;
+  const done30 = all.filter((o) => o.status === "completed" && new Date(o.created_at).getTime() >= since).length;
+  const held = (holds.data ?? []).reduce((s, h) => s + Number(h.amount), 0);
+  const amount = tab === "tersedia" ? Number(balance.data ?? 0) : tab === "tertahan" ? held : Number(credits.data ?? 0);
+  const refresh = () => {
+    for (const k of ["seller_credits", "seller_orders"]) void qc.invalidateQueries({ queryKey: [k] });
+    void balance.refetch(); void holds.refetch(); void products.refetch();
+  };
   return (
-    <div className="space-y-3 px-4 pt-3">
+    <div className="space-y-3 px-5 pt-3">
       <section className="rounded-xl border bg-gradient-to-br from-card via-card to-accent/70 p-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-5 w-5" /></div>
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-tone-green to-primary text-primary-foreground shadow-md"><Store className="h-6 w-6" /></div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="mk-acc-heading truncate text-base font-bold">{storeName}</h1>
+              <h1 className="mk-acc-heading truncate text-lg font-bold">{storeName}</h1>
               <span className="h-2.5 w-2.5 rounded-full bg-success ring-2 ring-success/30" aria-label="Aktif" />
             </div>
             <span className="mt-1.5 inline-block rounded-md border bg-card px-2 py-0.5 text-xs text-muted-foreground">Status: <b className="font-semibold text-foreground">Seller</b></span>
@@ -291,7 +319,7 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
       <section className="rounded-xl border border-success/40 bg-gradient-to-br from-success/10 to-card p-3 shadow-sm">
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground"><Wallet className="h-3.5 w-3.5" /> REVENUE TOKO</p>
-          <button aria-label="Muat ulang" onClick={() => soon("Muat ulang revenue")} className="grid h-7 w-7 place-items-center rounded-md border bg-card transition active:rotate-180"><RefreshCw className="h-3.5 w-3.5" /></button>
+          <button aria-label="Muat ulang" onClick={refresh} className="grid h-7 w-7 place-items-center rounded-md border bg-card transition active:rotate-180"><RefreshCw className="h-3.5 w-3.5" /></button>
         </div>
         <div className="mt-2 inline-flex rounded-lg border bg-muted/60 p-0.5">
           {revenueTabs.map((t) => (
@@ -301,7 +329,7 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
             </button>
           ))}
         </div>
-        <p className="mt-2 mk-acc-mono text-xl">Rp 0</p>
+        <p className="mt-3 mk-acc-mono text-2xl font-bold">Rp {amount.toLocaleString("id-ID")}</p>
         <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">{active.hint} <ArrowUpRight className="h-3 w-3" /></p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button onClick={() => navigate({ to: "/seller/withdraw" })} className="rounded-xl bg-primary/50 py-2 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/20 transition active:scale-95">Tarik dana</button>
@@ -311,9 +339,9 @@ function SellerAccount({ storeName, onBuyer, onCenter, onTour }: { storeName: st
       </section>
 
       <div className="grid grid-cols-3 gap-2">
-        <Stat icon={Package} value={0} label="PRODUK AKTIF" />
-        <Stat icon={Clock} value={0} label="PESANAN BARU" />
-        <Stat icon={CircleCheck} value={0} label="SELESAI 30H" />
+        <Stat icon={Package} value={activeProducts} label="PRODUK AKTIF" />
+        <Stat icon={Clock} value={newOrders} label="PESANAN BARU" />
+        <Stat icon={CircleCheck} value={done30} label="SELESAI 30H" />
       </div>
 
       <Section title="AKUN">
