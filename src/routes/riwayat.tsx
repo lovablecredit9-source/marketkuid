@@ -45,12 +45,12 @@ function Riwayat() {
         <div>
           <h1 className="mb-2 text-base font-bold">Daftar Riwayat Pesanan</h1>
           <div className="overflow-hidden rounded-lg border bg-card">
-            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-3 py-2 text-sm font-semibold">
+            <button onClick={() => setOpen(true)} className="flex w-full items-center justify-between border-b px-4 py-2.5 text-[15px] font-semibold">
               {status} <ChevronDown className="h-4 w-4" />
             </button>
-            <label className="flex items-center gap-2 px-3 py-2">
+            <label className="flex items-center gap-2 px-4 py-2.5">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent text-sm outline-none" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari pesanan" className="w-full bg-transparent text-[15px] outline-none" />
             </label>
           </div>
         </div>
