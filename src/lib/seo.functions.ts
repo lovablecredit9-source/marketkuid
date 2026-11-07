@@ -21,17 +21,19 @@ async function publicClient() {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const clip = (s: string, n: number) => { const t = s.replace(/\s+/g, " ").trim(); return t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t; };
 
-export type ProductSeo = { name: string; description: string; store: string; minPrice: number; maxPrice: number; ratingAvg: number; ratingCount: number; inStock: boolean } | null;
+export type ProductSeo = { id: string; slug: string | null; name: string; description: string; store: string; minPrice: number; maxPrice: number; ratingAvg: number; ratingCount: number; inStock: boolean } | null;
 
 /** Title/description/price/rating for a product's head() and JSON-LD (real data only). */
 export const getProductSeo = createServerFn({ method: "GET" })
   .inputValidator((id: string) => { if (typeof id !== "string") throw new Error("bad id"); return id; })
   .handler(async ({ data: id }): Promise<ProductSeo> => {
-    if (!UUID.test(id)) return null;
+    if (id.length > 120) return null;
     try {
       const sb = await publicClient();
-      const { data: p } = await sb.from("products").select("id, name, description, owner_id, product_type, product_variants(id, price)").eq("id", id).eq("status", "active").maybeSingle();
+      const base = sb.from("products").select("id, slug, name, description, owner_id, product_type, product_variants(id, price)").eq("status", "active");
+      const { data: p } = await (UUID.test(id) ? base.eq("id", id) : base.eq("slug", id.toLowerCase())).maybeSingle();
       if (!p) return null;
+      id = p.id;
       const variants = (p.product_variants ?? []) as { id: string; price: number }[];
       const prices = variants.map((v) => Number(v.price));
       const [stores, reviews, stock] = await Promise.all([
@@ -42,6 +44,7 @@ export const getProductSeo = createServerFn({ method: "GET" })
       const rs = (reviews.data ?? []).map((r) => Number(r.rating));
       const avail = (stock.data ?? []).reduce((a, s) => a + Number(s.available ?? 0), 0);
       return {
+        id: p.id, slug: p.slug,
         name: p.name,
         description: clip(p.description || p.name, 155),
         store: stores.data?.[0]?.store_name ?? "Marketku",

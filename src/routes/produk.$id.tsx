@@ -27,8 +27,13 @@ import { readRestock, toggleRestock, writeRestock } from "@/lib/buyer-tools";
 
 export const Route = createFileRoute("/produk/$id")({
   staticData: { sitemap: true },
-  loader: ({ params }) => getProductSeo({ data: params.id }),
-  head: ({ params, loaderData }) => productHead(params.id, loaderData),
+  loader: async ({ params }) => {
+    const seo = await getProductSeo({ data: params.id });
+    // Old /produk/<id> links move to the product's name link, e.g. /produk/chatgpgt-plus.
+    if (seo?.slug && seo.slug !== params.id) throw redirect({ to: "/produk/$id", params: { id: seo.slug }, replace: true });
+    return seo;
+  },
+  head: ({ params, loaderData }) => productHead(loaderData?.slug ?? params.id, loaderData),
   component: ProdukDetail,
 });
 
@@ -36,7 +41,9 @@ const durText = (v: { lifetime: boolean; duration_value: number | null; duration
   v.lifetime ? "Lifetime" : v.duration_value ? `${v.duration_value} ${v.duration_unit ?? "hari"}` : "-";
 
 function ProdukDetail() {
-  const { id } = Route.useParams();
+  const { id: param } = Route.useParams();
+  const seo = Route.useLoaderData();
+  const id = seo?.id ?? param;
   const router = useRouter();
   const navigate = useNavigate();
   const { user } = useAuth();
