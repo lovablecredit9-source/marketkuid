@@ -52,8 +52,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             const { data, error } = await supabase.rpc("public_stores", { p_ids: ids.slice(i, i + 200) });
             if (error) throw error;
             for (const s of data ?? []) {
-              if (!s.slug) continue;
-              const location = router.buildLocation({ to: "/toko/$slug", params: { slug: s.slug }, search: () => ({}), hash: "" });
+              // Same link the product page uses: slug, or the owner id for stores without one.
+              const location = router.buildLocation({ to: "/toko/$slug", params: { slug: s.slug || s.owner_id }, search: () => ({}), hash: "" });
               const path = sitemapPathForLocation(router, location, storeRoute);
               if (path) entries.push({ path });
             }
