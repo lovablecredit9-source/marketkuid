@@ -257,6 +257,8 @@ function OrderSheet({ order: o, onClose }: { order: SellerOrder | null; onClose:
         <Rows>
           <Line i="👤" a="Pelanggan" b={o.buyer_name ?? "-"} />
           <Line i="📱" a="WhatsApp" b={o.buyer_whatsapp ? <span className="text-primary">{o.buyer_whatsapp}</span> : "-"} />
+          {o.guest_telegram && <Line i="✈️" a="Telegram" b={<a href={`https://t.me/${o.guest_telegram}`} target="_blank" rel="noreferrer" className="text-primary">@{o.guest_telegram}</a>} />}
+          {o.guest_email && <Line i="✉️" a="Email (tamu)" b={o.guest_email} />}
           {o.order_items.map((i) => <Line key={i.id} i="📦" a="Produk" b={<span className="uppercase">{i.product_name}</span>} />)}
           <Line i="🏷️" a="Varian" b={<span className="uppercase">{o.order_items.map((i) => i.variant_name).join(", ")}</span>} />
           <Line i="🎟️" a="Tipe Item" b={o.order_items[0]?.product_type === "preorder" ? "Pre-Order" : "Voucher"} />
