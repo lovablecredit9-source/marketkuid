@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Database } from "@/integrations/supabase/types";
 
 export const SITE_URL = "https://marketkuid.lovable.app";
 
@@ -6,7 +7,7 @@ export const SITE_URL = "https://marketkuid.lovable.app";
 async function publicClient() {
   const { createClient } = await import("@supabase/supabase-js");
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  return createClient(process.env["SUPABASE_URL"]!, key, {
+  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { fetch: (input, init) => {
       const headers = new Headers(init?.headers);
@@ -64,7 +65,7 @@ export const getStoreSeo = createServerFn({ method: "GET" })
       const sb = await publicClient();
       let row: { store_name: string; description: string | null; slug: string | null } | undefined;
       if (UUID.test(slug)) row = (await sb.rpc("public_stores", { p_ids: [slug] })).data?.[0];
-      else row = ((await sb.rpc("store_by_slug", { p_slug: slug })).data as { store_name: string; description: string | null; slug: string | null }[] | null)?.[0];
+      else row = (await sb.rpc("store_by_slug", { p_slug: slug })).data?.[0];
       if (!row) return null;
       return { name: row.store_name, description: clip(row.description || `Produk digital dari ${row.store_name} di Marketku.`, 155), slug: row.slug || slug };
     } catch {
