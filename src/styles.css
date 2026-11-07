@@ -303,6 +303,13 @@
 @utility mk-runmarquee {
   animation: mk-marquee 50s linear infinite;
 }
+.mk-run-viewport { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.mk-run-viewport:hover .mk-runmarquee, .mk-run-viewport:active .mk-runmarquee { animation-play-state: paused; }
+.mk-run-pill { position: relative; }
+.mk-run-pill::after { content: ""; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); width: 1px; height: 22px; background: linear-gradient(180deg, transparent, var(--border) 30%, var(--border) 70%, transparent); }
+.mk-run-pill:hover .mk-run-name { color: var(--primary); }
+.mk-run-name { transition: color .14s ease; }
+@media (prefers-reduced-motion: reduce) { .mk-runmarquee { animation: none; } .mk-run-viewport { overflow-x: auto; } }
 /* Floating "Kembali ke atas" button above the bottom nav. */
 .mk-back-to-top {
   position: fixed; right: max(14px, calc((100vw - 28rem) / 2 + 14px)); bottom: 76px; z-index: 40;
