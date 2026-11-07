@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { ShareSheet } from "@/components/marketku/share-sheet";
 import { toast } from "sonner";
-import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, User } from "lucide-react";
+import { MessageSquare, MessageCircle, Package, ShoppingBag, Star, User, UserPlus, UserCheck, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
@@ -57,6 +59,12 @@ function Toko() {
   const mediaUrls = useImageUrls([m?.avatar_path ?? "", m?.banner_path ?? ""]);
   const avatarUrl = m?.avatar_path ? mediaUrls.data?.[m.avatar_path] : undefined;
   const bannerUrl = m?.banner_path ? mediaUrls.data?.[m.banner_path] : undefined;
+  const qc = useQueryClient();
+  const [shareOpen, setShareOpen] = useState(false);
+  const follow = useQuery({
+    queryKey: ["follow", user?.id, s?.owner_id], enabled: !!user && !!s?.owner_id,
+    queryFn: async () => !!(await supabase.from("store_follows").select("seller_id").eq("user_id", user!.id).eq("seller_id", s!.owner_id).maybeSingle()).data,
+  });
   const reviewImgs = useImageUrls([...new Set((reviews.data ?? []).map((x) => x.products?.images?.[0] ?? "").filter(Boolean))]);
 
 
@@ -79,8 +87,22 @@ function Toko() {
     navigate({ to: "/chat/$id", params: { id: data } });
   };
 
+  const toggleFollow = async () => {
+    if (!user) { toast("Masuk dulu untuk mengikuti toko"); navigate({ to: "/login" }); return; }
+    if (own) { toast("Ini toko kamu sendiri"); return; }
+    const on = !!follow.data;
+    const { error } = on
+      ? await supabase.from("store_follows").delete().eq("user_id", user.id).eq("seller_id", s.owner_id)
+      : await supabase.from("store_follows").insert({ user_id: user.id, seller_id: s.owner_id });
+    if (error) { toast.error("Gagal memperbarui"); return; }
+    toast.success(on ? "Berhenti mengikuti toko" : `Kamu mengikuti ${s.store_name}`);
+    void qc.invalidateQueries({ queryKey: ["follow"] });
+    void qc.invalidateQueries({ queryKey: ["followed_stores", user.id] });
+  };
+
   return (
     <AppShell showSupport={false} className="store-profile">
+      <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={s.store_name} url={typeof window === "undefined" ? "" : window.location.href} text={`Mampir ke toko ${s.store_name} di Marketku`} />
       <div className="space-y-5 px-8 pt-4">
         <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
           {bannerUrl
@@ -98,6 +120,10 @@ function Toko() {
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <h1 className="min-w-0 break-words text-[22px] font-bold leading-tight">{s.store_name}</h1>
               <Button size="sm" onClick={() => void chat()} className="h-7 gap-1 rounded-full px-2.5 text-[10px]"><MessageCircle /> Kirim Pesan</Button>
+            </div>
+            <div className="mt-2 flex gap-2">
+              {!own && <Button size="sm" variant={follow.data ? "outline" : "default"} onClick={() => void toggleFollow()} className="h-7 gap-1 rounded-full px-3 text-[10px]">{follow.data ? <><UserCheck /> Diikuti</> : <><UserPlus /> Ikuti</>}</Button>}
+              <Button size="sm" variant="outline" onClick={() => setShareOpen(true)} className="h-7 gap-1 rounded-full px-3 text-[10px]"><Share2 /> Bagikan</Button>
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">Toko dibuka sejak {since}{s.is_open ? "" : " · Sedang tutup"}</p>
             {!s.is_open && !banned.data && <p className="mt-2 rounded-xl border bg-muted px-3 py-2 text-xs font-semibold text-foreground/80">Toko sedang tutup — produk bisa dilihat, belum bisa order. Kamu tetap bisa kirim pesan ke seller.</p>}
