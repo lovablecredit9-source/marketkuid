@@ -13,6 +13,8 @@ import { pageMeta } from "@/lib/meta";
 import { LoadingLine } from "@/components/marketku/loading";
 import { useEffect } from "react";
 import { savedGuestOrders, type SavedGuestOrder } from "@/lib/guest";
+import { spendSummary } from "@/lib/buyer-tools";
+import { Wallet, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/riwayat")({
   head: () => pageMeta("Riwayat Pesanan — Marketku", "Lihat daftar riwayat pesananmu di Marketku."),
@@ -28,7 +30,7 @@ function Riwayat() {
   const [q, setQ] = useState("");
   const orders = useQuery({
     queryKey: ["my_orders", user?.id], enabled: !!user,
-    queryFn: async () => (await supabase.from("orders").select("id, order_no, checkout_id, store_name, status, total, created_at, expires_at, order_items(product_name, variant_name, qty, image_path)").eq("buyer_id", user!.id).order("created_at", { ascending: false }).limit(200)).data ?? [],
+    queryFn: async () => (await supabase.from("orders").select("id, order_no, checkout_id, store_name, status, total, created_at, expires_at, order_items(product_id, product_name, variant_name, qty, image_path)").eq("buyer_id", user!.id).order("created_at", { ascending: false }).limit(200)).data ?? [],
   });
   const imgs = useImageUrls((orders.data ?? []).map((o) => o.order_items[0]?.image_path ?? "").filter((p) => p && !p.startsWith("http")));
   const want = BUYER_FILTER[status] ?? [];
@@ -61,7 +63,10 @@ function Riwayat() {
             <EmptyState icon={Package} title="Masuk untuk melihat pesanan" desc="Riwayat pesanan tersimpan di akunmu." action={<PrimaryLink to="/login">Masuk</PrimaryLink>} />
             <GuestOrders />
           </>
-        ) : list.length === 0 ? (
+        ) : (
+          <SpendCard orders={orders.data ?? []} />
+        )}
+        {!ready || !user || orders.isPending ? null : list.length === 0 ? (
           <div className="flex flex-col items-center rounded-xl border bg-card px-6 py-5 text-center">
             <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary"><Package className="h-4 w-4" /></div>
             <h3 className="mt-3 text-[13px] font-bold">Belum ada pesanan</h3>
@@ -90,6 +95,11 @@ function Riwayat() {
                     <span className="text-[10px] font-semibold tracking-wider text-muted-foreground">TOTAL PEMBAYARAN</span>
                     <span className="flex items-center gap-2"><b className="text-sm">{rpBuyer(Number(o.total))}</b><span className="flex items-center text-xs text-muted-foreground">Detail <ChevronRight className="h-3.5 w-3.5" /></span></span>
                   </Link>
+                  {o.status === "completed" && o.order_items[0]?.product_id && (
+                    <div className="border-t px-3 py-2">
+                      <Link to="/produk/$id" params={{ id: o.order_items[0].product_id }} className="flex items-center justify-center gap-1.5 rounded-lg border border-primary py-2 text-sm font-semibold text-primary transition active:scale-[0.98]"><RotateCcw className="h-4 w-4" /> Beli lagi</Link>
+                    </div>
+                  )}
                   {pend && (
                     <div className="border-t px-3 py-2 text-center">
                       <Link to="/bayar/$id" params={{ id: o.checkout_id }} className="block rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition active:scale-[0.98]">Lakukan Pembayaran</Link>
@@ -136,6 +146,21 @@ function GuestOrders() {
           <span>Pesanan {fmtDateTime(new Date(g.at).toISOString())}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
       ))}
+    </section>
+  );
+}
+
+/** This month's and all-time spending from the buyer's own paid orders. */
+function SpendCard({ orders }: { orders: { status: string; total: number; created_at: string }[] }) {
+  const s = spendSummary(orders);
+  if (!s.allCount) return null;
+  return (
+    <section className="flex items-center gap-3 rounded-xl border bg-card p-3">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-accent text-primary"><Wallet className="h-4 w-4" /></span>
+      <div className="grid flex-1 grid-cols-2 gap-2">
+        <div><p className="text-[10px] font-semibold tracking-wider text-muted-foreground">BULAN INI</p><b className="text-sm">{rpBuyer(s.month)}</b><p className="text-[11px] text-muted-foreground">{s.monthCount} pesanan</p></div>
+        <div><p className="text-[10px] font-semibold tracking-wider text-muted-foreground">TOTAL BELANJA</p><b className="text-sm">{rpBuyer(s.all)}</b><p className="text-[11px] text-muted-foreground">{s.allCount} pesanan</p></div>
+      </div>
     </section>
   );
 }
