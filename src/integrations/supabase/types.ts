@@ -760,6 +760,54 @@ export type Database = {
           },
         ]
       }
+      guest_buyers: {
+        Row: {
+          created_at: string
+          email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      guest_checkouts: {
+        Row: {
+          buyer_id: string
+          checkout_id: string
+          created_at: string
+          email: string
+          telegram: string | null
+          token: string
+          whatsapp: string | null
+        }
+        Insert: {
+          buyer_id: string
+          checkout_id: string
+          created_at?: string
+          email: string
+          telegram?: string | null
+          token?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          checkout_id?: string
+          created_at?: string
+          email?: string
+          telegram?: string | null
+          token?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_path: string | null
@@ -1007,6 +1055,8 @@ export type Database = {
           created_at: string
           discount: number
           expires_at: string | null
+          guest_email: string | null
+          guest_telegram: string | null
           id: string
           order_no: number
           paid_at: string | null
@@ -1032,6 +1082,8 @@ export type Database = {
           created_at?: string
           discount?: number
           expires_at?: string | null
+          guest_email?: string | null
+          guest_telegram?: string | null
           id?: string
           order_no?: never
           paid_at?: string | null
@@ -1057,6 +1109,8 @@ export type Database = {
           created_at?: string
           discount?: number
           expires_at?: string | null
+          guest_email?: string | null
+          guest_telegram?: string | null
           id?: string
           order_no?: never
           paid_at?: string | null
@@ -2662,6 +2716,22 @@ export type Database = {
       fulfill_paid_order: {
         Args: { p_method: string; p_order: string }
         Returns: undefined
+      }
+      guest_place_order: {
+        Args: {
+          p_buyer: string
+          p_email: string
+          p_items: Json
+          p_note: string
+          p_telegram: string
+          p_voucher: string
+          p_whatsapp: string
+        }
+        Returns: string
+      }
+      guest_submit_payment: {
+        Args: { p_method: string; p_proof: string; p_token: string }
+        Returns: string
       }
       has_role: {
         Args: {
