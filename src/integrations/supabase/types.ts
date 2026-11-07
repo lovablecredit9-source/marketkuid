@@ -1511,6 +1511,99 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_settings: {
+        Row: {
+          claim_window_days: number
+          id: number
+          is_enabled: boolean
+          max_rewards_per_referrer: number
+          min_order: number
+          referee_reward: number
+          referrer_reward: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          claim_window_days?: number
+          id?: number
+          is_enabled?: boolean
+          max_rewards_per_referrer?: number
+          min_order?: number
+          referee_reward?: number
+          referrer_reward?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          claim_window_days?: number
+          id?: number
+          is_enabled?: boolean
+          max_rewards_per_referrer?: number
+          min_order?: number
+          referee_reward?: number
+          referrer_reward?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string
+          note: string | null
+          order_id: string | null
+          referee_id: string
+          referee_reward: number
+          referrer_id: string
+          referrer_reward: number
+          rewarded_at: string | null
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          note?: string | null
+          order_id?: string | null
+          referee_id: string
+          referee_reward?: number
+          referrer_id: string
+          referrer_reward?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          note?: string | null
+          order_id?: string | null
+          referee_id?: string
+          referee_reward?: number
+          referrer_id?: string
+          referrer_reward?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       rekber_deals: {
         Row: {
           admin_note: string | null
@@ -2522,6 +2615,27 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_referrals: {
+        Args: never
+        Returns: {
+          code: string
+          created_at: string
+          note: string
+          order_id: string
+          referee: string
+          referee_id: string
+          referee_reward: number
+          referrer: string
+          referrer_id: string
+          referrer_reward: number
+          rewarded_at: string
+          status: string
+        }[]
+      }
+      admin_reject_referral: {
+        Args: { p_note: string; p_referee: string }
+        Returns: undefined
+      }
       admin_resolve_dispute: {
         Args: { p_id: string; p_note: string; p_refund: boolean }
         Returns: undefined
@@ -2572,6 +2686,17 @@ export type Database = {
       }
       admin_unban_store: { Args: { p_owner: string }; Returns: undefined }
       admin_unban_user: { Args: { p_user: string }; Returns: undefined }
+      admin_update_referral_settings: {
+        Args: {
+          p_enabled: boolean
+          p_max_rewards: number
+          p_min_order: number
+          p_referee_reward: number
+          p_referrer_reward: number
+          p_window_days: number
+        }
+        Returns: undefined
+      }
       admin_users: {
         Args: never
         Returns: {
@@ -2612,6 +2737,7 @@ export type Database = {
         }[]
       }
       claim_ad_voucher: { Args: { p_code: string }; Returns: number }
+      claim_referral: { Args: { p_code: string }; Returns: undefined }
       confirm_rekber: { Args: { p_id: string }; Returns: undefined }
       conversation_partner_seen: { Args: { p_id: string }; Returns: string }
       create_ad_campaign: {
@@ -2763,6 +2889,17 @@ export type Database = {
           banned_until: string
           kind: string
           reason: string
+        }[]
+      }
+      my_referral_code: { Args: never; Returns: string }
+      my_referrals: {
+        Args: never
+        Returns: {
+          created_at: string
+          referee_label: string
+          referrer_reward: number
+          rewarded_at: string
+          status: string
         }[]
       }
       open_dispute: {
