@@ -17,6 +17,7 @@ import { productTypeText } from "@/components/marketku/product-sheet";
 import { pageMeta } from "@/lib/meta";
 import { liveFlashPercent, useFlashSales } from "@/lib/flash";
 import { FlashStrip } from "@/components/marketku/flash-strip";
+import { rememberViewed } from "@/lib/recently-viewed";
 
 export const Route = createFileRoute("/produk/$id")({
   head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
