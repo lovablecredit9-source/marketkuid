@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone, ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search, SlidersHorizontal, Sparkles, PackageSearch, Star, Megaphone, ArrowRight, History, X } from "lucide-react";
+import { VoiceSearchButton } from "@/components/marketku/voice-search";
+import { SEARCH_KEY, clearSearches, readSearches, rememberSearch, removeSearch } from "@/lib/buyer-tools";
 import { SearchSuggest, useStoreSearch } from "@/components/marketku/search-suggest";
 import { AppShell, EmptyState } from "@/components/marketku/shell";
 import { ProductList, rpBuyer } from "@/components/marketku/product-card";
@@ -32,6 +34,15 @@ function Cari() {
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minRating, setMinRating] = useState(0);
   const navigate = useNavigate();
+  const [history, setHistory] = useState<string[]>([]);
+  useEffect(() => {
+    if (q) rememberSearch(q);
+    const sync = () => setHistory(readSearches());
+    sync();
+    window.addEventListener(`${SEARCH_KEY}:change`, sync);
+    return () => window.removeEventListener(`${SEARCH_KEY}:change`, sync);
+  }, [q]);
+  useEffect(() => { setVal(q); }, [q]);
   const cats = useCategories();
   const catId = kategori ? cats.data?.find((c) => c.id === kategori || c.name.toLowerCase() === kategori.toLowerCase())?.id ?? null : null;
   const products = useMarketProducts({ q, category: catId, limit: 200 });
@@ -51,6 +62,7 @@ function Cari() {
           <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input type="search" value={val} onChange={(e) => { setVal(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
+            <VoiceSearchButton onResult={(t) => { setVal(t); setSuggest(false); navigate({ to: "/cari", search: { q: t, ...(kategori ? { kategori } : {}) } }); }} />
           </label>
           {suggest && val.trim() && val.trim() !== q && (
             <SearchSuggest q={val} className="absolute inset-x-0 top-full mt-1"
@@ -58,6 +70,19 @@ function Cari() {
               onAll={() => { setSuggest(false); navigate({ to: "/cari", search: { q: val.trim(), ...(kategori ? { kategori } : {}) } }); }} />
           )}
         </form>
+        {!q && history.length > 0 && (
+          <div>
+            <div className="mb-1.5 flex items-center justify-between"><p className="flex items-center gap-1 text-xs font-bold text-muted-foreground"><History className="h-3.5 w-3.5" /> Pencarian terakhir</p><button onClick={clearSearches} className="text-[11px] font-semibold text-primary">Hapus semua</button></div>
+            <div className="flex flex-wrap gap-1.5">
+              {history.map((h) => (
+                <span key={h} className="flex items-center rounded-full border bg-card text-xs shadow-sm">
+                  <Link to="/cari" search={{ q: h }} className="py-1.5 pl-3 pr-1 font-medium">{h}</Link>
+                  <button aria-label={`Hapus ${h}`} onClick={() => removeSearch(h)} className="grid h-6 w-6 place-items-center text-muted-foreground"><X className="h-3 w-3" /></button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         <div>
           <p className="flex items-center gap-1 text-xs font-bold tracking-wider text-primary"><Sparkles className="h-3 w-3" /> JELAJAHI MARKETKU</p>
           <h1 className="mt-0.5 text-[19px] font-bold">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
