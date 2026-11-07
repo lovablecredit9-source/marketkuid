@@ -713,6 +713,53 @@ export type Database = {
           },
         ]
       }
+      flash_sales: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          owner_id: string
+          percent: number
+          product_id: string
+          quota: number | null
+          sold: number
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          owner_id: string
+          percent: number
+          product_id: string
+          quota?: number | null
+          sold?: number
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          owner_id?: string
+          percent?: number
+          product_id?: string
+          quota?: number | null
+          sold?: number
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flash_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_path: string | null
@@ -2493,6 +2540,7 @@ export type Database = {
       buyer_close_dispute: { Args: { p_id: string }; Returns: undefined }
       buyer_confirm_order: { Args: { p_order: string }; Returns: undefined }
       cancel_ad_campaign: { Args: { p_id: string }; Returns: number }
+      cancel_flash_sale: { Args: { p_id: string }; Returns: undefined }
       cancel_order: { Args: { p_order: string }; Returns: undefined }
       cancel_rekber: { Args: { p_id: string }; Returns: undefined }
       category_product_counts: {
@@ -2527,6 +2575,16 @@ export type Database = {
       }
       create_deposit: {
         Args: { p_amount: number; p_method?: string; p_proof: string }
+        Returns: string
+      }
+      create_flash_sale: {
+        Args: {
+          p_hours: number
+          p_percent: number
+          p_product: string
+          p_quota: number
+          p_starts: string
+        }
         Returns: string
       }
       create_rekber: {
