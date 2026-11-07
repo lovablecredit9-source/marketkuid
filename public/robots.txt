@@ -12,8 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
-
-User-agent: *
 Disallow: /admin
 Disallow: /seller
 Disallow: /api/
