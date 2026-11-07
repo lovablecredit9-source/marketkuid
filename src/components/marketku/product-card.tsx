@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, ShoppingCart, Star, Package, ShoppingBag } from "lucide-react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
+import { Heart, ShoppingCart, Star, Package, ShoppingBag, Store } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +53,46 @@ export function ProductImage({ path, url, alt, className = "" }: { path?: string
   );
 }
 
+/** Long press (touch, 450ms) shows the seller peek like marketku.id; the tap that ends a long press doesn't open the product. */
+export function useSellerPeek() {
+  const [peek, setPeek] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pressed = useRef(false);
+  const clear = () => { if (timer.current) clearTimeout(timer.current); timer.current = null; };
+  useEffect(() => clear, []);
+  return {
+    peek,
+    bind: {
+      onPointerDown: (e: PointerEvent) => { if (e.pointerType === "mouse") return; clear(); timer.current = setTimeout(() => { setPeek(true); pressed.current = true; timer.current = null; }, 450); },
+      onPointerUp: () => { clear(); if (peek || pressed.current) window.setTimeout(() => setPeek(false), 900); },
+      onPointerCancel: () => { clear(); if (peek || pressed.current) window.setTimeout(() => setPeek(false), 900); },
+      onPointerLeave: () => { clear(); if (peek) setPeek(false); },
+      onContextMenu: (e: MouseEvent) => { if (pressed.current || peek) e.preventDefault(); },
+      onClickCapture: (e: MouseEvent) => { if (pressed.current) { e.preventDefault(); e.stopPropagation(); pressed.current = false; } },
+    },
+  };
+}
+
+/** Store name + store rating over the bottom of the product photo (hover / long press). */
+export function SellerPeek({ p }: { p: CardProduct }) {
+  const name = p.storeName.trim();
+  if (!name) return null;
+  const r = p.storeRating ?? p.rating;
+  return (
+    <div className="mk-seller-peek" aria-hidden="true">
+      <div className="flex min-w-0 items-center gap-[5px]">
+        <span className="mk-seller-peek__avatar"><Store className="h-[13px] w-[13px]" /></span>
+        <span className="truncate text-[12px] font-bold">{name}</span>
+      </div>
+      <div className="inline-flex items-center gap-1 text-[11px] font-semibold">
+        <Star className="h-3 w-3 fill-warning text-warning" />
+        <span>{r.count > 0 ? r.avg.toFixed(1) : "Baru"}</span>
+        {r.count > 0 && <span className="mk-seller-peek__reviews">({r.count.toLocaleString("id-ID")})</span>}
+      </div>
+    </div>
+  );
+}
+
 /** "-50%" + "FLASH" badges on the image while a flash sale is live (like marketku.id). */
 export function FlashBadges({ p }: { p: CardProduct }) {
   const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
@@ -66,12 +107,14 @@ export function FlashBadges({ p }: { p: CardProduct }) {
 /** Large card used on beranda, pencarian, and store pages (matches the screenshot list layout). */
 export function ProductCard({ p, url, wished, onWish, compact = false, simple = false }: { p: CardProduct; url?: string | undefined; wished: boolean; onWish: () => void; compact?: boolean; simple?: boolean }) {
   const navigate = useNavigate();
+  const { peek, bind } = useSellerPeek();
   const closed = !p.storeOpen;
   const out = p.product_type !== "preorder" && p.stock <= 0;
   if (simple) return (
-    <Link to="/produk/$id" params={{ id: p.id }} className="block overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="relative">
+    <Link to="/produk/$id" params={{ id: p.id }} {...bind} className={`mk-peek-card block overflow-hidden rounded-2xl border bg-card shadow-sm ${peek ? "is-seller-peek" : ""}`}>
+      <div className="relative overflow-hidden">
         <ProductImage url={url} alt={p.name} className="aspect-square" />
+        <SellerPeek p={p} />
         {(closed || out) && <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-foreground/80 px-2 py-0.5 text-[10px] font-bold tracking-wider text-background">{closed ? "TOKO TUTUP" : "STOK HABIS"}</span>}
       </div>
       <div className="px-2.5 pb-2.5 pt-2">
@@ -83,10 +126,11 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
     </Link>
   );
   return (
-    <article className="overflow-hidden rounded-[20px] border bg-card shadow-sm">
+    <article {...bind} className={`mk-peek-card overflow-hidden rounded-[20px] border bg-card shadow-sm ${peek ? "is-seller-peek" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5 pb-0">
         <div className="relative overflow-hidden rounded-[14px]">
           <ProductImage url={url} alt={p.name} className={compact ? "aspect-square" : "aspect-[16/10]"} />
+          <SellerPeek p={p} />
           <button type="button" aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWish(); }} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/90 shadow-sm transition active:scale-90">
             <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} />
           </button>

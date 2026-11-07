@@ -515,11 +515,13 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
   const on = wish.data?.has(p.id) ?? false;
   const out = !p.storeOpen ? "Toko Tutup" : p.product_type !== "preorder" && p.stock <= 0 ? "Kosong" : null;
   const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
+  const { peek, bind } = useSellerPeek();
   return (
-    <article className={`relative overflow-hidden rounded-2xl border bg-card ${grid ? "" : "w-[150px] shrink-0"} ${out ? "mk-card-off" : ""}`}>
+    <article {...bind} className={`mk-peek-card relative overflow-hidden rounded-2xl border bg-card ${grid ? "" : "w-[150px] shrink-0"} ${out ? "mk-card-off" : ""} ${peek ? "is-seller-peek" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5">
         <div className="relative overflow-hidden rounded-xl bg-muted/70 p-3">
           <ProductImage url={url} alt={p.name} className="aspect-square" />
+          <SellerPeek p={p} />
           {out && <span className="absolute bottom-2 right-2 z-[2] rounded-full bg-foreground/75 px-2 py-1 text-[10px] font-bold leading-none text-background">{out}</span>}
           <span className="absolute left-1.5 top-1.5 z-[2] flex gap-1">
             {rank && <span className="rounded-full bg-warning px-1.5 py-0.5 text-[10px] font-bold text-foreground">#{rank}</span>}
