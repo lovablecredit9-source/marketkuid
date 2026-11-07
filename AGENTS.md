@@ -23,7 +23,7 @@
 - Home promo assets live in `src/lib/home-assets.ts`.
 - Ad campaigns change only via `create_ad_campaign`/`cancel_ad_campaign` (wallet ledger); sponsored slots via `sponsored_products` — clients never set status or balances.
 - Telegram bots (`telegram_bots`, token hidden) via `telegram.functions.ts`/`broadcast.functions.ts` (log: `telegram_broadcasts`); updates hit `/api/public/telegram/$botId` with per-bot secret — tokens server-only. Owner alerts: triggers queue `telegram_notifications`, `drainNotifications` sends (cron `/api/public/telegram/notify`); bot links use `siteBase()` (no localhost).
-- Seller Center has its own client-side unlock (password re-entry, `src/lib/chat.ts` helpers) on top of the buyer session; leaving Seller Center only re-locks it, while Akun "Keluar" signs out fully — a UX gate, not a security boundary (RLS still scopes data per user).
+- Seller Center client-side unlock (password re-entry, `src/lib/chat.ts`) sits on the buyer session; leaving re-locks, Akun "Keluar" signs out — UX gate only, RLS scopes data.
 - Product categories form a tree via `product_categories.parent_id`; filters/counts expand a category to its descendants (`descendantIds` in `src/lib/products.ts`) icons via `categoryIcon()`; home browses `/?kategori=&subkategori=` (names) — one source for picker, home and kategori page.
 - Admin access is the `admin` row in `user_roles` checked via `has_role` (RLS + SECURITY DEFINER RPCs); buyer Saldo Marketku lives in `wallets`/`wallet_ledger` and changes only through `admin_review_deposit` approving a `deposit_requests` row (manual QRIS, proof + QRIS image in private `payment-assets` bucket) — clients can never write balances or roles.
 - Admin has its own sign-in at `/admin/login` and its own `.admin-panel` theme (not linked from buyer Akun); account/store bans live in `account_bans`/`store_bans` (timed or permanent), changed only via `admin_*` SECURITY DEFINER RPCs that also write `admin_logs`, and enforced server-side by triggers (orders, order_items, messages, products) plus a RESTRICTIVE products SELECT policy — clients can never lift a ban or unhide a taken-down product.
@@ -36,4 +36,4 @@
 - Platform bots `admin_bot`/`seller_hub_bot`: service-role singletons, has_role setup, trigger-queued alerts, PNG cards (`card-image.server.ts`) — tokens server-only.
 - Admin Mini App: only current admins in `admin_bot_admins`.
 - Flash sales change only via `create_flash_sale`/`cancel_flash_sale`; `place_order` applies them — client mirror in `src/lib/flash.ts`.
-- marketku.id-style links `/<kategori>/product/<judul>-<uuid>` only redirect to `/produk/$id` (id parsed by `src/lib/product-link.ts`) — one product page, old links keep working.
+- Pretty links `/$kategori/product/<slug>-<uuid>` only redirect to `/produk/$id` — one product page.
