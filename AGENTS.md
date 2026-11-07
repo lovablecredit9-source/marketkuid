@@ -39,3 +39,5 @@
 - Alias links (`/$kategori/product/…[/reviews]`, `/search`, `/u/$slug`, `/terms`, `/privacy`) only redirect.
 - Guest checkout: `guest.functions.ts` (service role) maps email→hidden buyer in `guest_buyers`, runs `guest_place_order`/`guest_submit_payment` (wrap the normal RPCs); access only via secret `guest_checkouts.token` at `/lacak/$token`.
 - Device-only buyer tools (compare list, search history, wishlist price snapshots) live in `src/lib/buyer-tools.ts` localStorage — no server state, so nothing private is stored.
+- Referral (`referral_codes`/`referrals`/`referral_settings`) changes only via `my_referral_code`/`claim_referral`/`admin_*referral*` RPCs; rewards are paid solely by the `referral_reward_on_sale` trigger when a seller `sale` ledger row lands — clients never write referrals or rewards.
+- Sitemap: every route sets `staticData.sitemap` (`src/lib/sitemap.ts`); `/sitemap.xml` adds public products/stores; product/store SEO comes from `seo.functions.ts` loaders + `productHead`/`storeHead` in `meta.ts` — structured data uses real data only.

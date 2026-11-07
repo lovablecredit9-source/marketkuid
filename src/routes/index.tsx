@@ -18,9 +18,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { clearRecent, orderByRecent, readRecent, recommendFromViewed } from "@/lib/recently-viewed";
 
-type FLink = { label: string; to?: "/cari" | "/flash-sale" | "/akun" | "/jadi-seller" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" };
+type FLink = { label: string; to?: "/cari" | "/flash-sale" | "/akun" | "/jadi-seller" | "/seller" | "/seller/panduan" | "/bantuan" | "/syarat" | "/privasi" | "/kontak" | "/kategori" | "/referral" };
 const FOOTER: { title: string; links: FLink[] }[] = [
-  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale", to: "/flash-sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/kategori" }] },
+  { title: "Marketplace", links: [{ label: "Semua Produk", to: "/cari" }, { label: "Flash Sale", to: "/flash-sale" }, { label: "Best Seller" }, { label: "Kategori", to: "/kategori" }, { label: "Undang Teman", to: "/referral" }] },
   { title: "Seller", links: [{ label: "Mulai Jualan", to: "/jadi-seller" }, { label: "Seller Center", to: "/seller" }, { label: "Panduan Seller", to: "/seller/panduan" }, { label: "Biaya Layanan", to: "/syarat" }] },
   { title: "Bantuan", links: [{ label: "Pusat Bantuan", to: "/bantuan" }, { label: "Syarat & Ketentuan", to: "/syarat" }, { label: "Kebijakan Privasi", to: "/privasi" }, { label: "Hubungi Kami", to: "/kontak" }] },
 ];
