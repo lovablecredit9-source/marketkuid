@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { readNotes, rememberNote, removeNote } from "@/lib/buyer-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Phone, ShieldCheck, Shield, QrCode, CircleCheck, ShoppingCart, Loader2, Store, Wallet, Circle, TriangleAlert } from "lucide-react";
@@ -31,6 +32,8 @@ function Checkout() {
   const wanted = parseItems(items);
   const [wa, setWa] = useState("");
   const [note, setNote] = useState("");
+  const [savedNotes, setSavedNotes] = useState<string[]>([]);
+  useEffect(() => setSavedNotes(readNotes()), []);
   const [voucher, setVoucher] = useState("");
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
@@ -89,6 +92,7 @@ function Checkout() {
       setBusy(false);
       if (!r.ok) { toast.error(r.error); return; }
       rememberGuestOrder(r.token);
+      rememberNote(note);
       toast.success("Pesanan dibuat, lanjut bayar QRIS");
       navigate({ to: "/lacak/$token", params: { token: r.token }, replace: true });
       return;
@@ -101,6 +105,7 @@ function Checkout() {
     setBusy(false);
     if (error || !data) { toast.error(dbError(error)); return; }
     void qc.invalidateQueries({ queryKey: ["cart", user.id] });
+    rememberNote(note);
     if (method === "saldo") {
       const { error: payErr } = await supabase.rpc("pay_order_with_wallet", { p_checkout: data });
       if (payErr) toast.error(`Pesanan dibuat, tapi belum terbayar: ${dbError(payErr)}`);
@@ -162,6 +167,19 @@ function Checkout() {
           <label className="block text-sm font-medium">Catatan untuk seller {noteReq ? "*" : "(opsional)"}
             <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 500))} rows={3} placeholder={noteReq ? "Wajib diisi sesuai kebutuhan pesanan." : "Tulis catatan bila perlu."} className="mt-1 w-full rounded-xl border bg-card px-3 py-2.5 outline-none focus:border-primary" />
           </label>
+          {savedNotes.length > 0 && (
+            <div aria-label="Catatan tersimpan">
+              <p className="text-xs font-semibold text-muted-foreground">Catatan terakhir kamu</p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {savedNotes.map((n) => (
+                  <span key={n} className="inline-flex max-w-full items-center overflow-hidden rounded-full border bg-accent/60 text-xs">
+                    <button type="button" onClick={() => setNote(n)} className="truncate px-3 py-1.5 text-left font-medium text-primary">{n}</button>
+                    <button type="button" aria-label={`Hapus catatan ${n}`} onClick={() => { removeNote(n); setSavedNotes(readNotes()); }} className="border-l px-2 py-1.5 text-muted-foreground">×</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
         <section className="rounded-2xl border bg-card p-4">
           <p className="text-sm font-semibold">Kode voucher</p>

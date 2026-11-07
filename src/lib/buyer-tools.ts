@@ -81,3 +81,48 @@ export function spendSummary(orders: { status: string; total: number | string; c
   }
   return { month, monthCount, all, allCount };
 }
+
+/* ---------- Ingatkan saat stok tersedia ---------- */
+
+export const RESTOCK_KEY = "mk-restock-watch";
+export const RESTOCK_MAX = 20;
+/** Toggle a sold-out product in the restock reminder list (newest first, capped). */
+export function toggleRestock(list: string[], id: string, max = RESTOCK_MAX): string[] {
+  return list.includes(id) ? list.filter((x) => x !== id) : [id, ...list].slice(0, max);
+}
+export const readRestock = () => read<string[]>(RESTOCK_KEY, []).filter((x) => typeof x === "string").slice(0, RESTOCK_MAX);
+export const writeRestock = (ids: string[]) => write(RESTOCK_KEY, ids.slice(0, RESTOCK_MAX));
+/** Watched products that have stock again. */
+export function restocked<T extends { id: string; stock: number }>(watch: string[], products: T[]): T[] {
+  return products.filter((p) => watch.includes(p.id) && p.stock > 0);
+}
+
+/* ---------- Catatan cepat checkout ---------- */
+
+export const NOTE_KEY = "mk-note-templates";
+export const NOTE_MAX = 5;
+/** Remember a checkout note (newest first, de-duplicated, 3–200 chars, capped). */
+export function pushNote(list: string[], note: string, max = NOTE_MAX): string[] {
+  const t = note.trim().replace(/\s+/g, " ");
+  if (t.length < 3 || t.length > 200) return list;
+  return [t, ...list.filter((x) => x !== t)].slice(0, max);
+}
+export const readNotes = () => read<string[]>(NOTE_KEY, []).filter((x) => typeof x === "string").slice(0, NOTE_MAX);
+export const rememberNote = (note: string) => write(NOTE_KEY, pushNote(readNotes(), note));
+export const removeNote = (note: string) => write(NOTE_KEY, readNotes().filter((x) => x !== note));
+
+/* ---------- Unduh riwayat pesanan ---------- */
+
+const csvCell = (v: string | number) => {
+  const s = String(v);
+  return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+/** CSV of the buyer's own orders (one row per order). */
+export function ordersCsv(orders: { order_no: number | string; created_at: string; store_name: string | null; status: string; total: number | string; order_items: { product_name: string; qty: number }[] }[], label: (s: string) => string = (s) => s): string {
+  const head = ["No Pesanan", "Tanggal", "Toko", "Produk", "Status", "Total"];
+  const rows = orders.map((o) => [
+    `M-${o.order_no}`, o.created_at.slice(0, 10), o.store_name ?? "-",
+    o.order_items.map((i) => `${i.product_name} x${i.qty}`).join("; "), label(o.status), Number(o.total) || 0,
+  ]);
+  return [head, ...rows].map((r) => r.map(csvCell).join(",")).join("\n");
+}

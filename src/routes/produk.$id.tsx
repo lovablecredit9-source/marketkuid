@@ -21,6 +21,8 @@ import { FlashStrip } from "@/components/marketku/flash-strip";
 import { rememberViewed } from "@/lib/recently-viewed";
 import { ShareSheet } from "@/components/marketku/share-sheet";
 import { useCompare } from "@/components/marketku/compare";
+import { Bell, BellRing } from "lucide-react";
+import { readRestock, toggleRestock, writeRestock } from "@/lib/buyer-tools";
 
 export const Route = createFileRoute("/produk/$id")({
   head: () => pageMeta("Detail Produk — Marketku", "Lihat varian, harga, spesifikasi, dan ulasan produk digital di Marketku."),
@@ -55,6 +57,15 @@ function ProdukDetail() {
   const [guard, setGuard] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const compare = useCompare();
+  const [watching, setWatching] = useState(false);
+  useEffect(() => setWatching(readRestock().includes(id)), [id]);
+  const toggleWatch = () => {
+    const next = toggleRestock(readRestock(), id);
+    writeRestock(next);
+    const on = next.includes(id);
+    setWatching(on);
+    toast.success(on ? "Kami ingatkan di Beranda saat stok tersedia lagi" : "Pengingat stok dimatikan");
+  };
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     onScroll();
@@ -317,6 +328,9 @@ function ProdukDetail() {
           <div className="flex shrink-0 overflow-hidden rounded-md border">
             <button aria-label="Chat seller" onClick={() => void chat()} className="flex h-11 items-center gap-1.5 border-r px-3 text-[12.5px] font-semibold transition active:bg-muted"><MessageCircle className="h-4 w-4" /> Chat</button>
             <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="grid h-11 w-11 place-items-center border-r transition active:bg-muted"><Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
+            {soldOut && !closed && (
+              <button aria-label={watching ? "Matikan pengingat stok" : "Ingatkan saat stok tersedia"} aria-pressed={watching} onClick={toggleWatch} className={`grid h-11 w-11 place-items-center border-r transition active:bg-muted ${watching ? "bg-accent text-primary" : ""}`}>{watching ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />}</button>
+            )}
             <button aria-label="Bagikan" onClick={share} className="grid h-11 w-11 place-items-center transition active:bg-muted"><Share2 className="h-4 w-4" /></button>
           </div>
         </div>
