@@ -3,7 +3,7 @@ import { idFromProductSlug } from "@/lib/product-link";
 import { pageMeta } from "@/lib/meta";
 
 // marketku.id-style review links (/gemini/product/<slug>-<id>/reviews) open the reviews page.
-export const Route = createFileRoute("/$kategori/product/$slug/reviews")({
+export const Route = createFileRoute("/$kategori/product/$slug_/reviews")({
   beforeLoad: ({ params }) => {
     const id = idFromProductSlug(params.slug);
     if (!id) throw notFound();
