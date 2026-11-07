@@ -180,7 +180,7 @@ export function SideMenu({ open, onOpenChange }: { open: boolean; onOpenChange: 
               {store.data ? (
                 <button onClick={() => go(() => navigate({ to: "/seller" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Seller Center</button>
               ) : (
-                <button onClick={() => go(() => navigate({ to: user ? "/akun" : "/register" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Mulai Jualan</button>
+                <button onClick={() => go(() => navigate({ to: "/jadi-seller" }))} className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-accent py-2 text-[12.5px] font-bold text-primary transition active:scale-[0.98]"><Store className="h-4 w-4" /> Mulai Jualan</button>
               )}
             </div>
           </div>

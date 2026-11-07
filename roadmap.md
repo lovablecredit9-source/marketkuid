@@ -117,4 +117,5 @@
 - [x] Strip "Produk yang baru dibeli" dari pembelian asli (refresh 1 menit)
 - [x] Tombol "Kembali ke atas"
 - [x] Beranda: "Terakhir kamu lihat" (+ Hapus) dan "Rekomendasi untuk kamu" dari produk yang dibuka di HP ini
-- [ ] Halaman Jadi Seller, popup WhatsApp, bentuk link produk/toko seperti marketku.id (belum dikerjakan)
+- [x] Halaman Jadi Seller (/jadi-seller, tanpa angka palsu) + tombol Mulai Jualan
+- [x] Link produk gaya marketku.id (/kategori/product/judul-id) terbuka di halaman produk
