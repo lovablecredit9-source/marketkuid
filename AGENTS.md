@@ -35,3 +35,4 @@
 - Warranty/category-request status changes only via RPCs.
 - Platform bots `admin_bot`/`seller_hub_bot`: service-role singletons, has_role setup, trigger-queued alerts, PNG cards (`card-image.server.ts`) — tokens server-only.
 - Admin Mini App: only current admins in `admin_bot_admins`.
+- Flash sales (`flash_sales`) change only via `create_flash_sale`/`cancel_flash_sale`; `place_order` applies the live percent after variant discount and counts quota — client pricing mirrors it in `src/lib/flash.ts`.
