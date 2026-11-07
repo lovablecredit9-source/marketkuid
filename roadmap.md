@@ -127,3 +127,8 @@
 
 ## Guest checkout (Nov 7)
 - [x] Beli tanpa akun: email + WhatsApp/Telegram, bayar QRIS, halaman /lacak link rahasia, kontak tamu di detail transaksi seller
+
+## Samakan Pesanan & Akun (Nov 7)
+- [x] Akun seller: saldo Tersedia/Tertahan/Credits, produk aktif, pesanan baru, selesai 30 hari pakai data asli + tombol muat ulang
+- [x] Riwayat Pesanan: tanpa strip Bantuan, panel & kotak kosong seukuran marketku.id
+- [ ] Bandingkan halaman Pesan (chat) & Seller Center berikutnya
