@@ -57,6 +57,7 @@ function ProdukDetail() {
   }, []);
   useEffect(() => {
     const key = `mk-viewed-${id}`;
+    if (isUuid(id)) rememberViewed(id);
     if (!isUuid(id) || sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
     supabase.rpc("record_product_view", { p_product: id }).then(() => {}, () => {});
