@@ -3,11 +3,11 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Zap, ShieldCheck, Headphones, Package, BadgePercent, Facebook, Instagram, Twitter, Youtube, Heart, Star,
   Sparkles, TrendingUp, Clock, Gamepad2, ArrowRight, ChevronDown, Bot, AppWindow, Cloud, Palette, MoreHorizontal,
-  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, Megaphone, History, type LucideIcon,
+  Smartphone, Users, Cpu, Tv, Wrench, LayoutGrid, History, type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/logo-marketku.png.asset.json";
 import { AppShell, EmptyState, soon } from "@/components/marketku/shell";
-import { PriceLine, ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
+import { ProductImage, rpBuyer, useToggleWishlist, useWishlistIds } from "@/components/marketku/product-card";
 import { trackAdClick, useMarketProducts, useSponsored, type CardProduct } from "@/lib/market";
 import { categoryPath, childCategories, descendantIds, useCategories, useImageUrls, type CategoryRow } from "@/lib/products";
 import { BRAND_GROUPS, HOME_BANNERS, HOME_GAMES, PARTNERS } from "@/lib/home-assets";
