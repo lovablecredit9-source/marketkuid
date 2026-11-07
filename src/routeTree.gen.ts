@@ -46,6 +46,7 @@ import { Route as SellerBotRouteImport } from './routes/seller.bot'
 import { Route as SellerBroadcastRouteImport } from './routes/seller.broadcast'
 import { Route as SellerChatRouteImport } from './routes/seller.chat'
 import { Route as SellerDisputeRouteImport } from './routes/seller.dispute'
+import { Route as SellerFlashSaleRouteImport } from './routes/seller.flash-sale'
 import { Route as SellerGaransiRouteImport } from './routes/seller.garansi'
 import { Route as SellerIklanRouteImport } from './routes/seller.iklan'
 import { Route as SellerPanduanRouteImport } from './routes/seller.panduan'
@@ -256,6 +257,11 @@ const SellerDisputeRoute = SellerDisputeRouteImport.update({
   path: '/dispute',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerFlashSaleRoute = SellerFlashSaleRouteImport.update({
+  id: '/flash-sale',
+  path: '/flash-sale',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerGaransiRoute = SellerGaransiRouteImport.update({
   id: '/garansi',
   path: '/garansi',
@@ -415,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
   '/seller/dispute': typeof SellerDisputeRoute
+  '/seller/flash-sale': typeof SellerFlashSaleRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -477,6 +484,7 @@ export interface FileRoutesByTo {
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
   '/seller/dispute': typeof SellerDisputeRoute
+  '/seller/flash-sale': typeof SellerFlashSaleRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -541,6 +549,7 @@ export interface FileRoutesById {
   '/seller/broadcast': typeof SellerBroadcastRoute
   '/seller/chat': typeof SellerChatRoute
   '/seller/dispute': typeof SellerDisputeRoute
+  '/seller/flash-sale': typeof SellerFlashSaleRoute
   '/seller/garansi': typeof SellerGaransiRoute
   '/seller/iklan': typeof SellerIklanRoute
   '/seller/panduan': typeof SellerPanduanRouteWithChildren
@@ -606,6 +615,7 @@ export interface FileRouteTypes {
     | '/seller/broadcast'
     | '/seller/chat'
     | '/seller/dispute'
+    | '/seller/flash-sale'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -668,6 +678,7 @@ export interface FileRouteTypes {
     | '/seller/broadcast'
     | '/seller/chat'
     | '/seller/dispute'
+    | '/seller/flash-sale'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -731,6 +742,7 @@ export interface FileRouteTypes {
     | '/seller/broadcast'
     | '/seller/chat'
     | '/seller/dispute'
+    | '/seller/flash-sale'
     | '/seller/garansi'
     | '/seller/iklan'
     | '/seller/panduan'
@@ -1060,6 +1072,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerDisputeRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/flash-sale': {
+      id: '/seller/flash-sale'
+      path: '/flash-sale'
+      fullPath: '/seller/flash-sale'
+      preLoaderRoute: typeof SellerFlashSaleRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/garansi': {
       id: '/seller/garansi'
       path: '/garansi'
@@ -1249,6 +1268,7 @@ interface SellerRouteChildren {
   SellerBroadcastRoute: typeof SellerBroadcastRoute
   SellerChatRoute: typeof SellerChatRoute
   SellerDisputeRoute: typeof SellerDisputeRoute
+  SellerFlashSaleRoute: typeof SellerFlashSaleRoute
   SellerGaransiRoute: typeof SellerGaransiRoute
   SellerIklanRoute: typeof SellerIklanRoute
   SellerPanduanRoute: typeof SellerPanduanRouteWithChildren
@@ -1274,6 +1294,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerBroadcastRoute: SellerBroadcastRoute,
   SellerChatRoute: SellerChatRoute,
   SellerDisputeRoute: SellerDisputeRoute,
+  SellerFlashSaleRoute: SellerFlashSaleRoute,
   SellerGaransiRoute: SellerGaransiRoute,
   SellerIklanRoute: SellerIklanRoute,
   SellerPanduanRoute: SellerPanduanRouteWithChildren,
