@@ -119,3 +119,7 @@
 - [x] Beranda: "Terakhir kamu lihat" (+ Hapus) dan "Rekomendasi untuk kamu" dari produk yang dibuka di HP ini
 - [x] Halaman Jadi Seller (/jadi-seller, tanpa angka palsu) + tombol Mulai Jualan
 - [x] Link produk gaya marketku.id (/kategori/product/judul-id) terbuka di halaman produk
+
+## Cek marketku.id (Nov 7)
+- [x] Daftar seller langsung dari /register?role=seller (pilihan Customer/Seller, Nama Toko, Telegram)
+- [x] Link gaya marketku.id: /search, /u/nama-toko, /terms, /privacy
