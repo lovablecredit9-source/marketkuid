@@ -17,6 +17,7 @@ import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DisputeRouteImport } from './routes/dispute'
 import { Route as FlashSaleRouteImport } from './routes/flash-sale'
+import { Route as JadiSellerRouteImport } from './routes/jadi-seller'
 import { Route as KategoriRouteImport } from './routes/kategori'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as KontakRouteImport } from './routes/kontak'
@@ -111,6 +112,11 @@ const DisputeRoute = DisputeRouteImport.update({
 const FlashSaleRoute = FlashSaleRouteImport.update({
   id: '/flash-sale',
   path: '/flash-sale',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JadiSellerRoute = JadiSellerRouteImport.update({
+  id: '/jadi-seller',
+  path: '/jadi-seller',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KategoriRoute = KategoriRouteImport.update({
@@ -399,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
   '/flash-sale': typeof FlashSaleRoute
+  '/jadi-seller': typeof JadiSellerRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -464,6 +471,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
   '/flash-sale': typeof FlashSaleRoute
+  '/jadi-seller': typeof JadiSellerRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -529,6 +537,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/dispute': typeof DisputeRoute
   '/flash-sale': typeof FlashSaleRoute
+  '/jadi-seller': typeof JadiSellerRoute
   '/kategori': typeof KategoriRoute
   '/keranjang': typeof KeranjangRoute
   '/kontak': typeof KontakRoute
@@ -596,6 +605,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dispute'
     | '/flash-sale'
+    | '/jadi-seller'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -661,6 +671,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dispute'
     | '/flash-sale'
+    | '/jadi-seller'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -725,6 +736,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dispute'
     | '/flash-sale'
+    | '/jadi-seller'
     | '/kategori'
     | '/keranjang'
     | '/kontak'
@@ -791,6 +803,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DisputeRoute: typeof DisputeRoute
   FlashSaleRoute: typeof FlashSaleRoute
+  JadiSellerRoute: typeof JadiSellerRoute
   KategoriRoute: typeof KategoriRoute
   KeranjangRoute: typeof KeranjangRoute
   KontakRoute: typeof KontakRoute
@@ -880,6 +893,13 @@ declare module '@tanstack/react-router' {
       path: '/flash-sale'
       fullPath: '/flash-sale'
       preLoaderRoute: typeof FlashSaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jadi-seller': {
+      id: '/jadi-seller'
+      path: '/jadi-seller'
+      fullPath: '/jadi-seller'
+      preLoaderRoute: typeof JadiSellerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kategori': {
@@ -1346,6 +1366,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DisputeRoute: DisputeRoute,
   FlashSaleRoute: FlashSaleRoute,
+  JadiSellerRoute: JadiSellerRoute,
   KategoriRoute: KategoriRoute,
   KeranjangRoute: KeranjangRoute,
   KontakRoute: KontakRoute,
