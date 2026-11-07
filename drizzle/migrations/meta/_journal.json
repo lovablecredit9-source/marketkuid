@@ -386,6 +386,13 @@
       "when": 1794076148524,
       "tag": "0054_referral_code_random_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794094564936,
+      "tag": "0055_store_slug_autofill",
+      "breakpoints": true
     }
   ]
 }

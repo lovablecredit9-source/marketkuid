@@ -2882,6 +2882,10 @@ export type Database = {
           used: number
         }[]
       }
+      make_store_slug: {
+        Args: { p_name: string; p_owner: string }
+        Returns: string
+      }
       mark_conversation_read: { Args: { p_id: string }; Returns: undefined }
       my_bans: {
         Args: never
