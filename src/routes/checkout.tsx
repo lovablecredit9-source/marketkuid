@@ -129,7 +129,7 @@ function Checkout() {
   const payMethod = guest ? "qris" : method;
 
   return (
-    <AppShell nav={false}>
+    <AppShell nav={false} showSupport={false}>
       <div className="space-y-4 px-3 pt-4 pb-32">
         <section className="mk-co-card space-y-3">
           <h2>Pesanan Anda</h2>
