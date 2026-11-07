@@ -33,6 +33,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiwayatRouteImport } from './routes/riwayat'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SyaratRouteImport } from './routes/syarat'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokoDiikutiRouteImport } from './routes/toko-diikuti'
@@ -201,6 +202,11 @@ const SearchRoute = SearchRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SyaratRoute = SyaratRouteImport.update({
@@ -476,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/riwayat': typeof RiwayatRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
   '/toko-diikuti': typeof TokoDiikutiRoute
@@ -550,6 +557,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/riwayat': typeof RiwayatRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
   '/toko-diikuti': typeof TokoDiikutiRoute
@@ -626,6 +634,7 @@ export interface FileRoutesById {
   '/riwayat': typeof RiwayatRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
   '/toko-diikuti': typeof TokoDiikutiRoute
@@ -703,6 +712,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/search'
     | '/seller'
+    | '/sitemap.xml'
     | '/syarat'
     | '/terms'
     | '/toko-diikuti'
@@ -777,6 +787,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/riwayat'
     | '/search'
+    | '/sitemap.xml'
     | '/syarat'
     | '/terms'
     | '/toko-diikuti'
@@ -852,6 +863,7 @@ export interface FileRouteTypes {
     | '/riwayat'
     | '/search'
     | '/seller'
+    | '/sitemap.xml'
     | '/syarat'
     | '/terms'
     | '/toko-diikuti'
@@ -928,6 +940,7 @@ export interface RootRouteChildren {
   RiwayatRoute: typeof RiwayatRoute
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SyaratRoute: typeof SyaratRoute
   TermsRoute: typeof TermsRoute
   TokoDiikutiRoute: typeof TokoDiikutiRoute
@@ -1123,6 +1136,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/syarat': {
@@ -1563,6 +1583,7 @@ const rootRouteChildren: RootRouteChildren = {
   RiwayatRoute: RiwayatRoute,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SyaratRoute: SyaratRoute,
   TermsRoute: TermsRoute,
   TokoDiikutiRoute: TokoDiikutiRoute,

@@ -12,3 +12,10 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+User-agent: *
+Disallow: /admin
+Disallow: /seller
+Disallow: /api/
+
+Sitemap: https://marketkuid.lovable.app/sitemap.xml
