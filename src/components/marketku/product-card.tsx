@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useImageUrls } from "@/lib/products";
 import type { CardProduct } from "@/lib/market";
 
-export const rpBuyer = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
+export const rpBuyer = (n: number) => `Rp ${n.toLocaleString("id-ID")}`;
 
 export function PriceLine({ p, className }: { p: CardProduct; className: string }) {
   const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
