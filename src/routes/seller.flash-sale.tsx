@@ -60,7 +60,7 @@ function SellerFlashSale() {
   const cancel = async (r: Row) => {
     if (!window.confirm("Batalkan flash sale ini? Harga kembali normal.")) return;
     const { error } = await supabase.rpc("cancel_flash_sale", { p_id: r.id });
-    if (error) return toast.error(dbError(error));
+    if (error) { toast.error(dbError(error)); return; }
     toast.success("Flash sale dibatalkan");
     void qc.invalidateQueries({ queryKey: ["my_flash_sales"] });
     void qc.invalidateQueries({ queryKey: ["flash_sales"] });
@@ -136,13 +136,15 @@ function CreateSheet({ open, onOpenChange, products }: { open: boolean; onOpenCh
   const err = validateFlash(draft);
 
   const submit = async () => {
-    if (err) return toast.error(err);
+    if (err) { toast.error(err); return; }
     setBusy(true);
     const { error } = await supabase.rpc("create_flash_sale", {
-      p_product: productId, p_percent: draft.percent, p_starts: draft.startsAt.toISOString(), p_hours: draft.hours, ...(draft.quota !== null ? { p_quota: draft.quota } : {}),
+      p_product: productId, p_percent: draft.percent, p_starts: draft.startsAt.toISOString(), p_hours: draft.hours,
+      // SQL takes NULL for "no quota"; generated types mark the arg as required number.
+      p_quota: draft.quota ?? (null as unknown as number),
     });
     setBusy(false);
-    if (error) return toast.error(dbError(error));
+    if (error) { toast.error(dbError(error)); return; }
     toast.success("Flash sale dijadwalkan");
     onOpenChange(false);
     setProductId(""); setQuota("");
