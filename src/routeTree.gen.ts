@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AkunRouteImport } from './routes/akun'
+import { Route as BandingkanRouteImport } from './routes/bandingkan'
 import { Route as BantuanRouteImport } from './routes/bantuan'
 import { Route as CariRouteImport } from './routes/cari'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -33,6 +34,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SyaratRouteImport } from './routes/syarat'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TokoDiikutiRouteImport } from './routes/toko-diikuti'
 import { Route as TopupRouteImport } from './routes/topup'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
@@ -93,6 +95,11 @@ const AdminRoute = AdminRouteImport.update({
 const AkunRoute = AkunRouteImport.update({
   id: '/akun',
   path: '/akun',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BandingkanRoute = BandingkanRouteImport.update({
+  id: '/bandingkan',
+  path: '/bandingkan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BantuanRoute = BantuanRouteImport.update({
@@ -198,6 +205,11 @@ const SyaratRoute = SyaratRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TokoDiikutiRoute = TokoDiikutiRouteImport.update({
+  id: '/toko-diikuti',
+  path: '/toko-diikuti',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TopupRoute = TopupRouteImport.update({
@@ -437,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
+  '/bandingkan': typeof BandingkanRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
@@ -458,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
+  '/toko-diikuti': typeof TokoDiikutiRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
@@ -509,6 +523,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
+  '/bandingkan': typeof BandingkanRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
@@ -529,6 +544,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
+  '/toko-diikuti': typeof TokoDiikutiRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
@@ -581,6 +597,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/akun': typeof AkunRoute
+  '/bandingkan': typeof BandingkanRoute
   '/bantuan': typeof BantuanRoute
   '/cari': typeof CariRoute
   '/checkout': typeof CheckoutRoute
@@ -602,6 +619,7 @@ export interface FileRoutesById {
   '/seller': typeof SellerRouteWithChildren
   '/syarat': typeof SyaratRoute
   '/terms': typeof TermsRoute
+  '/toko-diikuti': typeof TokoDiikutiRoute
   '/topup': typeof TopupRoute
   '/wishlist': typeof WishlistRoute
   '/admin_/login': typeof AdminLoginRoute
@@ -655,6 +673,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/akun'
+    | '/bandingkan'
     | '/bantuan'
     | '/cari'
     | '/checkout'
@@ -676,6 +695,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/syarat'
     | '/terms'
+    | '/toko-diikuti'
     | '/topup'
     | '/wishlist'
     | '/admin/login'
@@ -727,6 +747,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/akun'
+    | '/bandingkan'
     | '/bantuan'
     | '/cari'
     | '/checkout'
@@ -747,6 +768,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/syarat'
     | '/terms'
+    | '/toko-diikuti'
     | '/topup'
     | '/wishlist'
     | '/admin/login'
@@ -798,6 +820,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/akun'
+    | '/bandingkan'
     | '/bantuan'
     | '/cari'
     | '/checkout'
@@ -819,6 +842,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/syarat'
     | '/terms'
+    | '/toko-diikuti'
     | '/topup'
     | '/wishlist'
     | '/admin_/login'
@@ -871,6 +895,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AkunRoute: typeof AkunRoute
+  BandingkanRoute: typeof BandingkanRoute
   BantuanRoute: typeof BantuanRoute
   CariRoute: typeof CariRoute
   CheckoutRoute: typeof CheckoutRoute
@@ -892,6 +917,7 @@ export interface RootRouteChildren {
   SellerRoute: typeof SellerRouteWithChildren
   SyaratRoute: typeof SyaratRoute
   TermsRoute: typeof TermsRoute
+  TokoDiikutiRoute: typeof TokoDiikutiRoute
   TopupRoute: typeof TopupRoute
   WishlistRoute: typeof WishlistRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -937,6 +963,13 @@ declare module '@tanstack/react-router' {
       path: '/akun'
       fullPath: '/akun'
       preLoaderRoute: typeof AkunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bandingkan': {
+      id: '/bandingkan'
+      path: '/bandingkan'
+      fullPath: '/bandingkan'
+      preLoaderRoute: typeof BandingkanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bantuan': {
@@ -1084,6 +1117,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/toko-diikuti': {
+      id: '/toko-diikuti'
+      path: '/toko-diikuti'
+      fullPath: '/toko-diikuti'
+      preLoaderRoute: typeof TokoDiikutiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/topup': {
@@ -1482,6 +1522,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AkunRoute: AkunRoute,
+  BandingkanRoute: BandingkanRoute,
   BantuanRoute: BantuanRoute,
   CariRoute: CariRoute,
   CheckoutRoute: CheckoutRoute,
@@ -1503,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerRoute: SellerRouteWithChildren,
   SyaratRoute: SyaratRoute,
   TermsRoute: TermsRoute,
+  TokoDiikutiRoute: TokoDiikutiRoute,
   TopupRoute: TopupRoute,
   WishlistRoute: WishlistRoute,
   AdminLoginRoute: AdminLoginRoute,
