@@ -88,7 +88,7 @@ function Index() {
 
             <RecentlyViewed pool={list} />
 
-            <LikedSection items={trending.length ? [...trending, ...liked.filter((p) => !trending.some((t) => t.id === p.id))] : liked} urlOf={urlOf} />
+            <LikedSection items={trending.length ? [...trending, ...liked.filter((p) => !trending.includes(p))] : liked} urlOf={urlOf} />
 
             <Section icon={TrendingUp} tone="gold" kicker="Paling laku hari ini" title="Terlaris hari ini">
               {best.length ? (
