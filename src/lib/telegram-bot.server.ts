@@ -192,7 +192,7 @@ export async function handleUpdate(admin: Admin, bot: BotRow, update: Update, si
 
   const [{ data: store }, { data: prodRows }] = await Promise.all([
     admin.from("seller_stores").select("store_name, slug, is_open, avatar_path, banner_path").eq("owner_id", bot.owner_id).maybeSingle(),
-    admin.from("products").select("id, name, images, category_id, product_type, product_categories(name), product_variants(id, name, price, sort)")
+    admin.from("products").select("id, slug, name, images, category_id, product_type, product_categories(name), product_variants(id, name, price, sort)")
       .eq("owner_id", bot.owner_id).eq("status", "active").order("created_at", { ascending: false }).limit(60),
   ]);
   const products = (prodRows ?? []) as unknown as Product[];
