@@ -1,20 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ChangeEvent } from "react";
-import { AtSign, CircleCheck, KeyRound, Mail, MailCheck, MessageCircle, ShoppingBag, Store, User } from "lucide-react";
+import { AtSign, CircleCheck, KeyRound, Mail, MailCheck, MessageCircle, ShoppingBag, Store, Ticket, User } from "lucide-react";
 import { AuthAlert, AuthCard, AuthFooter, AuthLayout, AuthTitle, Field, GradientButton, OutlineButton, StrengthBar } from "@/components/marketku/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrorText } from "@/lib/auth";
 import { unlockSeller } from "@/lib/chat";
 import { normalizeTelegram, validStoreName, validTelegram } from "@/components/marketku/seller-sheet";
+import { clearPendingReferral, isReferralCode, normalizeReferralCode, rememberPendingReferral } from "@/lib/referral";
 import { isEmailFormat, normalizeUsername, passwordStrength, PASSWORD_MIN, usernameError } from "@/lib/register-rules";
 
-type RegSearch = { email?: string; dari?: "login"; role?: "seller" };
+type RegSearch = { email?: string; dari?: "login"; role?: "seller"; ref?: string };
 
 export const Route = createFileRoute("/register")({
   validateSearch: (s: Record<string, unknown>): RegSearch => ({
     ...(typeof s["email"] === "string" && s["email"] ? { email: s["email"] } : {}),
     ...(s["dari"] === "login" ? { dari: "login" as const } : {}),
     ...(s["role"] === "seller" ? { role: "seller" as const } : {}),
+    ...(typeof s["ref"] === "string" && isReferralCode(normalizeReferralCode(s["ref"])) ? { ref: normalizeReferralCode(s["ref"]) } : {}),
   }),
   head: () => ({
     meta: [
@@ -53,7 +55,7 @@ function Register() {
   const navigate = Route.useNavigate();
   const seller = search.role === "seller";
   const setRole = (r: "customer" | "seller") => navigate({ search: (p: RegSearch) => { const { role: _r, ...rest } = p; return r === "seller" ? { ...rest, role: "seller" as const } : rest; }, replace: true });
-  const [f, setF] = useState({ name: "", email: search.email ?? "", username: "", wa: "", pass: "", confirm: "", store: "", tg: "" });
+  const [f, setF] = useState({ name: "", email: search.email ?? "", username: "", wa: "", pass: "", confirm: "", store: "", tg: "", ref: search.ref ?? "" });
   const [storeErr, setStoreErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +98,13 @@ function Register() {
     });
     if (err) { setLoading(false); setError(authErrorText(err.message)); return; }
     if (data.user && data.user.identities?.length === 0) { setLoading(false); setError("Email sudah terdaftar. Pakai login atau email lain."); return; }
+    const ref = normalizeReferralCode(f.ref);
+    if (isReferralCode(ref)) {
+      if (data.session) {
+        const { error: rErr } = await supabase.rpc("claim_referral", { p_code: ref });
+        if (rErr) { rememberPendingReferral(ref); } else clearPendingReferral();
+      } else rememberPendingReferral(ref);
+    }
     if (seller && data.session && data.user) {
       const { error: sErr } = await supabase.from("seller_stores").insert({ owner_id: data.user.id, store_name: f.store.trim(), telegram_username: telegram || null });
       if (sErr) setStoreErr("Akun sudah dibuat, tapi toko belum berhasil dibuat. Buka toko lagi dari menu Akun → Mulai Jualan.");
@@ -182,6 +191,8 @@ function Register() {
           </>}
           <Field label="Nomor WhatsApp (opsional)" icon={MessageCircle} name="wa" type="tel" inputMode="numeric" placeholder="08xxxxxxxxxx" value={f.wa} onChange={(e) => setF({ ...f, wa: e.target.value.replace(/\D/g, "").slice(0, 20) })}
             hint="Buat notif pesanan, refund, dan dispute via WhatsApp. Bisa dilewati & ditambahkan nanti." />
+          {!seller && <Field label="Kode Undangan (opsional)" icon={Ticket} name="ref" placeholder="Contoh: MKAB12CD" value={f.ref} onChange={(e) => setF({ ...f, ref: normalizeReferralCode(e.target.value) })} autoComplete="off"
+            hint="Dari teman yang mengundang kamu ke Marketku." />}
           <div className="space-y-1.5">
             <Field label="Password" icon={KeyRound} name="pass" password placeholder="Min. 8 karakter" value={f.pass} onChange={set("pass")} autoComplete="new-password" required minLength={PASSWORD_MIN} />
             <StrengthBar level={passwordStrength(f.pass)} />
