@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ShareSheet } from "@/components/marketku/share-sheet";
@@ -16,7 +16,12 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/toko/$slug")({
   staticData: { sitemap: true },
-  loader: ({ params }) => getStoreSeo({ data: params.slug }),
+  loader: async ({ params }) => {
+    const seo = await getStoreSeo({ data: params.slug });
+    // Old /toko/<id> links move to the store's name link, e.g. /toko/tambas.
+    if (seo?.slug && seo.slug !== params.slug) throw redirect({ to: "/toko/$slug", params: { slug: seo.slug }, replace: true });
+    return seo;
+  },
   head: ({ loaderData }) => storeHead(loaderData),
   component: Toko,
 });
