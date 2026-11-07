@@ -2746,6 +2746,16 @@ export type Database = {
           store_name: string
         }[]
       }
+      recent_purchases: {
+        Args: { _limit?: number }
+        Returns: {
+          image_path: string
+          name: string
+          paid_at: string
+          price: number
+          product_id: string
+        }[]
+      }
       record_product_view: { Args: { p_product: string }; Returns: undefined }
       registration_availability: {
         Args: { p_email: string; p_username: string }
