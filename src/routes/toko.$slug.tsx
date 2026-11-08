@@ -214,7 +214,7 @@ function Toko() {
                   {follow.data ? <><UserCheck /> Diikuti</> : <><UserPlus /> Ikuti</>}
                 </Button>
               )}
-              <Button variant="outline" onClick={() => void chat()} className="h-11 gap-1.5 rounded-xl text-[13px] font-semibold"><MessageCircle /> Chat</Button>
+              <Button variant="outline" onClick={() => void chat()} className="h-11 gap-1.5 rounded-xl text-[13px] font-semibold"><MessageCircle /> <span className="sm:hidden">Chat</span><span className="hidden sm:inline">Kirim Pesan</span></Button>
               <Button variant="outline" onClick={() => setShareOpen(true)} className="h-11 gap-1.5 rounded-xl text-[13px] font-semibold"><Share2 /> Bagikan</Button>
             </div>
           </div>
