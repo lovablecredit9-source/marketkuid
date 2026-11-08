@@ -239,7 +239,7 @@ function Toko() {
         {(vouchers.data?.length ?? 0) > 0 && (
           <section aria-labelledby="store-vouchers">
             <h2 id="store-vouchers" className="mb-3 flex items-center gap-2 text-[15px] font-bold"><Ticket className="h-4 w-4 text-store-electric" /> Voucher Toko</h2>
-            <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {vouchers.data!.map((v) => (
                 <div key={v.code} className="store-voucher store-surface flex w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-card">
                   <div className="store-hero-fallback flex w-[72px] shrink-0 flex-col items-center justify-center px-2 text-center text-primary-foreground">
