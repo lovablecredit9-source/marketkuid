@@ -136,14 +136,14 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
 
   return (
     <AppShell nav={false} header={false} wide>
-      <div className="pb-28 dt:grid dt:grid-cols-[minmax(0,1fr)_360px] dt:items-start dt:gap-5 dt:pt-3">
+      <div className="pb-28 dt:grid dt:grid-cols-[minmax(0,1fr)_280px] xl:grid-cols-[minmax(0,1fr)_360px] dt:items-start dt:gap-5 dt:pt-3">
         <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-[13px] dt:col-span-2 dt:flex">
           <Link to="/" className="font-medium text-primary">Home</Link>
           {p.product_categories?.name && <><ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><Link to="/cari" search={p.category_id ? { kategori: p.category_id } : {}} className="font-medium text-primary">{p.product_categories.name}</Link></>}
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><span className="truncate text-muted-foreground">{p.name}</span>
         </nav>
         <div className="min-w-0">
-        <div className="dt:grid dt:grid-cols-[minmax(0,420px)_minmax(0,1fr)] dt:overflow-hidden dt:rounded-2xl dt:border dt:bg-card dt:shadow-sm">
+        <div className="xl:grid xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] dt:overflow-hidden dt:rounded-2xl dt:border dt:bg-card dt:shadow-sm">
         <div className="min-w-0">
         <div className="relative">
           <button type="button" aria-label="Lihat foto produk" onClick={() => gallery.length && setViewer(true)} className="block w-full">
