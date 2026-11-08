@@ -629,3 +629,51 @@ textarea.mk-co-input { min-height: 90px; resize: vertical; }
 .seller-live { animation: seller-live 1.8s ease-in-out infinite; }
 @keyframes seller-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .seller-live { animation: none; } }
+
+/* Seller Center colorful press ripple, upload wizard progress and publish confetti */
+.seller-panel .seller-ripple-host { position: relative; }
+.seller-panel .seller-ripple-clip { overflow: hidden; isolation: isolate; }
+.seller-ripple {
+  position: absolute; border-radius: 9999px; pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary-glow) 45%, transparent) 0%, color-mix(in oklab, var(--primary) 25%, transparent) 45%, transparent 70%);
+  transform: scale(0); animation: seller-ripple .6s ease-out forwards;
+}
+@keyframes seller-ripple { to { transform: scale(1); opacity: 0; } }
+.seller-progress {
+  background: linear-gradient(90deg, var(--primary), var(--primary-glow), var(--ana-violet), var(--primary));
+  background-size: 300% 100%; animation: seller-flow 4s linear infinite;
+  transition: width .45s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes seller-flow { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+.seller-step-dot { transition: transform .25s, background-color .25s, box-shadow .25s; }
+.seller-step-dot[data-state="current"] {
+  background: linear-gradient(135deg, var(--primary), var(--primary-glow)); transform: scale(1.35);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 25%, transparent); animation: seller-step-pulse 1.8s ease-in-out infinite;
+}
+.seller-step-dot[data-state="done"] { background: var(--success); }
+@keyframes seller-step-pulse { 50% { box-shadow: 0 0 0 7px color-mix(in oklab, var(--primary) 10%, transparent); } }
+.seller-cta {
+  background: linear-gradient(110deg, var(--primary) 0%, var(--primary-glow) 50%, var(--primary) 100%);
+  background-size: 200% 100%; color: var(--primary-foreground); animation: seller-flow 5s linear infinite;
+  box-shadow: 0 8px 22px -10px color-mix(in oklab, var(--primary) 70%, transparent);
+}
+.seller-drop[data-drag="true"] {
+  border-color: var(--primary); border-style: solid;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--primary-glow) 45%, transparent);
+}
+.seller-score-ring { transition: stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1), stroke .3s; }
+.seller-step-enter { animation: store-rise .3s ease-out both; }
+.seller-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 80; overflow: hidden; }
+.seller-confetti i {
+  position: absolute; top: 70%; width: 8px; height: 12px; border-radius: 2px; opacity: 0;
+  animation: seller-confetti 1.6s cubic-bezier(.15,.6,.35,1) forwards;
+}
+@keyframes seller-confetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 420px)) rotate(var(--rot)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seller-progress, .seller-cta, .seller-step-dot[data-state="current"] { animation: none; }
+}

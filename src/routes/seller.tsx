@@ -10,6 +10,7 @@ import { collectDeviceInfo } from "@/lib/login-session";
 import { supabase } from "@/integrations/supabase/client";
 import { SellerBottomNav, SellerHeader, SellerMenuSheet, useSellerTheme } from "@/components/marketku/seller-ui";
 import { SellerLoading } from "@/components/marketku/loading";
+import { useSellerRipple } from "@/components/marketku/seller-fx";
 import { SellerBanBanner } from "@/components/marketku/ban-gate";
 import { SellerAuth, finishTokenLogin } from "@/components/marketku/seller-auth";
 import { useServerFn } from "@tanstack/react-start";
@@ -97,6 +98,7 @@ function SellerLayout() {
   const [auto, setAuto] = useState<string | null>(null);
   const verifyFn = useServerFn(verifyTelegramLogin);
   const miniFn = useServerFn(miniAppLogin);
+  useSellerRipple();
   useEffect(() => { setUnlocked(isSellerUnlocked(user?.id)); }, [user?.id, tick]);
   // Mark the seller online (2 ticks for buyers) as soon as Seller Center opens.
   useEffect(() => { if (unlocked && user) beatPresence(user.id); }, [unlocked, user]);
