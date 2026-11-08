@@ -319,7 +319,7 @@ function Toko() {
           <div className="store-surface rounded-xl border bg-card p-3">
             <div className="flex items-center gap-5">
               <div className="w-24 shrink-0 text-center">
-                <p className="text-[34px] font-extrabold leading-none">{r.count ? r.avg.toFixed(1) : "0.0"}<span className="text-sm font-medium text-muted-foreground">/5</span></p>
+                <p className="text-[28px] font-extrabold leading-none">{r.count ? r.avg.toFixed(1) : "0.0"}<span className="text-sm font-medium text-muted-foreground">/5</span></p>
                 <div className="mt-2 flex justify-center"><Stars n={Math.round(r.avg)} size="h-3.5 w-3.5" /></div>
                 <p className="mt-1.5 text-[11px] text-muted-foreground">{r.count.toLocaleString("id-ID")} ulasan</p>
               </div>
@@ -334,13 +334,13 @@ function Toko() {
               </div>
             </div>
             {allReviews.length > 0 && (
-              <div className="-mx-4 mt-4 flex gap-1.5 overflow-x-auto border-t px-4 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filter bintang">
+              <div className="-mx-3 mt-3 flex gap-1.5 overflow-x-auto border-t px-3 pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filter bintang">
                 {[null, 5, 4, 3, 2, 1].map((n) => {
                   const on = star === n;
                   const count = n ? bars.find((b) => b.star === n)!.n : allReviews.length;
                   return (
                     <button key={n ?? "all"} type="button" aria-pressed={on} onClick={() => { setStar(n); setReviewLimit(REVIEW_PAGE); }}
-                      className={`flex h-8 shrink-0 items-center gap-1 rounded-full border px-3 text-[12px] font-semibold transition ${on ? "border-store-electric bg-store-electric/10 text-store-electric" : "text-foreground/80"}`}>
+                      className={`flex h-7 shrink-0 items-center gap-1 rounded-full border px-2.5 text-[11.5px] font-semibold transition ${on ? "border-store-electric bg-store-electric/10 text-store-electric" : "text-foreground/80"}`}>
                       {n ? <>{n}<Star className="h-3 w-3 fill-warning text-warning" /></> : "Semua"} <span className="text-muted-foreground">({count})</span>
                     </button>
                   );
