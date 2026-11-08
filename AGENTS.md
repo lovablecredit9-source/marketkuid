@@ -42,4 +42,4 @@
 - Device-only buyer tools (compare list, search history, wishlist price snapshots) live in `src/lib/buyer-tools.ts` localStorage — no server state, so nothing private is stored.
 - Referral (`referral_codes`/`referrals`/`referral_settings`) changes only via `my_referral_code`/`claim_referral`/`admin_*referral*` RPCs; rewards are paid solely by the `referral_reward_on_sale` trigger when a seller `sale` ledger row lands — clients never write referrals or rewards.
 - Sitemap: every route sets `staticData.sitemap` (`src/lib/sitemap.ts`); `/sitemap.xml` adds public products/stores; product/store SEO comes from `seo.functions.ts` loaders + `productHead`/`storeHead` in `meta.ts` — structured data uses real data only.
-- Desktop (`lg`+) uses `DesktopHeader` in `shell.tsx` instead of the mobile header/BottomNav; pages opt into full-width layouts with `AppShell wide` — mobile layout stays unchanged.
+- Desktop (custom `dt:` breakpoint, ≥641px like marketku.id) uses `DesktopHeader` in `shell.tsx` instead of the mobile header/BottomNav; pages opt into full-width layouts with `AppShell wide` — mobile layout stays unchanged.
