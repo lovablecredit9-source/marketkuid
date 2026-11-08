@@ -62,7 +62,7 @@ function StoreSkeleton() {
             <div className="-mt-8 h-[68px] w-[68px] animate-pulse rounded-full border-[3px] border-card bg-muted" />
             <div className="mt-4 h-6 w-1/2 animate-pulse rounded bg-muted" />
             <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
-            <div className="mt-4 grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <div key={i} className="h-11 animate-pulse rounded-xl bg-muted" />)}</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <div key={i} className="h-9 animate-pulse rounded-xl bg-muted" />)}</div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl border bg-card" />)}</div>
@@ -303,7 +303,7 @@ function Toko() {
             </div>
           )}
           {products.isLoading ? (
-            <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>
+            <div className="grid grid-cols-2 gap-2.5 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>
           ) : products.isError ? (
             <EmptyBox icon={AlertTriangle} title="Gagal memuat produk" desc="Coba muat ulang sebentar lagi." action={<Button variant="outline" size="sm" className="rounded-full" onClick={() => void products.refetch()}><RotateCcw /> Coba lagi</Button>} />
           ) : list.length === 0 ? (
