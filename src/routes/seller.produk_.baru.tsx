@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, Fragment, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw, Upload, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw, Upload, FileText, Star, Lightbulb, CheckCircle2, Circle, Sparkles, ChevronDown } from "lucide-react";
+import { listingChecklist, listingScore, moveItem, scoreTone } from "@/lib/listing-quality";
+import { celebrate } from "@/components/marketku/seller-fx";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
@@ -34,6 +36,13 @@ export const Route = createFileRoute("/seller/produk_/baru")({
 type StepKey = "info" | "foto" | "detail" | "varian" | "stok";
 const stepLabel: Record<StepKey, string> = { info: "Info", foto: "Foto", detail: "Detail", varian: "Varian", stok: "Stok" };
 type SheetState = { kind: "garansi" | "diskon" | "bonus"; idx: number; n: number } | null;
+const stepTip: Record<StepKey, string> = {
+  info: "Pakai nama yang langsung jelas: merek + paket + durasi, misalnya \"Canva Pro 1 Tahun\".",
+  foto: "Foto pertama jadi gambar utama. Seret foto ke sini, atau pakai tombol bintang untuk memilih foto utama.",
+  detail: "Kontak yang aktif membuat pembeli lebih tenang setelah membayar.",
+  varian: "Buat beberapa pilihan durasi atau paket agar pembeli bisa memilih sesuai budget.",
+  stok: "Satu baris = satu stok. Stok langsung terkirim otomatis ke pembeli setelah bayar.",
+};
 
 function ProductWizard() {
   const { edit } = Route.useSearch();
@@ -104,6 +113,17 @@ function ProductWizard() {
   const isLast = step === steps.length - 1;
   const imgUrls = useImageUrls([...photos, ...variants.map((v) => v.image_url ?? "")]);
   const catName = categoryId ? categoryPath(cats.data ?? [], categoryId).map((c) => c.name).join(" › ") || undefined : undefined;
+  const [drag, setDrag] = useState(false);
+  const [qualityOpen, setQualityOpen] = useState(false);
+  const qInput = {
+    name, description: desc, photos: photos.length, hasCategory: !!categoryId,
+    pricedVariants: variants.length && variants.every((v) => parsePrice(v.price) > 0) ? variants.length : 0,
+    stockCount: variants.reduce((s, v) => s + stockLines(v.stock).length + (v.id ? 1 : 0), 0) + (type === "preorder" ? 1 : 0),
+    unlimitedStock: stockMode !== "normal", hasGuide: showGuide && guide.trim().length > 0,
+  };
+  const score = listingScore(qInput);
+  const tone = scoreTone(score);
+  const minPrice = variants.map((v) => parsePrice(v.price)).filter((p) => p > 0).sort((a, b) => a - b)[0];
 
   const setV = (i: number, patch: Partial<VariantDraft>) => setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, ...patch } : v)));
   async function onPickStockFiles(i: number, files: FileList | null) {
@@ -213,6 +233,7 @@ function ProductWizard() {
       await qc.invalidateQueries({ queryKey: ["my_products"] });
       await qc.invalidateQueries({ queryKey: ["category_counts"] });
       toast.success(edit ? "Produk berhasil diperbarui!" : "Produk berhasil dipublish!");
+      if (!edit) celebrate();
       navigate({ to: "/seller/produk" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal menyimpan produk");
@@ -224,19 +245,31 @@ function ProductWizard() {
   return (
     <div className="rounded-2xl border bg-card">
       {/* Stepper */}
-      <div className="flex items-start px-4 pb-2 pt-5">
+      <div className="px-5 pt-5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-primary">Langkah {step + 1} dari {steps.length}</span>
+          <span className="text-muted-foreground">{stepLabel[cur]}</span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="seller-progress h-full rounded-full" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+        </div>
+      </div>
+      <div className="flex items-start px-4 pb-2 pt-4">
         {steps.map((k, i) => (
           <Fragment key={k}>
-            {i > 0 && <span className={`mt-[5px] h-px flex-1 ${i <= step ? "bg-foreground" : "bg-border"}`} />}
+            {i > 0 && <span className={`mt-[5px] h-0.5 flex-1 rounded-full transition-colors duration-300 ${i <= step ? "bg-success" : "bg-border"}`} />}
             <button type="button" disabled={i > step} onClick={() => { setErrors([]); setStep(i); }} className="flex w-12 flex-col items-center gap-2">
-              <span className={`h-3 w-3 rounded-full transition ${i <= step ? "bg-foreground" : "bg-muted-foreground/40"}`} />
+              <span data-state={i < step ? "done" : i === step ? "current" : "todo"} className="seller-step-dot h-3 w-3 rounded-full bg-muted-foreground/40" />
               <span className={`text-xs ${i === step ? "font-semibold text-foreground" : "text-foreground/80"}`}>{stepLabel[k]}</span>
             </button>
           </Fragment>
         ))}
       </div>
 
-      <div className="space-y-5 px-5 pb-6 pt-4">
+      <div key={cur} className="seller-step-enter space-y-5 px-5 pb-6 pt-4">
+        <p className="flex gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2.5 text-xs leading-relaxed text-foreground/90">
+          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-warning" /><span>{stepTip[cur]}</span>
+        </p>
         {cur === "info" && (
           <>
             <Head title="Info Produk" desc="Informasi dasar produk yang akan dilihat pembeli." />
@@ -298,24 +331,37 @@ function ProductWizard() {
               {photos.length > 0 && (
                 <div className="mb-3 grid grid-cols-3 gap-2">
                   {photos.map((p, i) => (
-                    <div key={p} className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
-                      {imgUrls.data?.[p] && <img src={imgUrls.data[p]} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />}
-                      {i === 0 && <span className="absolute bottom-1 left-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">Utama</span>}
+                    <div key={p} className="mk-pop-in group relative aspect-square overflow-hidden rounded-lg border bg-muted">
+                      {imgUrls.data?.[p] ? <img src={imgUrls.data[p]} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" /> : <div className="grid h-full w-full place-items-center"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>}
+                      {i === 0 ? <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded bg-gradient-to-r from-primary to-primary-glow px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground"><Star className="h-2.5 w-2.5 fill-current" />Utama</span>
+                        : <button type="button" aria-label={`Jadikan foto ${i + 1} utama`} onClick={() => setPhotos(moveItem(photos, i, 0))}
+                            className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-background/80 text-warning"><Star className="h-3.5 w-3.5" /></button>}
                       <button type="button" aria-label="Hapus foto" onClick={() => setPhotos(photos.filter((x) => x !== p))}
                         className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-background/80"><X className="h-3.5 w-3.5" /></button>
+                      <div className="absolute inset-x-1 bottom-1 flex justify-between">
+                        <button type="button" aria-label="Geser ke kiri" disabled={i === 0} onClick={() => setPhotos(moveItem(photos, i, i - 1))}
+                          className="grid h-6 w-6 place-items-center rounded-full bg-background/80 disabled:opacity-0"><ArrowLeft className="h-3.5 w-3.5" /></button>
+                        <button type="button" aria-label="Geser ke kanan" disabled={i === photos.length - 1} onClick={() => setPhotos(moveItem(photos, i, i + 1))}
+                          className="grid h-6 w-6 place-items-center rounded-full bg-background/80 disabled:opacity-0"><ArrowRight className="h-3.5 w-3.5" /></button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
               {photos.length < MAX_PHOTOS && (
-                <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="flex w-full flex-col items-center gap-3 rounded-xl border border-dashed border-primary/30 py-9 text-center transition active:scale-[0.99]">
-                  {uploading ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : <span className="flex items-center gap-3 text-muted-foreground"><Camera className="h-5 w-5" /><Plus className="h-4 w-4" /></span>}
-                  <span className="text-sm text-muted-foreground">{uploading ? "Mengunggah..." : "Klik untuk upload foto"}</span>
-                  <span className="text-xs">JPG, PNG, atau WebP</span>
+                <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} data-drag={drag}
+                  onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)}
+                  onDrop={(e) => { e.preventDefault(); setDrag(false); void onPickPhotos(e.dataTransfer.files); }}
+                  className="seller-drop flex w-full flex-col items-center gap-3 rounded-xl border border-dashed border-primary/30 py-9 text-center transition active:scale-[0.99]">
+                  {uploading ? <Loader2 className="h-6 w-6 animate-spin text-primary" /> : <span className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-primary-foreground"><Camera className="h-5 w-5" /></span>}
+                  <span className="text-sm font-semibold">{uploading ? "Mengunggah..." : drag ? "Lepaskan foto di sini" : "Klik atau seret foto ke sini"}</span>
+                  <span className="text-xs text-muted-foreground">JPG, PNG, atau WebP · bisa pilih beberapa sekaligus</span>
                 </button>
               )}
-              <p className="mt-4 text-xs text-muted-foreground">{photos.length}/{MAX_PHOTOS} foto</p>
+              <div className="mt-4 flex items-center gap-2">
+                <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-gradient-to-r from-primary to-primary-glow transition-all" style={{ width: `${(photos.length / MAX_PHOTOS) * 100}%` }} /></div>
+                <p className="text-xs text-muted-foreground">{photos.length}/{MAX_PHOTOS} foto</p>
+              </div>
               <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => void onPickPhotos(e.target.files)} />
             </div>
           </>
@@ -482,6 +528,45 @@ function ProductWizard() {
             </div>
           </>
         )}
+
+        {/* Live preview + listing quality */}
+        <div className="rounded-2xl border bg-background/40 p-4">
+          <p className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground"><Sparkles className="h-3.5 w-3.5 text-primary-glow" /> PRATINJAU DI MATA PEMBELI</p>
+          <div className="mt-3 flex gap-3">
+            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border bg-muted">
+              {photos[0] && imgUrls.data?.[photos[0]] ? <img src={imgUrls.data[photos[0]]} alt="Foto utama" className="h-full w-full object-cover" />
+                : <div className="grid h-full w-full place-items-center text-muted-foreground"><ImageIcon className="h-6 w-6" /></div>}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className={`line-clamp-2 text-sm font-semibold ${name.trim() ? "" : "text-muted-foreground"}`}>{name.trim() || "Nama produk kamu"}</p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">{catName ?? "Kategori belum dipilih"}</p>
+              <p className="mt-1.5 text-sm font-bold text-primary">{minPrice ? `Rp${minPrice.toLocaleString("id-ID")}` : "Rp —"}{variants.length > 1 && minPrice ? <span className="ml-1 text-xs font-normal text-muted-foreground">mulai</span> : null}</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => setQualityOpen(!qualityOpen)} aria-expanded={qualityOpen} className="mt-4 flex w-full items-center gap-3 rounded-xl border p-3 text-left">
+            <svg viewBox="0 0 36 36" className="h-11 w-11 shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15" fill="none" strokeWidth="4" className="stroke-muted" />
+              <circle cx="18" cy="18" r="15" fill="none" strokeWidth="4" strokeLinecap="round" strokeDasharray="94.2" strokeDashoffset={94.2 * (1 - score / 100)}
+                className={`seller-score-ring ${tone.tone === "high" ? "stroke-success" : tone.tone === "mid" ? "stroke-warning" : "stroke-destructive"}`} />
+            </svg>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Kualitas listing {score}%</p>
+              <p className={`text-xs ${tone.tone === "high" ? "text-success" : tone.tone === "mid" ? "text-warning" : "text-destructive"}`}>{tone.label}</p>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${qualityOpen ? "rotate-180" : ""}`} />
+          </button>
+          {qualityOpen && (
+            <ul className="mk-pop mt-3 space-y-2">
+              {listingChecklist(qInput).map((it) => (
+                <li key={it.key} className="flex items-center gap-2 text-xs">
+                  {it.done ? <CheckCircle2 className="h-4 w-4 shrink-0 text-success" /> : <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                  <span className={it.done ? "text-foreground/90" : "text-muted-foreground"}>{it.label}</span>
+                  <span className="ml-auto text-muted-foreground">+{it.weight}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div className="sticky bottom-[68px] z-10 flex items-center justify-between rounded-b-2xl border-t bg-card px-5 py-4">
@@ -489,7 +574,7 @@ function ProductWizard() {
           {step > 0 && <ArrowLeft className="h-4 w-4" />}{step === 0 ? "Batal" : "Kembali"}
         </button>
         <button type="button" onClick={next} disabled={saving || uploading}
-          className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 font-semibold text-background transition focus:ring-2 focus:ring-primary active:scale-95 disabled:opacity-60">
+          className={`flex items-center gap-2 rounded-lg px-6 py-3 font-semibold transition focus:ring-2 focus:ring-primary active:scale-95 disabled:opacity-60 ${isLast ? "seller-cta" : "bg-foreground text-background"}`}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : isLast && <Send className="h-4 w-4" />}
           {isLast ? (edit ? "Simpan" : "Publikasi") : "Lanjut"}
         </button>
