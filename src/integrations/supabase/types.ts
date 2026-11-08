@@ -2139,6 +2139,27 @@ export type Database = {
         }
         Relationships: []
       }
+      store_visits: {
+        Row: {
+          created_at: string
+          owner_id: string
+          visited_on: string
+          visitor_key: string
+        }
+        Insert: {
+          created_at?: string
+          owner_id: string
+          visited_on?: string
+          visitor_key: string
+        }
+        Update: {
+          created_at?: string
+          owner_id?: string
+          visited_on?: string
+          visitor_key?: string
+        }
+        Relationships: []
+      }
       telegram_bot_updates: {
         Row: {
           bot_id: string
@@ -2975,6 +2996,10 @@ export type Database = {
         }[]
       }
       record_product_view: { Args: { p_product: string }; Returns: undefined }
+      record_store_visit: {
+        Args: { p_owner: string; p_visitor: string }
+        Returns: undefined
+      }
       registration_availability: {
         Args: { p_email: string; p_username: string }
         Returns: {
@@ -3093,6 +3118,15 @@ export type Database = {
           avatar_path: string
           banner_path: string
           owner_id: string
+        }[]
+      }
+      store_public_stats: {
+        Args: { p_owner: string }
+        Returns: {
+          followers: number
+          visitors_7d: number
+          visits_today: number
+          visits_total: number
         }[]
       }
       submit_order_payment: {
