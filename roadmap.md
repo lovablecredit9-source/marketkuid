@@ -148,3 +148,4 @@
 
 ## Seller Center premium (Nov 8)
 - [x] Dasbor: kartu ringkasan hari ini (vs kemarin, grafik 7 hari, tombol Produk/Lihat toko/Bagikan), Target bulanan, Perlu Perhatian (stok habis/menipis, tanpa foto, deskripsi singkat)
+- [x] Seller Center: efek klik berwarna di semua tombol, wizard upload produk lebih jelas (progress berwarna, tips per langkah, seret foto, pilih foto utama/urutkan, pratinjau + skor kualitas listing), confetti saat publikasi
