@@ -57,9 +57,9 @@ function StoreSkeleton() {
     <AppShell showSupport={false} className="store-profile">
       <div className="space-y-4 px-4 pt-4" aria-busy="true" aria-label="Memuat toko">
         <div className="overflow-hidden rounded-3xl border bg-card">
-          <div className="aspect-[4/1] min-h-[104px] animate-pulse bg-muted" />
+          <div className="aspect-[4/1] min-h-[84px] animate-pulse bg-muted" />
           <div className="px-5 pb-5">
-            <div className="-mt-10 h-[88px] w-[88px] animate-pulse rounded-full border-4 border-card bg-muted" />
+            <div className="-mt-8 h-[68px] w-[68px] animate-pulse rounded-full border-[3px] border-card bg-muted" />
             <div className="mt-4 h-6 w-1/2 animate-pulse rounded bg-muted" />
             <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
             <div className="mt-4 grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <div key={i} className="h-11 animate-pulse rounded-xl bg-muted" />)}</div>
@@ -182,54 +182,54 @@ function Toko() {
   return (
     <AppShell showSupport={false} className="store-profile">
       <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={s.store_name} url={typeof window === "undefined" ? "" : window.location.href} text={`Mampir ke toko ${s.store_name} di Marketku`} />
-      <div className="space-y-5 px-4 pt-3 lg:px-6">
+      <div className="space-y-4 px-3 pt-3 lg:px-6">
         {/* Hero */}
-        <section className="store-surface overflow-hidden rounded-3xl border bg-card">
-          <div className="relative aspect-[4/1] min-h-[104px] overflow-hidden">
+        <section className="store-surface overflow-hidden rounded-2xl border bg-card">
+          <div className="relative aspect-[4/1] min-h-[84px] overflow-hidden">
             {bannerUrl
               ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="h-full w-full object-cover object-center" />
               : <div className="store-hero-fallback h-full w-full" aria-hidden />}
             <div className="store-hero-shade pointer-events-none absolute inset-0" aria-hidden />
           </div>
-          <div className="px-4 pb-5 sm:px-6">
+          <div className="px-3.5 pb-4 sm:px-5">
             <div className="flex items-end justify-between gap-3">
               {avatarUrl
-                ? <img src={avatarUrl} alt={`Foto ${s.store_name}`} className="relative -mt-11 h-[88px] w-[88px] shrink-0 rounded-full border-4 border-card bg-card object-cover shadow-lg sm:h-[104px] sm:w-[104px]" />
-                : <span className="store-hero-fallback relative -mt-11 grid h-[88px] w-[88px] shrink-0 place-items-center rounded-full border-4 border-card text-2xl font-bold text-primary-foreground shadow-lg sm:h-[104px] sm:w-[104px]">{initials(s.store_name)}</span>}
-              <span className={`mb-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide ${s.is_open ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
+                ? <img src={avatarUrl} alt={`Foto ${s.store_name}`} className="relative -mt-9 h-[68px] w-[68px] shrink-0 rounded-full border-[3px] border-card bg-card object-cover shadow-lg sm:h-[80px] sm:w-[80px]" />
+                : <span className="store-hero-fallback relative -mt-11 grid h-[88px] w-[88px] shrink-0 place-items-center rounded-full border-[3px] border-card text-lg font-bold text-primary-foreground shadow-lg sm:h-[80px] sm:w-[80px]">{initials(s.store_name)}</span>}
+              <span className={`mb-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide ${s.is_open ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${s.is_open ? "bg-success" : "bg-muted-foreground"}`} />{s.is_open ? "BUKA" : "TUTUP"}
               </span>
             </div>
-            <h1 className="mt-3 break-words text-[22px] font-extrabold leading-tight tracking-tight sm:text-[26px]">{s.store_name}</h1>
-            <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground"><CalendarDays className="h-3.5 w-3.5" /> Bergabung sejak {since}</p>
-            {s.description && <p className="mt-3 max-w-prose whitespace-pre-line break-words text-[13.5px] leading-relaxed text-foreground/85">{s.description}</p>}
+            <h1 className="mt-2 break-words text-[18px] font-extrabold leading-tight tracking-tight sm:text-[20px]">{s.store_name}</h1>
+            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground"><CalendarDays className="h-3 w-3" /> Bergabung sejak {since}</p>
+            {s.description && <p className="mt-2 max-w-prose whitespace-pre-line break-words text-[12.5px] leading-relaxed text-foreground/85">{s.description}</p>}
 
             {!s.is_open && !banned.data && <p className="mt-3 flex items-start gap-2 rounded-xl border bg-muted px-3 py-2.5 text-xs font-semibold text-foreground/80"><Store className="mt-px h-4 w-4 shrink-0" />Toko sedang tutup — produk bisa dilihat, belum bisa order. Kamu tetap bisa kirim pesan ke seller.</p>}
             {banned.data && <p className="mt-3 flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-xs font-semibold text-destructive"><ShieldAlert className="mt-px h-4 w-4 shrink-0" />Toko ini sedang diblokir oleh Marketku. Produknya tidak bisa dibeli untuk sementara.</p>}
 
-            <div className={`mt-4 grid gap-2 ${own ? "grid-cols-2" : "grid-cols-3"}`}>
+            <div className={`mt-3 grid gap-2 ${own ? "grid-cols-2" : "grid-cols-3"}`}>
               {!own && (
                 <Button onClick={() => void toggleFollow()} disabled={busyFollow} variant={follow.data ? "outline" : "default"}
-                  className={`h-11 gap-1.5 rounded-xl text-[13px] font-semibold ${follow.data ? "" : "bg-store-electric text-primary-foreground hover:bg-store-electric/90"}`}>
+                  className={`h-9 gap-1.5 rounded-lg text-[12px] font-semibold ${follow.data ? "" : "bg-store-electric text-primary-foreground hover:bg-store-electric/90"}`}>
                   {follow.data ? <><UserCheck /> Diikuti</> : <><UserPlus /> Ikuti</>}
                 </Button>
               )}
-              <Button variant="outline" onClick={() => void chat()} className="h-11 gap-1.5 rounded-xl text-[13px] font-semibold"><MessageCircle /> <span className="sm:hidden">Chat</span><span className="hidden sm:inline">Kirim Pesan</span></Button>
-              <Button variant="outline" onClick={() => setShareOpen(true)} className="h-11 gap-1.5 rounded-xl text-[13px] font-semibold"><Share2 /> Bagikan</Button>
+              <Button variant="outline" onClick={() => void chat()} className="h-9 gap-1.5 rounded-lg text-[12px] font-semibold"><MessageCircle /> <span className="sm:hidden">Chat</span><span className="hidden sm:inline">Kirim Pesan</span></Button>
+              <Button variant="outline" onClick={() => setShareOpen(true)} className="h-9 gap-1.5 rounded-lg text-[12px] font-semibold"><Share2 /> Bagikan</Button>
             </div>
           </div>
         </section>
 
         {/* Stats */}
-        <section aria-label="Statistik toko" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <section aria-label="Statistik toko" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {stats.map((x, i) => (
-            <div key={x.label} className="store-surface store-rise flex items-center gap-3 rounded-2xl border bg-card p-3.5" style={{ animationDelay: `${i * 60}ms` }}>
-              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${x.star ? "bg-warning/15 text-warning" : "bg-store-electric/10 text-store-electric"}`}>
-                <x.icon className={`h-5 w-5 ${x.star ? "fill-warning" : ""}`} />
+            <div key={x.label} className="store-surface store-rise flex items-center gap-2.5 rounded-xl border bg-card p-2.5" style={{ animationDelay: `${i * 60}ms` }}>
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${x.star ? "bg-warning/15 text-warning" : "bg-store-electric/10 text-store-electric"}`}>
+                <x.icon className={`h-4 w-4 ${x.star ? "fill-warning" : ""}`} />
               </span>
               <span className="min-w-0 leading-tight">
-                <b className="block truncate text-[17px] font-extrabold">{x.value}</b>
-                <span className="block text-[11.5px] text-muted-foreground">{x.label}</span>
+                <b className="block truncate text-[14px] font-extrabold">{x.value}</b>
+                <span className="block text-[10.5px] text-muted-foreground">{x.label}</span>
               </span>
             </div>
           ))}
@@ -238,17 +238,17 @@ function Toko() {
         {/* Vouchers (only shown when the store has live ones) */}
         {(vouchers.data?.length ?? 0) > 0 && (
           <section aria-labelledby="store-vouchers">
-            <h2 id="store-vouchers" className="mb-3 flex items-center gap-2 text-[15px] font-bold"><Ticket className="h-4 w-4 text-store-electric" /> Voucher Toko</h2>
+            <h2 id="store-vouchers" className="mb-3 flex items-center gap-2 text-[14px] font-bold"><Ticket className="h-4 w-4 text-store-electric" /> Voucher Toko</h2>
             <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {vouchers.data!.map((v) => (
-                <div key={v.code} className="store-voucher store-surface flex w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl border bg-card">
-                  <div className="store-hero-fallback flex w-[72px] shrink-0 flex-col items-center justify-center px-2 text-center text-primary-foreground">
+                <div key={v.code} className="store-voucher store-surface flex w-[230px] shrink-0 snap-start overflow-hidden rounded-xl border bg-card">
+                  <div className="store-hero-fallback flex w-[60px] shrink-0 flex-col items-center justify-center px-2 text-center text-primary-foreground">
                     <Ticket className="h-5 w-5" />
                     <span className="mt-1 text-[10px] font-bold uppercase tracking-wider">Voucher</span>
                   </div>
                   <div className="min-w-0 flex-1 border-l border-dashed p-3">
                     <p className="truncate text-[11px] font-medium text-muted-foreground">{v.name || "Promo toko"}</p>
-                    <p className="mt-0.5 text-[15px] font-extrabold text-store-electric">{voucherValue(v)}</p>
+                    <p className="mt-0.5 text-[14px] font-extrabold text-store-electric">{voucherValue(v)}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{voucherTerms(v)}</p>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <code className="truncate rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-bold tracking-wider">{v.code}</code>
@@ -267,20 +267,20 @@ function Toko() {
         {/* Products */}
         <section aria-labelledby="store-products" className="@container">
           <div className="mb-3 flex items-end justify-between gap-2">
-            <h2 id="store-products" className="text-[15px] font-bold">Produk Toko</h2>
+            <h2 id="store-products" className="text-[14px] font-bold">Produk Toko</h2>
             <span className="shrink-0 text-[12px] text-muted-foreground">{filtering ? `${shown.length} dari ${list.length} produk` : `${list.length} produk`}</span>
           </div>
           {list.length > 0 && (
-            <div className="store-surface mb-3 space-y-2.5 rounded-2xl border bg-card p-3">
+            <div className="store-surface mb-3 space-y-2 rounded-xl border bg-card p-2.5">
               <div className="flex gap-2">
                 <label className="relative min-w-0 flex-1">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Cari di ${s.store_name}`} aria-label="Cari produk di toko ini"
-                    className="h-10 w-full rounded-xl border bg-background pl-9 pr-8 text-[13px] outline-none transition focus:border-store-electric focus:ring-2 focus:ring-store-electric/20" />
+                    className="h-9 w-full rounded-lg border bg-background pl-9 pr-8 text-[13px] outline-none transition focus:border-store-electric focus:ring-2 focus:ring-store-electric/20" />
                   {q && <button type="button" aria-label="Hapus pencarian" onClick={() => setQ("")} className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-muted"><X className="h-3.5 w-3.5" /></button>}
                 </label>
                 <select value={sort} onChange={(e) => setSort(e.target.value as StoreSort)} aria-label="Urutkan produk"
-                  className="h-10 shrink-0 rounded-xl border bg-background px-2.5 text-[12.5px] font-medium outline-none focus:border-store-electric">
+                  className="h-9 shrink-0 rounded-lg border bg-background px-2.5 text-[12.5px] font-medium outline-none focus:border-store-electric">
                   {STORE_SORTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
@@ -290,7 +290,7 @@ function Toko() {
                     const on = category === c.name;
                     return (
                       <button key={c.name ?? "__all"} type="button" aria-pressed={on} onClick={() => setCategory(c.name)}
-                        className={`h-8 shrink-0 rounded-full border px-3 text-[12px] font-semibold transition ${on ? "border-store-electric bg-store-electric text-primary-foreground" : "bg-background text-foreground/80 hover:border-store-electric/50"}`}>
+                        className={`h-7 shrink-0 rounded-full border px-2.5 text-[11.5px] font-semibold transition ${on ? "border-store-electric bg-store-electric text-primary-foreground" : "bg-background text-foreground/80 hover:border-store-electric/50"}`}>
                         {c.name ?? "Semua"} <span className={on ? "opacity-80" : "text-muted-foreground"}>{c.n}</span>
                       </button>
                     );
