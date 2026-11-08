@@ -617,3 +617,15 @@ textarea.mk-co-input { min-height: 90px; resize: vertical; }
 .store-rank--2 { background: linear-gradient(135deg, var(--store-cyan), var(--store-electric)); }
 .store-rank--3 { background: linear-gradient(135deg, var(--store-electric), var(--store-navy)); }
 @media (prefers-reduced-motion: reduce) { .store-live__dot { animation: none; } }
+
+/* Seller dashboard premium summary card */
+.seller-hero {
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in oklch, var(--primary) 28%, transparent), transparent 60%),
+    radial-gradient(90% 80% at 0% 100%, color-mix(in oklch, var(--primary-glow) 16%, transparent), transparent 60%),
+    var(--card);
+  border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
+}
+.seller-live { animation: seller-live 1.8s ease-in-out infinite; }
+@keyframes seller-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .seller-live { animation: none; } }
