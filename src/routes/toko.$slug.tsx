@@ -135,7 +135,7 @@ function Toko() {
   useEffect(() => {
     const el = heroRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setMini(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
+    const io = new IntersectionObserver(([e]) => setMini(!!e && !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
     io.observe(el);
     return () => io.disconnect();
   }, [s?.owner_id, store.isLoading]);
