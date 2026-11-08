@@ -48,17 +48,17 @@ function KategoriPage() {
 
   return (
     <AppShell showSupport={false} wide>
-      <div className="space-y-3 px-3 pb-6 pt-3">
+      <div className="space-y-3 px-3 pb-6 pt-3 lg:px-0 lg:pt-5">
         <button onClick={() => router.history.back()} className="flex items-center gap-1.5 text-[12px] font-medium text-primary"><ArrowLeft className="h-3.5 w-3.5" /> Kembali</button>
         <div>
-          <h1 className="text-[17px] font-bold">Semua Kategori</h1>
+          <h1 className="text-[17px] font-bold lg:text-[20px]">Semua Kategori</h1>
           <p className="mt-2 text-[11px] text-foreground/80">Jelajahi {sorted.length} kategori produk digital yang tersedia di Marketku.</p>
         </div>
 
         {cats.isLoading ? (
           <div className="grid grid-cols-3 gap-1.5">{Array.from({ length: 9 }, (_, i) => <div key={i} className="h-28 animate-pulse rounded-xl border bg-card" />)}</div>
         ) : (
-          <div className="grid grid-cols-3 gap-1.5" data-tour="kategori-grid">
+          <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6 lg:grid-cols-10 lg:gap-2.5" data-tour="kategori-grid">
             <Tile name="Semua" count={total} to={{}} />
             {sorted.map((c) => <Tile key={c.id} name={c.name} count={tally.get(c.id) ?? 0} img={categoryIcon(c.name)} to={{ kategori: c.id }} />)}
           </div>
