@@ -315,8 +315,8 @@ function Toko() {
 
         {/* Reviews */}
         <section aria-labelledby="store-reviews">
-          <h2 id="store-reviews" className="mb-3 text-[15px] font-bold">Ulasan Pembeli</h2>
-          <div className="store-surface rounded-2xl border bg-card p-4">
+          <h2 id="store-reviews" className="mb-3 text-[14px] font-bold">Ulasan Pembeli</h2>
+          <div className="store-surface rounded-xl border bg-card p-3">
             <div className="flex items-center gap-5">
               <div className="w-24 shrink-0 text-center">
                 <p className="text-[34px] font-extrabold leading-none">{r.count ? r.avg.toFixed(1) : "0.0"}<span className="text-sm font-medium text-muted-foreground">/5</span></p>
@@ -354,15 +354,15 @@ function Toko() {
           ) : allReviews.length === 0 ? (
             <div className="mt-3"><EmptyBox icon={MessageSquare} title="Belum ada ulasan" desc="Ulasan dari pembeli toko ini akan tampil di sini." /></div>
           ) : starRows.length === 0 ? (
-            <p className="mt-3 rounded-2xl border bg-card p-4 text-center text-sm text-muted-foreground">Belum ada ulasan bintang {star}.</p>
+            <p className="mt-3 rounded-xl border bg-card p-3 text-center text-sm text-muted-foreground">Belum ada ulasan bintang {star}.</p>
           ) : (
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {starRows.slice(0, reviewLimit).map((x) => {
                 const img = x.products?.images?.[0];
                 return (
-                  <article key={x.id} className="store-surface rounded-2xl border bg-card p-4">
+                  <article key={x.id} className="store-surface rounded-xl border bg-card p-3">
                     <div className="flex items-center gap-3">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-store-electric/10 text-[12px] font-bold text-store-electric">{initials(x.buyer_label || "?")}</span>
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-store-electric/10 text-[11px] font-bold text-store-electric">{initials(x.buyer_label || "?")}</span>
                       <div className="min-w-0 flex-1">
                         <b className="block truncate text-[13px]">{x.buyer_label}</b>
                         <div className="mt-0.5 flex items-center gap-2"><Stars n={x.rating} size="h-3 w-3" /><span className="text-[11px] text-muted-foreground">{fmtDate(x.created_at)}</span></div>
@@ -381,7 +381,7 @@ function Toko() {
             </div>
           )}
           {starRows.length > reviewLimit && (
-            <Button variant="outline" onClick={() => setReviewLimit((n) => n + REVIEW_PAGE)} className="mt-3 h-11 w-full rounded-xl text-[13px] font-semibold">
+            <Button variant="outline" onClick={() => setReviewLimit((n) => n + REVIEW_PAGE)} className="mt-3 h-9 w-full rounded-lg text-[12px] font-semibold">
               Tampilkan ulasan lainnya ({starRows.length - reviewLimit})
             </Button>
           )}
