@@ -57,7 +57,7 @@ function StoreSkeleton() {
     <AppShell showSupport={false} className="store-profile">
       <div className="space-y-4 px-4 pt-4" aria-busy="true" aria-label="Memuat toko">
         <div className="overflow-hidden rounded-3xl border bg-card">
-          <div className="aspect-[4/1] min-h-[84px] animate-pulse bg-muted" />
+          <div className="aspect-[4/1] max-h-[150px] min-h-[84px] animate-pulse bg-muted" />
           <div className="px-5 pb-5">
             <div className="-mt-8 h-[68px] w-[68px] animate-pulse rounded-full border-[3px] border-card bg-muted" />
             <div className="mt-4 h-6 w-1/2 animate-pulse rounded bg-muted" />
@@ -185,7 +185,7 @@ function Toko() {
       <div className="space-y-4 px-3 pt-3 lg:px-6">
         {/* Hero */}
         <section className="store-surface overflow-hidden rounded-2xl border bg-card">
-          <div className="relative aspect-[4/1] min-h-[84px] overflow-hidden">
+          <div className="relative aspect-[4/1] max-h-[150px] min-h-[84px] overflow-hidden w-full">
             {bannerUrl
               ? <img src={bannerUrl} alt={`Banner ${s.store_name}`} className="h-full w-full object-cover object-center" />
               : <div className="store-hero-fallback h-full w-full" aria-hidden />}

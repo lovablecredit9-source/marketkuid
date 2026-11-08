@@ -426,7 +426,7 @@
 .check-ping { animation: check-ping 2.2s ease-out infinite; }
 
 /* Public store page (/toko/$slug): navy / electric blue / cyan storefront. */
-@media (min-width: 1024px) { .store-profile { max-width: 64rem; } }
+@media (min-width: 1024px) { .store-profile { max-width: 56rem; } }
 .store-hero-fallback {
   background:
     radial-gradient(120% 140% at 85% 0%, color-mix(in oklab, var(--store-cyan) 55%, transparent) 0%, transparent 55%),
