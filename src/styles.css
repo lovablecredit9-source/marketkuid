@@ -47,6 +47,9 @@
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-brand-orange: var(--brand-orange);
+  --color-store-navy: var(--store-navy);
+  --color-store-electric: var(--store-electric);
+  --color-store-cyan: var(--store-cyan);
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-ring-offset-background: var(--background);
   --color-chart-1: var(--chart-1);
@@ -87,6 +90,11 @@
   --ring: oklch(0.55 0.22 262);
   --success: oklch(0.65 0.15 160);
   --brand-orange: oklch(0.7 0.19 45);
+  --store-navy: oklch(0.24 0.07 262);
+  --store-electric: oklch(0.55 0.22 262);
+  --store-cyan: oklch(0.78 0.13 215);
+  --store-shadow: 0 1px 2px oklch(0.24 0.07 262 / 6%), 0 8px 24px -12px oklch(0.24 0.07 262 / 18%);
+  --store-shadow-lg: 0 2px 4px oklch(0.24 0.07 262 / 8%), 0 18px 36px -16px oklch(0.55 0.22 262 / 30%);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -124,6 +132,11 @@
   --ring: oklch(0.551 0.027 264.364);
   --success: oklch(0.7 0.15 160);
   --brand-orange: oklch(0.72 0.18 45);
+  --store-navy: oklch(0.2 0.06 262);
+  --store-electric: oklch(0.7 0.17 255);
+  --store-cyan: oklch(0.8 0.12 210);
+  --store-shadow: 0 1px 2px oklch(0 0 0 / 30%), 0 8px 24px -12px oklch(0 0 0 / 50%);
+  --store-shadow-lg: 0 2px 4px oklch(0 0 0 / 35%), 0 18px 36px -16px oklch(0.7 0.17 255 / 30%);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
