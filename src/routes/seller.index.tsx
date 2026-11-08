@@ -6,6 +6,8 @@ import {
 import { ActionRow, SellerCard, SellerEmpty, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 import { PageTour } from "@/components/marketku/tour";
 import { MonthlyTarget, ProductAlerts, SellerHero } from "@/components/marketku/seller-dashboard-extras";
+import { Achievements, LoyalBuyers, OrderInsights, SellerTools } from "@/components/marketku/seller-dashboard-more";
+import { loyalBuyers } from "@/lib/seller-growth";
 import { pageMeta } from "@/lib/meta";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls, useMyProducts } from "@/lib/products";
@@ -33,6 +35,8 @@ const tour = [
   { title: "Bot Telegram", desc: "Hubungkan dan kelola bot Telegram untuk jualan otomatis.", target: "qa-bot" },
   { title: "Voucher", desc: "Buat voucher diskon untuk menarik pembeli.", target: "bottomnav" },
   { title: "Withdraw", desc: "Tarik saldo hasil penjualan ke rekening kamu.", target: "qa-withdraw" },
+  { title: "Pencapaian", desc: "Lencana yang terbuka otomatis dari penjualan asli tokomu.", target: "achievements" },
+  { title: "Alat jualan", desc: "Hitung untung setelah potongan admin, buat caption promo, dan catat tugas toko.", target: "tools" },
   { title: "Aksi cepat", desc: "Tugas harian seperti withdraw, kelola produk, dan lihat pesanan.", target: "quick" },
   { title: "Saldo", desc: "Pantau saldo penjualan, saldo tertahan, dan credits.", target: "saldo" },
   { title: "Ringkasan performa", desc: "Pendapatan, transaksi, dan produk aktif tokomu.", target: "perf" },
@@ -75,6 +79,7 @@ function Dasbor() {
       <StoreSetup userId={user?.id} hasProduct={active > 0} />
       {user && <MonthlyTarget uid={user.id} orders={all} />}
       <ProductAlerts products={prods} />
+      <div data-tour="achievements"><Achievements completed={st.completed} revenue={st.revenue} activeProducts={active} buyers={st.buyers} loyal={loyalBuyers(all, 100).length} /></div>
       {pending > 0 && <SellerCard className="border-primary/50 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -119,6 +124,9 @@ function Dasbor() {
         <StatCell icon={Users} label="Pelanggan" value={String(st.buyers)} sub="unik bertransaksi" />
         <StatCell icon={Percent} label="Konversi" value={`${st.conversion}%`} sub={`avg ${rpSeller(st.avgOrder)}`} />
       </SellerCard>
+
+      {user && store.data && <div data-tour="tools"><SellerTools uid={user.id} store={store.data} products={prods} /></div>}
+      <OrderInsights orders={all} />
 
       <SellerCard data-tour="recent">
         <div className="flex items-center justify-between border-b px-4 py-3">
@@ -167,6 +175,7 @@ function Dasbor() {
           </div>
         )}
       </SellerCard>
+      <LoyalBuyers orders={all} />
       <PageTour id="seller-dashboard" steps={tour} panel />
     </>
   );
