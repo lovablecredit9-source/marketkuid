@@ -114,27 +114,27 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
     // Store page card: bigger photo, discount + wishlist on the image, rating and sold count, detail button.
     const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
     return (
-      <article className="store-card group relative flex flex-col overflow-hidden rounded-2xl border bg-card">
+      <article className="store-card group relative flex flex-col overflow-hidden rounded-xl border bg-card">
         <Link to="/produk/$id" params={{ id: p.id }} className="relative block overflow-hidden" aria-label={p.name}>
           <ProductImage url={url} alt={p.name} className="store-card__img aspect-square" />
           {off > 0 && !closed && <span className="absolute left-2 top-2 rounded-md bg-destructive px-1.5 py-0.5 text-[11px] font-bold text-destructive-foreground">-{off}%</span>}
           {(closed || out) && <span className="absolute inset-x-2 bottom-2 rounded-md bg-foreground/80 py-1 text-center text-[10px] font-bold tracking-wider text-background">{closed ? "TOKO TUTUP" : "STOK HABIS"}</span>}
         </Link>
         <button type="button" aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} aria-pressed={wished} onClick={onWish}
-          className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-card/95 shadow-sm transition active:scale-90">
-          <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : "text-foreground/70"}`} />
+          className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-card/95 shadow-sm transition active:scale-90">
+          <Heart className={`h-3.5 w-3.5 ${wished ? "fill-destructive text-destructive" : "text-foreground/70"}`} />
         </button>
-        <div className="flex flex-1 flex-col p-3">
-          {p.category && <p className="truncate text-[11px] font-semibold text-store-electric">{p.category}</p>}
-          <Link to="/produk/$id" params={{ id: p.id }} className="mt-0.5 line-clamp-2 min-h-[2.6em] text-[13px] font-semibold leading-snug hover:text-store-electric">{p.name}</Link>
-          <p className="mt-1.5 text-[15px] font-bold leading-tight text-store-electric">{rpBuyer(p.minPrice)}</p>
+        <div className="flex flex-1 flex-col p-2.5">
+          {p.category && <p className="truncate text-[10.5px] font-semibold text-store-electric">{p.category}</p>}
+          <Link to="/produk/$id" params={{ id: p.id }} className="mt-0.5 line-clamp-2 min-h-[2.6em] text-[12px] font-semibold leading-snug hover:text-store-electric">{p.name}</Link>
+          <p className="mt-1 text-[13.5px] font-bold leading-tight text-store-electric">{rpBuyer(p.minPrice)}</p>
           {off > 0 && <p className="text-[11px] text-muted-foreground line-through">{rpBuyer(p.basePrice)}</p>}
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[10.5px] text-muted-foreground">
             {p.rating.count > 0 && <span className="flex items-center gap-0.5 font-semibold text-foreground"><Star className="h-3 w-3 fill-warning text-warning" />{p.rating.avg.toFixed(1)}</span>}
             <span className="flex items-center gap-1"><ShoppingBag className="h-3 w-3" />{p.sold_count > 0 ? `${p.sold_count.toLocaleString("id-ID")} terjual` : "Belum terjual"}</span>
           </p>
-          <div className="mt-auto pt-2.5">
-            <Link to="/produk/$id" params={{ id: p.id }} className="flex h-9 items-center justify-center rounded-xl border text-[12px] font-semibold text-store-electric transition hover:bg-store-electric/10">
+          <div className="mt-auto pt-2">
+            <Link to="/produk/$id" params={{ id: p.id }} className="flex h-8 items-center justify-center rounded-lg border text-[11.5px] font-semibold text-store-electric transition hover:bg-store-electric/10">
               Lihat detail
             </Link>
           </div>
@@ -186,7 +186,7 @@ export function ProductList({ items, compact = false, simple = false }: { items:
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   return (
-    <div className={simple ? "grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4" : compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
+    <div className={simple ? "grid grid-cols-2 gap-2.5 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5" : compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
       {items.map((p) => {
         const on = wish.data?.has(p.id) ?? false;
         return <ProductCard key={p.id} p={p} compact={compact} simple={simple} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;
