@@ -61,7 +61,7 @@ function Wishlist() {
   const loading = !!user && (list.isLoading || (ids.length > 0 && products.isLoading));
 
   return (
-    <AppShell>
+    <AppShell wide>
       <div className="relative overflow-hidden px-3 pt-3">
         {loading ? (
           <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>

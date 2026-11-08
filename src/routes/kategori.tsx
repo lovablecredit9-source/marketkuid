@@ -47,7 +47,7 @@ function KategoriPage() {
   const total = useMemo(() => [...(counts.data?.values() ?? [])].reduce((a, n) => a + n, 0), [counts.data]);
 
   return (
-    <AppShell showSupport={false}>
+    <AppShell showSupport={false} wide>
       <div className="space-y-3 px-3 pb-6 pt-3">
         <button onClick={() => router.history.back()} className="flex items-center gap-1.5 text-[12px] font-medium text-primary"><ArrowLeft className="h-3.5 w-3.5" /> Kembali</button>
         <div>
