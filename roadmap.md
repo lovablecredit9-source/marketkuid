@@ -145,3 +145,6 @@
 - [x] Akun seller: saldo Tersedia/Tertahan/Credits, produk aktif, pesanan baru, selesai 30 hari pakai data asli + tombol muat ulang
 - [x] Riwayat Pesanan: tanpa strip Bantuan, panel & kotak kosong seukuran marketku.id
 - [ ] Bandingkan halaman Pesan (chat) & Seller Center berikutnya
+
+## Seller Center premium (Nov 8)
+- [x] Dasbor: kartu ringkasan hari ini (vs kemarin, grafik 7 hari, tombol Produk/Lihat toko/Bagikan), Target bulanan, Perlu Perhatian (stok habis/menipis, tanpa foto, deskripsi singkat)
