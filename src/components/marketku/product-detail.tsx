@@ -139,7 +139,7 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
       <div className="pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-5 lg:pt-3">
         <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-[13px] lg:col-span-2 lg:flex">
           <Link to="/" className="font-medium text-primary">Home</Link>
-          {p.product_categories?.name && <><ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><Link to="/cari" search={{ kategori: p.category_id ?? undefined }} className="font-medium text-primary">{p.product_categories.name}</Link></>}
+          {p.product_categories?.name && <><ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><Link to="/cari" search={p.category_id ? { kategori: p.category_id } : {}} className="font-medium text-primary">{p.product_categories.name}</Link></>}
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><span className="truncate text-muted-foreground">{p.name}</span>
         </nav>
         <div className="min-w-0">
