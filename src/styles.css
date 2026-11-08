@@ -333,8 +333,6 @@
 }
 .mk-back-to-top:active { transform: scale(.92); }
 @media (min-width: 1024px) { .mk-back-to-top { right: 40px; bottom: 40px; } }
-/* Desktop banner carousel: centre slide with the neighbours peeking in, like marketku.id. */
-@media (min-width: 1024px) { .mk-banner-track { gap: 16px; } .mk-banner-track > * { flex-basis: 86%; } }
 @keyframes mk-btt-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Chat: WhatsApp-like typing dots, message pop-in, refresh spin, badge pop. */
@@ -597,3 +595,6 @@ textarea.mk-co-input { min-height: 90px; resize: vertical; }
 @keyframes mk-seller-name-glow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes mk-seller-icon-float { 0%, 100% { transform: translateY(0); color: var(--muted-foreground); } 50% { transform: translateY(-1px); color: var(--primary); } }
 @media (prefers-reduced-motion: reduce) { .mk-co-row__seller > span, .mk-co-row__seller > svg { animation: none; } }
+
+/* Desktop banner carousel: centre slide with the neighbours peeking in, like marketku.id. */
+@media (min-width: 1024px) { .mk-banner-track { gap: 16px; } .mk-banner-track > * { flex-basis: 86%; } }
