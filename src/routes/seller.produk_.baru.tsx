@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, Fragment, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw, Upload, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Camera, ImageIcon, Infinity as InfinityIcon, Plus, Send, ShieldCheck, Percent, Gift, ShoppingBag, Trash2, X, Loader2, RefreshCw, Upload, FileText, Star, Lightbulb, CheckCircle2, Circle, Sparkles, ChevronDown } from "lucide-react";
+import { listingChecklist, listingScore, moveItem, scoreTone } from "@/lib/listing-quality";
+import { celebrate } from "@/components/marketku/seller-fx";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
@@ -34,6 +36,13 @@ export const Route = createFileRoute("/seller/produk_/baru")({
 type StepKey = "info" | "foto" | "detail" | "varian" | "stok";
 const stepLabel: Record<StepKey, string> = { info: "Info", foto: "Foto", detail: "Detail", varian: "Varian", stok: "Stok" };
 type SheetState = { kind: "garansi" | "diskon" | "bonus"; idx: number; n: number } | null;
+const stepTip: Record<StepKey, string> = {
+  info: "Pakai nama yang langsung jelas: merek + paket + durasi, misalnya \"Canva Pro 1 Tahun\".",
+  foto: "Foto pertama jadi gambar utama. Seret foto ke sini, atau pakai tombol bintang untuk memilih foto utama.",
+  detail: "Kontak yang aktif membuat pembeli lebih tenang setelah membayar.",
+  varian: "Buat beberapa pilihan durasi atau paket agar pembeli bisa memilih sesuai budget.",
+  stok: "Satu baris = satu stok. Stok langsung terkirim otomatis ke pembeli setelah bayar.",
+};
 
 function ProductWizard() {
   const { edit } = Route.useSearch();
@@ -104,6 +113,17 @@ function ProductWizard() {
   const isLast = step === steps.length - 1;
   const imgUrls = useImageUrls([...photos, ...variants.map((v) => v.image_url ?? "")]);
   const catName = categoryId ? categoryPath(cats.data ?? [], categoryId).map((c) => c.name).join(" › ") || undefined : undefined;
+  const [drag, setDrag] = useState(false);
+  const [qualityOpen, setQualityOpen] = useState(false);
+  const qInput = {
+    name, description: desc, photos: photos.length, hasCategory: !!categoryId,
+    pricedVariants: variants.length && variants.every((v) => parsePrice(v.price) > 0) ? variants.length : 0,
+    stockCount: variants.reduce((s, v) => s + stockLines(v.stock).length + (v.id ? 1 : 0), 0) + (type === "preorder" ? 1 : 0),
+    unlimitedStock: stockMode !== "normal", hasGuide: showGuide && guide.trim().length > 0,
+  };
+  const score = listingScore(qInput);
+  const tone = scoreTone(score);
+  const minPrice = variants.map((v) => parsePrice(v.price)).filter((p) => p > 0).sort((a, b) => a - b)[0];
 
   const setV = (i: number, patch: Partial<VariantDraft>) => setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, ...patch } : v)));
   async function onPickStockFiles(i: number, files: FileList | null) {
@@ -213,6 +233,7 @@ function ProductWizard() {
       await qc.invalidateQueries({ queryKey: ["my_products"] });
       await qc.invalidateQueries({ queryKey: ["category_counts"] });
       toast.success(edit ? "Produk berhasil diperbarui!" : "Produk berhasil dipublish!");
+      if (!edit) celebrate();
       navigate({ to: "/seller/produk" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal menyimpan produk");
@@ -224,19 +245,31 @@ function ProductWizard() {
   return (
     <div className="rounded-2xl border bg-card">
       {/* Stepper */}
-      <div className="flex items-start px-4 pb-2 pt-5">
+      <div className="px-5 pt-5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-primary">Langkah {step + 1} dari {steps.length}</span>
+          <span className="text-muted-foreground">{stepLabel[cur]}</span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="seller-progress h-full rounded-full" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+        </div>
+      </div>
+      <div className="flex items-start px-4 pb-2 pt-4">
         {steps.map((k, i) => (
           <Fragment key={k}>
-            {i > 0 && <span className={`mt-[5px] h-px flex-1 ${i <= step ? "bg-foreground" : "bg-border"}`} />}
+            {i > 0 && <span className={`mt-[5px] h-0.5 flex-1 rounded-full transition-colors duration-300 ${i <= step ? "bg-success" : "bg-border"}`} />}
             <button type="button" disabled={i > step} onClick={() => { setErrors([]); setStep(i); }} className="flex w-12 flex-col items-center gap-2">
-              <span className={`h-3 w-3 rounded-full transition ${i <= step ? "bg-foreground" : "bg-muted-foreground/40"}`} />
+              <span data-state={i < step ? "done" : i === step ? "current" : "todo"} className="seller-step-dot h-3 w-3 rounded-full bg-muted-foreground/40" />
               <span className={`text-xs ${i === step ? "font-semibold text-foreground" : "text-foreground/80"}`}>{stepLabel[k]}</span>
             </button>
           </Fragment>
         ))}
       </div>
 
-      <div className="space-y-5 px-5 pb-6 pt-4">
+      <div key={cur} className="seller-step-enter space-y-5 px-5 pb-6 pt-4">
+        <p className="flex gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2.5 text-xs leading-relaxed text-foreground/90">
+          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-warning" /><span>{stepTip[cur]}</span>
+        </p>
         {cur === "info" && (
           <>
             <Head title="Info Produk" desc="Informasi dasar produk yang akan dilihat pembeli." />
