@@ -37,7 +37,7 @@ function Bandingkan() {
   const urls = useImageUrls(items.map((p) => p.images[0] ?? "").filter(Boolean));
 
   return (
-    <AppShell>
+    <AppShell wide>
       <div className="px-3 pt-3">
         <div className="flex items-end justify-between gap-2">
           <div>

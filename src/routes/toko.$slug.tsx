@@ -32,7 +32,7 @@ export const Route = createFileRoute("/toko/$slug")({
 
 function StatusCard({ icon: Icon, title, desc, action }: { icon: typeof User; title: string; desc: string; action?: ReactNode }) {
   return (
-    <AppShell showSupport={false} className="store-profile">
+    <AppShell showSupport={false} className="store-profile" wide>
       <div className="px-4 pt-4 pb-10">
         <div className="store-surface flex flex-col items-center rounded-3xl border bg-card px-6 py-14 text-center">
           <div className="store-hero-fallback grid h-16 w-16 place-items-center rounded-2xl text-primary-foreground">
@@ -54,7 +54,7 @@ function StatusCard({ icon: Icon, title, desc, action }: { icon: typeof User; ti
 
 function StoreSkeleton() {
   return (
-    <AppShell showSupport={false} className="store-profile">
+    <AppShell showSupport={false} className="store-profile" wide>
       <div className="space-y-4 px-4 pt-4" aria-busy="true" aria-label="Memuat toko">
         <div className="overflow-hidden rounded-3xl border bg-card">
           <div className="aspect-[4/1] max-h-[150px] min-h-[84px] animate-pulse bg-muted" />
@@ -180,7 +180,7 @@ function Toko() {
   ];
 
   return (
-    <AppShell showSupport={false} className="store-profile">
+    <AppShell showSupport={false} className="store-profile" wide>
       <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={s.store_name} url={typeof window === "undefined" ? "" : window.location.href} text={`Mampir ke toko ${s.store_name} di Marketku`} />
       <div className="space-y-4 px-3 pt-3 lg:px-6">
         {/* Hero */}

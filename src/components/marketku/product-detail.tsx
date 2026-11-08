@@ -135,8 +135,16 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
   };
 
   return (
-    <AppShell nav={false} header={false}>
-      <div className="pb-28">
+    <AppShell nav={false} header={false} wide>
+      <div className="pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-5 lg:pt-3">
+        <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-[13px] lg:col-span-2 lg:flex">
+          <Link to="/" className="font-medium text-primary">Home</Link>
+          {p.product_categories?.name && <><ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><Link to="/cari" search={p.category_id ? { kategori: p.category_id } : {}} className="font-medium text-primary">{p.product_categories.name}</Link></>}
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><span className="truncate text-muted-foreground">{p.name}</span>
+        </nav>
+        <div className="min-w-0">
+        <div className="lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:overflow-hidden lg:rounded-2xl lg:border lg:bg-card lg:shadow-sm">
+        <div className="min-w-0">
         <div className="relative">
           <button type="button" aria-label="Lihat foto produk" onClick={() => gallery.length && setViewer(true)} className="block w-full">
             <ProductImage url={shown ? urls.data?.[shown] : undefined} alt={p.name} className="aspect-square w-full" />
@@ -158,9 +166,11 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
             ))}
           </div>
         )}
+        </div>
 
+        <div className="min-w-0 lg:py-2">
         <FlashStrip sales={flash.data ?? []} />
-        <section className="space-y-2.5 bg-card px-3.5 pb-3 pt-3.5">
+        <section className="space-y-2.5 bg-card px-3.5 pb-3 pt-3.5 lg:space-y-4 lg:px-5">
           <div className="flex items-center justify-between gap-3">
             <p className="flex flex-wrap items-baseline gap-x-1.5 font-bold leading-none text-primary"><span><span className="text-[15px]">Rp</span><span className="text-[22px]">{rpBuyer(price).replace(/^Rp/, "")}</span></span>
               {v && Number(v.price) > price && (<>
@@ -173,7 +183,7 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
               <button aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} onClick={() => void toggleWish(p.id, wished)} className="transition active:scale-90"><Heart className={`h-[18px] w-[18px] ${wished ? "fill-destructive text-destructive" : ""}`} /></button>
             </div>
           </div>
-          <h1 className="text-[14.5px] font-bold leading-snug">{p.name}</h1>
+          <h1 className="text-[14.5px] font-bold leading-snug lg:order-first lg:text-[22px] lg:text-primary">{p.name}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <p className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] shadow-sm"><Star className="h-3.5 w-3.5 fill-warning text-warning" /> <b>{rating.avg || 0}</b> <span className="text-muted-foreground">({rating.count} ulasan)</span></p>
             <span className="text-[11.5px] text-muted-foreground">{viewsLabel(p.view_count)}</span>
@@ -227,7 +237,7 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
             <span className="flex flex-col items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-primary" />{w ? warrantyLabel(w) : "Tanpa garansi"}</span>
           </div>
           {p.store && (
-            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-card px-3 py-2.5 shadow-sm transition active:scale-[0.98]">
+            <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="flex items-center gap-3 rounded-2xl border bg-card px-3 py-2.5 shadow-sm transition active:scale-[0.98] lg:hidden">
               {avatarUrl
                 ? <img src={avatarUrl} alt={p.store.store_name} className="h-10 w-10 shrink-0 rounded-full object-cover" />
                 : <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-primary"><Store className="h-5 w-5" /></span>}
@@ -240,8 +250,10 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
             </Link>
           )}
         </section>
+        </div>
+        </div>
 
-        <section className="mt-2.5 rounded-2xl border bg-card px-4 pb-3 pt-5 shadow-sm">
+        <section className="mt-2.5 rounded-2xl border bg-card px-4 pb-3 pt-5 shadow-sm lg:mt-5 lg:px-6">
           <h2 className="mb-2 text-[18px] font-bold">Spesifikasi</h2>
           <div className="divide-y divide-border">
             {[["Kategori", p.product_categories?.name ?? "-"], ["Tipe produk", productTypeText(p.product_type)], ["Durasi", v ? durText(v) : "-"], ["Garansi", w ? warrantyLabel(w) : "Tanpa garansi"], ["Varian", v?.name ?? "-"], ["Stok", closed ? "Toko tutup" : pre ? "Pre-order" : soldOut ? "Stok habis" : `Stok ${v?.stock ?? 0}`]].map(([a, b]) => (
@@ -259,7 +271,7 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
           <button type="button" onClick={() => setGuard(true)} className="mt-3 flex w-full items-center gap-2 border-t pt-3 text-left text-[11.5px] transition active:opacity-70"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> <span className="flex-1">Trade Guard — Belanja aman bergaransi</span><ChevronRight className="h-4 w-4 text-primary" /></button>
         </section>
 
-        <section className="mt-2.5 rounded-2xl border bg-card px-3 py-4 shadow-sm">
+        <section className="mt-2.5 rounded-2xl border bg-card px-3 py-4 shadow-sm lg:mt-5 lg:px-5">
           <div className="flex items-center gap-2 border-b pb-3">
             <h2 className="text-[14px] font-bold">Ulasan Pembeli</h2>
             <span className="rounded-full bg-accent px-2 py-0.5 text-[10.5px] font-semibold text-primary">{rating.count} ulasan</span>
@@ -310,13 +322,34 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
             <Similar items={(similar.data ?? []).filter((x) => x.id !== p.id)} />
           </section>
         )}
+        </div>
+
+        {/* Desktop: seller card on the right, like marketku.id. */}
+        {p.store && (
+          <aside className="sticky top-20 hidden space-y-3 rounded-2xl border bg-card p-3 shadow-sm lg:block">
+            <div className="flex items-start gap-3">
+              <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="shrink-0">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt={p.store.store_name} className="h-14 w-14 rounded-full border-2 border-primary/20 object-cover" />
+                  : <span className="grid h-14 w-14 place-items-center rounded-full bg-accent text-primary"><Store className="h-6 w-6" /></span>}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <Link to="/toko/$slug" params={{ slug: p.store.slug || p.owner_id }} className="block truncate text-[15px] font-bold hover:text-primary">{p.store.store_name}</Link>
+                <p className="mt-0.5 flex items-center gap-1 text-[12px] text-muted-foreground"><Star className="h-3.5 w-3.5 fill-warning text-warning" /><b className="text-foreground">{storeRating.count > 0 ? storeRating.avg.toFixed(1) : "0"}</b> · {storeRating.count} ulasan</p>
+                {p.store.is_open === false && <p className="mt-1 text-[12px] font-semibold text-destructive">Toko sedang tutup</p>}
+              </div>
+              <button type="button" onClick={() => void chat()} className="flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 text-[12px] font-semibold text-primary-foreground transition active:scale-95"><MessageCircle className="h-3.5 w-3.5" /> Chat seller</button>
+            </div>
+            <p className="flex items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-[12px]"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Checkout aman dijaga oleh <b className="text-primary">Marketku</b></p>
+          </aside>
+        )}
       </div>
 
       {showTop && (
-        <button aria-label="Kembali ke atas" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="fixed bottom-[78px] right-[max(12px,calc(50%-224px+12px))] z-40 grid h-10 w-10 place-items-center rounded-full border bg-card text-primary shadow-md transition active:scale-90"><ArrowUp className="h-4 w-4" /></button>
+        <button aria-label="Kembali ke atas" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="fixed bottom-[78px] right-[max(12px,calc(50%-224px+12px))] z-40 lg:bottom-24 lg:right-10 grid h-10 w-10 place-items-center rounded-full border bg-card text-primary shadow-md transition active:scale-90"><ArrowUp className="h-4 w-4" /></button>
       )}
       {blocked && !own ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-3 py-2.5">
+        <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-3 py-2.5 lg:max-w-none lg:px-[max(1.25rem,calc(50vw-610px))]">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-bold text-primary">{blocked}</p>
             <p className="truncate text-[11px] text-muted-foreground">Produk bisa dilihat, belum bisa order</p>
@@ -331,15 +364,20 @@ export function ProdukDetail({ param, seo }: { param: string; seo: ProductSeo })
           </div>
         </div>
       ) : (
-      <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-2.5 py-3">
+      <div className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-2 border-t bg-card px-2.5 py-3 lg:max-w-none lg:gap-3 lg:px-[max(1.25rem,calc(50vw-610px))]">
+        <div className="hidden min-w-0 flex-1 items-center gap-3 lg:flex">
+          <ProductImage url={shown ? urls.data?.[shown] : undefined} alt="" className="h-12 w-12 shrink-0 overflow-hidden rounded-lg" />
+          <span className="min-w-0"><span className="block truncate text-[14px] font-semibold">{p.name}</span>{v && <span className="block truncate text-[12px] text-muted-foreground">{v.name}</span>}</span>
+          <span className="ml-auto shrink-0 text-right"><span className="block text-[11px] text-muted-foreground">Harga</span><span className="block text-[17px] font-bold text-primary">{rpBuyer(price)}</span></span>
+        </div>
         <button aria-label="Chat seller" onClick={() => void chat()} className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full border-[1.5px] border-primary text-primary transition active:scale-90"><MessageCircle className="h-[18px] w-[18px]" /></button>
-        <button disabled={!canBuy} onClick={() => setSheet(true)} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40">Beli Sekarang</button>
-        <button disabled={!canBuy} onClick={() => void addCart()} className="flex h-[46px] flex-1 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-[12.5px] font-bold leading-none text-primary-foreground transition active:scale-95 disabled:opacity-40">
+        <button disabled={!canBuy} onClick={() => setSheet(true)} className="h-[46px] flex-1 rounded-full border-[1.5px] border-primary text-[13px] font-bold text-primary transition active:scale-95 disabled:opacity-40 lg:w-44 lg:flex-none lg:text-[15px]">Beli Sekarang</button>
+        <button disabled={!canBuy} onClick={() => void addCart()} className="flex h-[46px] flex-1 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-[12.5px] font-bold leading-none text-primary-foreground transition active:scale-95 disabled:opacity-40 lg:w-44 lg:flex-none lg:flex-row lg:gap-2 lg:text-[15px]">
           {added ? <><Check className="h-4 w-4" />Ditambahkan</> : <><ShoppingCart className="h-4 w-4" />Keranjang</>}
         </button>
       </div>
       )}
-      {own && <p className="fixed inset-x-0 bottom-[76px] z-40 mx-auto max-w-md bg-accent py-1 text-center text-xs font-semibold text-primary">Ini produk toko kamu</p>}
+      {own && <p className="fixed inset-x-0 bottom-[76px] z-40 mx-auto max-w-md lg:max-w-none bg-accent py-1 text-center text-xs font-semibold text-primary">Ini produk toko kamu</p>}
 
       <Dialog.Root open={sheet} onOpenChange={setSheet}>
         <Dialog.Portal>

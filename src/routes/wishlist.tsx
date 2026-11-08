@@ -61,7 +61,7 @@ function Wishlist() {
   const loading = !!user && (list.isLoading || (ids.length > 0 && products.isLoading));
 
   return (
-    <AppShell>
+    <AppShell wide>
       <div className="relative overflow-hidden px-3 pt-3">
         {loading ? (
           <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>
@@ -82,7 +82,7 @@ function Wishlist() {
                 <span className="mt-0.5 block text-muted-foreground">Total semua mulai {rpBuyer(total)}</span>
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-5">
               {items.map((p) => {
                 const d = priceDrop(snap[p.id], p.minPrice);
                 return (

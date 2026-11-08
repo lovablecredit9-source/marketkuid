@@ -65,18 +65,18 @@ function Index() {
   const fresh = useMemo(() => [...list].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 10), [list]);
 
   return (
-    <AppShell className="relative isolate" homeSearch>
+    <AppShell className="relative isolate lg:overflow-x-clip" homeSearch wide>
       <div aria-hidden className="mk-grid-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px]" />
       <HomeNotice />
 
-      <div className="space-y-5 px-3 pt-3">
+      <div className="space-y-5 px-3 pt-3 lg:space-y-6 lg:px-0 lg:pt-6">
         <Banner />
 
         <RecentPurchases />
 
         <HomeCategories />
 
-        <div className="!mt-[18px] space-y-[18px]">
+        <div className="!mt-[18px] space-y-[18px] lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
           {BRAND_GROUPS.map((g) => <BrandGroup key={g.title} group={g} />)}
         </div>
 
@@ -115,7 +115,7 @@ function Index() {
           </>
         )}
 
-        <div className="-mx-3 border-y bg-card pb-4 pt-3.5" aria-label="Sponsor Marketku">
+        <div className="-mx-3 border-y bg-card pb-4 pt-3.5 lg:mx-[calc(50%-50vw)] lg:border-t-primary/60" aria-label="Sponsor Marketku">
           <p className="mb-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Mitra Marketku</p>
           <div className="mk-partners" role="marquee">
             <div className="mk-partners__track">
@@ -128,7 +128,7 @@ function Index() {
           </div>
         </div>
 
-        <section className="space-y-1 rounded-2xl border bg-card p-2">
+        <section className="space-y-1 rounded-2xl border bg-card p-2 lg:grid lg:grid-cols-4 lg:gap-6 lg:space-y-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0 lg:py-2">
           {[
             { icon: Zap, t: "Kirim Instan", d: "Otomatis setelah bayar" },
             { icon: ShieldCheck, t: "Transaksi Aman", d: "Terenkripsi SSL" },
@@ -143,22 +143,26 @@ function Index() {
         </section>
       </div>
 
-      <footer className="mt-6 bg-primary px-5 pb-8 pt-8 text-primary-foreground">
+      <footer className="mt-6 bg-primary px-5 pb-8 pt-8 text-primary-foreground lg:-mb-12 lg:mx-[calc(50%-50vw)] lg:px-[max(1.25rem,calc(50vw-590px))] lg:pt-12">
+        <div className="lg:grid lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-10">
+        <div>
         <img src={logo.url} alt="Marketku" className="h-9 w-auto brightness-0 invert" />
-        <p className="mt-4 text-sm leading-relaxed opacity-90">Marketplace untuk beli dan jual produk digital dengan mudah dan cepat.</p>
+        <p className="mt-4 text-sm leading-relaxed opacity-90 lg:max-w-sm lg:text-[15px]">Marketplace untuk beli dan jual produk digital dengan mudah dan cepat.</p>
         <div className="mt-4 flex gap-2">
           {[Facebook, Instagram, Twitter, Youtube].map((I, n) => (
             <button key={n} aria-label="Media sosial" onClick={() => soon("Media sosial Marketku")} className="grid h-9 w-9 place-items-center rounded-lg border border-primary-foreground/30 transition active:scale-90"><I className="h-4 w-4" /></button>
           ))}
         </div>
+        </div>
         {FOOTER.map((col) => (
-          <div key={col.title} className="mt-7">
+          <div key={col.title} className="mt-7 lg:mt-0">
             <h3 className="font-bold">{col.title}</h3>
             <ul className="mt-3 space-y-2.5 text-sm opacity-90">
               {col.links.map((l) => <li key={l.label}>{l.to ? <Link to={l.to}>{l.label}</Link> : <button onClick={() => soon(l.label)}>{l.label}</button>}</li>)}
             </ul>
           </div>
         ))}
+        </div>
         <div className="mt-8 border-t border-primary-foreground/20 pt-5">
           <p className="text-xs font-bold tracking-widest opacity-80">METODE PEMBAYARAN</p>
           <span className="mt-3 inline-block rounded-lg bg-primary-foreground/15 px-3 py-1.5 text-xs font-semibold">QRIS — Support ewallet dan bank</span>
@@ -175,21 +179,28 @@ function Banner() {
   const [i, setI] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const touching = useRef(false);
-  const goTo = (n: number) => { const el = track.current; if (el) el.scrollTo({ left: n * el.clientWidth, behavior: "smooth" }); };
+  // Slides are full width on phones and ~86% (centred, neighbours peeking) on desktop, so work from each slide's position.
+  const leftOf = (el: HTMLElement, n: number) => { const k = el.children[n] as HTMLElement | undefined; return k ? k.offsetLeft - (el.clientWidth - k.offsetWidth) / 2 : 0; };
+  const idxOf = (el: HTMLElement) => {
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0, gap = Infinity;
+    Array.from(el.children as HTMLCollectionOf<HTMLElement>).forEach((k, n) => { const d = Math.abs(k.offsetLeft + k.offsetWidth / 2 - mid); if (d < gap) { gap = d; best = n; } });
+    return best;
+  };
+  const goTo = (n: number) => { const el = track.current; if (el) el.scrollTo({ left: leftOf(el, n), behavior: "smooth" }); };
   useEffect(() => {
     if (items.length < 2) return;
     const t = window.setInterval(() => {
       const el = track.current;
       if (!el || touching.current) return;
-      const cur = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
-      el.scrollTo({ left: ((cur + 1) % items.length) * el.clientWidth, behavior: "smooth" });
+      el.scrollTo({ left: leftOf(el, (idxOf(el) + 1) % items.length), behavior: "smooth" });
     }, 4000);
     return () => window.clearInterval(t);
   }, [items.length]);
   return (
     <div className="relative" data-tour="banner">
-      <div ref={track} className="mk-banner-track rounded-2xl shadow-sm"
-        onScroll={(e) => { const el = e.currentTarget; setI(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); }}
+      <div ref={track} className="mk-banner-track relative rounded-2xl shadow-sm lg:shadow-none"
+        onScroll={(e) => setI(idxOf(e.currentTarget))}
         onTouchStart={() => { touching.current = true; }} onTouchEnd={() => { window.setTimeout(() => { touching.current = false; }, 2500); }}>
         {items.map((b) => (
           <Link key={b.src} to={b.to} search={"q" in b ? { q: b.q } : {}} draggable={false} className="block overflow-hidden rounded-2xl" aria-label={b.alt}>
@@ -198,7 +209,7 @@ function Banner() {
         ))}
       </div>
       {items.length > 1 && (
-        <div className="absolute bottom-2 right-3 flex gap-1.5 rounded-full bg-foreground/40 px-1.5 py-1" aria-label="Pilih banner promo">
+        <div className="absolute bottom-2 right-3 flex gap-1.5 lg:right-[calc(7%+12px)] rounded-full bg-foreground/40 px-1.5 py-1" aria-label="Pilih banner promo">
           {items.map((b, n) => (
             <button key={b.src} aria-label={`Tampilkan banner ${n + 1}`} aria-current={n === i} onClick={() => goTo(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-5 bg-card" : "w-1.5 bg-card/60"}`} />
           ))}
@@ -466,18 +477,18 @@ function BrandGroup({ group }: { group: (typeof BRAND_GROUPS)[number] }) {
       <div className="mb-2.5 flex min-h-[30px] items-center justify-between gap-3 px-1">
         <div className="flex min-w-0 items-center gap-2">
           <span className="grid h-[30px] w-[30px] place-items-center"><img src={group.icon} alt="" className="h-7 w-7 rounded-[7px] object-cover" /></span>
-          <h2 className="truncate text-lg font-extrabold leading-none tracking-[-0.025em]">{group.title}</h2>
+          <h2 className="truncate text-lg font-extrabold leading-none tracking-[-0.025em] lg:text-[24px]">{group.title}</h2>
         </div>
         <button type="button" onClick={() => cat ? open(cat.name) : navigate({ to: "/cari" })}
           className="inline-flex min-h-7 min-w-[58px] items-center justify-center gap-1 rounded-[7px] border border-primary/55 bg-card px-[7px] text-[10px] font-bold text-primary transition active:scale-95">
           Semua <ArrowRight className="h-[13px] w-[13px]" />
         </button>
       </div>
-      <div className="grid auto-cols-[72px] grid-flow-col gap-2.5 overflow-x-auto overscroll-x-contain rounded-b border-t border-primary/20 bg-primary/[0.06] px-2.5 py-3 [scrollbar-width:none]">
+      <div className="grid auto-cols-[72px] grid-flow-col gap-2.5 overflow-x-auto overscroll-x-contain rounded-b border-t border-primary/20 bg-primary/[0.06] px-2.5 py-3 [scrollbar-width:none] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-5 lg:gap-x-4 lg:gap-y-5 lg:overflow-visible lg:px-6 lg:py-4">
         {brands.map((b) => (
           <button type="button" key={b.name} aria-label={`Lihat kategori ${b.name}`} onClick={() => open(b.name)} className="flex min-w-0 flex-col items-center gap-1.5 transition active:scale-95">
-            <img src={b.img} alt="" loading="lazy" className="aspect-square w-[58px] rounded-md object-cover" />
-            <span className="w-full truncate text-center text-[10px] text-muted-foreground">{b.name}</span>
+            <img src={b.img} alt="" loading="lazy" className="aspect-square w-[58px] rounded-md object-cover transition lg:w-[72px] lg:hover:-translate-y-0.5" />
+            <span className="w-full truncate text-center text-[10px] text-muted-foreground lg:text-[13px]">{b.name}</span>
           </button>
         ))}
       </div>
@@ -506,7 +517,7 @@ function Section({ icon: I, tone, kicker, title, to, toSearch, children }: { ico
 }
 
 function Rail({ children }: { children: ReactNode }) {
-  return <div className="flex gap-3 overflow-x-auto px-3 pb-3 [scrollbar-width:none]">{children}</div>;
+  return <div className="flex gap-3 overflow-x-auto px-3 pb-3 [scrollbar-width:none] lg:px-3.5 lg:pb-4">{children}</div>;
 }
 
 /** Small portrait card for horizontal rails and the 2-column grid. */
@@ -518,7 +529,7 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
   const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
   const { peek, bind } = useSellerPeek();
   return (
-    <article {...bind} className={`mk-peek-card relative overflow-hidden rounded-2xl border bg-card ${grid ? "" : "w-[150px] shrink-0"} ${out ? "mk-card-off" : ""} ${peek ? "is-seller-peek" : ""}`}>
+    <article {...bind} className={`mk-peek-card relative overflow-hidden rounded-2xl border bg-card ${grid ? "" : "w-[150px] shrink-0 lg:w-[156px]"} ${out ? "mk-card-off" : ""} ${peek ? "is-seller-peek" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5">
         <div className="relative overflow-hidden rounded-xl bg-muted/70 p-3">
           <ProductImage url={url} alt={p.name} className="aspect-square" />
@@ -548,15 +559,18 @@ function MiniCard({ p, url, rank, grid = false }: { p: CardProduct; url?: string
 }
 
 function LikedSection({ items, urlOf }: { items: CardProduct[]; urlOf: (p: CardProduct) => string | undefined }) {
+  // Two rows: 2×3 on phones, 6×2 on desktop (like marketku.id); "Tampilkan lainnya" adds one more row-set.
+  const [step, setStep] = useState(6);
   const [n, setN] = useState(6);
+  useEffect(() => { if (window.matchMedia("(min-width: 1024px)").matches) { setStep(12); setN(12); } }, []);
   return (
     <Section icon={Sparkles} tone="blue" kicker="Jelajahi Marketku" title="Sedang Populer">
-      <div className="grid grid-cols-2 gap-3 px-3 pb-3">
+      <div className="grid grid-cols-2 gap-3 px-3 pb-3 lg:grid-cols-6 lg:gap-3.5 lg:px-3.5">
         {items.slice(0, n).map((p) => <MiniCard key={p.id} p={p} url={urlOf(p)} grid />)}
       </div>
       {items.length > n && (
         <div className="px-3 pb-3">
-          <button onClick={() => setN((v) => v + 6)} className="flex items-center gap-2 rounded-xl border bg-card px-4 py-2 text-sm font-semibold text-primary transition active:scale-95">
+          <button onClick={() => setN((v) => v + step)} className="flex items-center gap-2 rounded-xl border bg-card px-4 py-2 text-sm font-semibold text-primary transition active:scale-95">
             Tampilkan lainnya <ChevronDown className="h-4 w-4" />
           </button>
         </div>
