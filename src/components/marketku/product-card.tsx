@@ -133,9 +133,11 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
             {p.rating.count > 0 && <span className="flex items-center gap-0.5 font-semibold text-foreground"><Star className="h-3 w-3 fill-warning text-warning" />{p.rating.avg.toFixed(1)}</span>}
             <span className="flex items-center gap-1"><ShoppingBag className="h-3 w-3" />{p.sold_count > 0 ? `${p.sold_count.toLocaleString("id-ID")} terjual` : "Belum terjual"}</span>
           </p>
-          <Link to="/produk/$id" params={{ id: p.id }} className="mt-auto flex h-9 items-center justify-center rounded-xl border pt-0 text-[12px] font-semibold text-store-electric transition hover:bg-store-electric/10 [margin-top:max(10px,auto)]">
-            Lihat detail
-          </Link>
+          <div className="mt-auto pt-2.5">
+            <Link to="/produk/$id" params={{ id: p.id }} className="flex h-9 items-center justify-center rounded-xl border text-[12px] font-semibold text-store-electric transition hover:bg-store-electric/10">
+              Lihat detail
+            </Link>
+          </div>
         </div>
       </article>
     );
@@ -184,7 +186,7 @@ export function ProductList({ items, compact = false, simple = false }: { items:
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   return (
-    <div className={compact || simple ? "grid grid-cols-2 gap-3" : "space-y-3"}>
+    <div className={simple ? "grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4" : compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
       {items.map((p) => {
         const on = wish.data?.has(p.id) ?? false;
         return <ProductCard key={p.id} p={p} compact={compact} simple={simple} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;

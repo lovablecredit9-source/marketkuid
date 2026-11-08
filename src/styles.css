@@ -412,16 +412,30 @@
 .check-draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: check-draw 2.2s ease-in-out infinite; }
 .check-ping { animation: check-ping 2.2s ease-out infinite; }
 
-/* Store-only compact cards; shared wishlist and cart actions remain available. */
-.store-profile article > div { padding: 8px; }
-.store-profile article > div > span { border: 0; padding: 0; color: var(--primary); font-size: 10px; font-weight: 600; }
-.store-profile article a.font-semibold { font-size: 11px; min-height: 30px; margin-top: 4px; }
-.store-profile article p.font-bold { font-size: 13px; margin-top: 4px; }
-.store-profile article > div > div { flex-wrap: wrap; gap: 5px; }
-.store-profile article > div > div > span { font-size: 10px; }
-.store-profile article button { height: 24px; width: 27px; }
-.store-profile article button svg { width: 13px; height: 13px; }
-.store-profile article p.text-muted-foreground { font-size: 9px; }
+/* Public store page (/toko/$slug): navy / electric blue / cyan storefront. */
+@media (min-width: 1024px) { .store-profile { max-width: 64rem; } }
+.store-hero-fallback {
+  background:
+    radial-gradient(120% 140% at 85% 0%, color-mix(in oklab, var(--store-cyan) 55%, transparent) 0%, transparent 55%),
+    linear-gradient(120deg, var(--store-navy) 0%, var(--store-electric) 100%);
+}
+.store-hero-shade { background: linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--store-navy) 45%, transparent) 100%); }
+.store-surface { box-shadow: var(--store-shadow); }
+.store-card { box-shadow: var(--store-shadow); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.store-card__img img { transition: transform .35s ease; }
+@media (hover: hover) {
+  .store-card:hover { transform: translateY(-2px); border-color: color-mix(in oklab, var(--store-electric) 35%, var(--border)); box-shadow: var(--store-shadow-lg); }
+  .store-card:hover .store-card__img img { transform: scale(1.04); }
+}
+@keyframes store-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.store-rise { animation: store-rise .45s ease both; }
+.store-voucher { position: relative; }
+.store-voucher::before, .store-voucher::after {
+  content: ""; position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 999px; background: var(--background); transform: translateY(-50%);
+}
+.store-voucher::before { left: -8px; }
+.store-voucher::after { right: -8px; }
+@media (prefers-reduced-motion: reduce) { .store-rise { animation: none; } .store-card, .store-card__img img { transition: none; } }
 
 /* Floating wave label (marketku.id seller form) */
 .mk-float { position: relative; width: 100%; }
