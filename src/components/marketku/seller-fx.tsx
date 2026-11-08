@@ -14,10 +14,14 @@ export function useSellerRipple() {
       dot.style.width = dot.style.height = `${size}px`;
       dot.style.left = `${e.clientX - r.left - size / 2}px`;
       dot.style.top = `${e.clientY - r.top - size / 2}px`;
-      if (getComputedStyle(el).position === "static") el.classList.add("seller-ripple-host");
+      const host = getComputedStyle(el).position === "static";
+      if (host) el.classList.add("seller-ripple-host");
       el.classList.add("seller-ripple-clip");
       el.appendChild(dot);
-      window.setTimeout(() => dot.remove(), 650);
+      window.setTimeout(() => {
+        dot.remove();
+        if (!el.querySelector(".seller-ripple")) el.classList.remove("seller-ripple-clip", "seller-ripple-host");
+      }, 650);
     };
     document.addEventListener("pointerdown", onDown);
     return () => document.removeEventListener("pointerdown", onDown);
