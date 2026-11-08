@@ -6,7 +6,7 @@ import type { CardProduct } from "@/lib/market";
 /** Full product listing page like marketku.id /produk/baru and /produk/diskon. */
 export function ProductListingPage({ title, desc, items, loading, empty }: { title: string; desc: string; items: CardProduct[]; loading: boolean; empty: string }) {
   return (
-    <AppShell showSupport={false}>
+    <AppShell showSupport={false} wide>
       <div className="px-4 pt-5">
         <h1 className="text-[22px] font-bold leading-tight text-foreground">{title}</h1>
         <p className="mt-1 text-[14px] leading-snug text-muted-foreground">{desc}</p>

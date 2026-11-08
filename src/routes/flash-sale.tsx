@@ -33,7 +33,7 @@ function FlashSalePage() {
   const loading = sales.isLoading || (ids.length > 0 && products.isLoading);
 
   return (
-    <AppShell showSupport={false} wide>
+    <AppShell showSupport={false}>
       <div className="space-y-4 px-4 pt-6">
         <div className="flex flex-wrap items-center gap-2.5">
           <Link to="/" className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-[14px] font-bold text-foreground shadow-sm active:scale-95">
