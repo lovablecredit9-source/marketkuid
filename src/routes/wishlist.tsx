@@ -82,7 +82,7 @@ function Wishlist() {
                 <span className="mt-0.5 block text-muted-foreground">Total semua mulai {rpBuyer(total)}</span>
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-5">
               {items.map((p) => {
                 const d = priceDrop(snap[p.id], p.minPrice);
                 return (
