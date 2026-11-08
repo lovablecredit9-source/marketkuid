@@ -27,36 +27,44 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const pageSize = 1000;
         const owners = new Set<string>();
-        const productRoute = "/produk/$id";
+        const productRoute = "/produk/$toko/$produk";
+        const productRows: { id: string; slug: string | null; owner_id: string; updated_at: string }[] = [];
         // Products: same public filter as the storefront (active, not taken down by admin).
         for (let offset = 0; ; ) {
-          const { data, error } = await supabase.from("products").select("id, owner_id, updated_at")
+          const { data, error } = await supabase.from("products").select("id, slug, owner_id, updated_at")
             .eq("status", "active").eq("admin_hidden", false).order("id").range(offset, offset + pageSize - 1);
           if (error) throw error;
           if (data.length === 0) break;
           for (const row of data) {
             owners.add(row.owner_id);
-            if (!isSitemapRouteIncluded(router.routesById[productRoute])) continue;
-            const location = router.buildLocation({ to: "/produk/$id", params: { id: row.id }, search: () => ({}), hash: "" });
-            const path = sitemapPathForLocation(router, location, productRoute);
-            if (path) entries.push({ path, lastmod: row.updated_at });
+            productRows.push(row);
           }
           offset += data.length;
         }
 
-        // Stores that have public products.
+        // Stores that have public products (their link names are also needed for product links).
         const storeRoute = "/toko/$slug";
+        const storeSlug = new Map<string, string>();
+        const ids = [...owners].sort();
+        for (let i = 0; i < ids.length; i += 200) {
+          const { data, error } = await supabase.rpc("public_stores", { p_ids: ids.slice(i, i + 200) });
+          if (error) throw error;
+          for (const s of data ?? []) storeSlug.set(s.owner_id, s.slug || s.owner_id);
+        }
         if (isSitemapRouteIncluded(router.routesById[storeRoute])) {
-          const ids = [...owners].sort();
-          for (let i = 0; i < ids.length; i += 200) {
-            const { data, error } = await supabase.rpc("public_stores", { p_ids: ids.slice(i, i + 200) });
-            if (error) throw error;
-            for (const s of data ?? []) {
-              // Same link the product page uses: slug, or the owner id for stores without one.
-              const location = router.buildLocation({ to: "/toko/$slug", params: { slug: s.slug || s.owner_id }, search: () => ({}), hash: "" });
-              const path = sitemapPathForLocation(router, location, storeRoute);
-              if (path) entries.push({ path });
-            }
+          for (const slug of storeSlug.values()) {
+            const location = router.buildLocation({ to: "/toko/$slug", params: { slug }, search: () => ({}), hash: "" });
+            const path = sitemapPathForLocation(router, location, storeRoute);
+            if (path) entries.push({ path });
+          }
+        }
+        // Products: /produk/<nama-toko>/<nama-produk>, same link the product page uses.
+        if (isSitemapRouteIncluded(router.routesById[productRoute])) {
+          for (const row of productRows) {
+            const params = { toko: storeSlug.get(row.owner_id) ?? row.owner_id, produk: row.slug ?? row.id };
+            const location = router.buildLocation({ to: "/produk/$toko/$produk", params, search: () => ({}), hash: "" });
+            const path = sitemapPathForLocation(router, location, productRoute);
+            if (path) entries.push({ path, lastmod: row.updated_at });
           }
         }
 
