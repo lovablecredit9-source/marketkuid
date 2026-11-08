@@ -59,10 +59,10 @@ function Cari() {
   const reset = () => { setMaxPrice(null); setMinRating(0); setInStock(false); setOnSale(false); setCat(null); };
 
   return (
-    <AppShell>
-      <div className="space-y-3 px-3 pt-3">
+    <AppShell wide>
+      <div className="space-y-3 px-3 pt-3 lg:space-y-5 lg:px-0 lg:pt-5">
         <form className="relative" onSubmit={(e) => { e.preventDefault(); setSuggest(false); navigate({ to: "/cari", search: { ...(val.trim() ? { q: val.trim() } : {}), ...(kategori ? { kategori } : {}) } }); }}>
-          <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
+          <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5 lg:h-[52px] lg:px-5 lg:shadow-sm">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input type="search" value={val} onChange={(e) => { setVal(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)} placeholder="Cari produk digital..." className="w-full bg-transparent text-sm outline-none" />
             <VoiceSearchButton onResult={(t) => { setVal(t); setSuggest(false); navigate({ to: "/cari", search: { q: t, ...(kategori ? { kategori } : {}) } }); }} />
@@ -86,14 +86,16 @@ function Cari() {
             </div>
           </div>
         )}
-        <div>
+        <div className="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start lg:gap-5">
+        <div className="lg:col-span-2">
           <p className="flex items-center gap-1 text-xs font-bold tracking-wider text-primary"><Sparkles className="h-3 w-3" /> JELAJAHI MARKETKU</p>
-          <h1 className="mt-0.5 text-[19px] font-bold">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
+          <h1 className="mt-0.5 text-[19px] font-bold lg:text-[22px]">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{list.length} produk ditemukan</p>
         </div>
-        <button onClick={() => setShow(!show)} className="flex w-full items-center gap-2 rounded-full border-0 bg-card px-4 py-2.5 text-[13px] font-medium shadow-sm transition active:scale-[0.98]">
+        <button onClick={() => setShow(!show)} className="mt-3 flex w-full lg:hidden items-center gap-2 rounded-full border-0 bg-card px-4 py-2.5 text-[13px] font-medium shadow-sm transition active:scale-[0.98]">
           <SlidersHorizontal className="h-4 w-4" /> {show ? "Sembunyikan filter" : "Filter"}
         </button>
+        <div className="mt-3 space-y-3 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:flex lg:items-center lg:justify-between lg:gap-3 lg:space-y-0">
         <div className="flex gap-2">
           {([["Stok tersedia", inStock, setInStock], ["Lagi diskon", onSale, setOnSale]] as const).map(([label, on, set]) => (
             <button key={label} type="button" aria-pressed={on} onClick={() => set(!on)}
@@ -102,12 +104,13 @@ function Cari() {
             </button>
           ))}
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Urutkan" className="w-full rounded-full border-0 bg-card px-4 py-2.5 text-[15px] font-bold shadow-sm">
+        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Urutkan" className="w-full rounded-full border-0 bg-card px-4 py-2.5 text-[15px] font-bold shadow-sm lg:w-56 lg:rounded-xl lg:border lg:py-2 lg:text-[14px] lg:font-semibold">
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
+        </div>
 
-        {show && (
-          <section className="space-y-4 rounded-2xl border bg-card p-4 animate-in fade-in-0 slide-in-from-top-2">
+        {/* Filter panel: toggled on phones, always shown as a left sidebar on desktop. */}
+          <section className={`mt-3 space-y-4 rounded-2xl border bg-card p-4 animate-in fade-in-0 slide-in-from-top-2 lg:sticky lg:top-24 lg:col-start-1 lg:row-span-2 lg:row-start-2 lg:mt-0 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:shadow-sm ${show ? "" : "hidden lg:block"}`}>
             <div>
               <p className="flex items-center gap-2 font-bold"><SlidersHorizontal className="h-4 w-4" /> Filter</p>
               <p className="mt-1 text-xs font-bold tracking-widest text-muted-foreground">KATEGORI</p>
@@ -135,8 +138,8 @@ function Cari() {
             </div>
             <button onClick={reset} className="rounded-lg border px-3 py-1.5 text-sm font-semibold text-primary">Reset Filter</button>
           </section>
-        )}
 
+        <div className="mt-3 space-y-3 lg:col-start-2 lg:row-start-3 lg:mt-0">
         {q && <RelatedSellers q={q} />}
         {(q || sponsoredView) && <SearchAds q={q} limit={sponsoredView ? 20 : 4} />}
 
@@ -145,6 +148,8 @@ function Cari() {
         ) : list.length ? <ProductList items={list} /> : (
           <EmptyState icon={PackageSearch} title="Produk belum tersedia" desc="Belum ada produk yang cocok. Coba kata kunci lain." />
         )}
+        </div>
+        </div>
       </div>
     </AppShell>
   );
