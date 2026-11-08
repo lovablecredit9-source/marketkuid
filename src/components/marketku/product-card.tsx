@@ -186,7 +186,7 @@ export function ProductList({ items, compact = false, simple = false }: { items:
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   return (
-    <div className={simple ? "grid grid-cols-2 gap-2.5 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5" : compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
+    <div className={simple ? "grid grid-cols-2 gap-2.5 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5" : compact ? "grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4 xl:grid-cols-5" : "space-y-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0 xl:grid-cols-4"}>
       {items.map((p) => {
         const on = wish.data?.has(p.id) ?? false;
         return <ProductCard key={p.id} p={p} compact={compact} simple={simple} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;
