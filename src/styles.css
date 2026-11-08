@@ -602,3 +602,18 @@ textarea.mk-co-input { min-height: 90px; resize: vertical; }
 
 /* Desktop banner carousel: centre slide with the neighbours peeking in, like marketku.id. */
 @media (min-width: 641px) { .mk-banner-track { gap: 16px; } .mk-banner-track > * { flex-basis: 86%; } }
+
+/* Store page extras: compact sticky bar, live visitors, earned badges, best-seller ranks. */
+.store-mini { top: 58px; }
+@media (min-width: 641px) { .store-mini { top: 72px; } }
+@keyframes store-live { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--store-electric) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 6px transparent; } }
+.store-live__dot { animation: store-live 1.8s ease-out infinite; }
+.store-badge--rating { color: var(--warning); border-color: color-mix(in oklab, var(--warning) 40%, transparent); background: color-mix(in oklab, var(--warning) 10%, transparent); }
+.store-badge--laris { color: var(--destructive); border-color: color-mix(in oklab, var(--destructive) 35%, transparent); background: color-mix(in oklab, var(--destructive) 8%, transparent); }
+.store-badge--lengkap, .store-badge--baru { color: var(--store-electric); border-color: color-mix(in oklab, var(--store-electric) 35%, transparent); background: color-mix(in oklab, var(--store-electric) 8%, transparent); }
+.store-badge--baru { color: color-mix(in oklab, var(--store-cyan) 60%, var(--store-navy)); }
+.store-rank { color: var(--primary-foreground); background: var(--muted-foreground); box-shadow: 0 0 0 2px var(--card); }
+.store-rank--1 { background: linear-gradient(135deg, var(--warning), color-mix(in oklab, var(--warning) 60%, var(--destructive))); }
+.store-rank--2 { background: linear-gradient(135deg, var(--store-cyan), var(--store-electric)); }
+.store-rank--3 { background: linear-gradient(135deg, var(--store-electric), var(--store-navy)); }
+@media (prefers-reduced-motion: reduce) { .store-live__dot { animation: none; } }

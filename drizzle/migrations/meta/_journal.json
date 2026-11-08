@@ -407,6 +407,13 @@
       "when": 1794094963338,
       "tag": "0057_product_slug_stable",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794104043712,
+      "tag": "0058_store_visits",
+      "breakpoints": true
     }
   ]
 }
