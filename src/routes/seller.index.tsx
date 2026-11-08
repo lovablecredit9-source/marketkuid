@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { ActionRow, SellerCard, SellerEmpty, StatCell, rpSeller } from "@/components/marketku/seller-ui";
 import { PageTour } from "@/components/marketku/tour";
+import { MonthlyTarget, ProductAlerts, SellerHero } from "@/components/marketku/seller-dashboard-extras";
 import { pageMeta } from "@/lib/meta";
 import { useAuth } from "@/lib/auth";
 import { useImageUrls, useMyProducts } from "@/lib/products";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/seller/")({
 const tour = [
   { title: "Bilah atas", desc: "Notifikasi, tema, dan menu profil ada di sini.", target: "topbar" },
   { title: "Navigasi", desc: "Semua fitur toko kamu ada di menu ini.", target: "bottomnav" },
+  { title: "Ringkasan hari ini", desc: "Pendapatan hari ini dibanding kemarin, grafik 7 hari, dan tombol cepat untuk tambah produk atau bagikan toko.", target: "hero" },
   { title: "Produk", desc: "Tambah dan kelola produk digital tokomu di sini.", target: "nav-produk" },
   { title: "Bot Telegram", desc: "Hubungkan dan kelola bot Telegram untuk jualan otomatis.", target: "qa-bot" },
   { title: "Voucher", desc: "Buat voucher diskon untuk menarik pembeli.", target: "bottomnav" },
@@ -47,6 +49,7 @@ function Dasbor() {
   const { user } = useAuth();
   const orders = useSellerOrders(user?.id);
   const products = useMyProducts(user?.id);
+  const store = useSellerStore(user?.id);
   const all = orders.data ?? [];
   const st = sellerStats(all);
   const prods = products.data ?? [];
@@ -67,8 +70,11 @@ function Dasbor() {
   return (
     <>
       <HoldsSheet open={!!holdOpen} kind={holdOpen ?? "biasa"} onClose={() => setHoldOpen(null)} uid={user?.id} />
+      {store.data && <div data-tour="hero"><SellerHero store={store.data} orders={all} /></div>}
       <WaGroupBanner />
       <StoreSetup userId={user?.id} hasProduct={active > 0} />
+      {user && <MonthlyTarget uid={user.id} orders={all} />}
+      <ProductAlerts products={prods} />
       {pending > 0 && <SellerCard className="border-primary/50 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
