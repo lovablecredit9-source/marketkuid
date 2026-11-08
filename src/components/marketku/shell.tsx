@@ -24,7 +24,7 @@ export const soon = (label: string) => toast(`${label} segera hadir`);
 
 export function Logo({ className = "h-8" }: { className?: string }) {
   return (
-    <Link to="/" aria-label="Marketku beranda">
+    <Link to="/" aria-label="Marketku beranda" className="shrink-0">
       <img src={logo.url} alt="Marketku" className={`${className} w-auto dark:rounded-md dark:bg-foreground dark:px-1`} />
     </Link>
   );
@@ -183,7 +183,7 @@ export function DesktopHeader({ showSupport = true }: { showSupport?: boolean })
           ))}
           {notif && <NotifDrop onClose={() => setNotif(false)} className="right-0 top-full" />}
         </div>
-        <Link to={store.data ? "/seller" : "/jadi-seller"} className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-primary/30 bg-accent px-3 text-[13.5px] font-bold text-primary transition hover:bg-primary/15">
+        <Link to={store.data ? "/seller" : "/jadi-seller"} aria-label={store.data ? "Seller Center" : "Jadi Seller"} className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-primary/30 bg-accent px-3 text-[13.5px] font-bold text-primary transition hover:bg-primary/15">
           <Store className="h-4 w-4" /> <span className="hidden min-[900px]:inline">{store.data ? "Seller Center" : "Jadi Seller"}</span>
         </Link>
         {user ? (
