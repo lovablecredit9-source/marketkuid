@@ -86,7 +86,7 @@ function Cari() {
             </div>
           </div>
         )}
-        <div className="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start lg:gap-5">
+        <div className="lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start lg:gap-x-5 lg:gap-y-4">
         <div className="lg:col-span-2">
           <p className="flex items-center gap-1 text-xs font-bold tracking-wider text-primary"><Sparkles className="h-3 w-3" /> JELAJAHI MARKETKU</p>
           <h1 className="mt-0.5 text-[19px] font-bold lg:text-[22px]">{q ? `Hasil untuk "${q}"` : "Semua Produk"}</h1>
