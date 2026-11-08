@@ -7,7 +7,7 @@ import type { CardProduct } from "@/lib/market";
 export function ProductListingPage({ title, desc, items, loading, empty }: { title: string; desc: string; items: CardProduct[]; loading: boolean; empty: string }) {
   return (
     <AppShell showSupport={false} wide>
-      <div className="px-4 pt-5 lg:px-0">
+      <div className="px-4 pt-5 dt:px-0">
         <h1 className="text-[22px] font-bold leading-tight text-foreground">{title}</h1>
         <p className="mt-1 text-[14px] leading-snug text-muted-foreground">{desc}</p>
         <p className="mb-3 mt-5 text-[15px] font-bold text-foreground">{loading ? "Memuat…" : `${items.length} produk`}</p>

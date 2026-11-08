@@ -182,7 +182,7 @@ function Toko() {
   return (
     <AppShell showSupport={false} className="store-profile" wide>
       <ShareSheet open={shareOpen} onOpenChange={setShareOpen} title={s.store_name} url={typeof window === "undefined" ? "" : window.location.href} text={`Mampir ke toko ${s.store_name} di Marketku`} />
-      <div className="space-y-4 px-3 pt-3 lg:px-6">
+      <div className="space-y-4 px-3 pt-3 dt:px-6">
         {/* Hero */}
         <section className="store-surface overflow-hidden rounded-2xl border bg-card">
           <div className="relative aspect-[4/1] max-h-[150px] min-h-[84px] overflow-hidden w-full">
@@ -303,7 +303,7 @@ function Toko() {
             </div>
           )}
           {products.isLoading ? (
-            <div className="grid grid-cols-2 gap-2.5 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>
+            <div className="grid grid-cols-2 gap-2.5 @dt:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5">{[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-2xl border bg-card" />)}</div>
           ) : products.isError ? (
             <EmptyBox icon={AlertTriangle} title="Gagal memuat produk" desc="Coba muat ulang sebentar lagi." action={<Button variant="outline" size="sm" className="rounded-full" onClick={() => void products.refetch()}><RotateCcw /> Coba lagi</Button>} />
           ) : list.length === 0 ? (

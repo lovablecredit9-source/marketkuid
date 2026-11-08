@@ -84,7 +84,7 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   const showBar = homeSearch && !folded;
   if (title) {
     return (
-      <header className="relative z-30 mx-auto max-w-md px-3 pb-2 pt-3 lg:hidden">
+      <header className="relative z-30 mx-auto max-w-md px-3 pb-2 pt-3 dt:hidden">
         <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
           <span className="mk-acc-heading border-l pl-3 text-sm font-semibold">{title}</span>
@@ -98,7 +98,7 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   }
   const spacer = (showSupport ? 94 : 54) + (homeSearch ? 44 : 0);
   return (
-    <><div aria-hidden className="lg:hidden" style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b lg:hidden bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
+    <><div aria-hidden className="dt:hidden" style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b dt:hidden bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
       <div className="relative flex items-center gap-1 px-3 py-2">
         <Logo className="h-9" />
         <div className="ml-auto flex items-center">
@@ -155,7 +155,7 @@ export function DesktopHeader({ showSupport = true }: { showSupport?: boolean })
     { label: "Mode gelap", icon: Moon, go: () => { toggleDark(); } },
   ];
   return (
-    <header className="sticky top-0 z-30 hidden border-b bg-card/95 backdrop-blur lg:block">
+    <header className="sticky top-0 z-30 hidden border-b bg-card/95 backdrop-blur dt:block">
       <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-5 px-5">
         <Logo className="h-9" />
         <form className="relative ml-auto w-full max-w-[540px]" onSubmit={(e) => { e.preventDefault(); submit(); }}>
@@ -330,7 +330,7 @@ export function BottomNav() {
   const unread = useUnreadChats(user?.id).data?.total ?? 0;
   const tabs = user ? USER_TABS : GUEST_TABS;
   return (
-    <nav aria-label="Navigasi utama" className="mk-acc-heading lg:hidden fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
+    <nav aria-label="Navigasi utama" className="mk-acc-heading dt:hidden fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
       <div className="mk-nav-pill grid w-full max-w-[400px] grid-flow-col auto-cols-fr gap-0.5 rounded-[17px] border p-1">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
@@ -365,10 +365,10 @@ export function AppShell({ children, title, nav = true, header = true, showSuppo
   useStoredDark();
   const ban = useAccountBan();
   return (
-    <div className={`mx-auto min-h-screen max-w-md bg-background lg:max-w-none ${className}`}>
+    <div className={`mx-auto min-h-screen max-w-md bg-background dt:max-w-none ${className}`}>
       <DesktopHeader showSupport={header && showSupport && !title} />
       {header && <Header title={title} showSupport={showSupport} homeSearch={homeSearch} />}
-      <main className={`${nav ? "pb-28" : "pb-8"} lg:mx-auto lg:pb-12 ${wide ? "lg:max-w-[1220px] lg:px-5" : "lg:max-w-3xl lg:px-5 lg:pt-4"}`}>{ban ? <BanScreen ban={ban} /> : children}</main>
+      <main className={`${nav ? "pb-28" : "pb-8"} dt:mx-auto dt:pb-12 ${wide ? "dt:max-w-[1220px] dt:px-5" : "dt:max-w-3xl dt:px-5 dt:pt-4"}`}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
       {nav && <BackToTop />}
     </div>
