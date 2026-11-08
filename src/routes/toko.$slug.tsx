@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ShareSheet } from "@/components/marketku/share-sheet";
 import { toast } from "sonner";
 import {
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/toko/$slug")({
   component: Toko,
 });
 
-function StatusCard({ icon: Icon, title, desc, action }: { icon: typeof User; title: string; desc: string; action?: React.ReactNode }) {
+function StatusCard({ icon: Icon, title, desc, action }: { icon: typeof User; title: string; desc: string; action?: ReactNode }) {
   return (
     <AppShell showSupport={false} className="store-profile">
       <div className="px-4 pt-4 pb-10">
@@ -391,7 +391,7 @@ function Toko() {
   );
 }
 
-function EmptyBox({ icon: Icon, title, desc, action }: { icon: typeof User; title: string; desc: string; action?: React.ReactNode }) {
+function EmptyBox({ icon: Icon, title, desc, action }: { icon: typeof User; title: string; desc: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center rounded-2xl border border-dashed bg-card px-6 py-10 text-center">
       <div className="grid h-12 w-12 place-items-center rounded-2xl bg-store-electric/10 text-store-electric"><Icon className="h-6 w-6" /></div>
