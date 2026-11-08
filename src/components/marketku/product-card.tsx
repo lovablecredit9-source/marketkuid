@@ -110,21 +110,38 @@ export function ProductCard({ p, url, wished, onWish, compact = false, simple = 
   const { peek, bind } = useSellerPeek();
   const closed = !p.storeOpen;
   const out = p.product_type !== "preorder" && p.stock <= 0;
-  if (simple) return (
-    <Link to="/produk/$id" params={{ id: p.id }} {...bind} className={`mk-peek-card block overflow-hidden rounded-2xl border bg-card shadow-sm ${peek ? "is-seller-peek" : ""}`}>
-      <div className="relative overflow-hidden">
-        <ProductImage url={url} alt={p.name} className="aspect-square" />
-        <SellerPeek p={p} />
-        {(closed || out) && <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-foreground/80 px-2 py-0.5 text-[10px] font-bold tracking-wider text-background">{closed ? "TOKO TUTUP" : "STOK HABIS"}</span>}
-      </div>
-      <div className="px-2.5 pb-2.5 pt-2">
-        {p.category && <p className="truncate text-[11px] font-medium uppercase text-primary">{p.category}</p>}
-        <p className="mt-1 line-clamp-2 min-h-[2.5em] text-[12px] font-medium uppercase leading-snug">{p.name}</p>
-        <PriceLine p={p} className="mt-1.5 text-[13px] font-semibold" />
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground"><ShoppingBag className="h-3 w-3" />{p.sold_count} terjual</p>
-      </div>
-    </Link>
-  );
+  if (simple) {
+    // Store page card: bigger photo, discount + wishlist on the image, rating and sold count, detail button.
+    const off = p.basePrice > p.minPrice ? Math.round(((p.basePrice - p.minPrice) / p.basePrice) * 100) : 0;
+    return (
+      <article className="store-card group relative flex flex-col overflow-hidden rounded-2xl border bg-card">
+        <Link to="/produk/$id" params={{ id: p.id }} className="relative block overflow-hidden" aria-label={p.name}>
+          <ProductImage url={url} alt={p.name} className="store-card__img aspect-square" />
+          {off > 0 && !closed && <span className="absolute left-2 top-2 rounded-md bg-destructive px-1.5 py-0.5 text-[11px] font-bold text-destructive-foreground">-{off}%</span>}
+          {(closed || out) && <span className="absolute inset-x-2 bottom-2 rounded-md bg-foreground/80 py-1 text-center text-[10px] font-bold tracking-wider text-background">{closed ? "TOKO TUTUP" : "STOK HABIS"}</span>}
+        </Link>
+        <button type="button" aria-label={wished ? "Hapus dari wishlist" : "Simpan ke wishlist"} aria-pressed={wished} onClick={onWish}
+          className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-card/95 shadow-sm transition active:scale-90">
+          <Heart className={`h-4 w-4 ${wished ? "fill-destructive text-destructive" : "text-foreground/70"}`} />
+        </button>
+        <div className="flex flex-1 flex-col p-3">
+          {p.category && <p className="truncate text-[11px] font-semibold text-store-electric">{p.category}</p>}
+          <Link to="/produk/$id" params={{ id: p.id }} className="mt-0.5 line-clamp-2 min-h-[2.6em] text-[13px] font-semibold leading-snug hover:text-store-electric">{p.name}</Link>
+          <p className="mt-1.5 text-[15px] font-bold leading-tight text-store-electric">{rpBuyer(p.minPrice)}</p>
+          {off > 0 && <p className="text-[11px] text-muted-foreground line-through">{rpBuyer(p.basePrice)}</p>}
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground">
+            {p.rating.count > 0 && <span className="flex items-center gap-0.5 font-semibold text-foreground"><Star className="h-3 w-3 fill-warning text-warning" />{p.rating.avg.toFixed(1)}</span>}
+            <span className="flex items-center gap-1"><ShoppingBag className="h-3 w-3" />{p.sold_count > 0 ? `${p.sold_count.toLocaleString("id-ID")} terjual` : "Belum terjual"}</span>
+          </p>
+          <div className="mt-auto pt-2.5">
+            <Link to="/produk/$id" params={{ id: p.id }} className="flex h-9 items-center justify-center rounded-xl border text-[12px] font-semibold text-store-electric transition hover:bg-store-electric/10">
+              Lihat detail
+            </Link>
+          </div>
+        </div>
+      </article>
+    );
+  }
   return (
     <article {...bind} className={`mk-peek-card overflow-hidden rounded-[20px] border bg-card shadow-sm ${peek ? "is-seller-peek" : ""}`}>
       <Link to="/produk/$id" params={{ id: p.id }} className="block p-1.5 pb-0">
@@ -169,7 +186,7 @@ export function ProductList({ items, compact = false, simple = false }: { items:
   const wish = useWishlistIds();
   const toggle = useToggleWishlist();
   return (
-    <div className={compact || simple ? "grid grid-cols-2 gap-3" : "space-y-3"}>
+    <div className={simple ? "grid grid-cols-2 gap-3 @xl:grid-cols-3 @3xl:grid-cols-4" : compact ? "grid grid-cols-2 gap-3" : "space-y-3"}>
       {items.map((p) => {
         const on = wish.data?.has(p.id) ?? false;
         return <ProductCard key={p.id} p={p} compact={compact} simple={simple} url={p.images[0] ? urls.data?.[p.images[0]] : undefined} wished={on} onWish={() => void toggle(p.id, on)} />;

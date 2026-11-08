@@ -4,6 +4,7 @@
 - [x] Referral: kode unik, halaman Undang Teman, kode di daftar, aturan diatur admin + log, hadiah hanya setelah pesanan valid selesai
 - [x] SEO: sitemap.xml (halaman + produk + toko), robots.txt, judul/deskripsi/canonical/JSON-LD produk & toko asli
 - [x] Beranda: nama toko + bintang saat tekan lama produk
+- [x] Halaman toko premium: hero 4:1, status BUKA/TUTUP, statistik, voucher toko, cari/filter/urut produk, ulasan dengan filter bintang
 - [ ] Desain ulang warna navy/electric blue/cyan — perlu konfirmasi (bertentangan dengan aturan "ikuti tampilan marketku.id")
 - [ ] Beranda: Toko pilihan dari data penjualan asli
 - [ ] Seller Center: grafik pendapatan per periode & produk terlaris (cek yang sudah ada di Analitik)
