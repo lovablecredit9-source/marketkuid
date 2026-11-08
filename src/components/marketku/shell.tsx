@@ -24,7 +24,7 @@ export const soon = (label: string) => toast(`${label} segera hadir`);
 
 export function Logo({ className = "h-8" }: { className?: string }) {
   return (
-    <Link to="/" aria-label="Marketku beranda">
+    <Link to="/" aria-label="Marketku beranda" className="shrink-0">
       <img src={logo.url} alt="Marketku" className={`${className} w-auto dark:rounded-md dark:bg-foreground dark:px-1`} />
     </Link>
   );
@@ -84,7 +84,7 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   const showBar = homeSearch && !folded;
   if (title) {
     return (
-      <header className="relative z-30 mx-auto max-w-md px-3 pb-2 pt-3 lg:hidden">
+      <header className="relative z-30 mx-auto max-w-md px-3 pb-2 pt-3 dt:hidden">
         <div className="relative flex items-center gap-3 rounded-2xl border bg-card px-3 py-2 shadow-sm">
           <Logo className="h-8" />
           <span className="mk-acc-heading border-l pl-3 text-sm font-semibold">{title}</span>
@@ -98,9 +98,9 @@ export function Header({ title, showSupport = true, homeSearch = false }: { titl
   }
   const spacer = (showSupport ? 94 : 54) + (homeSearch ? 44 : 0);
   return (
-    <><div aria-hidden className="lg:hidden" style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b lg:hidden bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
+    <><div aria-hidden className="dt:hidden" style={{ height: spacer }} /><header className="fixed inset-x-0 top-0 z-30 mx-auto max-w-md border-b dt:hidden bg-card shadow-[0_6px_10px_-8px_hsl(0_0%_0%/0.18)]">
       <div className="relative flex items-center gap-1 px-3 py-2">
-        <Logo className="h-9" />
+        <Logo className="h-8 shrink-0 xl:h-9" />
         <div className="ml-auto flex items-center">
           {user && <IconBtn label="Notifikasi" open={notif} onClick={() => setNotif(!notif)}><Bell className="h-5 w-5" /></IconBtn>}
           {!showBar && <span className="mk-fade-in"><IconBtn label="Cari" onClick={() => navigate({ to: "/cari" })}><Search className="h-5 w-5" /></IconBtn></span>}
@@ -155,10 +155,10 @@ export function DesktopHeader({ showSupport = true }: { showSupport?: boolean })
     { label: "Mode gelap", icon: Moon, go: () => { toggleDark(); } },
   ];
   return (
-    <header className="sticky top-0 z-30 hidden border-b bg-card/95 backdrop-blur lg:block">
-      <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-5 px-5">
-        <Logo className="h-9" />
-        <form className="relative ml-auto w-full max-w-[540px]" onSubmit={(e) => { e.preventDefault(); submit(); }}>
+    <header className="sticky top-0 z-30 hidden border-b bg-card/95 backdrop-blur dt:block">
+      <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-2 px-3 xl:gap-5 xl:px-5">
+        <Logo className="h-8 shrink-0 xl:h-9" />
+        <form className="relative ml-auto min-w-0 w-full max-w-[540px]" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <label className="flex h-9 items-center gap-2.5 rounded-full border bg-card pl-3.5 pr-1 shadow-sm focus-within:border-primary">
             <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
             <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setSuggest(true); }} onFocus={() => setSuggest(true)} onBlur={() => setSuggest(false)}
@@ -171,20 +171,20 @@ export function DesktopHeader({ showSupport = true }: { showSupport?: boolean })
               onAll={submit} />
           )}
         </form>
-        <div className="relative flex shrink-0 items-center gap-0.5 rounded-full border bg-card px-1.5 py-1 shadow-sm">
+        <div className="relative flex shrink-0 items-center gap-0.5 rounded-full border bg-card px-1 py-0.5 shadow-sm xl:px-1.5 xl:py-1">
           {user && (
             <button type="button" aria-label="Notifikasi" aria-expanded={notif} onClick={() => setNotif(!notif)} className={`mk-clay-icon grid h-9 w-9 place-items-center rounded-full text-foreground/85 hover:bg-accent ${notif ? "is-open" : ""}`}><Bell className="h-5 w-5" /></button>
           )}
           {icons.map(({ label, icon: I, go, badge }) => (
-            <button key={label} type="button" aria-label={label} title={label} onClick={go} className="mk-clay-icon relative grid h-9 w-9 place-items-center rounded-full text-foreground/85 hover:bg-accent">
+            <button key={label} type="button" aria-label={label} title={label} onClick={go} className="mk-clay-icon relative grid h-8 w-8 xl:h-9 xl:w-9 place-items-center rounded-full text-foreground/85 hover:bg-accent">
               <I className="h-5 w-5" />
               {!!badge && badge > 0 && <span className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[9px] font-black leading-none text-destructive-foreground">{badge > 99 ? "99+" : badge}</span>}
             </button>
           ))}
           {notif && <NotifDrop onClose={() => setNotif(false)} className="right-0 top-full" />}
         </div>
-        <Link to={store.data ? "/seller" : "/jadi-seller"} className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-primary/30 bg-accent px-3 text-[13.5px] font-bold text-primary transition hover:bg-primary/15">
-          <Store className="h-4 w-4" /> {store.data ? "Seller Center" : "Jadi Seller"}
+        <Link to={store.data ? "/seller" : "/jadi-seller"} aria-label={store.data ? "Seller Center" : "Jadi Seller"} className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-primary/30 bg-accent px-3 text-[13.5px] font-bold text-primary transition hover:bg-primary/15">
+          <Store className="h-4 w-4" /> <span className="hidden min-[900px]:inline">{store.data ? "Seller Center" : "Jadi Seller"}</span>
         </Link>
         {user ? (
           <Link to="/akun" className="flex h-9 shrink-0 items-center gap-2 rounded-lg bg-primary px-3 text-[13.5px] font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90">
@@ -201,7 +201,7 @@ export function DesktopHeader({ showSupport = true }: { showSupport?: boolean })
       {showSupport && (
         <div className="border-t">
           <div className="mx-auto max-w-[1240px] px-5">
-            <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="inline-block py-2 pl-[88px] text-[13px] font-semibold transition hover:text-primary">Bantuan</a>
+            <a href={supportWaUrl()} target="_blank" rel="noopener noreferrer" className="inline-block py-2 pl-3 xl:pl-[88px] text-[13px] font-semibold transition hover:text-primary">Bantuan</a>
           </div>
         </div>
       )}
@@ -330,7 +330,7 @@ export function BottomNav() {
   const unread = useUnreadChats(user?.id).data?.total ?? 0;
   const tabs = user ? USER_TABS : GUEST_TABS;
   return (
-    <nav aria-label="Navigasi utama" className="mk-acc-heading lg:hidden fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
+    <nav aria-label="Navigasi utama" className="mk-acc-heading dt:hidden fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md justify-center px-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
       <div className="mk-nav-pill grid w-full max-w-[400px] grid-flow-col auto-cols-fr gap-0.5 rounded-[17px] border p-1">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
@@ -365,10 +365,10 @@ export function AppShell({ children, title, nav = true, header = true, showSuppo
   useStoredDark();
   const ban = useAccountBan();
   return (
-    <div className={`mx-auto min-h-screen max-w-md bg-background lg:max-w-none ${className}`}>
+    <div className={`mx-auto min-h-screen max-w-md bg-background dt:max-w-none ${className}`}>
       <DesktopHeader showSupport={header && showSupport && !title} />
       {header && <Header title={title} showSupport={showSupport} homeSearch={homeSearch} />}
-      <main className={`${nav ? "pb-28" : "pb-8"} lg:mx-auto lg:pb-12 ${wide ? "lg:max-w-[1220px] lg:px-5" : "lg:max-w-3xl lg:px-5 lg:pt-4"}`}>{ban ? <BanScreen ban={ban} /> : children}</main>
+      <main className={`${nav ? "pb-28" : "pb-8"} dt:mx-auto dt:pb-12 ${wide ? "dt:max-w-[1220px] dt:px-5" : "dt:max-w-3xl dt:px-5 dt:pt-4"}`}>{ban ? <BanScreen ban={ban} /> : children}</main>
       {nav && <BottomNav />}
       {nav && <BackToTop />}
     </div>
