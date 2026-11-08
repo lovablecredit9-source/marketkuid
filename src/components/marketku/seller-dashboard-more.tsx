@@ -259,7 +259,7 @@ function NotesTool({ uid }: { uid: string }) {
             {notes.map((n) => (
               <li key={n.id} className="seller-fade flex items-center gap-2 rounded-xl border bg-background/40 px-2.5 py-2">
                 <button type="button" aria-label={n.done ? "Tandai belum" : "Tandai selesai"} onClick={() => save(notes.map((x) => x.id === n.id ? { ...x, done: !x.done } : x))}
-                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border transition ${n.done ? "border-success bg-success text-success-foreground" : ""}`}>
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border transition ${n.done ? "border-success bg-success text-primary-foreground" : ""}`}>
                   {n.done && <Check className="h-3 w-3" />}
                 </button>
                 <span className={`min-w-0 flex-1 break-words text-[12.5px] ${n.done ? "text-muted-foreground line-through" : ""}`}>{n.text}</span>

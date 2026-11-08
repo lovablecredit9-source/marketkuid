@@ -626,6 +626,30 @@ textarea.mk-co-input { min-height: 90px; resize: vertical; }
     var(--card);
   border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
 }
+.seller-ach { animation: seller-rise .45s ease-out both; }
+.seller-ach--done {
+  background: linear-gradient(150deg, color-mix(in oklch, var(--warning) 18%, var(--card)), var(--card) 70%);
+  border-color: color-mix(in oklch, var(--warning) 45%, var(--border));
+}
+.seller-ach--done::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, color-mix(in oklch, var(--warning) 22%, transparent) 50%, transparent 65%);
+  transform: translateX(-100%); animation: seller-shine 3.2s ease-in-out infinite;
+}
+.seller-ach-medal { background: linear-gradient(135deg, var(--warning), color-mix(in oklch, var(--warning) 55%, var(--destructive))); color: var(--primary-foreground); }
+.seller-ach-scroll { scrollbar-width: none; }
+.seller-ach-scroll::-webkit-scrollbar { display: none; }
+.seller-tab-pill { background: linear-gradient(135deg, var(--primary), var(--primary-glow)); transition: transform .3s cubic-bezier(.4,0,.2,1); box-shadow: 0 4px 14px -6px var(--primary); }
+.seller-fade { animation: seller-rise .3s ease-out both; }
+.seller-grow { animation: seller-grow .7s ease-out both; transform-origin: left; }
+.seller-grow-y { animation: seller-grow-y .6s ease-out both; transform-origin: bottom; }
+@keyframes seller-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes seller-shine { 0%, 60% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes seller-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes seller-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .seller-ach, .seller-fade, .seller-grow, .seller-grow-y, .seller-ach--done::after { animation: none; }
+}
 .seller-live { animation: seller-live 1.8s ease-in-out infinite; }
 @keyframes seller-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .seller-live { animation: none; } }
